@@ -144,11 +144,12 @@ namespace ITSWebMgmt.Helpers
                 if (a != null && a.Count > 0 && a.PropertyName != "ms-Mcs-AdmPwd")
                 {
                     builder.Append("<td rowspan=\"" + a.Count + "\">" + a.PropertyName + "</td>");
-
+                    
                     var v = a[0];
-                    if (v.GetType().Equals(typeof(DateTime)))
+                    var temp = convertToStringIfDate(v);
+                    if (temp != null)
                     {
-                        v = DateTimeConverter.Convert((DateTime)v);
+                        v = temp;
                     }
 
                     if (a.Count == 1)
@@ -161,9 +162,10 @@ namespace ITSWebMgmt.Helpers
                         for (int i = 1; i < a.Count; i++)
                         {
                             v = a[i];
-                            if (v.GetType().Equals(typeof(DateTime)))
+                            temp = convertToStringIfDate(v);
+                            if(temp != null)
                             {
-                                v = DateTimeConverter.Convert((DateTime)v);
+                                v = temp;
                             }
                             builder.Append("<tr><td>" + v + "</td></tr>");
                         }
@@ -178,6 +180,24 @@ namespace ITSWebMgmt.Helpers
             builder.Append("</tbody></table>");
 
             return builder.ToString();
+        }
+
+        public static string convertToStringIfDate(dynamic v)
+        {
+            if (v.GetType().Equals(typeof(DateTime)))
+            {
+                return DateTimeConverter.Convert((DateTime)v);
+            }
+            else if (v.GetType().ToString() == "System.__ComObject")
+            {
+                try
+                {
+                    int test = (Int32)v.GetType().InvokeMember("HighPart", System.Reflection.BindingFlags.GetProperty, null, v, null);
+                    return DateTimeConverter.Convert(v);
+                }
+                catch (Exception) { }
+            }
+            return null;
         }
 
         public static string CreateVerticalTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage) => CreateVerticalTableFromDatabase(results, keys, keys, errorMessage);
