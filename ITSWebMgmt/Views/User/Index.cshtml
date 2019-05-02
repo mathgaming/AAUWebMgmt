@@ -40,7 +40,7 @@
         Username
         <div class="ui action input">
 
-            <input name="username" class="ui input focus" value=@Html.DisplayFor(model => model.UserName) />
+            <input name="username" id="username" class="ui input focus" value=@Html.DisplayFor(model => model.UserName) />
 
             <input type="submit" value="Search" onclick='$("#loader > div").show("fast");' />
         </div>
@@ -50,6 +50,28 @@
     <script>
         $(document).ready(function () {
             $('.menu .item').tab({ history: false });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('.menu .item').tab({
+                'onVisible': function () {
+                    var dataTabName = $(this).attr("data-tab");
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("LoadTab", "User")',
+                        contentType: "application/html; charset=utf-8",
+                        data: { tabName: dataTabName, name: document.getElementById('username').value },
+                        success: function (returnedData) {
+                            $("#" + dataTabName).html(returnedData);
+                        },
+                        error: function (response) {
+                            alert('error');
+                        }
+                    });
+                }
+            });
         });
     </script>
 
@@ -91,20 +113,20 @@
                 <div class="ui tab segment">
                     none<!-- spacer as the fist elemen else is placed differencet -->
                 </div>
-                <div class="ui active tab segment" data-tab="basicinfo">@Html.Partial("BasicInfo", Model)</div>
-                <div class="ui tab segment" data-tab="advancedinfo">advanced</div>
-                <div class="ui tab segment" data-tab="print">@Html.Partial("Print", Model)</div>
-                <div class="ui tab segment" data-tab="groups">@Html.Partial("Groups", new PartialGroupModel(Model.ADcache, "memberOf"))</div>
-                <div class="ui tab segment" data-tab="fileshares">@Html.Partial("Fileshares", new PartialGroupModel(Model.ADcache, "memberOf"))</div>
-                <div class="ui tab segment" data-tab="calAgenda">@Html.Partial("CalendarAgenda", Model)</div>
-                <div class="ui tab segment" data-tab="exchange">@Html.Partial("Exchange", new PartialGroupModel(Model.ADcache, "memberOf"))</div>
-                <div class="ui tab segment" data-tab="servicemanager">@Html.Partial("ServiceManager", Model)</div>
-                <div class="ui tab segment" data-tab="computerInformation">@Html.Partial("ComputerInformation", Model)</div>
-                <div class="ui tab segment" data-tab="loginscript" id="divLoginscript">@Html.Partial("Loginscript", Model)</div>
-                <div class="ui tab segment" data-tab="rawdata">@Html.Partial("Raw", Model)</div>
-                <div class="ui tab segment" data-tab="tasks">@Html.Partial("Tasks", Model)</div>
-                <div class="ui tab segment" data-tab="warnings">@Html.Partial("Warnings", Model)</div>
-                <div class="ui tab segment" data-tab="networkdrives">
+                <div class="ui tab segment" id="warnings" data-tab="warnings">@Html.Partial("Warnings", Model)</div>
+                <div class="ui active tab segment" id="" data-tab="basicinfo">@Html.Partial("BasicInfo", Model)</div>
+                <div class="ui tab segment" id="advancedinfo" data-tab="advancedinfo">advanced</div>
+                <div class="ui tab segment" id="print" data-tab="print"></div>
+                <div class="ui tab segment" id="groups" data-tab="groups"></div>
+                <div class="ui tab segment" id="fileshares" data-tab="fileshares"></div>
+                <div class="ui tab segment" id="calAgenda" data-tab="calAgenda"></div>
+                <div class="ui tab segment" id="exchange" data-tab="exchange"></div>
+                <div class="ui tab segment" id="servicemanager" data-tab="servicemanager"></div>
+                <div class="ui tab segment" id="computerInformation" data-tab="computerInformation"></div>
+                <div class="ui tab segment" id="loginscript" data-tab="loginscript" id="divLoginscript"></div>
+                <div class="ui tab segment" id="rawdata" data-tab="rawdata"></div>
+                <div class="ui tab segment" id="tasks" data-tab="tasks"></div>
+                <div class="ui tab segment" id="networkdrives" data-tab="networkdrives">
                     <h2>networkdrives</h2>
                     <h3>GPO mounted</h3>
                     not inplemented

@@ -12,7 +12,7 @@ using System.Net;
 
 namespace ITSWebMgmt.Controllers
 {
-    public class ComputerController : WebMgmtController
+    public class ComputerController : DynamicLoadingWebMgmtController
     {
         public IActionResult Index(string computername)
         {
@@ -41,10 +41,9 @@ namespace ITSWebMgmt.Controllers
             _cache = cache;
         }
 
-        [HttpGet]
-        public ActionResult LoadTab(string tabName, string computername)
+        public override ActionResult LoadTab(string tabName, string name)
         {
-            ComputerModel = _cache.Get<ComputerModel>(computername);
+            ComputerModel = _cache.Get<ComputerModel>(name);
             if (tabName == "groups-all")
             {
                 tabName = "groups";

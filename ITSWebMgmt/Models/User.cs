@@ -5,16 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using ITSWebMgmt.WebMgmtErrors;
 
 namespace ITSWebMgmt.Models
 {
-    public class UserModel
+    public class UserModel : WebMgmtModel<UserADcache>
     {
         public UserController user;
-        public UserADcache ADcache;
-        public SCCMcache SCCMcache;
-        public string adpath { get => ADcache.adpath; set { ADcache = new UserADcache(value); ADcache.adpath = value; } }
         public string Guid { get => new Guid((byte[])(ADcache.getProperty("objectGUID"))).ToString(); }
         public string UserPrincipalName { get => ADcache.getProperty("userPrincipalName"); }
         public string DisplayName { get => ADcache.getProperty("displayName"); }
@@ -97,6 +96,8 @@ namespace ITSWebMgmt.Models
                 SCCMcache = new SCCMcache();
                 ShowResultDiv = true;
                 ShowErrorDiv = false;
+                LoadWarnings();
+                LoadDataInbackground();
             }
             else
             {
@@ -104,6 +105,28 @@ namespace ITSWebMgmt.Models
                 ShowResultDiv = false;
                 ShowErrorDiv = true;
             }
+        }
+
+        private void LoadWarnings()
+        {
+            List<WebMgmtError> errors = new List<WebMgmtError>
+            {
+                new UserDisabled(user),
+                new UserLockedDiv(user),
+                new PasswordExpired(user),
+                new MissingAAUAttr(user),
+                new NotStandardOU(user)
+            };
+
+            var errorList = new WebMgmtErrorList(errors);
+            ErrorCountMessage = errorList.getErrorCountMessage();
+            ErrorMessages = errorList.ErrorMessages;
+
+            if (user.userIsInRightOU())
+            {
+                ShowFixUserOU = false;
+            }
+            //Password is expired and warning before expire (same timeline as windows displays warning)
         }
     }
 }
