@@ -40,6 +40,9 @@ namespace ITSWebMgmt.Connectors
         }
         public PDSConnector(string empID)
         {
+            // Example curl request
+            //curl -X GET --header 'Accept: application/json' --header 'api-key: !Save key somewhere outside the code!' 'https://vbn.aau.dk/ws/api/514/persons/torknu%40its.aau.dk?idClassification=email&fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.names.value&locale=en_GB'
+
             return; //The webside is down and the service is will be closed after april 2019. Do not try to connect to it
             //string empID = "115928";
             string url = "http://personprofil.aau.dk/" + empID + "?lang=en";
