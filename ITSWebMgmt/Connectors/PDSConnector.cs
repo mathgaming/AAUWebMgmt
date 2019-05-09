@@ -23,16 +23,16 @@ namespace ITSWebMgmt.Connectors
         string postalCode = "";
         string locality = "";
         string countryName = "";
-
+        string error = "The data is not available from PDS anymore";
 
         public string Department
         {
-            get { return department; }
+            get { return error; /*department*/ }
         }
 
         public string OfficeAddress
         {
-            get { return streetAddress + " (" + extendedAddress.Trim() + ")"; }
+            get { return error; /*streetAddress + " (" + extendedAddress.Trim() + ")";*/ }
         }
         public PDSConnector()
         {
