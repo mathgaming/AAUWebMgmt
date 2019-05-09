@@ -1,0 +1,68 @@
+﻿@model ITSWebMgmt.Models.Group
+@using System.Web
+@{
+    ViewData["Title"] = "Fileshare";
+}
+
+<h1>Fileshare</h1>
+
+<!-- Loader -->
+<div id="loader">
+    <div class="ui active dimmer" style="display: none">
+        <div class="ui text loader">Loading</div>
+    </div>
+</div>
+
+<!-- page content -->
+<script>
+    $(document).ready(function () {
+        $('.menu .item').tab({ history: false });
+    });
+</script>
+
+<div runat="server" id="ResultDiv">
+    @Html.Raw(string.Format("<a href=\"/Group?grouppath={0}&forceviewgroup=true\">{1}</a><br />", HttpUtility.UrlEncode(Model.adpath), "View fileshare as group"))
+    <div class="ui grid">
+        <div class="four wide column">
+            <div class="ui vertical fluid tabular menu">
+                <a class="active item" data-tab="basicinfo">Basic Info</a>
+                <a class="item" data-tab="members">Members</a>
+                <a class="item" data-tab="memberOf">Member Of</a>
+            </div>
+        </div>
+        <div class="twelve wide stretched column">
+            <div class="ui tab segment">
+                none<!-- spacer as the fist elemen else is placed differencet -->
+            </div>
+            <div class="ui active tab segment" data-tab="basicinfo">
+                @Html.Partial("BasicInfo", Model)
+            </div>
+            <div class="ui tab segment" data-tab="members">
+                <h2>Members</h2>
+                <div class="ui two item menu">
+                    <a data-tab="groups-direct" class="item">Direct Groups</a>
+                    <a data-tab="groups-all" class="item">Recursive groups</a>
+                </div>
+                <div class="ui active tab segment" data-tab="groups-direct">
+                    @Html.Raw(Model.GroupSegment)
+                </div>
+                <div class="ui tab segment" data-tab="groups-all">
+                    @Html.Raw(Model.GroupsAllSegment)
+                </div>
+            </div>
+            <div class="ui tab segment" data-tab="memberOf">
+                <h2>Members Of</h2>
+                <div class="ui two item menu">
+                    <a data-tab="groups-direct" class="item">Direct Groups</a>
+                    <a data-tab="groups-all" class="item">Recursive groups</a>
+                </div>
+                <div class="ui active tab segment" data-tab="groups-direct">
+                    @Html.Raw(Model.GroupOfSegment)
+                </div>
+                <div class="ui tab segment" data-tab="groups-all">
+                    @Html.Raw(Model.GroupsOfAllSegment)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

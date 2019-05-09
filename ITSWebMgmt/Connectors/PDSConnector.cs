@@ -23,7 +23,7 @@ namespace ITSWebMgmt.Connectors
         string postalCode = "";
         string locality = "";
         string countryName = "";
-        string error = "The data is not available from PDS anymore";
+        string error = "The data is no longer available from AAU Personprofil";
 
         public string Department
         {
