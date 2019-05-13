@@ -7,7 +7,7 @@
     {
         string empID = Model.AAUStaffID;
 
-        var pds = new PDSConnector(empID);
+        var pds = new PureConnector(empID);
         Model.BasicInfoDepartmentPDS = pds.Department;
         Model.BasicInfoOfficePDS = pds.OfficeAddress;
     }
