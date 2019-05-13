@@ -111,10 +111,19 @@ namespace ITSWebMgmt.Connectors
                                 sb.Append("Error! Users is missing AAUCard information in Konica format <br/>");
                                 cardok = false;
                             }
+                            else
+                            {
+                                sb.Append("AAUCard Konica: " + AAUCardKonica + "<br/>");
+                            }
+
                             if (String.IsNullOrWhiteSpace(AAUCardXerox))
                             {
                                 sb.Append("Error! Users is missing AAUCard information in Xerox format <br/>");
                                 cardok = false;
+                            }
+                            else
+                            {
+                                sb.Append("AAUCard Xerox: " + AAUCardXerox + "<br/>");
                             }
 
                             if (cardok)

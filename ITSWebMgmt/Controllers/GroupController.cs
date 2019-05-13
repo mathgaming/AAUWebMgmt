@@ -15,11 +15,21 @@ namespace ITSWebMgmt.Controllers
     public class GroupController : WebMgmtController
     {
         //https://localhost:44322/group/index?grouppath=LDAP:%2f%2fCN%3dcm12_config_AAU10%2cOU%3dConfigMgr%2cOU%3dGroups%2cDC%3dsrv%2cDC%3daau%2cDC%3ddk
-        public IActionResult Index(string grouppath)
+        public IActionResult Index(string grouppath, bool forceviewgroup = false)
         {
             Group = new Group(this);
             Group.ADcache = new GroupADcache(grouppath);
-            Group.buildResult();
+            if (forceviewgroup == false && isFileShare(Group.DistinguishedName))
+            {
+                string[] tables = GetFileshareTables();
+                Group.GroupSegment = tables[0];
+                Group.GroupsAllSegment = tables[1];
+                Group.GroupOfSegment = tables[2];
+                Group.GroupsOfAllSegment = tables[3];
+                Group.IsFileShare = true;
+
+                return View("FileShare", Group);
+            }
             return View(Group);
         }
 
