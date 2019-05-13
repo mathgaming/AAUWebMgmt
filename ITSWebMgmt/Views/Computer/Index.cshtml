@@ -1,4 +1,4 @@
-﻿@model ITSWebMgmt.Models.ComputerModel
+@model ITSWebMgmt.Models.ComputerModel
 @{
     ViewData["Title"] = "Index";
 }
@@ -35,7 +35,7 @@
                         type: "GET",
                         url: '@Url.Action("LoadTab", "Computer")',
                         contentType: "application/html; charset=utf-8",
-                        data: { tabName: dataTabName, computername: document.getElementById('computername').value },
+                        data: { tabName: dataTabName, name: document.getElementById('computername').value },
                         success: function (returnedData) {
                             $("#" + dataTabName).html(returnedData);
                         },

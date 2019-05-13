@@ -19,7 +19,7 @@ using System.Web;
 
 namespace ITSWebMgmt.Controllers
 {
-    public class UserController : WebMgmtController
+    public class UserController : DynamicLoadingWebMgmtController
     {
         public IActionResult Index(string username)
         {
@@ -355,6 +355,61 @@ namespace ITSWebMgmt.Controllers
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
             return Json(new { success = true, message = Message });
+        }
+
+        public override ActionResult LoadTab(string tabName, string name)
+        {
+            UserModel = _cache.Get<UserModel>(name);
+            if (tabName == "groups-all")
+            {
+                tabName = "groups";
+            }
+            PartialGroupModel model = null;
+
+            string viewName = tabName;
+            switch (tabName)
+            {
+                case "basicinfo":
+                    viewName = "BasicInfo";
+                    break;
+                case "groups":
+                    viewName = "Groups";
+                    model = new PartialGroupModel(UserModel.ADcache, "memberOf");
+                    break;
+                case "tasks":
+                    viewName = "Tasks";
+                    break;
+                case "warnings":
+                    viewName = "Warnings";
+                    break;
+                case "fileshares":
+                    viewName = "Fileshares";
+                    model = new PartialGroupModel(UserModel.ADcache, "memberOf");
+                    break;
+                case "calAgenda":
+                    viewName = "CalendarAgenda";
+                    break;
+                case "exchange":
+                    viewName = "Exchange";
+                    model = new PartialGroupModel(UserModel.ADcache, "memberOf");
+                    break;
+                case "servicemanager":
+                    viewName = "ServiceManager";
+                    break;
+                case "computerInformation":
+                    viewName = "ComputerInformation";
+                    break;
+                case "loginscript":
+                    viewName = "Loginscript";
+                    break;
+                case "print":
+                    viewName = "Print";
+                    break;
+                case "rawdata":
+                    viewName = "Raw";
+                    break;
+            }
+            return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);
         }
     }
 }

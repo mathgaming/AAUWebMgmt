@@ -3,13 +3,13 @@ using ITSWebMgmt.Controllers;
 using System.Management;
 using System.Threading;
 using ITSWebMgmt.Caches;
+using ITSWebMgmt.WebMgmtErrors;
 
 namespace ITSWebMgmt.Models
 {
-    public class ComputerModel
+    public class ComputerModel : WebMgmtModel<ComputerADcache>
     {
         //SCCMcache
-        public SCCMcache SCCMcache;
         public ManagementObjectCollection RAM { get => SCCMcache.RAM; private set { } }
         public ManagementObjectCollection LogicalDisk { get => SCCMcache.LogicalDisk; private set { } }
         public ManagementObjectCollection BIOS { get => SCCMcache.BIOS; private set { } }
@@ -23,14 +23,12 @@ namespace ITSWebMgmt.Models
         public ManagementObjectCollection Collection { get => SCCMcache.Collection; private set { } }
 
         //ADcache
-        public ComputerADcache ADcache;
         public string ComputerNameAD { get => ADcache.ComputerName; }
         public string Domain { get => ADcache.Domain; }
         public bool ComputerFound { get => ADcache.ComputerFound; }
         public string AdminPasswordExpirationTime { get => ADcache.getProperty("ms-Mcs-AdmPwdExpirationTime"); }
         public string ManagedByAD { get => ADcache.getProperty("managedBy"); set => ADcache.saveProperty("managedBy", value); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
-        public string adpath { get => ADcache.adpath; }
 
         //Display
         public ComputerController computer;
@@ -70,6 +68,8 @@ namespace ITSWebMgmt.Models
                 SCCMcache = new SCCMcache();
                 SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
                 ComputerName = computername;
+                LoadWarnings();
+                InitPage();
                 LoadDataInbackground();
             }
         }
@@ -86,8 +86,22 @@ namespace ITSWebMgmt.Models
 
             return resourceID;
         }
+        private void LoadWarnings()
+        {
+            List<WebMgmtError> errors = new List<WebMgmtError>
+            {
+                new DriveAlmostFull(computer),
+                new NotStandardComputerOU(computer),
+            };
 
-        private void LoadDataInbackground()
+            var errorList = new WebMgmtErrorList(errors);
+            ErrorCountMessage = errorList.getErrorCountMessage();
+            ErrorMessages = errorList.ErrorMessages;
+
+            //Password is expired and warning before expire (same timeline as windows displays warning)
+        }
+
+        private void InitPage()
         {
             Result = "";
 
@@ -109,20 +123,6 @@ namespace ITSWebMgmt.Models
             // List<string> loadedTapNames = new List<string> { "basicinfo", "sccmInfo", "tasks", "warnings" };
             // Load the data for the other tabs in background.
             // backgroundLoadedTapNames = "groups", "sccmInventory", "sccmAV", "sccmHW", "rawdata"
-
-            //Load data into ADcache in the background
-            ThreadPool.QueueUserWorkItem(_ =>
-            {
-                ADcache.getGroups("memberOf");
-                ADcache.getGroupsTransitive("memberOf");
-                ADcache.getAllProperties();
-            }, null);
-
-            //Load data into SCCMcache in the background
-            ThreadPool.QueueUserWorkItem(_ =>
-            {
-                SCCMcache.LoadAllIntoCache();
-            }, null);
 
             ShowResultDiv = true;
 
