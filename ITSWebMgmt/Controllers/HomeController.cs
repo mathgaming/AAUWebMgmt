@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ITSWebMgmt.Models;
 using System.DirectoryServices;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -24,7 +25,10 @@ namespace ITSWebMgmt.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var e = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            //var s = HttpContext.Features.Get<IStatusCodeReExecuteFeature>(); +s.OriginalPath + s.OriginalQueryString
+
+            return View("Error", new ErrorViewModel { Error = e });
         }
 
         public void Redirector(string adpath)

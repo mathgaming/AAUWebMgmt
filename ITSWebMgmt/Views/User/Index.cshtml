@@ -65,9 +65,6 @@
                         data: { tabName: dataTabName, name: document.getElementById('username').value },
                         success: function (returnedData) {
                             $("#" + dataTabName).html(returnedData);
-                        },
-                        error: function (response) {
-                            alert('error');
                         }
                     });
                 }
