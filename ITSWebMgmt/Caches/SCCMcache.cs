@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ITSWebMgmt.Helpers;
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Management;
@@ -13,10 +14,7 @@ namespace ITSWebMgmt.Caches
         {
         }
 
-        private static ManagementScope ms = new ManagementScope("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1");
-
-        private ManagementObjectCollection[] _cache = new ManagementObjectCollection[20]; //TODO fix size
-        private ManagementObjectCollection[] _cache2 = new ManagementObjectCollection[20]; //TODO fix size
+        private ManagementObjectCollection[] _cache = new ManagementObjectCollection[13];
 
         private string[] DBEntry = {
             "SMS_G_System_PHYSICAL_MEMORY",
@@ -419,31 +417,22 @@ namespace ITSWebMgmt.Caches
         //Missing class
         public ManagementObjectCollection Collection { get => getQuery(10); private set { } }
 
-        public ManagementObjectCollection getResourceIDFromComputerName(string computerName) => getQuery(0, new WqlObjectQuery("select ResourceID from SMS_CM_RES_COLL_SMS00001 where name like '" + computerName + "'"));
-        public ManagementObjectCollection getUserMachineRelationshipFromUserName(string userName) => getQuery(1, new WqlObjectQuery("SELECT * FROM SMS_UserMachineRelationship WHERE UniqueUserName = \"" + userName + "\""));
+        private int lastIndex = 10;
+
+        public ManagementObjectCollection getResourceIDFromComputerName(string computerName) => getQuery(lastIndex + 1, new WqlObjectQuery("select ResourceID from SMS_CM_RES_COLL_SMS00001 where name like '" + computerName + "'"));
+        public ManagementObjectCollection getUserMachineRelationshipFromUserName(string userName) => getQuery(lastIndex + 2, new WqlObjectQuery("SELECT * FROM SMS_UserMachineRelationship WHERE UniqueUserName = \"" + userName + "\""));
 
         private ManagementObjectCollection getQuery(int i, WqlObjectQuery wqlq)
         {
-            if (_cache2[i] == null)
-            {
-                var searcher = new ManagementObjectSearcher(ms, wqlq);
-                _cache2[i] = searcher.Get();
-            }
-
-            return _cache2[i];
-        }
-
-        private ManagementObjectCollection getQuery(int i)
-        {
             if (_cache[i] == null)
             {
-                var wqlq = new WqlObjectQuery($"SELECT * FROM {DBEntry[i]} WHERE ResourceID=" + ResourceID);
-                var searcher = new ManagementObjectSearcher(ms, wqlq);
-                _cache[i] = searcher.Get();
+                _cache[i] = SCCM.getResults(wqlq);
             }
 
             return _cache[i];
         }
+
+        private ManagementObjectCollection getQuery(int i) => getQuery(i, new WqlObjectQuery($"SELECT * FROM {DBEntry[i]} WHERE ResourceID=" + ResourceID));
 
         public void LoadAllIntoCache()
         {

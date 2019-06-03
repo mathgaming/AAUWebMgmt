@@ -7,7 +7,7 @@
         new List<string>() { "DeviceID", "File system", "Size (GB)", "FreeSpace (GB)" },
         "Disk information not found");
 
-    if (Database.HasValues(Model.RAM))
+    if (SCCM.HasValues(Model.RAM))
     {
         int total = 0;
         int count = 0;

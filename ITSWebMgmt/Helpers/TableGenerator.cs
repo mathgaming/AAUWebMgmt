@@ -207,7 +207,7 @@ namespace ITSWebMgmt.Helpers
             HTMLTableHelper tableHelper = new HTMLTableHelper(2);
             var sb = new StringBuilder();
 
-            if (Database.HasValues(results))
+            if (SCCM.HasValues(results))
             {
                 int i = 0;
                 var o = results.OfType<ManagementObject>().FirstOrDefault();
@@ -246,7 +246,7 @@ namespace ITSWebMgmt.Helpers
             HTMLTableHelper tableHelper = new HTMLTableHelper(2);
             var sb = new StringBuilder();
 
-            if (Database.HasValues(results))
+            if (SCCM.HasValues(results))
             {
                 foreach (ManagementObject o in results) //Has one!
                 {
@@ -321,7 +321,7 @@ namespace ITSWebMgmt.Helpers
 
         public static string CreateTableFromDatabase(ManagementObjectCollection results, List<string> keys, List<string> names, string errorMessage)
         {
-            if (Database.HasValues(results))
+            if (SCCM.HasValues(results))
             {
                 HTMLTableHelper tableHelper = new HTMLTableHelper(names.ToArray());
 
