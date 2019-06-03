@@ -1,4 +1,10 @@
-﻿using ITSWebMgmt.Connectors;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Controllers;
+using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,11 +48,13 @@ namespace ITSWebMgmt
             PureConnector.APIkey = Configuration.GetValue<string>("Secrets:PureApiKey");
             SCCM.Username = Configuration.GetValue<string>("Secrets:SCCMUsername");
             SCCM.Password = Configuration.GetValue<string>("Secrets:SCCMPassword");
+            HomeController.Password = Configuration.GetValue<string>("Secrets:Email-password");
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 PureConnector.APIkey = Configuration["PureApiKey"];
+                HomeController.Password = Configuration["Email-password"];
                 SCCM.Username = Configuration["SCCMUsername"];
                 SCCM.Password = Configuration["SCCMPassword"];
             }

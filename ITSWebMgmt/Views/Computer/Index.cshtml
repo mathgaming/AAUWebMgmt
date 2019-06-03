@@ -31,16 +31,14 @@
             $('.menu .item').tab({
                 'onVisible': function () {
                     var dataTabName = $(this).attr("data-tab");
-                    $.ajax({
+
+                    ({
                         type: "GET",
                         url: '@Url.Action("LoadTab", "Computer")',
                         contentType: "application/html; charset=utf-8",
                         data: { tabName: dataTabName, name: document.getElementById('computername').value },
                         success: function (returnedData) {
                             $("#" + dataTabName).html(returnedData);
-                        },
-                        error: function (response) {
-                            alert('error');
                         }
                     });
                 }
