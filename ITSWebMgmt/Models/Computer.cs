@@ -34,7 +34,7 @@ namespace ITSWebMgmt.Models
         public ComputerController computer;
         public string ConfigPC = "Unknown";
         public string ConfigExtra = "False";
-        public string ComputerName = "ITS\\AAU804396";
+        public string ComputerName = "ITS\\AAU115359";
         public string ManagedBy;
         public string Raw;
         public string Result;
