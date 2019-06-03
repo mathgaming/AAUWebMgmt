@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ITSWebMgmt.Caches;
@@ -280,7 +280,7 @@ namespace ITSWebMgmt.Controllers
 
         public List<string> setConfig(ManagementObjectCollection Collection)
         {
-            if (Database.HasValues(Collection))
+            if (SCCM.HasValues(Collection))
             {
                 List<string> namesInCollection = new List<string>();
                 foreach (ManagementObject o in Collection)
@@ -324,6 +324,7 @@ namespace ITSWebMgmt.Controllers
                     ManagementPath path = new ManagementPath(pathString);
                     ManagementObject obj = new ManagementObject();
 
+                    obj.Scope = SCCM.ms;
                     obj.Path = path;
                     obj.Get();
 

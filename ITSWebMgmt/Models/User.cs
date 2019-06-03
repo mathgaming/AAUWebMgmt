@@ -75,7 +75,7 @@ namespace ITSWebMgmt.Models
         public string Rawdata;
         public string ErrorMessages;
         public string ResultError;
-        public string UserName = "kyrke@its.aau.dk";
+        public string UserName = "mhsv16@its.aau.dk";
         public string ErrorCountMessage;
         public bool ShowResultDiv = false;
         public bool ShowErrorDiv = false;

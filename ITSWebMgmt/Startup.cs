@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Controllers;
+using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -36,10 +38,6 @@ namespace ITSWebMgmt
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            //dotnet user-secrets set "KeyName" "Value"
-            PureConnector.APIkey = Configuration["PureApiKey"];
-            HomeController.Password = Configuration["Email-password"];
-
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
         }
@@ -47,9 +45,18 @@ namespace ITSWebMgmt
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            PureConnector.APIkey = Configuration.GetValue<string>("Secrets:PureApiKey");
+            SCCM.Username = Configuration.GetValue<string>("Secrets:SCCMUsername");
+            SCCM.Password = Configuration.GetValue<string>("Secrets:SCCMPassword");
+            HomeController.Password = Configuration.GetValue<string>("Secrets:Email-password");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                PureConnector.APIkey = Configuration["PureApiKey"];
+                HomeController.Password = Configuration["Email-password"];
+                SCCM.Username = Configuration["SCCMUsername"];
+                SCCM.Password = Configuration["SCCMPassword"];
             }
             else
             {
@@ -57,6 +64,8 @@ namespace ITSWebMgmt
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            SCCM.Init();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
