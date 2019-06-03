@@ -7,11 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 using ITSWebMgmt.Models;
 using System.DirectoryServices;
 using Microsoft.AspNetCore.Diagnostics;
+using System.Net.Mail;
+using System.Threading;
 
 namespace ITSWebMgmt.Controllers
 {
     public class HomeController : Controller
     {
+        public static string Password { private get; set; }
+
         public IActionResult Index()
         {
             return View();
@@ -26,9 +30,36 @@ namespace ITSWebMgmt.Controllers
         public IActionResult Error()
         {
             var e = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-            //var s = HttpContext.Features.Get<IStatusCodeReExecuteFeature>(); +s.OriginalPath + s.OriginalQueryString
 
-            return View("Error", new ErrorViewModel { Error = e });
+            var model = new ErrorViewModel();
+
+            model.QueryString = ControllerContext.HttpContext.Request.QueryString.Value;
+            model.Path = e.Path;
+            model.Error = e.Error;;
+
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                sendEmail(model);
+            }, null);
+
+            return View("Error", model);
+        }
+
+        private void sendEmail(ErrorViewModel model)
+        {
+            MailMessage mail = new MailMessage("mhsv16@its.aau.dk", "mhsv16@its.aau.dk");
+            SmtpClient client = new SmtpClient();
+            client.Port = 587;
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+            client.UseDefaultCredentials = false;
+            client.Timeout = 10000;
+            client.Credentials = new System.Net.NetworkCredential("mhsv16@its.aau.dk", Password);
+            client.Host = "smtp.aau.dk";
+            mail.Subject = "WebMgmt error";
+            mail.Body = $"Error: {model.ErrorMessage}\n" +
+                        $"Url: {model.Url}\n" +
+                        $"Stacktrace:\n{model.Stacktrace}\n";
+            client.Send(mail);
         }
 
         public void Redirector(string adpath)

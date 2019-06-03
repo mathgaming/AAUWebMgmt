@@ -5,6 +5,11 @@ namespace ITSWebMgmt.Models
 {
     public class ErrorViewModel
     {
-        public IExceptionHandlerPathFeature Error { get; set; }
+        public Exception Error { get; set; }
+        public string Path { get; set; }
+        public string QueryString { get; set; }
+        public string Url { get => Path + QueryString; }
+        public string ErrorMessage { get => Error.Message; }
+        public string Stacktrace { get => Error.StackTrace; }
     }
 }

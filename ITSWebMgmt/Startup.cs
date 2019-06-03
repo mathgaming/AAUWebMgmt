@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -35,7 +36,9 @@ namespace ITSWebMgmt
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            //dotnet user-secrets set "KeyName" "Value"
             PureConnector.APIkey = Configuration["PureApiKey"];
+            HomeController.Password = Configuration["Email-password"];
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
