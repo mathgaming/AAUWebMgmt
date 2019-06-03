@@ -40,6 +40,11 @@
             dataType: "json",
             success: function (response) {
                 alert(JSON.parse(response.responseText).message);
+            },
+            error: function (responce) {
+                document.open();
+                document.write(responce.responseText);
+                document.close();
             }
         });
     }

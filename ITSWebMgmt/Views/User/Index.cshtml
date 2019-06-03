@@ -52,7 +52,6 @@
             $('.menu .item').tab({ history: false });
         });
     </script>
-
     <script>
         $(document).ready(function () {
             $('.menu .item').tab({
@@ -65,6 +64,11 @@
                         data: { tabName: dataTabName, name: document.getElementById('username').value },
                         success: function (returnedData) {
                             $("#" + dataTabName).html(returnedData);
+                        },
+                        error: function (responce) {
+                            document.open();
+                            document.write(responce.responseText);
+                            document.close();
                         }
                     });
                 }
