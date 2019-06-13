@@ -11,4 +11,4 @@
     @Html.HiddenFor(m => m.DisplayName)
     <input type="submit" value="Create bew IR/SR" />
 }
-@Html.DisplayFor(model => model.ServiceManager)
+@Html.Raw(Model.ServiceManager)

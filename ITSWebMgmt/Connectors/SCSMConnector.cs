@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
+using ITSWebMgmt.Helpers;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Net;
@@ -38,7 +40,7 @@ namespace ITSWebMgmt.Connectors
             //string json = "{\"Username\": \"its\\\\svc_webmgmt-scsm\",\"Domain\": \"its\",\"Password\": \"" + secret + "\",\"LanguageCode\": \"ENU\"}";
 
             //FOrmat string json = "{\"Username\": \"its\\\\svc_webmgmt-scsm3\",\"Password\": \"" + secret + "\",\"LanguageCode\": \"ENU\"}";
-            string json = "{\"Username\": \""+domain +"\\\\"+username+"\",\"Password\": \"" + secret + "\",\"LanguageCode\": \"ENU\"}";
+            string json = "{\"Username\": \"" + domain + "\\\\" + username + "\",\"Password\": \"" + secret + "\",\"LanguageCode\": \"ENU\"}";
 
             var requestSteam = new StreamWriter(request.GetRequestStream());
             requestSteam.Write(json);
@@ -67,7 +69,7 @@ namespace ITSWebMgmt.Connectors
                 return sb.ToString();
             }
 
-            dynamic json = JsonConvert.DeserializeObject<dynamic>(userjson);
+            var json = JsonConvert.DeserializeObject<Dictionary<string, object>>(userjson);
 
             sb.Append("<br /><br />" + string.Format("<a href=\"{0}{1}\">Servie Portal User Info</a>", "https://service.aau.dk/user/UserRelatedInfoById/", userID) + "<br/>");
 
@@ -98,18 +100,21 @@ namespace ITSWebMgmt.Connectors
             dynamic json = jsonO;
             var helper = new HTMLTableHelper(new string[] { "ID", "Title", "Status", "Last Change" });
 
-            for (int i = 0; i < json["MyRequest"].Length; i++)
+
+            for (int i = 0; i < json["MyRequest"].Count; i++)
             {
-                if (filter(json["MyRequest"][i]["Status"]["Name"]))
+                var temp = json["MyRequest"][i];
+                var name = json["MyRequest"][i]["Status"]["Name"];
+                if (filter(json["MyRequest"][i]["Status"]["Name"].Value))
                 {
-                    string id = json["MyRequest"][i]["Id"];
+                    string id = json["MyRequest"][i]["Id"].Value;
                     string link;
                     if (id.StartsWith("IR"))
                     {
                         link = "https://service.aau.dk/Incident/Edit/" + id;
 
                         //Filter away if its closed as converted to SR
-                        if ((idForConvertedToSR.Equals(json["MyRequest"][i]["ResolutionCategory"]["Id"])))
+                        if ((idForConvertedToSR.Equals(json["MyRequest"][i]["ResolutionCategory"]["Id"].Value)))
                         {
                             continue;
                         }
@@ -118,17 +123,17 @@ namespace ITSWebMgmt.Connectors
                     {
                         link = "https://service.aau.dk/ServiceRequest/Edit/" + id;
                     }
-                    string sID = "<a href=\"" + link + "\" target=\"_blank\">" + json["MyRequest"][i]["Id"] + "</a><br/>";
-                    string sTitle = json["MyRequest"][i]["Title"];
-                    string sStatus = json["MyRequest"][i]["Status"]["Name"];
-                    string tmp = json["MyRequest"][i]["LastModified"];
+                    string sID = "<a href=\"" + link + "\" target=\"_blank\">" + json["MyRequest"][i]["Id"].Value + "</a><br/>";
+                    string sTitle = json["MyRequest"][i]["Title"].Value;
+                    string sStatus = json["MyRequest"][i]["Status"]["Name"].Value;
+                    DateTime tmp = json["MyRequest"][i]["LastModified"].Value;
                     string sLastChange = Convert.ToDateTime(tmp).ToString("yyyy-MM-dd HH:mm");
 
                     helper.AddRow(new String[] { sID, sTitle, sStatus, sLastChange });
                 }
             }
 
-            
+
             return new StringBuilder(helper.GetTable());
         }
 
