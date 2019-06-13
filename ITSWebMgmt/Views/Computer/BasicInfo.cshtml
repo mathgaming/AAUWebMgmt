@@ -86,13 +86,12 @@
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(computername),
             dataType: "json",
-            success: function (response) {
-                var r = JSON.parse(response.responseText)
+            success: function (response) {                
                 document.getElementById('passworddiv' + buttonNumber).style.display = "none";
-                document.getElementById('password' + buttonNumber).textContent = r.message;
+                document.getElementById('password' + buttonNumber).innerHTML = response.message;
             },
-            error: function(response) {
-                var r = JSON.parse(response.responseText)
+            error: function (response) {
+                var r = JSON.parse(response.responseText);
                 document.getElementById('passworddiv' + buttonNumber).style.display = "none";
                 document.getElementById('password' + buttonNumber).innerHTML = r.errorMessage;
             }

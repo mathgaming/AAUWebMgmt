@@ -21,6 +21,10 @@
 }
 
 <script>
+    $("#btnPassword2").click(function ()
+    {
+        getPassword('2');
+    });
     $("#buttonEnableBitlockerEncryption").click(function ()
     {
         sendPostRequest("EnableBitlockerEncryption")
