@@ -10,7 +10,7 @@ namespace ITSWebMgmt.Connectors
 {
     public class PureConnector
     {
-        public static string APIkey { private get; set; }
+        private string APIkey = Startup.Configuration["PureApiKey"];
         string department = "";
         string street = "";
         string building = "";

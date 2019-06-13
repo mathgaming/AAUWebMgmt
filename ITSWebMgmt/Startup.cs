@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Configuration;
 
 namespace ITSWebMgmt
 {
@@ -24,7 +25,7 @@ namespace ITSWebMgmt
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public static IConfiguration Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -45,18 +46,9 @@ namespace ITSWebMgmt
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            PureConnector.APIkey = Configuration.GetValue<string>("Secrets:PureApiKey");
-            SCCM.Username = Configuration.GetValue<string>("Secrets:SCCMUsername");
-            SCCM.Password = Configuration.GetValue<string>("Secrets:SCCMPassword");
-            HomeController.Password = Configuration.GetValue<string>("Secrets:Email-password");
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                PureConnector.APIkey = Configuration["PureApiKey"];
-                HomeController.Password = Configuration["Email-password"];
-                SCCM.Username = Configuration["SCCMUsername"];
-                SCCM.Password = Configuration["SCCMPassword"];
             }
             else
             {

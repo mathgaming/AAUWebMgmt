@@ -23,10 +23,10 @@ namespace ITSWebMgmt.Connectors
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/Authorization/GetToken");
             request.Method = "POST";
             request.ContentType = "text/json";
-
-            string domain = ConfigurationManager.AppSettings["cred:scsm:domain"];
-            string username = ConfigurationManager.AppSettings["cred:scsm:username"];
-            string secret = ConfigurationManager.AppSettings["cred:scsm:password"];
+            
+            string domain = Startup.Configuration["cred:scsm:domain"];
+            string username = Startup.Configuration["cred:scsm:username"];
+            string secret = Startup.Configuration["cred:scsm:password"];
 
             if (domain == null || username == null || secret == null)
             {

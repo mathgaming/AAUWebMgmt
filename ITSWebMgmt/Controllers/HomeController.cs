@@ -14,7 +14,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class HomeController : Controller
     {
-        public static string Password { private get; set; }
+        private string Password = Startup.Configuration["Email-password"];
 
         public IActionResult Index()
         {
