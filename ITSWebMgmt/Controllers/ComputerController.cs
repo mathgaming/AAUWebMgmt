@@ -18,6 +18,7 @@ namespace ITSWebMgmt.Controllers
         {
             if (computername != null)
             {
+                computername = computername.ToUpper();
                 if (!_cache.TryGetValue(computername, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(this, computername);
