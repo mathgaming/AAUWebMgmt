@@ -346,6 +346,7 @@ namespace ITSWebMgmt.Controllers
             var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
             ManagementPath path = new ManagementPath(pathString);
             ManagementObject obj = new ManagementObject(path);
+            obj.Scope = new ManagementScope(pathString, SCCM.GetConnectionOptions());
 
             ManagementClass ruleClass = new ManagementClass("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_CollectionRuleDirect");
 
@@ -354,7 +355,6 @@ namespace ITSWebMgmt.Controllers
             rule["RuleName"] = "Static-" + resourceID;
             rule["ResourceClassName"] = "SMS_R_System";
             rule["ResourceID"] = resourceID;
-
             obj.InvokeMethod("AddMembershipRule", new object[] { rule });
         }
 
@@ -369,7 +369,7 @@ namespace ITSWebMgmt.Controllers
             var collectionID = "AA1000B8"; //Enabled Bitlocker Encryption Collection ID
             addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID);
             Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = "Bitlocker enabled for" + computername });
+            return Json(new { success = true, message = "Bitlocker enabled for " + computername });
         }
     }
 }

@@ -31,7 +31,7 @@ namespace ITSWebMgmt.Helpers
             ms = new ManagementScope("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1", GetConnectionOptions());
         }
 
-        private static ConnectionOptions GetConnectionOptions()
+        public static ConnectionOptions GetConnectionOptions()
         {
             if (Username == null)
             {
