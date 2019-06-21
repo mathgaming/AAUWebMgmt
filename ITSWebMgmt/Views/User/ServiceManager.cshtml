@@ -1,5 +1,9 @@
 ﻿@model ITSWebMgmt.Models.UserModel
 @using ITSWebMgmt.Connectors
+
+<script>
+    $("#smloader > div").hide("fast");
+</script>
 @{
     var scsmtest = new SCSMConnector();
     Model.ServiceManager = await scsmtest.getActiveIncidents(Model.UserPrincipalName, Model.DisplayName);

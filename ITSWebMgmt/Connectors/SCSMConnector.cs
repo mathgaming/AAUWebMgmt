@@ -144,6 +144,7 @@ namespace ITSWebMgmt.Connectors
 
             //WebRequest request = WebRequest.Create(webserviceURL+"api/V3/User/GetUserRelatedInfoByUserId/?userid=352b43f6-9ff4-a36f-0342-6ce1ae283e37");
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/User/GetUserRelatedInfoByUserId/?userid=" + uuid);
+            //&fields = staffOrganisationAssociations.addresses.building
             request.Method = "Get";
             //request.ContentType = "text/json";
             request.Headers.Add("Authorization", "Token " + authkey);
