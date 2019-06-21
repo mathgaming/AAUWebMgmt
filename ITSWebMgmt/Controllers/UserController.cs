@@ -359,10 +359,7 @@ namespace ITSWebMgmt.Controllers
         public override ActionResult LoadTab(string tabName, string name)
         {
             UserModel = _cache.Get<UserModel>(name);
-            if (tabName == "groups-all")
-            {
-                tabName = "groups";
-            }
+
             PartialGroupModel model = null;
 
             string viewName = tabName;

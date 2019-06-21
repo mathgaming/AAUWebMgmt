@@ -21,9 +21,8 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computername, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(this, computername);
-
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                    _cache.Set(computername, ComputerModel, cacheEntryOptions);
+                    _cache.Set(ComputerModel.ComputerName, ComputerModel, cacheEntryOptions);
                 }
             }
             else
@@ -45,10 +44,6 @@ namespace ITSWebMgmt.Controllers
         public override ActionResult LoadTab(string tabName, string name)
         {
             ComputerModel = _cache.Get<ComputerModel>(name);
-            if (tabName == "groups-all")
-            {
-                tabName = "groups";
-            }
             string viewName = tabName;
             switch (tabName)
             {

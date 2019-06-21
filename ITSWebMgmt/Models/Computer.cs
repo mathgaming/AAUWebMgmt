@@ -71,7 +71,7 @@ namespace ITSWebMgmt.Models
                 {
                     SCCMcache = new SCCMcache();
                     SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
-                    ComputerName = computername;
+                    ComputerName = ADcache.ComputerName;
                     LoadWarnings();
                     InitPage();
                     LoadDataInbackground();

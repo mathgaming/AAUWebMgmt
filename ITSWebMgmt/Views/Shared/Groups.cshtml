@@ -7,14 +7,19 @@
     Model.GroupSegment = TableGenerator.BuildgroupssegmentLabel(Model.GroupList);
     Model.GroupsAllSegment = TableGenerator.BuildgroupssegmentLabel(Model.GroupListAll);
 }
-<h2>@Html.LabelFor(m => m.Title)</h2>
-<div class="ui two item menu">
-    <a data-tab="groups-direct" class="item">Direct Groups</a>
-    <a data-tab="groups-all" class="item">Recursive groups</a>
+<h2>@Html.Raw(Model.Title)</h2>
+<div id="group">
+    <div class="ui two item menu">
+        <a data-tab="groups-direct" class="item">Direct Groups</a>
+        <a data-tab="groups-all" class="item">Recursive groups</a>
+    </div>
+    <div class="ui active tab segment" data-tab="groups-direct">
+        @Html.Raw(Model.GroupSegment)
+    </div>
+    <div class="ui tab segment" data-tab="groups-all">
+        @Html.Raw(Model.GroupsAllSegment)
+    </div>
 </div>
-<div class="ui active tab segment" data-tab="groups-direct">
-    @Html.Raw(Model.GroupSegment)
-</div>
-<div class="ui tab segment" data-tab="groups-all">
-    @Html.Raw(Model.GroupsAllSegment)
-</div>
+<script>
+    $('#group > .menu .item').tab({ history: false });
+</script>
