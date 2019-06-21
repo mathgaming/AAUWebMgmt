@@ -32,7 +32,6 @@ namespace ITSWebMgmt.Controllers
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(username, UserModel, cacheEntryOptions);
                 }
-                UserModel.ShowResultDiv = true;
             }
             else
             {

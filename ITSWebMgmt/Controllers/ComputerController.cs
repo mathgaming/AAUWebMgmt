@@ -21,6 +21,7 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computername, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(this, computername);
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(computername, ComputerModel, cacheEntryOptions);
                 }

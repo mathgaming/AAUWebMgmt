@@ -4,48 +4,79 @@
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="ui segment">
-        <div class="ui right internal attached rail" style="margin-top:50px;">
-            <div class="ui segment" style="">
-                <h3>Nyheder</h3>
+
+                <h1>ITSWebMgmt</h1>
+
+                <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a><br />
+                <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />
+                <a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a><br />
+
+                <h3>Change log</h3>
                 <ul>
                     <li>
-                        2019-06-13 -  Now open for beta test, access to more services: print, service manager, defendpoint and ADMdb. Bug fixes: fileshares and exchanges is now shown correctly, get admin password button now works, null check for building from Pure
-                        <br /><br />
+                        2019-06-21
+                        <li style="list-style-type:none">
+                            <ul>
+                                <li>Fixed crash when searching for a computer or user that does not exist</li>
+                            </ul>
+                        </li>
                     <li>
-                        2019-06-03 -  New backend for WebMgmt, added print info and tabs now load individually for faster load times
-                        <br /><br />
+                        2019-06-13
+                    <li style="list-style-type:none">
+                        <ul>
+                            <li>WebMgmt 2.0 is now open for beta test</li>
+                            <li>Access to more services: print, service manager, defendpoint and ADMdb</li>
+                            <li>Bug fixes</li>
+                            <li style="list-style-type:none">
+                                <ul>
+                                    <li>Fileshares and exchanges is now shown correctly</li>
+                                    <li>Get admin password button now works</li>
+                                    <li>Fixed crash when building from Pure was not set</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
                     <li>
-                        2019-03-05 -  Added fileshare view
-                        <br /><br />
+                        2019-06-03
+                    <li style="list-style-type:none">
+                        <ul>
+                            <li>New backend for WebMgmt</li>
+                            <li>Added print info</li>
+                            <li>Tabs now load individually for faster load times</li>
+                        </ul>
+                    </li>
                     <li>
-                        2019-03-04 -  Now UserInfo searches on proxyAddress and UPN
-                        <br /><br />
+                        2019-03-05
+                    <li style="list-style-type:none">
+                        <ul>
+                            <li>Added fileshare view</li>
+                        </ul>
+                    </li>
                     <li>
-                        2019-02-27 -  Managed By can now be set on computeres from webmgmt
-                        <br /><br />
+                        2019-03-04
+                    <li style="list-style-type:none">
+                        <ul>
+                            <li>Now UserInfo searches on proxyAddress and UPN</li>
+                        </ul>
+                    </li>
                     <li>
-                        2019-02-01 -  Inventory details added for computer
-                        <br /><br />
+                        2019-02-27
+                    <li style="list-style-type:none">
+                        <ul>
+                            <li>Managed By can now be set on computers from webmgmt</li>
+                        </ul>
+                    </li>
+                    <li>
+                        2019-02-01
+                    <li style="list-style-type:none">
+                        <ul>
+                            <li>Inventory details added for computer</li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
+        <div class="ui segment">
+            Du kan bidrage til udviklingen af Webmgmt på siden <a href="https://github.com/AAUITSPlatform/AAUWebMgmt">github.com/AAUITSPlatform/AAUWebMgmt</a>
         </div>
-        <h1>ITSWebMgmt</h1>
-
-        <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a><br />
-        <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />
-        <a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a><br />
-        <br /><br /><br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br /><br />
-    </div>
-    <div class="ui segment">
-        Du kan bidrage til udviklingen af Webmgmt på siden <a href="https://github.com/AAUITSPlatform/AAUWebMgmt">github.com/AAUITSPlatform/AAUWebMgmt</a>
-    </div>
 
 </asp:Content>
