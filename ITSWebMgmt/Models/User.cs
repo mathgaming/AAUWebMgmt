@@ -13,7 +13,7 @@ namespace ITSWebMgmt.Models
 {
     public class UserModel : WebMgmtModel<UserADcache>
     {
-        public UserController user;
+        public UserController userController;
         public string Guid { get => new Guid((byte[])(ADcache.getProperty("objectGUID"))).ToString(); }
         public string UserPrincipalName { get => ADcache.getProperty("userPrincipalName"); }
         public string DisplayName { get => ADcache.getProperty("displayName"); }
@@ -84,8 +84,8 @@ namespace ITSWebMgmt.Models
 
         public UserModel(UserController controller, string username, string adpath)
         {
-            user = controller;
-            user.UserModel = this;
+            userController = controller;
+            userController.UserModel = this;
             if (username != null)
             {
                 UserName = username;
@@ -114,18 +114,18 @@ namespace ITSWebMgmt.Models
         {
             List<WebMgmtError> errors = new List<WebMgmtError>
             {
-                new UserDisabled(user),
-                new UserLockedDiv(user),
-                new PasswordExpired(user),
-                new MissingAAUAttr(user),
-                new NotStandardOU(user)
+                new UserDisabled(userController),
+                new UserLockedDiv(userController),
+                new PasswordExpired(userController),
+                new MissingAAUAttr(userController),
+                new NotStandardOU(userController)
             };
 
             var errorList = new WebMgmtErrorList(errors);
             ErrorCountMessage = errorList.getErrorCountMessage();
             ErrorMessages = errorList.ErrorMessages;
 
-            if (user.userIsInRightOU())
+            if (userController.userIsInRightOU())
             {
                 ShowFixUserOU = false;
             }

@@ -145,7 +145,7 @@ namespace ITSWebMgmt.Connectors
             }
             else
             {
-                labelResult.Text = "user expired";
+                labelResult.Text = "userController expired";
             }*/
 
         }
