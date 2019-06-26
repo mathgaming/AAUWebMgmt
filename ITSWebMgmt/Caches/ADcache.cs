@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Connectors.Active_Directory;
+using ITSWebMgmt.Connectors.Active_Directory;
 using ITSWebMgmt.Helpers;
 using NLog;
 using System;
