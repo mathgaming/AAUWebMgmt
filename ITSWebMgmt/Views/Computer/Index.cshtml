@@ -24,29 +24,35 @@
     </form>
     <br />
 </div>
-
 <div id="content">
     <script>
         $(document).ready(function () {
             $('.menu .item').tab({
                 'onVisible': function () {
                     var dataTabName = $(this).attr("data-tab");
-
-                    ({
+                    $.ajax({
                         type: "GET",
                         url: '@Url.Action("LoadTab", "Computer")',
                         contentType: "application/html; charset=utf-8",
                         data: { tabName: dataTabName, name: document.getElementById('computername').value },
                         success: function (returnedData) {
                             $("#" + dataTabName).html(returnedData);
+                        },
+                        error: function (responce) {
+                            document.open();
+                            document.write(responce.responseText);
+                            document.close();
                         }
                     });
                 }
             });
         });
     </script>
-    @Html.DisplayFor(model => model.Result)
-    @if(Model.ShowResultDiv)
+    @if (Model.ShowErrorDiv)
+    {
+        @Html.DisplayFor(model => model.ResultError)
+    }
+    @if (Model.ShowResultDiv)
     {
         <div runat="server" id="warningsAndErrorDIV">
             @Html.DisplayFor(model => model.ErrorCountMessage)

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="en">
 <head runat="server">
@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="~/css/bootstrap.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.0.8/semantic.min.css">
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="shortcut icon" type="image/vnd.microsoft.ico" href="https://www.resources.aau.dk/design2013/images/aaufavicon.ico?v=2">
 
     <!--
     To collect end-user usage analytics about your application,
@@ -42,10 +43,9 @@
         window.appInsights = appInsights;
         appInsights.trackPageView();
     </script>
-    
     <script>
         $(document).ready(function () {
-            $(document).ajaxError(function (event,xhr,options,exc) {
+            $(document).ajaxError(function (event, xhr, options, exc) {
                 document.open();
                 document.write(xhr.responseText);
                 document.close();

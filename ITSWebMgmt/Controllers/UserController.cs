@@ -32,7 +32,6 @@ namespace ITSWebMgmt.Controllers
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(username, UserModel, cacheEntryOptions);
                 }
-                UserModel.ShowResultDiv = true;
             }
             else
             {
@@ -360,10 +359,7 @@ namespace ITSWebMgmt.Controllers
         public override ActionResult LoadTab(string tabName, string name)
         {
             UserModel = _cache.Get<UserModel>(name);
-            if (tabName == "groups-all")
-            {
-                tabName = "groups";
-            }
+
             PartialGroupModel model = null;
 
             string viewName = tabName;

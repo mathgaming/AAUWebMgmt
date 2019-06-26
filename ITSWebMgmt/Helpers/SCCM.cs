@@ -4,8 +4,8 @@ namespace ITSWebMgmt.Helpers
 {
     public class SCCM
     {
-        public static string Username { private get; set; }
-        public static string Password { private get; set; }
+        private static string Username = Startup.Configuration["SCCMUsername"];
+        private static string Password = Startup.Configuration["SCCMPassword"];
         public  static ManagementScope ms {get; set; }
 
         public static ManagementObjectCollection getResults(WqlObjectQuery wqlq)
@@ -31,7 +31,7 @@ namespace ITSWebMgmt.Helpers
             ms = new ManagementScope("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1", GetConnectionOptions());
         }
 
-        private static ConnectionOptions GetConnectionOptions()
+        public static ConnectionOptions GetConnectionOptions()
         {
             if (Username == null)
             {
