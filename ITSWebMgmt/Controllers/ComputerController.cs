@@ -16,6 +16,21 @@ namespace ITSWebMgmt.Controllers
     {
         public IActionResult Index(string computername)
         {
+            ComputerModel = getComputerModel(computername);
+
+            return View(ComputerModel);
+        }
+
+        private IMemoryCache _cache;
+        public ComputerModel ComputerModel;
+
+        public ComputerController(IMemoryCache cache)
+        {
+            _cache = cache;
+        }
+
+        private ComputerModel getComputerModel(string computername)
+        {
             if (computername != null)
             {
                 computername = computername.ToUpper();
@@ -31,20 +46,12 @@ namespace ITSWebMgmt.Controllers
                 ComputerModel = new ComputerModel(this, computername);
             }
 
-            return View(ComputerModel);
-        }
-
-        private IMemoryCache _cache;
-        public ComputerModel ComputerModel;
-
-        public ComputerController(IMemoryCache cache)
-        {
-            _cache = cache;
+            return ComputerModel;
         }
 
         public override ActionResult LoadTab(string tabName, string name)
         {
-            ComputerModel = _cache.Get<ComputerModel>(name);
+            ComputerModel = getComputerModel(name);
             string viewName = tabName;
             switch (tabName)
             {
@@ -82,7 +89,7 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
-            ComputerModel = _cache.Get<ComputerModel>(computername);
+            ComputerModel = ComputerModel = getComputerModel(computername);
             moveOU(ControllerContext.HttpContext.User.Identity.Name, ComputerModel.adpath);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = "OU moved for" + computername });
@@ -97,7 +104,7 @@ namespace ITSWebMgmt.Controllers
         public ActionResult ResultGetPassword([FromBody]string computername)
         {
             //ComputerModel.ShowResultGetPassword = false;
-            ComputerModel = _cache.Get<ComputerModel>(computername);
+            ComputerModel = getComputerModel(computername);
             logger.Info("User {0} requesed localadmin password for computer {1}", ControllerContext.HttpContext.User.Identity.Name, ComputerModel.adpath);
 
             var passwordRetuned = getLocalAdminPassword(ComputerModel.adpath);
@@ -363,7 +370,7 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult EnableBitlockerEncryption([FromBody]string computername)
         {
-            ComputerModel = _cache.Get<ComputerModel>(computername);
+            ComputerModel = ComputerModel = getComputerModel(computername);
             string[] adpathsplit = ComputerModel.adpath.Split('/');
             string computerName = (adpathsplit[adpathsplit.Length - 1].Split(','))[0].Replace("CN=", "");
 

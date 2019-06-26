@@ -23,6 +23,21 @@ namespace ITSWebMgmt.Controllers
     {
         public IActionResult Index(string username)
         {
+            UserModel = getUserModel(username);
+
+            return View(UserModel);
+        }
+
+        private IMemoryCache _cache;
+        public UserModel UserModel;
+
+        public UserController(IMemoryCache cache)
+        {
+            _cache = cache;
+        }
+
+        private UserModel getUserModel(string username)
+        {
             if (username != null)
             {
                 if (!_cache.TryGetValue(username, out UserModel))
@@ -38,15 +53,7 @@ namespace ITSWebMgmt.Controllers
                 UserModel = new UserModel(this, null, null);
             }
 
-            return View(UserModel);
-        }
-
-        private IMemoryCache _cache;
-        public UserModel UserModel;
-
-        public UserController(IMemoryCache cache)
-        {
-            _cache = cache;
+            return UserModel;
         }
 
         protected string lookupUser(string username)
@@ -164,7 +171,7 @@ namespace ITSWebMgmt.Controllers
 
         public ActionResult FixUserOu([FromBody]string username)
         {
-            UserModel = _cache.Get<UserModel>(username);
+            UserModel = getUserModel(username);
             if (userIsInRightOU()) { return Error(); }
 
             //See if it can be fixed!
@@ -253,7 +260,7 @@ namespace ITSWebMgmt.Controllers
 
         public ActionResult UnlockUserAccount([FromBody]string username)
         {
-            UserModel = _cache.Get<UserModel>(username);
+            UserModel = getUserModel(username);
             logger.Info("User {0} unlocked useraccont {1}", ControllerContext.HttpContext.User.Identity.Name, UserModel.adpath);
 
             try
@@ -300,7 +307,7 @@ namespace ITSWebMgmt.Controllers
 
         public ActionResult ToggleUserprofile([FromBody]string username)
         {
-            UserModel = _cache.Get<UserModel>(username);
+            UserModel = getUserModel(username);
             //XXX log what the new value of profile is :)
             logger.Info("User {0} toggled romaing profile for user  {1}", ControllerContext.HttpContext.User.Identity.Name, UserModel.adpath);
 
@@ -358,7 +365,7 @@ namespace ITSWebMgmt.Controllers
 
         public override ActionResult LoadTab(string tabName, string name)
         {
-            UserModel = _cache.Get<UserModel>(name);
+            UserModel = getUserModel(name);
 
             PartialGroupModel model = null;
 
