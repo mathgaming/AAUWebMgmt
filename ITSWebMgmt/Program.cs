@@ -18,7 +18,9 @@ namespace ITSWebMgmt
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+            WebHost.CreateDefaultBuilder(args).ConfigureAppConfiguration((hostingContext, config) =>
+            {
+                config.AddJsonFile(@"c:\webmgmtlog\secrets.json", optional: true);
+            }).UseStartup<Startup>();
     }
 }

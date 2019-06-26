@@ -22,9 +22,9 @@ namespace ITSWebMgmt.Connectors
 
             StringBuilder sb = new StringBuilder();
 
-            string domain = ConfigurationManager.AppSettings["cred:equitrac:domain"];
-            string username = ConfigurationManager.AppSettings["cred:equitrac:username"];
-            string secret = ConfigurationManager.AppSettings["cred:equitrac:password"];
+            string domain = Startup.Configuration["cred:equitrac:domain"];
+            string username = Startup.Configuration["cred:equitrac:username"];
+            string secret = Startup.Configuration["cred:equitrac:password"];
 
             if (domain == null || username == null || secret == null )
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.Text.RegularExpressions;
 
 namespace ITSWebMgmt.Caches
 {
@@ -12,7 +13,14 @@ namespace ITSWebMgmt.Caches
         public object AdmPwdExpirationTime;
         public ComputerADcache(string computerName, string userName) : base()
         {
-            ComputerName = computerName;
+            ComputerName = computerName.Trim().ToUpper();
+            Regex rx = new Regex(@"([A-Z]*\\)?AAU\d{6}");
+
+            if (!rx.IsMatch(computerName))
+            {
+                return;
+            }
+
             DE = new DirectoryEntry("LDAP://" + getDomain());
             var search = new DirectorySearcher(DE);
 

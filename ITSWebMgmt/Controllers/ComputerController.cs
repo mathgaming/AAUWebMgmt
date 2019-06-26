@@ -18,11 +18,12 @@ namespace ITSWebMgmt.Controllers
         {
             if (computername != null)
             {
+                computername = computername.ToUpper();
                 if (!_cache.TryGetValue(computername, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(this, computername);
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                    _cache.Set(computername, ComputerModel, cacheEntryOptions);
+                    _cache.Set(ComputerModel.ComputerName, ComputerModel, cacheEntryOptions);
                 }
             }
             else
@@ -44,10 +45,6 @@ namespace ITSWebMgmt.Controllers
         public override ActionResult LoadTab(string tabName, string name)
         {
             ComputerModel = _cache.Get<ComputerModel>(name);
-            if (tabName == "groups-all")
-            {
-                tabName = "groups";
-            }
             string viewName = tabName;
             switch (tabName)
             {
@@ -161,7 +158,7 @@ namespace ITSWebMgmt.Controllers
             }
 
             DirectoryEntry de = new DirectoryEntry(adpath);
-
+           
             //XXX if expire time is smaller than 4 hours, you can use this to add time to the password (eg 3h to expire will become 4), never allow a password expire to be larger than the old value
 
             if (de.Properties.Contains("ms-Mcs-AdmPwd"))
@@ -350,6 +347,7 @@ namespace ITSWebMgmt.Controllers
             var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
             ManagementPath path = new ManagementPath(pathString);
             ManagementObject obj = new ManagementObject(path);
+            obj.Scope = new ManagementScope(pathString, SCCM.GetConnectionOptions());
 
             ManagementClass ruleClass = new ManagementClass("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_CollectionRuleDirect");
 
@@ -358,7 +356,6 @@ namespace ITSWebMgmt.Controllers
             rule["RuleName"] = "Static-" + resourceID;
             rule["ResourceClassName"] = "SMS_R_System";
             rule["ResourceID"] = resourceID;
-
             obj.InvokeMethod("AddMembershipRule", new object[] { rule });
         }
 
@@ -373,7 +370,7 @@ namespace ITSWebMgmt.Controllers
             var collectionID = "AA1000B8"; //Enabled Bitlocker Encryption Collection ID
             addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID);
             Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = "Bitlocker enabled for" + computername });
+            return Json(new { success = true, message = "Bitlocker enabled for " + computername });
         }
     }
 }

@@ -6,6 +6,7 @@ namespace ITSWebMgmt.Models
     public class ErrorViewModel
     {
         public Exception Error { get; set; }
+        public string AffectedUser { get; set; }
         public string Path { get; set; }
         public string QueryString { get; set; }
         public string Url { get => Path + QueryString; }

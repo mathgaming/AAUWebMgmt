@@ -20,6 +20,10 @@
 }
 
 <script>
+    $("#btnPassword2").click(function ()
+    {
+        getPassword('2');
+    });
     $("#buttonEnableBitlockerEncryption").click(function ()
     {
         sendPostRequest("EnableBitlockerEncryption")
@@ -39,7 +43,12 @@
             data: JSON.stringify(computername),
             dataType: "json",
             success: function (response) {
-                alert(JSON.parse(response.responseText).message);
+                alert(response.message);
+            },
+            error: function (responce) {
+                document.open();
+                document.write(responce.responseText);
+                document.close();
             }
         });
     }

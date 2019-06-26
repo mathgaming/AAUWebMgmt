@@ -10,22 +10,24 @@ namespace ITSWebMgmt.Connectors
 {
     public class PureConnector
     {
-        public static string APIkey { private get; set; }
-        string department = "";
-        string street = "";
-        string building = "";
+        private string APIkey = Startup.Configuration["PureApiKey"];
+        string street = null;
+        string building = null;
 
-        public string Department
-        {
-            get { return department; }
-        }
+        public string Department { get; } = "";
 
         public string OfficeAddress
         {
             get
             {
-                if (street != "")
-                    return street + " (" + building.Trim() + ")";
+                if (street != null) 
+                {
+                    if (building != null)
+                        return street + " (" + building.Trim() + ")";
+                    else
+                        return street;
+                }
+                
                 return "Address not found";
             }
         }
@@ -56,7 +58,7 @@ namespace ITSWebMgmt.Connectors
             {
                 if (dataObject.staffOrganisationAssociations[0].organisationalUnit != null)
                 {
-                    department = dataObject.staffOrganisationAssociations[0].organisationalUnit.names[0].value;
+                    Department = dataObject.staffOrganisationAssociations[0].organisationalUnit.names[0].value;
                 }
                 if (dataObject.staffOrganisationAssociations[0].addresses != null)
                 {

@@ -1,5 +1,9 @@
 ﻿@model ITSWebMgmt.Models.UserModel
 @using ITSWebMgmt.Connectors
+
+<script>
+    $("#smloader > div").hide("fast");
+</script>
 @{
     var scsmtest = new SCSMConnector();
     Model.ServiceManager = await scsmtest.getActiveIncidents(Model.UserPrincipalName, Model.DisplayName);
@@ -11,4 +15,4 @@
     @Html.HiddenFor(m => m.DisplayName)
     <input type="submit" value="Create bew IR/SR" />
 }
-@Html.DisplayFor(model => model.ServiceManager)
+@Html.Raw(Model.ServiceManager)
