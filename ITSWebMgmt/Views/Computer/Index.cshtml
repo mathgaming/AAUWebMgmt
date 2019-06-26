@@ -55,7 +55,7 @@
     @if (Model.ShowResultDiv)
     {
         <div runat="server" id="warningsAndErrorDIV">
-            @Html.DisplayFor(model => model.ErrorCountMessage)
+            @Html.Raw(Model.ErrorCountMessage)
         </div>
         <div class="ui grid">
             <div class="four wide column">

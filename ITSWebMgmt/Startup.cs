@@ -83,6 +83,9 @@ namespace ITSWebMgmt
                 routes.MapRoute(
                     name: "createworkitem",
                     template: "{controller=CreateWorkItem}/{action=Index}/{id?}");
+                routes.MapRoute(
+                    name: "aauredirector",
+                    template: "{controller=AAURedirector}/{action=Index}/{id?}");
             });
         }
     }

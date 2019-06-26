@@ -67,7 +67,7 @@ namespace ITSWebMgmt.Models
                 computer = controller;
                 computer.ComputerModel = this;
                 ADcache = new ComputerADcache(computername, computer.ControllerContext.HttpContext.User.Identity.Name);
-                if (ADcache.DE != null)
+                if (ADcache.ComputerFound)
                 {
                     SCCMcache = new SCCMcache();
                     SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
