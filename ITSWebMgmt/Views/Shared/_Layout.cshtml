@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="en">
 <head runat="server">
@@ -42,15 +42,6 @@
 
         window.appInsights = appInsights;
         appInsights.trackPageView();
-    </script>
-    <script>
-        $(document).ready(function () {
-            $(document).ajaxError(function (event, xhr, options, exc) {
-                document.open();
-                document.write(xhr.responseText);
-                document.close();
-            });
-        });
     </script>
 </head>
 <body>
