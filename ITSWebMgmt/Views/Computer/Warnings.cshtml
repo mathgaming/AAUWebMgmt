@@ -1,4 +1,4 @@
 ﻿@model ITSWebMgmt.Models.ComputerModel
 
 <h2>Warnings</h2>
-@Html.DisplayFor(model => model.ErrorMessages)
+@Html.Raw(Model.ErrorMessages)

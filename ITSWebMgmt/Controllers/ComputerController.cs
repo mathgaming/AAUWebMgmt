@@ -33,7 +33,8 @@ namespace ITSWebMgmt.Controllers
         {
             if (computername != null)
             {
-                computername = computername.ToUpper();
+                computername = computername.Trim().ToUpper();
+                computername = computername.Substring(computername.IndexOf('\\') + 1);
                 if (!_cache.TryGetValue(computername, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(this, computername);
