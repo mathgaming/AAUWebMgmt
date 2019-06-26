@@ -101,7 +101,10 @@ namespace ITSWebMgmt.Models
             }
             else
             {
-                ResultError = "User Not found";
+                if (username != null)
+                {
+                    ResultError = $"User ({username}) Not found";
+                }
                 ShowResultDiv = false;
                 ShowErrorDiv = true;
             }

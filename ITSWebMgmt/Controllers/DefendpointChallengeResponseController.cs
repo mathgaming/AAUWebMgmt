@@ -22,7 +22,7 @@ namespace ITSWebMgmt.Controllers
                 si.StartInfo.FileName = "C:\\webmgmtlog\\PGChallengeResponse.exe";
                 si.StartInfo.UseShellExecute = false;
 
-                string key = ConfigurationManager.AppSettings["other:defendpoint:crkey"];
+                string key = Startup.Configuration["other:defendpoint:crkey"];
 
                 string challange = challanageInput.Replace("\"", "");
 

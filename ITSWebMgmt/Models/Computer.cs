@@ -54,9 +54,11 @@ namespace ITSWebMgmt.Models
         public string SCCMDisk;
         public string ErrorCountMessage;
         public string ErrorMessages;
+        public string ResultError;
         public bool ShowResultDiv = false;
         public bool ShowResultGetPassword = false;
         public bool ShowMoveComputerOUdiv = false;
+        public bool ShowErrorDiv = false;
 
         public ComputerModel(ComputerController controller, string computername)
         {
@@ -65,12 +67,21 @@ namespace ITSWebMgmt.Models
                 computer = controller;
                 computer.ComputerModel = this;
                 ADcache = new ComputerADcache(computername, computer.ControllerContext.HttpContext.User.Identity.Name);
-                SCCMcache = new SCCMcache();
-                SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
-                ComputerName = computername;
-                LoadWarnings();
-                InitPage();
-                LoadDataInbackground();
+                if (ADcache.DE != null)
+                {
+                    SCCMcache = new SCCMcache();
+                    SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
+                    ComputerName = ADcache.ComputerName;
+                    LoadWarnings();
+                    InitPage();
+                    LoadDataInbackground();
+                }
+                else
+                {
+                    ShowResultDiv = false;
+                    ShowErrorDiv = true;
+                    ResultError = "Not found";
+                }
             }
         }
 

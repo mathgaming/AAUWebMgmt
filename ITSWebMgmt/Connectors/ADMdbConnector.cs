@@ -63,8 +63,8 @@ namespace ITSWebMgmt.Connectors
             var url = admdburl[domain.ToLower()]; //Throws exception on wrong domain
 
             //Get password for ADMdb
-            string wsusername = ConfigurationManager.AppSettings["cred:admdb:username"];
-            string wspassword = ConfigurationManager.AppSettings["cred:admdb:password"];
+            string wsusername = Startup.Configuration["cred:admdb:username"];
+            string wspassword = Startup.Configuration["cred:admdb:password"];
 
             if (wsusername == null || wspassword == null)
             {

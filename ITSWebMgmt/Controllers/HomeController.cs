@@ -14,7 +14,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class HomeController : Controller
     {
-        public static string Password { private get; set; }
+        private string Password = Startup.Configuration["Email-password"];
 
         public IActionResult Index()
         {
@@ -35,7 +35,8 @@ namespace ITSWebMgmt.Controllers
 
             model.QueryString = ControllerContext.HttpContext.Request.QueryString.Value;
             model.Path = e.Path;
-            model.Error = e.Error;;
+            model.Error = e.Error;
+            model.AffectedUser = ControllerContext.HttpContext.User.Identity.Name;
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
@@ -56,7 +57,8 @@ namespace ITSWebMgmt.Controllers
             client.Credentials = new System.Net.NetworkCredential("mhsv16@its.aau.dk", Password);
             client.Host = "smtp.aau.dk";
             mail.Subject = "WebMgmt error";
-            mail.Body = $"Error: {model.ErrorMessage}\n" +
+            mail.Body = $"Person: {model.AffectedUser}\n" +
+                        $"Error: {model.ErrorMessage}\n" +
                         $"Url: {model.Url}\n" +
                         $"Stacktrace:\n{model.Stacktrace}\n";
             client.Send(mail);
