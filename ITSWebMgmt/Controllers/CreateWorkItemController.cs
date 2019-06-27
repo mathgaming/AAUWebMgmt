@@ -43,7 +43,7 @@ namespace ITSWebMgmt.Controllers
         protected ActionResult createForm(string url, CreateWorkItemModel model)
         {
             string descriptionConverted = model.AffectedUser.Replace("\n", "\\n").Replace("\r", "\\r");
-            return Content(createRedirectCode(ControllerContext.HttpContext.User.Identity.Name, model.AffectedUser, model.Title, descriptionConverted, url), "text/html");
+            return Content(createRedirectCode(HttpContext.User.Identity.Name, model.AffectedUser, model.Title, descriptionConverted, url), "text/html");
         }
 
         [HttpPost]

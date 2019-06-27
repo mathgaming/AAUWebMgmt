@@ -13,7 +13,6 @@ namespace ITSWebMgmt.Models
 {
     public class UserModel : WebMgmtModel<UserADcache>
     {
-        public UserController userController;
         public string Guid { get => new Guid((byte[])(ADcache.getProperty("objectGUID"))).ToString(); }
         public string UserPrincipalName { get => ADcache.getProperty("userPrincipalName"); }
         public string DisplayName { get => ADcache.getProperty("displayName"); }
@@ -81,11 +80,10 @@ namespace ITSWebMgmt.Models
         public bool ShowErrorDiv = false;
         public bool ShowFixUserOU = false;
         public bool ShowLoginScript = false;
+        public bool UsesOnedrive = false;
 
-        public UserModel(UserController controller, string username, string adpath)
+        public UserModel(string username, string adpath)
         {
-            userController = controller;
-            userController.UserModel = this;
             if (username != null)
             {
                 UserName = username;
@@ -96,7 +94,6 @@ namespace ITSWebMgmt.Models
                 SCCMcache = new SCCMcache();
                 ShowResultDiv = true;
                 ShowErrorDiv = false;
-                LoadWarnings();
                 LoadDataInbackground();
             }
             else
@@ -108,28 +105,6 @@ namespace ITSWebMgmt.Models
                 ShowResultDiv = false;
                 ShowErrorDiv = true;
             }
-        }
-
-        private void LoadWarnings()
-        {
-            List<WebMgmtError> errors = new List<WebMgmtError>
-            {
-                new UserDisabled(userController),
-                new UserLockedDiv(userController),
-                new PasswordExpired(userController),
-                new MissingAAUAttr(userController),
-                new NotStandardOU(userController)
-            };
-
-            var errorList = new WebMgmtErrorList(errors);
-            ErrorCountMessage = errorList.getErrorCountMessage();
-            ErrorMessages = errorList.ErrorMessages;
-
-            if (userController.userIsInRightOU())
-            {
-                ShowFixUserOU = false;
-            }
-            //Password is expired and warning before expire (same timeline as windows displays warning)
         }
     }
 }

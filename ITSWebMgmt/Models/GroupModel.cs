@@ -9,7 +9,7 @@ using System.Web;
 
 namespace ITSWebMgmt.Models
 {
-    public class Group : WebMgmtModel<GroupADcache>
+    public class GroupModel : WebMgmtModel<GroupADcache>
     {
         public string Description { get => ADcache.getProperty("description"); }
         public string Info { get => ADcache.getProperty("info"); }
@@ -17,7 +17,6 @@ namespace ITSWebMgmt.Models
         public string ADManagedBy { get => ADcache.getProperty("managedBy"); }
         public string GroupType { get => ADcache.getProperty("groupType").ToString(); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName").ToString(); }
-        public GroupController group;
         public string Title;
         public string Domain;
         public string ManagedBy;
@@ -30,9 +29,8 @@ namespace ITSWebMgmt.Models
         public string Raw;
         public bool IsFileShare = false;
 
-        public Group(GroupController controller)
+        public GroupModel()
         {
-            group = controller;
         }
     }
 }

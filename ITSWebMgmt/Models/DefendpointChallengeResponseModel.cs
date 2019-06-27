@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Models
 {
-    public class DefendpointChallengeResponse
+    public class DefendpointChallengeResponseModel
     {
         public string Data;
-        public DefendpointChallengeResponse(string result)
+        public DefendpointChallengeResponseModel(string result)
         {
             Data = result;
         }

@@ -3,6 +3,7 @@ using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Functions;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
+using ITSWebMgmt.ViewInitialisers.User;
 using ITSWebMgmt.WebMgmtErrors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Exchange.WebServices.Data;
@@ -42,15 +43,19 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(username, out UserModel))
                 {
                     username = username.Trim();
-                    UserModel = new UserModel(this, username, lookupUser(username));
-                    ViewBag.usesOneDrive = OneDriveHelper.doesUserUseOneDrive(HttpContext, UserModel);
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                    _cache.Set(username, UserModel, cacheEntryOptions);
+                    UserModel = new UserModel(username, lookupUser(username));
+                    if (UserModel.ResultError == null)
+                    {
+                        UserModel = BasicInfo.Init(UserModel, HttpContext);
+                        LoadWarnings();
+                        var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                        _cache.Set(username, UserModel, cacheEntryOptions);
+                    }
                 }
             }
             else
             {
-                UserModel = new UserModel(this, null, null);
+                UserModel = new UserModel(null, null);
             }
 
             return UserModel;
@@ -212,7 +217,7 @@ namespace ITSWebMgmt.Controllers
                 string newOU = string.Format("{0},{1}", ou[count - 2], ou[count - 1]);
                 string newPath = string.Format("{0}{1}/{2},{3}", protocol, string.Join(".", dcpath).Replace("dc=", ""), newOU, string.Join(",", dcpath));
 
-                logger.Info("user " + ControllerContext.HttpContext.User.Identity.Name + " changed OU on user to: " + newPath + " from " + UserModel.adpath + ".");
+                logger.Info("user " + HttpContext.User.Identity.Name + " changed OU on user to: " + newPath + " from " + UserModel.adpath + ".");
 
                 var newLocaltion = new DirectoryEntry(newPath);
                 UserModel.ADcache.DE.MoveTo(newLocaltion);
@@ -228,7 +233,7 @@ namespace ITSWebMgmt.Controllers
         public string getADPathFromUsername(string username)
         {
             //XXX, this is a use input, might not be save us use in log 
-            logger.Info("User {0} lookedup user {1}", ControllerContext.HttpContext.User.Identity.Name, username);
+            logger.Info("User {0} lookedup user {1}", HttpContext.User.Identity.Name, username);
 
             if (username.Contains("\\"))
             {
@@ -261,7 +266,7 @@ namespace ITSWebMgmt.Controllers
         public ActionResult UnlockUserAccount([FromBody]string username)
         {
             UserModel = getUserModel(username);
-            logger.Info("User {0} unlocked useraccont {1}", ControllerContext.HttpContext.User.Identity.Name, UserModel.adpath);
+            logger.Info("User {0} unlocked useraccont {1}", HttpContext.User.Identity.Name, UserModel.adpath);
 
             try
             {
@@ -277,39 +282,11 @@ namespace ITSWebMgmt.Controllers
             return Success();
         }
 
-        public async Task<GetUserAvailabilityResults> getFreeBusyResultsAsync()
-        {
-            ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
-            service.UseDefaultCredentials = true; // Use domain account for connecting 
-            //service.Credentials = new WebCredentials("user1@contoso.com", "password"); // used if we need to enter a password, but for now we are using domain credentials
-            //service.AutodiscoverUrl("kyrke@its.aau.dk");  //XXX we should use the service user for webmgmt!
-            service.Url = new Uri("https://mail.aau.dk/EWS/exchange.asmx");
-
-            List<AttendeeInfo> attendees = new List<AttendeeInfo>();
-
-            attendees.Add(new AttendeeInfo()
-            {
-                SmtpAddress = UserModel.UserPrincipalName,
-                AttendeeType = MeetingAttendeeType.Organizer
-            });
-
-            // Specify availability options.
-            AvailabilityOptions myOptions = new AvailabilityOptions();
-
-            myOptions.MeetingDuration = 30;
-            myOptions.RequestedFreeBusyView = FreeBusyViewType.FreeBusy;
-
-            // Return a set of free/busy times.
-            DateTime dayBegin = DateTime.Now.Date;
-            var window = new TimeWindow(dayBegin, dayBegin.AddDays(1));
-            return await service.GetUserAvailability(attendees, window, AvailabilityData.FreeBusy, myOptions);
-        }
-
         public ActionResult ToggleUserprofile([FromBody]string username)
         {
             UserModel = getUserModel(username);
             //XXX log what the new value of profile is :)
-            logger.Info("User {0} toggled romaing profile for user  {1}", ControllerContext.HttpContext.User.Identity.Name, UserModel.adpath);
+            logger.Info("User {0} toggled romaing profile for user  {1}", HttpContext.User.Identity.Name, UserModel.adpath);
 
             //string profilepath = (string)(ADcache.DE.Properties["profilePath"])[0];
 
@@ -363,6 +340,28 @@ namespace ITSWebMgmt.Controllers
             return Json(new { success = true, message = Message });
         }
 
+        private void LoadWarnings()
+        {
+            List<WebMgmtError> errors = new List<WebMgmtError>
+            {
+                new UserDisabled(this),
+                new UserLockedDiv(this),
+                new PasswordExpired(this),
+                new MissingAAUAttr(this),
+                new NotStandardOU(this)
+            };
+
+            var errorList = new WebMgmtErrorList(errors);
+            UserModel.ErrorCountMessage = errorList.getErrorCountMessage();
+            UserModel.ErrorMessages = errorList.ErrorMessages;
+
+            if (this.userIsInRightOU())
+            {
+                UserModel.ShowFixUserOU = false;
+            }
+            //Password is expired and warning before expire (same timeline as windows displays warning)
+        }
+
         public override ActionResult LoadTab(string tabName, string name)
         {
             UserModel = getUserModel(name);
@@ -374,6 +373,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
+                    UserModel = BasicInfo.Init(UserModel, HttpContext);
                     break;
                 case "groups":
                     viewName = "Groups";
@@ -388,28 +388,35 @@ namespace ITSWebMgmt.Controllers
                 case "fileshares":
                     viewName = "Fileshares";
                     model = new PartialGroupModel(UserModel.ADcache, "memberOf");
+                    model = Fileshares.Init(model);
                     break;
                 case "calAgenda":
                     viewName = "CalendarAgenda";
+                    UserModel = CalendarAgenda.Init(UserModel);
                     break;
                 case "exchange":
                     viewName = "Exchange";
                     model = new PartialGroupModel(UserModel.ADcache, "memberOf");
+                    model = Exchange.Init(model);
                     break;
                 case "servicemanager":
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
                     viewName = "ComputerInformation";
+                    UserModel = ComputerInformation.Init(UserModel);
                     break;
                 case "loginscript":
                     viewName = "Loginscript";
+                    UserModel = LoginScript.Init(UserModel);
                     break;
                 case "print":
                     viewName = "Print";
+                    UserModel.Print = new PrintConnector(UserModel.Guid.ToString()).doStuff();
                     break;
                 case "rawdata":
                     viewName = "Raw";
+                    UserModel.Rawdata = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
                     break;
             }
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);

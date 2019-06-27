@@ -31,14 +31,24 @@ namespace ITSWebMgmt.Models
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
 
         //Display
-        public ComputerController computer;
         public string ConfigPC = "Unknown";
         public string ConfigExtra = "False";
         public string ComputerName = "ITS\\AAU115359";
         public string ManagedBy;
         public string Raw;
         public string Result;
-        public string PasswordExpireDate;
+        public string PasswordExpireDate { get
+            {
+                if (AdminPasswordExpirationTime != null)
+                {
+                    return AdminPasswordExpirationTime;
+                }
+                else
+                {
+                    return "LAPS not Enabled";
+                }
+            }
+        }
         public string SSCMInventoryTable;
         public string SCCMCollecionsSoftware;
         public string SCCMInventory;
@@ -60,21 +70,17 @@ namespace ITSWebMgmt.Models
         public bool ShowMoveComputerOUdiv = false;
         public bool ShowErrorDiv = false;
 
-        public ComputerModel(ComputerController controller, string computername)
+        public ComputerModel(string activeUser, string computerName)
         {
-            if (computername != null)
+            if (computerName != null)
             {
-                computer = controller;
-                computer.ComputerModel = this;
-                ADcache = new ComputerADcache(computername, computer.ControllerContext.HttpContext.User.Identity.Name);
+                ADcache = new ComputerADcache(computerName, activeUser);
                 if (ADcache.ComputerFound)
                 {
                     SCCMcache = new SCCMcache();
                     SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
                     ComputerName = ADcache.ComputerName;
                     LoadDataInbackground();
-                    LoadWarnings();
-                    InitPage();
                 }
                 else
                 {
@@ -96,51 +102,6 @@ namespace ITSWebMgmt.Models
             }
 
             return resourceID;
-        }
-        private void LoadWarnings()
-        {
-            List<WebMgmtError> errors = new List<WebMgmtError>
-            {
-                new DriveAlmostFull(computer),
-                new NotStandardComputerOU(computer),
-            };
-
-            var errorList = new WebMgmtErrorList(errors);
-            ErrorCountMessage = errorList.getErrorCountMessage();
-            ErrorMessages = errorList.ErrorMessages;
-
-            //Password is expired and warning before expire (same timeline as windows displays warning)
-        }
-
-        private void InitPage()
-        {
-            Result = "";
-
-            if (!ComputerFound)
-            {
-                Result = "Computer Not Found";
-                return;
-            }
-
-            if (AdminPasswordExpirationTime != null)
-            {
-                PasswordExpireDate = AdminPasswordExpirationTime;
-            }
-            else
-            {
-                PasswordExpireDate = "LAPS not Enabled";
-            }
-
-            // List<string> loadedTapNames = new List<string> { "basicinfo", "sccmInfo", "tasks", "warnings" };
-            // Load the data for the other tabs in background.
-            // backgroundLoadedTapNames = "groups", "sccmInventory", "sccmAV", "sccmHW", "rawdata"
-
-            ShowResultDiv = true;
-
-            if (!computer.checkComputerOU(adpath))
-            {
-                ShowMoveComputerOUdiv = true;
-            }
         }
     }
 }

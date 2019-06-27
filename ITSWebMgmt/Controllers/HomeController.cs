@@ -33,10 +33,10 @@ namespace ITSWebMgmt.Controllers
 
             var model = new ErrorViewModel();
 
-            model.QueryString = ControllerContext.HttpContext.Request.QueryString.Value;
+            model.QueryString = HttpContext.Request.QueryString.Value;
             model.Path = e.Path;
             model.Error = e.Error;
-            model.AffectedUser = ControllerContext.HttpContext.User.Identity.Name;
+            model.AffectedUser = HttpContext.User.Identity.Name;
 
             ThreadPool.QueueUserWorkItem(_ =>
             {

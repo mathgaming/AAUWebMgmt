@@ -9,6 +9,8 @@ using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Microsoft.Extensions.Caching.Memory;
 using System.Net;
+using ITSWebMgmt.WebMgmtErrors;
+using ITSWebMgmt.ViewInitialisers.Computer;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -29,22 +31,38 @@ namespace ITSWebMgmt.Controllers
             _cache = cache;
         }
 
-        private ComputerModel getComputerModel(string computername)
+        private ComputerModel getComputerModel(string computerName)
         {
-            if (computername != null)
+            if (computerName != null)
             {
-                computername = computername.Trim().ToUpper();
-                computername = computername.Substring(computername.IndexOf('\\') + 1);
-                if (!_cache.TryGetValue(computername, out ComputerModel))
+                computerName = computerName.Trim().ToUpper();
+                computerName = computerName.Substring(computerName.IndexOf('\\') + 1);
+                if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
-                    ComputerModel = new ComputerModel(this, computername);
+                    ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computerName);
+                    if (ComputerModel.ComputerFound)
+                    {
+                        ComputerModel.ShowResultDiv = true;
+                        ComputerModel = SCCMInfo.Init(ComputerModel);
+                        ComputerModel = BasicInfo.Init(ComputerModel);
+                        LoadWarnings();
+                        if (!checkComputerOU(ComputerModel.adpath))
+                        {
+                            ComputerModel.ShowMoveComputerOUdiv = true;
+                        }
+                    }
+                    else
+                    {
+                        ComputerModel.Result = "Computer Not Found";
+                    }
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(ComputerModel.ComputerName, ComputerModel, cacheEntryOptions);
                 }
             }
             else
             {
-                ComputerModel = new ComputerModel(this, computername);
+                ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computerName);
             }
 
             return ComputerModel;
@@ -58,6 +76,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
+                    ComputerModel = BasicInfo.Init(ComputerModel);
                     break;
                 case "groups":
                     viewName = "Groups";
@@ -70,18 +89,25 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "sccminfo":
                     viewName = "SCCMInfo";
+                    ComputerModel = SCCMInfo.Init(ComputerModel);
                     break;
                 case "sccmInventory":
                     viewName = "SCCMInventory";
+                    ComputerModel = SCCMInventory.Init(ComputerModel);
                     break;
                 case "sccmAV":
                     viewName = "SCCMAV";
+                    //DetectionID is required for UserName (SELECT * FROM SMS_G_System_Threats WHERE DetectionID='{04155F79-EB84-4828-9CEC-AC0749C4EDA6}' AND ResourceID=16787705)
+                    //Only few computers with data, one them is AAU112782
+                    ComputerModel.SCCMAV = TableGenerator.CreateTableFromDatabase(ComputerModel.Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found");
                     break;
                 case "sccmHW":
                     viewName = "SCCMHW";
+                    ComputerModel = SCCMHW.Init(ComputerModel);
                     break;
                 case "rawdata":
                     viewName = "Raw";
+                    ComputerModel.Raw = TableGenerator.buildRawTable(ComputerModel.ADcache.getAllProperties());
                     break;
             }
             return PartialView(viewName, ComputerModel);
@@ -91,7 +117,7 @@ namespace ITSWebMgmt.Controllers
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
             ComputerModel = ComputerModel = getComputerModel(computername);
-            moveOU(ControllerContext.HttpContext.User.Identity.Name, ComputerModel.adpath);
+            moveOU(HttpContext.User.Identity.Name, ComputerModel.adpath);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = "OU moved for" + computername });
         }
@@ -106,7 +132,7 @@ namespace ITSWebMgmt.Controllers
         {
             //ComputerModel.ShowResultGetPassword = false;
             ComputerModel = getComputerModel(computername);
-            logger.Info("User {0} requesed localadmin password for computer {1}", ControllerContext.HttpContext.User.Identity.Name, ComputerModel.adpath);
+            logger.Info("User {0} requesed localadmin password for computer {1}", HttpContext.User.Identity.Name, ComputerModel.adpath);
 
             var passwordRetuned = getLocalAdminPassword(ComputerModel.adpath);
 
@@ -283,63 +309,6 @@ namespace ITSWebMgmt.Controllers
 
         }
 
-        public List<string> setConfig(ManagementObjectCollection Collection)
-        {
-            if (SCCM.HasValues(Collection))
-            {
-                List<string> namesInCollection = new List<string>();
-                foreach (ManagementObject o in Collection)
-                {
-                    //o.Properties["ResourceID"].Value.ToString();
-                    var collectionID = o.Properties["CollectionID"].Value.ToString();
-
-                    if (collectionID.Equals("AA100015"))
-                    {
-                        ComputerModel.ConfigPC = "AAU7 PC";
-                    }
-                    else if (collectionID.Equals("AA100087"))
-                    {
-                        ComputerModel.ConfigPC = "AAU8 PC";
-                    }
-                    else if (collectionID.Equals("AA1000BC"))
-                    {
-                        ComputerModel.ConfigPC = "AAU10 PC";
-                        ComputerModel.ConfigExtra = "True"; // Hardcode AAU10 is bitlocker enabled
-                    }
-                    else if (collectionID.Equals("AA100027"))
-                    {
-                        ComputerModel.ConfigPC = "Administrativ7 PC";
-                    }
-                    else if (collectionID.Equals("AA1001BD"))
-                    {
-                        ComputerModel.ConfigPC = "Administrativ10 PC";
-                        ComputerModel.ConfigExtra = "True"; // Hardcode AAU10 is bitlocker enabled
-                    }
-                    else if (collectionID.Equals("AA10009C"))
-                    {
-                        ComputerModel.ConfigPC = "Imported";
-                    }
-
-                    if (collectionID.Equals("AA1000B8"))
-                    {
-                        ComputerModel.ConfigExtra = "True";
-                    }
-
-                    var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
-                    ManagementPath path = new ManagementPath(pathString);
-                    ManagementObject obj = new ManagementObject();
-
-                    obj.Scope = SCCM.ms;
-                    obj.Path = path;
-                    obj.Get();
-
-                    namesInCollection.Add(obj["Name"].ToString());
-                }
-                return namesInCollection;
-            }
-            return null;
-        }
-
         protected void addComputerToCollection(string resourceID, string collectionID)
         {
             /*  Set collection = SWbemServices.Get ("SMS_Collection.CollectionID=""" & CollID &"""")
@@ -380,5 +349,21 @@ namespace ITSWebMgmt.Controllers
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = "Bitlocker enabled for " + computername });
         }
+
+        private void LoadWarnings()
+        {
+            List<WebMgmtError> errors = new List<WebMgmtError>
+            {
+                new DriveAlmostFull(this),
+                new NotStandardComputerOU(this),
+            };
+
+            var errorList = new WebMgmtErrorList(errors);
+            ComputerModel.ErrorCountMessage = errorList.getErrorCountMessage();
+            ComputerModel.ErrorMessages = errorList.ErrorMessages;
+
+            //Password is expired and warning before expire (same timeline as windows displays warning)
+        }
+
     }
 }
