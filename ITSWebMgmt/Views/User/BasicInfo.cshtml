@@ -69,6 +69,10 @@
         Model.BasicInfoPasswordExpireDate = Model.UserPasswordExpiryTimeComputed;
     }
 
+    //OneDrive
+    sb.Append($"<tr><td>Uses OneDrive?</td><td>{ViewBag.usesOneDrive}</td></tr>");
+
+
     Model.BasicInfoTable = sb.ToString();
 
     var admdb = new ADMdbConnector();

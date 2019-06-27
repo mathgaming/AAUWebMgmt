@@ -24,7 +24,6 @@ namespace ITSWebMgmt.Controllers
         public IActionResult Index(string username)
         {
             UserModel = getUserModel(username);
-
             return View(UserModel);
         }
 
@@ -44,6 +43,7 @@ namespace ITSWebMgmt.Controllers
                 {
                     username = username.Trim();
                     UserModel = new UserModel(this, username, lookupUser(username));
+                    ViewBag.usesOneDrive = OneDriveHelper.doesUserUseOneDrive(HttpContext, UserModel);
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(username, UserModel, cacheEntryOptions);
                 }
@@ -153,13 +153,13 @@ namespace ITSWebMgmt.Controllers
             //Check root is people
             if (!(ou[count - 1]).Equals("ou=people", StringComparison.CurrentCultureIgnoreCase))
             {
-                //Error user is not placed in people!!!!! Cant move the user (might not be a real user or admin or computer)
+                //Error userController is not placed in people!!!!! Cant move the userController (might not be a real userController or admin or computer)
                 return false;
             }
             string[] okplaces = new string[3] { "ou=staff", "ou=guests", "ou=students" };
             if (!okplaces.Contains(ou[count - 2], StringComparer.OrdinalIgnoreCase))
             {
-                //Error user is not in out staff, people or student, what is gowing on here?
+                //Error userController is not in out staff, people or student, what is gowing on here?
                 return false;
             }
             if (count > 2)
@@ -219,7 +219,7 @@ namespace ITSWebMgmt.Controllers
 
                 return Success();
             }
-            //We don't need to do anything, user is placed in the right ou! (we think, can still be in wrong ou fx a guest changed to staff, we cant check that here) 
+            //We don't need to do anything, userController is placed in the right ou! (we think, can still be in wrong ou fx a guest changed to staff, we cant check that here) 
             logger.Debug("no need to change user {0} out, all is good", UserModel.adpath);
             return Success();
         }
@@ -247,7 +247,7 @@ namespace ITSWebMgmt.Controllers
             var adpath = globalSearch(username);
             if (adpath == null)
             {
-                //Show user not found
+                //Show userController not found
                 return null;
             }
             else
@@ -282,7 +282,7 @@ namespace ITSWebMgmt.Controllers
             ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
             service.UseDefaultCredentials = true; // Use domain account for connecting 
             //service.Credentials = new WebCredentials("user1@contoso.com", "password"); // used if we need to enter a password, but for now we are using domain credentials
-            //service.AutodiscoverUrl("kyrke@its.aau.dk");  //XXX we should use the service user for webmgmt!
+            //service.AutodiscoverUrl("kyrke@its.aau.dk");  //XXX we should use the service userController for webmgmt!
             service.Url = new Uri("https://mail.aau.dk/EWS/exchange.asmx");
 
             List<AttendeeInfo> attendees = new List<AttendeeInfo>();

@@ -7,7 +7,7 @@ namespace ITSWebMgmt.Connectors.Active_Directory
     public class ADHelpers
     {
 
-       //XXX these functions can add/remove any user from any group. Dont let i be a user parameter. 
+       //XXX these functions can add/remove any userController from any group. Dont let i be a userController parameter. 
        //Wrap these to know groups. 
 
         private static void addADuserToGroupUNSAFE(string userADpath, string groupADPath) 
