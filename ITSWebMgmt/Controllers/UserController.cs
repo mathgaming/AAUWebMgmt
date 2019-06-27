@@ -282,7 +282,7 @@ namespace ITSWebMgmt.Controllers
             ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
             service.UseDefaultCredentials = true; // Use domain account for connecting 
             //service.Credentials = new WebCredentials("user1@contoso.com", "password"); // used if we need to enter a password, but for now we are using domain credentials
-            //service.AutodiscoverUrl("kyrke@its.aau.dk");  //XXX we should use the service userController for webmgmt!
+            //service.AutodiscoverUrl("kyrke@its.aau.dk");  //XXX we should use the service user for webmgmt!
             service.Url = new Uri("https://mail.aau.dk/EWS/exchange.asmx");
 
             List<AttendeeInfo> attendees = new List<AttendeeInfo>();
