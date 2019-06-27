@@ -31,15 +31,15 @@ namespace ITSWebMgmt.Controllers
             _cache = cache;
         }
 
-        private ComputerModel getComputerModel(string computername)
+        private ComputerModel getComputerModel(string computerName)
         {
-            if (computername != null)
+            if (computerName != null)
             {
-                computername = computername.Trim().ToUpper();
-                computername = computername.Substring(computername.IndexOf('\\') + 1);
-                if (!_cache.TryGetValue(computername, out ComputerModel))
+                computerName = computerName.Trim().ToUpper();
+                computerName = computerName.Substring(computerName.IndexOf('\\') + 1);
+                if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
-                    ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computername);
+                    ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computerName);
                     if (ComputerModel.ComputerFound)
                     {
                         ComputerModel.ShowResultDiv = true;
@@ -62,7 +62,7 @@ namespace ITSWebMgmt.Controllers
             }
             else
             {
-                ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computername);
+                ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computerName);
             }
 
             return ComputerModel;

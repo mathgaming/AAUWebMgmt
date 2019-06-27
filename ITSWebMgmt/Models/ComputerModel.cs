@@ -70,11 +70,11 @@ namespace ITSWebMgmt.Models
         public bool ShowMoveComputerOUdiv = false;
         public bool ShowErrorDiv = false;
 
-        public ComputerModel(string username, string computername)
+        public ComputerModel(string activeUser, string computerName)
         {
-            if (computername != null)
+            if (computerName != null)
             {
-                ADcache = new ComputerADcache(computername, username);
+                ADcache = new ComputerADcache(computerName, activeUser);
                 if (ADcache.ComputerFound)
                 {
                     SCCMcache = new SCCMcache();
