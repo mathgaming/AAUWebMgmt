@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace ITSWebMgmt.Models
 {
-    public class ExchangeMailboxGroup
+    public class ExchangeMailboxGroupModel
     {
         public string RawValue { get; }
 
@@ -12,7 +12,7 @@ namespace ITSWebMgmt.Models
         public string Name { get; }
         public string Access { get; }
 
-        public ExchangeMailboxGroup(string group)
+        public ExchangeMailboxGroupModel(string group)
         {
             RawValue = group;
             if (group.StartsWith("CN=MBX_"))

@@ -44,10 +44,13 @@ namespace ITSWebMgmt.Controllers
                 {
                     username = username.Trim();
                     UserModel = new UserModel(username, lookupUser(username));
-                    UserModel = BasicInfo.Init(UserModel, HttpContext);
-                    LoadWarnings();
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                    _cache.Set(username, UserModel, cacheEntryOptions);
+                    if (UserModel.ResultError == null)
+                    {
+                        UserModel = BasicInfo.Init(UserModel, HttpContext);
+                        LoadWarnings();
+                        var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                        _cache.Set(username, UserModel, cacheEntryOptions);
+                    }
                 }
             }
             else

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace ITSWebMgmt.Models
 {
-    public class Fileshare
+    public class FileshareModel
     {
         public string Fileshareraw { get; }
         public string Domain { get; }
@@ -11,7 +11,7 @@ namespace ITSWebMgmt.Models
         public string Name { get; }
         public string Access { get; }
 
-        public Fileshare(string value)
+        public FileshareModel(string value)
         {
             this.Fileshareraw = value;
 

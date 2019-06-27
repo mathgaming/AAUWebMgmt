@@ -23,9 +23,9 @@ namespace ITSWebMgmt.ViewInitialisers.User
             var helper = new HTMLTableHelper(new string[] { "Type", "Domain", "Name", "Access" });
 
             //Select Exchange groups and convert to list of ExchangeMailboxGroup
-            var exchangeMailboxGroupList = members.Where<string>(group => (group.StartsWith("CN=MBX_"))).Select(x => new ExchangeMailboxGroup(x));
+            var exchangeMailboxGroupList = members.Where<string>(group => (group.StartsWith("CN=MBX_"))).Select(x => new ExchangeMailboxGroupModel(x));
 
-            foreach (ExchangeMailboxGroup e in exchangeMailboxGroupList)
+            foreach (ExchangeMailboxGroupModel e in exchangeMailboxGroupList)
             {
                 var type = e.Type;
                 var domain = e.Domain;

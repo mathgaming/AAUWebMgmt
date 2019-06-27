@@ -27,9 +27,9 @@ namespace ITSWebMgmt.ViewInitialisers.User
             var fileshareList = members.Where((string value) =>
             {
                 return GroupController.isFileShare(value);
-            }).Select(x => new Fileshare(x));
+            }).Select(x => new FileshareModel(x));
 
-            foreach (Fileshare f in fileshareList)
+            foreach (FileshareModel f in fileshareList)
             {
                 var nameWithLink = string.Format("<a href=\"/Group?grouppath={0}\">{1}</a><br/>", HttpUtility.UrlEncode("LDAP://" + f.Fileshareraw), f.Name);
                 helper.AddRow(new string[] { f.Type, f.Domain, nameWithLink, f.Access });

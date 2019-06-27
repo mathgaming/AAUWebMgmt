@@ -57,7 +57,7 @@ namespace ITSWebMgmt.Controllers
                 }
             }
 
-            return View("Index", new DefendpointChallengeResponse(result));
+            return View("Index", new DefendpointChallengeResponseModel(result));
         }
     }
 }

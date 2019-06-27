@@ -32,4 +32,9 @@
     <PackageReference Include="SimpleImpersonation" Version="3.0.0" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Folder Include="ViewInitialisers\Group\" />
+  </ItemGroup>
+
 </Project>
