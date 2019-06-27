@@ -60,7 +60,7 @@ namespace ITSWebMgmt.Connectors
 
         protected string doAction(string userjson)
         {
-            //Print the userController info! 
+            //Print the user info! 
             var sb = new StringBuilder();
 
             if (userjson == null)
