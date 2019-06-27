@@ -5,7 +5,7 @@
     var sb = new StringBuilder();
     // Display available meeting times.
 
-    var temp = await Model.user.getFreeBusyResultsAsync();
+    var temp = await Model.userController.getFreeBusyResultsAsync();
 
     DateTime now = DateTime.Now;
     foreach (AttendeeAvailability availability in temp.AttendeesAvailability)

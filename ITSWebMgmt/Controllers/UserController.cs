@@ -24,7 +24,6 @@ namespace ITSWebMgmt.Controllers
         public IActionResult Index(string username)
         {
             UserModel = getUserModel(username);
-
             return View(UserModel);
         }
 
@@ -44,6 +43,7 @@ namespace ITSWebMgmt.Controllers
                 {
                     username = username.Trim();
                     UserModel = new UserModel(this, username, lookupUser(username));
+                    ViewBag.usesOneDrive = OneDriveHelper.doesUserUseOneDrive(HttpContext, UserModel);
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(username, UserModel, cacheEntryOptions);
                 }
