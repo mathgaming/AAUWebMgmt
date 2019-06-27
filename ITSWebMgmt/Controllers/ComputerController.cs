@@ -39,7 +39,7 @@ namespace ITSWebMgmt.Controllers
                 computername = computername.Substring(computername.IndexOf('\\') + 1);
                 if (!_cache.TryGetValue(computername, out ComputerModel))
                 {
-                    ComputerModel = new ComputerModel(ControllerContext.HttpContext.User.Identity.Name, computername);
+                    ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computername);
                     if (ComputerModel.ComputerFound)
                     {
                         ComputerModel.ShowResultDiv = true;
@@ -62,7 +62,7 @@ namespace ITSWebMgmt.Controllers
             }
             else
             {
-                ComputerModel = new ComputerModel(ControllerContext.HttpContext.User.Identity.Name, computername);
+                ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computername);
             }
 
             return ComputerModel;
@@ -117,7 +117,7 @@ namespace ITSWebMgmt.Controllers
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
             ComputerModel = ComputerModel = getComputerModel(computername);
-            moveOU(ControllerContext.HttpContext.User.Identity.Name, ComputerModel.adpath);
+            moveOU(HttpContext.User.Identity.Name, ComputerModel.adpath);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = "OU moved for" + computername });
         }
@@ -132,7 +132,7 @@ namespace ITSWebMgmt.Controllers
         {
             //ComputerModel.ShowResultGetPassword = false;
             ComputerModel = getComputerModel(computername);
-            logger.Info("User {0} requesed localadmin password for computer {1}", ControllerContext.HttpContext.User.Identity.Name, ComputerModel.adpath);
+            logger.Info("User {0} requesed localadmin password for computer {1}", HttpContext.User.Identity.Name, ComputerModel.adpath);
 
             var passwordRetuned = getLocalAdminPassword(ComputerModel.adpath);
 

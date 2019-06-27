@@ -217,7 +217,7 @@ namespace ITSWebMgmt.Controllers
                 string newOU = string.Format("{0},{1}", ou[count - 2], ou[count - 1]);
                 string newPath = string.Format("{0}{1}/{2},{3}", protocol, string.Join(".", dcpath).Replace("dc=", ""), newOU, string.Join(",", dcpath));
 
-                logger.Info("user " + ControllerContext.HttpContext.User.Identity.Name + " changed OU on user to: " + newPath + " from " + UserModel.adpath + ".");
+                logger.Info("user " + HttpContext.User.Identity.Name + " changed OU on user to: " + newPath + " from " + UserModel.adpath + ".");
 
                 var newLocaltion = new DirectoryEntry(newPath);
                 UserModel.ADcache.DE.MoveTo(newLocaltion);
@@ -233,7 +233,7 @@ namespace ITSWebMgmt.Controllers
         public string getADPathFromUsername(string username)
         {
             //XXX, this is a use input, might not be save us use in log 
-            logger.Info("User {0} lookedup user {1}", ControllerContext.HttpContext.User.Identity.Name, username);
+            logger.Info("User {0} lookedup user {1}", HttpContext.User.Identity.Name, username);
 
             if (username.Contains("\\"))
             {
@@ -266,7 +266,7 @@ namespace ITSWebMgmt.Controllers
         public ActionResult UnlockUserAccount([FromBody]string username)
         {
             UserModel = getUserModel(username);
-            logger.Info("User {0} unlocked useraccont {1}", ControllerContext.HttpContext.User.Identity.Name, UserModel.adpath);
+            logger.Info("User {0} unlocked useraccont {1}", HttpContext.User.Identity.Name, UserModel.adpath);
 
             try
             {
@@ -286,7 +286,7 @@ namespace ITSWebMgmt.Controllers
         {
             UserModel = getUserModel(username);
             //XXX log what the new value of profile is :)
-            logger.Info("User {0} toggled romaing profile for user  {1}", ControllerContext.HttpContext.User.Identity.Name, UserModel.adpath);
+            logger.Info("User {0} toggled romaing profile for user  {1}", HttpContext.User.Identity.Name, UserModel.adpath);
 
             //string profilepath = (string)(ADcache.DE.Properties["profilePath"])[0];
 
