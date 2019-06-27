@@ -153,13 +153,13 @@ namespace ITSWebMgmt.Controllers
             //Check root is people
             if (!(ou[count - 1]).Equals("ou=people", StringComparison.CurrentCultureIgnoreCase))
             {
-                //Error userController is not placed in people!!!!! Cant move the userController (might not be a real userController or admin or computer)
+                //Error user is not placed in people!!!!! Cant move the user (might not be a real user or admin or computer)
                 return false;
             }
             string[] okplaces = new string[3] { "ou=staff", "ou=guests", "ou=students" };
             if (!okplaces.Contains(ou[count - 2], StringComparer.OrdinalIgnoreCase))
             {
-                //Error userController is not in out staff, people or student, what is gowing on here?
+                //Error user is not in out staff, people or student, what is gowing on here?
                 return false;
             }
             if (count > 2)
@@ -219,7 +219,7 @@ namespace ITSWebMgmt.Controllers
 
                 return Success();
             }
-            //We don't need to do anything, userController is placed in the right ou! (we think, can still be in wrong ou fx a guest changed to staff, we cant check that here) 
+            //We don't need to do anything, user is placed in the right ou! (we think, can still be in wrong ou fx a guest changed to staff, we cant check that here) 
             logger.Debug("no need to change user {0} out, all is good", UserModel.adpath);
             return Success();
         }
@@ -247,7 +247,7 @@ namespace ITSWebMgmt.Controllers
             var adpath = globalSearch(username);
             if (adpath == null)
             {
-                //Show userController not found
+                //Show user not found
                 return null;
             }
             else
