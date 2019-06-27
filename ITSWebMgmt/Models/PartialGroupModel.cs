@@ -10,6 +10,7 @@ namespace ITSWebMgmt.Models
     {
         public List<string> GroupList;
         public List<string> GroupListAll;
+        public string Data;
         public string GroupSegment;
         public string GroupsAllSegment;
         public string AttributeName;

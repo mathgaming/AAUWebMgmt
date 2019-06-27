@@ -81,6 +81,7 @@ namespace ITSWebMgmt.Models
         public bool ShowErrorDiv = false;
         public bool ShowFixUserOU = false;
         public bool ShowLoginScript = false;
+        public bool UsesOnedrive = false;
 
         public UserModel(UserController controller, string username, string adpath)
         {

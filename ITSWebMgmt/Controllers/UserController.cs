@@ -3,6 +3,7 @@ using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Functions;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
+using ITSWebMgmt.ViewInitialisers.User;
 using ITSWebMgmt.WebMgmtErrors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Exchange.WebServices.Data;
@@ -43,7 +44,7 @@ namespace ITSWebMgmt.Controllers
                 {
                     username = username.Trim();
                     UserModel = new UserModel(this, username, lookupUser(username));
-                    ViewBag.usesOneDrive = OneDriveHelper.doesUserUseOneDrive(HttpContext, UserModel);
+                    UserModel = BasicInfo.Init(UserModel, HttpContext);
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(username, UserModel, cacheEntryOptions);
                 }
@@ -374,6 +375,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
+                    UserModel = BasicInfo.Init(UserModel, HttpContext);
                     break;
                 case "groups":
                     viewName = "Groups";
@@ -388,6 +390,7 @@ namespace ITSWebMgmt.Controllers
                 case "fileshares":
                     viewName = "Fileshares";
                     model = new PartialGroupModel(UserModel.ADcache, "memberOf");
+                    model = Fileshares.Init(model);
                     break;
                 case "calAgenda":
                     viewName = "CalendarAgenda";
@@ -395,21 +398,26 @@ namespace ITSWebMgmt.Controllers
                 case "exchange":
                     viewName = "Exchange";
                     model = new PartialGroupModel(UserModel.ADcache, "memberOf");
+                    model = Exchange.Init(model);
                     break;
                 case "servicemanager":
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
                     viewName = "ComputerInformation";
+                    UserModel = ComputerInformation.Init(UserModel);
                     break;
                 case "loginscript":
                     viewName = "Loginscript";
+                    UserModel = LoginScript.Init(UserModel);
                     break;
                 case "print":
                     viewName = "Print";
+                    UserModel.Print = new PrintConnector(UserModel.Guid.ToString()).doStuff();
                     break;
                 case "rawdata":
                     viewName = "Raw";
+                    UserModel.Rawdata = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
                     break;
             }
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);

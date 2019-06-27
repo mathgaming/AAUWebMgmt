@@ -1,14 +1,10 @@
 ﻿@model ITSWebMgmt.Models.UserModel
-@using ITSWebMgmt.Connectors
 
 <script>
     $("#smloader > div").hide("fast");
 </script>
-@{
-    var scsmtest = new SCSMConnector();
-    Model.ServiceManager = await scsmtest.getActiveIncidents(Model.UserPrincipalName, Model.DisplayName);
-    var userID = scsmtest.userID;
-}
+@Model.ServiceManager = await new SCSMConnector().getActiveIncidents(Model.UserPrincipalName, Model.DisplayName);
+
 <h2>SCSM Information</h2>
 @using (Html.BeginForm("CreateNewIRSR", "User", FormMethod.Post))
 {
