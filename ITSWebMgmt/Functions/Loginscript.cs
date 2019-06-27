@@ -13,7 +13,7 @@ namespace ITSWebMgmt.Functions
 
         }
 
-        //Return the loginscript of the userController or null for none
+        //Return the loginscript of the user or null for none
         public string getLoginScript(string scriptName, string path)
         {
             if (scriptName != "")
