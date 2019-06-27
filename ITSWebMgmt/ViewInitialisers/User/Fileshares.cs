@@ -10,15 +10,15 @@ namespace ITSWebMgmt.ViewInitialisers.User
 {
     public static class Fileshares
     {
-        public static PartialGroupModel Init(PartialGroupModel Model)
+        public static PartialGroupModel Init(PartialGroupModel model)
         {
             string transitiv = "";
-            var members = Model.getGroupsTransitive(Model.AttributeName);
+            var members = model.getGroupsTransitive(model.AttributeName);
 
             if (members.Count == 0)
             {
                 transitiv = "<h3>NB: Listen viser kun direkte medlemsskaber, kunne ikke finde fuld liste på denne Domain Controller eller domæne</h3>";
-                members = Model.getGroups(Model.AttributeName);
+                members = model.getGroups(model.AttributeName);
             }
 
             var helper = new HTMLTableHelper(new string[] { "Type", "Domain", "Name", "Access" });
@@ -35,9 +35,9 @@ namespace ITSWebMgmt.ViewInitialisers.User
                 helper.AddRow(new string[] { f.Type, f.Domain, nameWithLink, f.Access });
             }
 
-            Model.Data = transitiv + helper.GetTable();
+            model.Data = transitiv + helper.GetTable();
 
-            return Model;
+            return model;
         }
     }
 }

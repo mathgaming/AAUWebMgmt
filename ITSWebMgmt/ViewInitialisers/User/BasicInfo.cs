@@ -12,21 +12,21 @@ namespace ITSWebMgmt.ViewInitialisers.User
 {
     public static class BasicInfo
     {
-        public static UserModel Init(UserModel Model, HttpContext context)
+        public static UserModel Init(UserModel model, HttpContext context)
         {
             //lblbasicInfoOfficePDS
-            if (Model.AAUStaffID != null)
+            if (model.AAUStaffID != null)
             {
-                string empID = Model.AAUStaffID;
+                string empID = model.AAUStaffID;
 
                 var pds = new PureConnector(empID);
-                Model.BasicInfoDepartmentPDS = pds.Department;
-                Model.BasicInfoOfficePDS = pds.OfficeAddress;
+                model.BasicInfoDepartmentPDS = pds.Department;
+                model.BasicInfoOfficePDS = pds.OfficeAddress;
             }
 
             //Other fileds
             var attrDisplayName = "UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
-            var attrArry = Model.getUserInfo();
+            var attrArry = model.getUserInfo();
             var dispArry = attrDisplayName.Split(',');
             string[] dateFields = { "lastLogon", "badPasswordTime" };
 
@@ -52,7 +52,7 @@ namespace ITSWebMgmt.ViewInitialisers.User
 
             //Email
             string email = "";
-            foreach (string s in Model.ProxyAddresses)
+            foreach (string s in model.ProxyAddresses)
             {
                 if (s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -63,37 +63,37 @@ namespace ITSWebMgmt.ViewInitialisers.User
             sb.Append($"<tr><td>E-mails</td><td>{email}</td></tr>");
 
             const int UF_LOCKOUT = 0x0010;
-            int userFlags = Model.UserAccountControlComputed;
+            int userFlags = model.UserAccountControlComputed;
 
-            Model.BasicInfoPasswordExpired = "False";
+            model.BasicInfoPasswordExpired = "False";
 
             if ((userFlags & UF_LOCKOUT) == UF_LOCKOUT)
             {
-                Model.BasicInfoPasswordExpired = "True";
+                model.BasicInfoPasswordExpired = "True";
             }
 
-            if (Model.UserPasswordExpiryTimeComputed == "")
+            if (model.UserPasswordExpiryTimeComputed == "")
             {
-                Model.BasicInfoPasswordExpireDate = "Never";
+                model.BasicInfoPasswordExpireDate = "Never";
             }
             else
             {
-                Model.BasicInfoPasswordExpireDate = Model.UserPasswordExpiryTimeComputed;
+                model.BasicInfoPasswordExpireDate = model.UserPasswordExpiryTimeComputed;
             }
 
-            Model.UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(context, Model);
+            model.UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(context, model);
 
             //OneDrive
-            sb.Append($"<tr><td>Uses OneDrive?</td><td>{Model.UsesOnedrive}</td></tr>");
+            sb.Append($"<tr><td>Uses OneDrive?</td><td>{model.UsesOnedrive}</td></tr>");
 
-            Model.BasicInfoTable = sb.ToString();
+            model.BasicInfoTable = sb.ToString();
 
             var admdb = new ADMdbConnector();
 
-            string upn = Model.UserPrincipalName;
+            string upn = model.UserPrincipalName;
 
-            string firstName = Model.GivenName;
-            string lastName = Model.SN;
+            string firstName = model.GivenName;
+            string lastName = model.SN;
 
             var tmp = upn.Split('@');
             var domain = tmp[1].Split('.')[0];
@@ -105,14 +105,14 @@ namespace ITSWebMgmt.ViewInitialisers.User
             //System.Diagnostics.Debug.WriteLine("ADMdb Lookup took: " + watch.ElapsedMilliseconds);
 
             //Has roaming
-            Model.BasicInfoRomaing = "false";
-            if (Model.Profilepath != null)
+            model.BasicInfoRomaing = "false";
+            if (model.Profilepath != null)
             {
-                Model.BasicInfoRomaing = "true";
+                model.BasicInfoRomaing = "true";
             }
 
             //Password Expire date "PasswordExpirationDate"
-            return Model;
+            return model;
         }
     }
 }

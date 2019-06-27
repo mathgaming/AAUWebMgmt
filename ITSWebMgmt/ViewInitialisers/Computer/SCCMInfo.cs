@@ -10,7 +10,7 @@ namespace ITSWebMgmt.ViewInitialisers.Computer
 {
     public static class SCCMInfo
     {
-        public static ComputerModel Init(ComputerModel Model)
+        public static ComputerModel Init(ComputerModel model)
         {
             /*
              *     strQuery = "SELECT * FROM SMS_FullCollectionMembership WHERE ResourceID="& computerID
@@ -26,7 +26,7 @@ namespace ITSWebMgmt.ViewInitialisers.Computer
             //XXX: remeber to filter out computers that are obsolite in sccm (not active)
             string error = "";
             HTMLTableHelper groupTableHelper = new HTMLTableHelper(new string[] { "Collection Name" });
-            var names = setConfig(Model.Collection, Model);
+            var names = setConfig(model.Collection, model);
 
             if (names != null)
             {
@@ -41,13 +41,13 @@ namespace ITSWebMgmt.ViewInitialisers.Computer
             }
 
             //Basal Info
-            var tableAndList = TableGenerator.CreateTableAndRawFromDatabase(Model.System, new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build", "Config" }, "Computer not found i SCCM");
+            var tableAndList = TableGenerator.CreateTableAndRawFromDatabase(model.System, new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build", "Config" }, "Computer not found i SCCM");
 
-            Model.SCCMComputers = error + groupTableHelper.GetTable();
-            Model.SCCMCollectionsTable = tableAndList.Item1; //Table
-            Model.SCCMCollections = tableAndList.Item2; //List
+            model.SCCMComputers = error + groupTableHelper.GetTable();
+            model.SCCMCollectionsTable = tableAndList.Item1; //Table
+            model.SCCMCollections = tableAndList.Item2; //List
 
-            return Model;
+            return model;
         }
 
         public static List<string> setConfig(ManagementObjectCollection Collection, ComputerModel ComputerModel)

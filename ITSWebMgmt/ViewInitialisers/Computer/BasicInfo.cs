@@ -9,28 +9,28 @@ namespace ITSWebMgmt.ViewInitialisers.Computer
 {
     public static class BasicInfo
     {
-        public static ComputerModel Init(ComputerModel Model)
+        public static ComputerModel Init(ComputerModel model)
         {
             //Managed By
-            Model.ManagedBy = "none";
+            model.ManagedBy = "none";
 
-            if (Model.ManagedByAD != null)
+            if (model.ManagedByAD != null)
             {
-                string managerVal = Model.ManagedByAD;
+                string managerVal = model.ManagedByAD;
 
                 if (!string.IsNullOrWhiteSpace(managerVal))
                 {
                     string email = ADHelpers.DistinguishedNameToUPN(managerVal);
-                    Model.ManagedBy = email;
+                    model.ManagedBy = email;
                 }
             }
 
-            if (Model.AdminPasswordExpirationTime != null)
+            if (model.AdminPasswordExpirationTime != null)
             {
-                Model.ShowResultGetPassword = true;
+                model.ShowResultGetPassword = true;
             }
 
-            return Model;
+            return model;
         }
     }
 }

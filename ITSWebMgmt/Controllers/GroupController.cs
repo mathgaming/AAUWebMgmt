@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using ITSWebMgmt.Models;
 using System.Web;
 using System.Net;
+using ITSWebMgmt.ViewInitialisers.Group;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -16,28 +17,29 @@ namespace ITSWebMgmt.Controllers
         //https://localhost:44322/group/index?grouppath=LDAP:%2f%2fCN%3dcm12_config_AAU10%2cOU%3dConfigMgr%2cOU%3dGroups%2cDC%3dsrv%2cDC%3daau%2cDC%3ddk
         public IActionResult Index(string grouppath, bool forceviewgroup = false)
         {
-            Group = new GroupModel();
-            Group.ADcache = new GroupADcache(grouppath);
-            if (forceviewgroup == false && isFileShare(Group.DistinguishedName))
+            GroupModel = new GroupModel();
+            GroupModel.ADcache = new GroupADcache(grouppath);
+            GroupModel = BasicInfo.Init(GroupModel);
+            if (forceviewgroup == false && isFileShare(GroupModel.DistinguishedName))
             {
                 string[] tables = GetFileshareTables();
-                Group.GroupSegment = tables[0];
-                Group.GroupsAllSegment = tables[1];
-                Group.GroupOfSegment = tables[2];
-                Group.GroupsOfAllSegment = tables[3];
-                Group.IsFileShare = true;
+                GroupModel.GroupSegment = tables[0];
+                GroupModel.GroupsAllSegment = tables[1];
+                GroupModel.GroupOfSegment = tables[2];
+                GroupModel.GroupsOfAllSegment = tables[3];
+                GroupModel.IsFileShare = true;
 
-                return View("FileShare", Group);
+                return View("FileShare", GroupModel);
             }
-            return View(Group);
+            return View(GroupModel);
         }
 
-        public GroupModel Group;
+        public GroupModel GroupModel;
 
         public bool isGroup()
         {
             ///XXX we expect a group check its a group
-            return Group.ADcache.DE.SchemaEntry.Name.Equals("group", StringComparison.CurrentCultureIgnoreCase);
+            return GroupModel.ADcache.DE.SchemaEntry.Name.Equals("group", StringComparison.CurrentCultureIgnoreCase);
         }
 
         public static bool isFileShare(string value)
@@ -62,7 +64,7 @@ namespace ITSWebMgmt.Controllers
             List<string> accessNames = new List<string> { "Full", "Modify", "Read", "Edit", "Contribute" };
             foreach (string accessName in accessNames)
             {
-                string temp = Regex.Replace(Group.adpath, @"_[a-zA-Z]*,OU", $"_{accessName},OU");
+                string temp = Regex.Replace(GroupModel.adpath, @"_[a-zA-Z]*,OU", $"_{accessName},OU");
                 ADcache group = null;
                 try
                 {

@@ -10,48 +10,48 @@ namespace ITSWebMgmt.ViewInitialisers.Computer
 {
     public static class SCCMHW
     {
-        public static ComputerModel Init(ComputerModel Model)
+        public static ComputerModel Init(ComputerModel model)
         {
-            Model.SCCMLD = TableGenerator.CreateVerticalTableFromDatabase(Model.LogicalDisk,
+            model.SCCMLD = TableGenerator.CreateVerticalTableFromDatabase(model.LogicalDisk,
                 new List<string>() { "DeviceID", "FileSystem", "Size", "FreeSpace" },
                 new List<string>() { "DeviceID", "File system", "Size (GB)", "FreeSpace (GB)" },
                 "Disk information not found");
 
-            if (SCCM.HasValues(Model.RAM))
+            if (SCCM.HasValues(model.RAM))
             {
                 int total = 0;
                 int count = 0;
 
-                foreach (ManagementObject o in Model.RAM) //Has one!
+                foreach (ManagementObject o in model.RAM) //Has one!
                 {
                     total += int.Parse(o.Properties["Capacity"].Value.ToString()) / 1024;
                     count++;
                 }
 
-                Model.SCCMRAM = $"{total} GB RAM in {count} slot(s)";
+                model.SCCMRAM = $"{total} GB RAM in {count} slot(s)";
             }
             else
             {
-                Model.SCCMRAM = "RAM information not found";
+                model.SCCMRAM = "RAM information not found";
             }
 
-            Model.SCCMBIOS = TableGenerator.CreateVerticalTableFromDatabase(Model.BIOS,
+            model.SCCMBIOS = TableGenerator.CreateVerticalTableFromDatabase(model.BIOS,
                 new List<string>() { "BIOSVersion", "Description", "Manufacturer", "Name", "SMBIOSBIOSVersion" },
                 "BIOS information not found");
 
-            Model.SCCMVC = TableGenerator.CreateVerticalTableFromDatabase(Model.VideoController,
+            model.SCCMVC = TableGenerator.CreateVerticalTableFromDatabase(model.VideoController,
                 new List<string>() { "AdapterRAM", "CurrentHorizontalResolution", "CurrentVerticalResolution", "DriverDate", "DriverVersion", "Name" },
                 "Video controller information not found");
 
-            Model.SCCMProcessor = TableGenerator.CreateVerticalTableFromDatabase(Model.Processor,
+            model.SCCMProcessor = TableGenerator.CreateVerticalTableFromDatabase(model.Processor,
                 new List<string>() { "Is64Bit", "IsMobile", "IsVitualizationCapable", "Manufacturer", "MaxClockSpeed", "Name", "NumberOfCores", "NumberOfLogicalProcessors" },
                 "Processor information not found");
 
-            Model.SCCMDisk = TableGenerator.CreateVerticalTableFromDatabase(Model.Disk,
+            model.SCCMDisk = TableGenerator.CreateVerticalTableFromDatabase(model.Disk,
                 new List<string>() { "Caption", "Model", "Partitions", "Size", "Name" },
                 "Video controller information not found");
 
-            return Model;
+            return model;
         }
     }
 }

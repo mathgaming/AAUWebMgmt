@@ -9,21 +9,21 @@ namespace ITSWebMgmt.ViewInitialisers.User
 {
     public static class LoginScript
     {
-        public static UserModel Init(UserModel Model)
+        public static UserModel Init(UserModel model)
         {
-            Model.ShowResultDiv = false;
+            model.ShowResultDiv = false;
 
             var loginscripthelper = new Loginscript();
 
-            var script = loginscripthelper.getLoginScript(Model.ScriptPath, Model.ADcache.Path);
+            var script = loginscripthelper.getLoginScript(model.ScriptPath, model.ADcache.Path);
 
             if (script != null)
             {
-                Model.ShowResultDiv = true;
-                Model.Loginscript = loginscripthelper.parseAndDisplayLoginScript(script);
+                model.ShowResultDiv = true;
+                model.Loginscript = loginscripthelper.parseAndDisplayLoginScript(script);
             }
 
-            return Model;
+            return model;
         }
     }
 }

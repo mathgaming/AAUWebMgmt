@@ -10,12 +10,12 @@ namespace ITSWebMgmt.ViewInitialisers.User
 {
     public class CalendarAgenda
     {
-        public static UserModel Init(UserModel Model)
+        public static UserModel Init(UserModel model)
         {
             var sb = new StringBuilder();
             // Display available meeting times.
 
-            var temp = getFreeBusyResultsAsync(Model).Result;
+            var temp = getFreeBusyResultsAsync(model).Result;
 
             DateTime now = DateTime.Now;
             foreach (AttendeeAvailability availability in temp.AttendeesAvailability)
@@ -42,9 +42,9 @@ namespace ITSWebMgmt.ViewInitialisers.User
                 }
             }
 
-            Model.CalAgenda = sb.ToString();
+            model.CalAgenda = sb.ToString();
 
-            return Model;
+            return model;
         }
 
         public static async Task<GetUserAvailabilityResults> getFreeBusyResultsAsync(UserModel UserModel)
