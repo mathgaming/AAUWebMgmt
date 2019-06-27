@@ -43,15 +43,16 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(username, out UserModel))
                 {
                     username = username.Trim();
-                    UserModel = new UserModel(this, username, lookupUser(username));
+                    UserModel = new UserModel(username, lookupUser(username));
                     UserModel = BasicInfo.Init(UserModel, HttpContext);
+                    LoadWarnings();
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(username, UserModel, cacheEntryOptions);
                 }
             }
             else
             {
-                UserModel = new UserModel(this, null, null);
+                UserModel = new UserModel(null, null);
             }
 
             return UserModel;
@@ -278,34 +279,6 @@ namespace ITSWebMgmt.Controllers
             return Success();
         }
 
-        public async Task<GetUserAvailabilityResults> getFreeBusyResultsAsync()
-        {
-            ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
-            service.UseDefaultCredentials = true; // Use domain account for connecting 
-            //service.Credentials = new WebCredentials("user1@contoso.com", "password"); // used if we need to enter a password, but for now we are using domain credentials
-            //service.AutodiscoverUrl("kyrke@its.aau.dk");  //XXX we should use the service user for webmgmt!
-            service.Url = new Uri("https://mail.aau.dk/EWS/exchange.asmx");
-
-            List<AttendeeInfo> attendees = new List<AttendeeInfo>();
-
-            attendees.Add(new AttendeeInfo()
-            {
-                SmtpAddress = UserModel.UserPrincipalName,
-                AttendeeType = MeetingAttendeeType.Organizer
-            });
-
-            // Specify availability options.
-            AvailabilityOptions myOptions = new AvailabilityOptions();
-
-            myOptions.MeetingDuration = 30;
-            myOptions.RequestedFreeBusyView = FreeBusyViewType.FreeBusy;
-
-            // Return a set of free/busy times.
-            DateTime dayBegin = DateTime.Now.Date;
-            var window = new TimeWindow(dayBegin, dayBegin.AddDays(1));
-            return await service.GetUserAvailability(attendees, window, AvailabilityData.FreeBusy, myOptions);
-        }
-
         public ActionResult ToggleUserprofile([FromBody]string username)
         {
             UserModel = getUserModel(username);
@@ -364,6 +337,28 @@ namespace ITSWebMgmt.Controllers
             return Json(new { success = true, message = Message });
         }
 
+        private void LoadWarnings()
+        {
+            List<WebMgmtError> errors = new List<WebMgmtError>
+            {
+                new UserDisabled(this),
+                new UserLockedDiv(this),
+                new PasswordExpired(this),
+                new MissingAAUAttr(this),
+                new NotStandardOU(this)
+            };
+
+            var errorList = new WebMgmtErrorList(errors);
+            UserModel.ErrorCountMessage = errorList.getErrorCountMessage();
+            UserModel.ErrorMessages = errorList.ErrorMessages;
+
+            if (this.userIsInRightOU())
+            {
+                UserModel.ShowFixUserOU = false;
+            }
+            //Password is expired and warning before expire (same timeline as windows displays warning)
+        }
+
         public override ActionResult LoadTab(string tabName, string name)
         {
             UserModel = getUserModel(name);
@@ -394,6 +389,7 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "calAgenda":
                     viewName = "CalendarAgenda";
+                    UserModel = CalendarAgenda.Init(UserModel);
                     break;
                 case "exchange":
                     viewName = "Exchange";
