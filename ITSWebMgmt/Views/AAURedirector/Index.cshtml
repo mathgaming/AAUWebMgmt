@@ -1,1 +1,21 @@
-﻿<h1>Type not found</h1>
+﻿@model ChangeModel
+@if (Model.Error != null)
+{
+    <h1>@Html.DisplayFor(model => model.Error)</h1>
+}
+else
+{
+<h1>Change @Html.DisplayFor(model => model.changeID)</h1>
+
+    <br />
+    <b>@Html.DisplayFor(model => model.Name)</b>
+    <br />
+    @Html.DisplayFor(model => model.Discription)
+    <br />
+    <b>Start dato:</b> @Html.DisplayFor(model => model.Start)
+    <br />
+    <b> End dato:</b> @Html.DisplayFor(model => model.End)
+    <br />
+    <b>Ansvarlig:</b> @Html.DisplayFor(model => model.Resposeble)
+    <br />
+}

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ITSWebMgmt.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -15,7 +17,7 @@ namespace ITSWebMgmt.Controllers
 
             if (Regex.IsMatch(id, emailFilter, RegexOptions.IgnoreCase))
             {
-                Response.Redirect($"https://srv-webmgmt01.srv.aau.dk/UserInfo.aspx?search={id}");
+                Response.Redirect($"https://webmgmt.aau.dk/User?username={id}");
             }
             else if (id.StartsWith("IR", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -32,22 +34,60 @@ namespace ITSWebMgmt.Controllers
             }
             else if (id.StartsWith("C-", StringComparison.CurrentCultureIgnoreCase))
             {
-                Response.Redirect("https://srv-webmgmt01.srv.aau.dk/IDtoSystem.aspx?id=" + id);
+                return View(getChangeModel(id));
             }
             else if (id.StartsWith("EC-", StringComparison.CurrentCultureIgnoreCase))
             {
-                Response.Redirect("https://srv-webmgmt01.srv.aau.dk/IDtoSystem.aspx?id=" + id);
+                return View(getChangeModel(id));
             }
             else if (id.StartsWith("SC-", StringComparison.CurrentCultureIgnoreCase))
             {
-                Response.Redirect("https://srv-webmgmt01.srv.aau.dk/IDtoSystem.aspx?id=" + id);
+                return View(getChangeModel(id));
             }
             else if (id.StartsWith("AAU", StringComparison.CurrentCultureIgnoreCase))
             {
-                Response.Redirect($"https://srv-webmgmt01.srv.aau.dk/ComputerInfo.aspx?computername={id}");
+                Response.Redirect($"https://webmgmt.aau.dk/Computer?computername={id}");
             }
 
-            return View();
+            return View(new ChangeModel(){ Error = "Type not found" });
+        }
+
+        private ChangeModel getChangeModel(string id)
+        {
+            SqlConnection myConnection = new SqlConnection("Data Source = ad-sql2-misc.aau.dk; Initial Catalog = webmgmt; Integrated Security=SSPI;");
+            try
+            {
+                myConnection.Open();
+            }
+            catch (SqlException)
+            {
+                return new ChangeModel()
+                {
+                    Error = "Access denied to change. Can someone confirm if this worked between 2019-01-01 and 2019-06-25?"
+                };
+            }
+            
+            string command = "SELECT TOP (1) [ChangeID] ,[Navn] ,[Beskrivelse] ,[Start] ,[Slut] ,[Ansvarlig] FROM[webmgmt].[dbo].[Changes] WHERE changeid like @ChangeID";
+
+            SqlCommand readSQLCommand = new SqlCommand(command, myConnection);
+            readSQLCommand.Parameters.AddWithValue("@ChangeID", id);
+            var reader = readSQLCommand.ExecuteReader();
+            reader.Read();
+
+            ChangeModel model = new ChangeModel()
+            {
+                changeID = reader["ChangeID"].ToString(),
+                Name = reader["Navn"].ToString(),
+                Discription = reader["Beskrivelse"].ToString(),
+                Start = reader["Start"].ToString(),
+                End = reader["Slut"].ToString(),
+                Resposeble = reader["Ansvarlig"].ToString(),
+                Error = null
+            };
+
+            myConnection.Close();
+
+            return model;
         }
     }
 }
