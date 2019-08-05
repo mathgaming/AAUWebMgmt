@@ -191,8 +191,10 @@ namespace ITSWebMgmt.Controllers
                 return null;
             }
 
-            DirectoryEntry de = new DirectoryEntry(adpath);
-           
+            DirectoryEntry de = new DirectoryEntry(adpath); // srv\svc_webmgmt is used by the old one
+
+            Console.WriteLine(de.Username);
+
             //XXX if expire time is smaller than 4 hours, you can use this to add time to the password (eg 3h to expire will become 4), never allow a password expire to be larger than the old value
 
             if (de.Properties.Contains("ms-Mcs-AdmPwd"))
