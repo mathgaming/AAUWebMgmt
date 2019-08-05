@@ -69,6 +69,7 @@ namespace ITSWebMgmt.Models
         public bool ShowResultGetPassword = false;
         public bool ShowMoveComputerOUdiv = false;
         public bool ShowErrorDiv = false;
+        public bool UsesOnedrive = false;
 
         public ComputerModel(string activeUser, string computerName)
         {

@@ -1,4 +1,5 @@
 ﻿using ITSWebMgmt.Connectors.Active_Directory;
+using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,8 @@ namespace ITSWebMgmt.ViewInitialisers.Computer
                     model.ManagedBy = email;
                 }
             }
+
+            model.UsesOnedrive = OneDriveHelper.ComputerUsesOneDrive(model.ADcache);
 
             if (model.AdminPasswordExpirationTime != null)
             {

@@ -30,6 +30,12 @@
         <tr>
             @Html.Partial("ManagedBy", Model)
         </tr>
+        <tr>
+            <td>Using OneDrive:</td>
+            <td>
+                @Html.Raw(Model.UsesOnedrive)
+            </td>
+        </tr>
     </tbody>
 </table>
 <br />

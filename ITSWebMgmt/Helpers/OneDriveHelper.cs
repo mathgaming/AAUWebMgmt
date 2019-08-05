@@ -25,11 +25,9 @@ namespace ITSWebMgmt.Helpers
             ManagementObjectCollection connectedComputers = user.getUserMachineRelationshipFromUserName(userName);
             foreach (ManagementObject comp in connectedComputers)
             {
-                string computerName = comp.Properties["ResourceName"].Value.ToString();
-                ADcache cache = new ComputerADcache(computerName, context.User.Identity.Name);
-                if (cache.getGroupsTransitive("memberOf").Exists(x => x.Contains(COMPUTER_USES_1DRIVE_FLAG)))
+                if (computerUsesOneDrive(context, comp))
                 {
-                   return true;
+                    return true;
                 }
             }
             return false;
@@ -38,6 +36,18 @@ namespace ITSWebMgmt.Helpers
         {
             List<string> memberGroups = user.ADcache.getGroupsTransitive("memberOf");
             return memberGroups.Exists(x => x.Contains(USER_USES_1DRIVE_FLAG));
+        }
+
+        public static bool computerUsesOneDrive(HttpContext context, ManagementObject comp)
+        {
+            string computerName = comp.Properties["ResourceName"].Value.ToString();
+            ADcache cache = new ComputerADcache(computerName, context.User.Identity.Name);
+            return ComputerUsesOneDrive(cache);
+        }
+
+        public static bool ComputerUsesOneDrive(ADcache cache)
+        {
+            return cache.getGroupsTransitive("memberOf").Exists(x => x.Contains(COMPUTER_USES_1DRIVE_FLAG));
         }
     }
 }
