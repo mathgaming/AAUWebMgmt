@@ -327,6 +327,24 @@ namespace ITSWebMgmt.Controllers
         {
             Response.Redirect("/CreateWorkItem?userDisplayName=" + displayname);
         }
+        [HttpPost]
+        public void CreateNewWin7UpgradeForm(string displayName, string computerName)
+        {
+            Response.Redirect("/CreateWorkItem/Win7Upgrade?userDisplayName=" + displayName + "&computerName=" + computerName);
+        }
+        //ingen camel-case fordi asp.net er træls
+        public void CreateWin7UpgradeFormsForUserPCs(string username)
+        {
+            UserModel user = this.getUserModel(username);
+            foreach(ComputerModel computer in user.getManagedComputers())
+            {
+                computer.setConfig();
+                if (computer.ConfigPC.Equals("AAU7 PC") || computer.ConfigPC.Equals("Administrativ7 PC"))
+                {
+                    CreateNewWin7UpgradeForm(user.DisplayName, computer.ComputerName);
+                }
+            }
+        }
 
         public ActionResult Error(string message = "Error")
         {

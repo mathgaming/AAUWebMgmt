@@ -1,6 +1,5 @@
 using ITSWebMgmt.Connectors.Active_Directory;
 using ITSWebMgmt.Helpers;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,7 +27,6 @@ namespace ITSWebMgmt.Caches
         public DirectoryEntry DE;
         public SearchResult result;
         public string Path { get => DE.Path; }
-        public static Logger logger = LogManager.GetCurrentClassLogger();
         public string adpath;
         private List<Type> types = new List<Type>();
         private List<PropertyValueCollection> AllProperties;

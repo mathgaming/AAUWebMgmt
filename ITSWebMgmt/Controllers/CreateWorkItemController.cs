@@ -17,6 +17,11 @@ namespace ITSWebMgmt.Controllers
 
             return View(model);
         }
+        public IActionResult Win7Index (string userDisplayName, string computerName)
+        {
+            //Special case of returning predefined form for upgrading windows 7 pc's
+            return createWindows7UpgradeForm(userDisplayName, computerName);
+        }
 
         protected string createRedirectCode(string userID, string displayName, string title, string description, string submiturl)
         {
@@ -42,8 +47,17 @@ namespace ITSWebMgmt.Controllers
 
         protected ActionResult createForm(string url, CreateWorkItemModel model)
         {
-            string descriptionConverted = model.AffectedUser.Replace("\n", "\\n").Replace("\r", "\\r");
+            string descriptionConverted = model.Desription.Replace("\n", "\\n").Replace("\r", "\\r");
             return Content(createRedirectCode(HttpContext.User.Identity.Name, model.AffectedUser, model.Title, descriptionConverted, url), "text/html");
+        }
+
+        protected ActionResult createWindows7UpgradeForm(string computerOwner, string affectedComputerName)
+        {
+            CreateWorkItemModel newUpgradeForm = new CreateWorkItemModel();
+            newUpgradeForm.AffectedUser = computerOwner;
+            newUpgradeForm.Title = "Ominstallation af Windows 7-datamat";
+            newUpgradeForm.Desription = "PC-navn: " + affectedComputerName;
+            return CreateSR(newUpgradeForm);
         }
 
         [HttpPost]
