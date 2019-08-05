@@ -41,7 +41,7 @@ namespace ITSWebMgmt.Helpers
         public static bool computerUsesOneDrive(HttpContext context, ManagementObject comp)
         {
             string computerName = comp.Properties["ResourceName"].Value.ToString();
-            ADcache cache = new ComputerADcache(computerName, context.User.Identity.Name);
+            ADcache cache = new ComputerADcache(computerName);
             return ComputerUsesOneDrive(cache);
         }
 

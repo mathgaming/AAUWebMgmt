@@ -51,6 +51,7 @@ namespace ITSWebMgmt.Controllers
             return Content(createRedirectCode(HttpContext.User.Identity.Name, model.AffectedUser, model.Title, descriptionConverted, url), "text/html");
         }
 
+        [HttpPost]
         protected ActionResult createWindows7UpgradeForm(string computerOwner, string affectedComputerName)
         {
             CreateWorkItemModel newUpgradeForm = new CreateWorkItemModel();

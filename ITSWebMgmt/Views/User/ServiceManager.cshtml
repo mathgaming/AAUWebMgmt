@@ -15,8 +15,4 @@
 }
 @Html.Raw(Model.ServiceManager)
 <br>
-@using (Html.BeginForm("CreateWin7UpgradeFormsForUserPCs", "User", FormMethod.Post))
-{
-    @Html.HiddenFor(m => m.UserName)
-    <input type="submit" value="Create new SRs for Windows 7 PCs" />
-}
+
