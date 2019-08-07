@@ -263,6 +263,13 @@ namespace ITSWebMgmt.Connectors
 
         public async Task<string> getActiveIncidents(string upn, string displayName)
         {
+            string uuid = await getUUID(upn, displayName);
+            
+            return doAction(uuid);
+        }
+
+        public async Task<string> getUUID(string upn, string displayName)
+        {
             string authkey = await getAuthKey();
 
             if (authkey == null)
@@ -270,8 +277,7 @@ namespace ITSWebMgmt.Connectors
                 return "No creds for SCSM";
             }
 
-            string uuid = await getUserUUIDByUPN(upn, displayName, authkey);
-            return doAction(uuid);
+            return await getUserUUIDByUPN(upn, displayName, authkey);
         }
     }
 }

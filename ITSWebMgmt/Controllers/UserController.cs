@@ -323,30 +323,15 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public void CreateNewIRSR(string displayname)
+        public void CreateNewIRSR(string userPrincipalName, string sCSMUserID)
         {
-            Response.Redirect("/CreateWorkItem?userDisplayName=" + displayname);
-        }
-
-        [HttpPost]
-        public void CreateNewWin7UpgradeForm(string displayName, string computerName)
-        {
-            Response.Redirect("/CreateWorkItem/Win7Index?userDisplayName=" + displayName + "&computerName=" + computerName);
+            Response.Redirect("/CreateWorkItem?userPrincipalName=" + userPrincipalName + "&userID=" + sCSMUserID);
         }
 
         //ingen camel-case fordi asp.net er træls
-        public void CreateWin7UpgradeFormsForUserPCs(string username)
+        public void CreateWin7UpgradeFormsForUserPCs(string userPrincipalName, string computerName, string sCSMUserID)
         {
-            UserModel user = this.getUserModel(username);
-            foreach(ComputerModel computer in user.getManagedComputers())
-            {
-                computer.setConfig();
-                if (computer.ConfigPC.Equals("AAU7 PC") || computer.ConfigPC.Equals("Administrativ7 PC"))
-                {
-                    CreateNewWin7UpgradeForm(user.DisplayName, computer.ComputerName);
-                    break;
-                }
-            }
+            Response.Redirect("/CreateWorkItem/Win7Index?userPrincipalName=" + userPrincipalName + "&computerName=" + computerName + "&userID=" + sCSMUserID);
         }
 
         public ActionResult Error(string message = "Error")
