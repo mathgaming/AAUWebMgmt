@@ -2,9 +2,10 @@
 @using (Html.BeginForm(FormMethod.Post))
 {
     <div class="ui form">
+        @Html.HiddenFor(m => m.UserID)
         <div class="field">
             <label>Affected User</label>
-            @Html.TextBoxFor(m => m.AffectedUser)
+            @Html.TextBoxFor(m => m.AffectedUser, new { @readonly = true })
         </div>
         <div class="field">
             <label>Title</label>

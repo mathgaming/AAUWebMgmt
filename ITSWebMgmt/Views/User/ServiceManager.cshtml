@@ -4,13 +4,21 @@
     $("#smloader > div").hide("fast");
 </script>
 @{
-    Model.ServiceManager = await new SCSMConnector().getActiveIncidents(Model.UserPrincipalName, Model.DisplayName);
+    SCSMConnector sccm = new SCSMConnector();
+
+    Model.ServiceManager = await sccm.getActiveIncidents(Model.UserPrincipalName, Model.DisplayName);
+    Model.SCSMUserID = sccm.userID;
 }
 
 <h2>SCSM Information</h2>
 @using (Html.BeginForm("CreateNewIRSR", "User", FormMethod.Post))
 {
-    @Html.HiddenFor(m => m.DisplayName)
-    <input type="submit" value="Create bew IR/SR" />
+    @Html.HiddenFor(m => m.UserPrincipalName)
+    @Html.HiddenFor(m => m.SCSMUserID)
+    <input type="submit" value="Create new IR/SR" />
 }
+<br>
+
 @Html.Raw(Model.ServiceManager)
+<br>
+

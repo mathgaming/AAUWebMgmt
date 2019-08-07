@@ -42,6 +42,21 @@ namespace ITSWebMgmt.Models
         public string LastLogon { get => ADcache.getProperty("lastLogon"); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
         public ManagementObjectCollection getUserMachineRelationshipFromUserName(string userName) => SCCMcache.getUserMachineRelationshipFromUserName(userName);
+        public List<ComputerModel> getManagedComputers() {
+            string[] upnsplit = UserPrincipalName.Split('@');
+            string domain = upnsplit[1].Split('.')[0];
+
+            string formattedName = string.Format("{0}\\\\{1}", domain, upnsplit[0]);
+
+            List<ComputerModel> managedComputerList = new List<ComputerModel>();
+
+            foreach (ManagementObject o in getUserMachineRelationshipFromUserName(formattedName))
+            {
+                string machineName = o.Properties["ResourceName"].Value.ToString();
+                managedComputerList.Add(new ComputerModel(machineName));
+            }
+            return managedComputerList;
+        }
 
         public string[] getUserInfo()
         {
@@ -76,6 +91,8 @@ namespace ITSWebMgmt.Models
         public string ResultError;
         public string UserName = "mhsv16@its.aau.dk";
         public string ErrorCountMessage;
+        public string SCSMUserID;
+        public string Windows7to10;
         public bool ShowResultDiv = false;
         public bool ShowErrorDiv = false;
         public bool ShowFixUserOU = false;

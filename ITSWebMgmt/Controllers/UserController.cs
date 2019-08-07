@@ -323,9 +323,15 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public void CreateNewIRSR(string displayname)
+        public void CreateNewIRSR(string userPrincipalName, string sCSMUserID)
         {
-            Response.Redirect("/CreateWorkItem?userDisplayName=" + displayname);
+            Response.Redirect("/CreateWorkItem?userPrincipalName=" + userPrincipalName + "&userID=" + sCSMUserID);
+        }
+
+        //ingen camel-case fordi asp.net er træls
+        public void CreateWin7UpgradeFormsForUserPCs(string userPrincipalName, string computerName, string sCSMUserID)
+        {
+            Response.Redirect("/CreateWorkItem/Win7Index?userPrincipalName=" + userPrincipalName + "&computerName=" + computerName + "&userID=" + sCSMUserID);
         }
 
         public ActionResult Error(string message = "Error")
@@ -405,6 +411,10 @@ namespace ITSWebMgmt.Controllers
                 case "computerInformation":
                     viewName = "ComputerInformation";
                     UserModel = ComputerInformation.Init(UserModel);
+                    break;
+                case "win7to10":
+                    viewName = "Win7to10";
+                    UserModel = Win7to10.Init(UserModel);
                     break;
                 case "loginscript":
                     viewName = "Loginscript";

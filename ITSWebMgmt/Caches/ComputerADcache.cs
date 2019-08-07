@@ -12,7 +12,7 @@ namespace ITSWebMgmt.Caches
         public bool ComputerFound = false;
         public string Domain;
         public object AdmPwdExpirationTime;
-        public ComputerADcache(string computerName, string userName) : base()
+        public ComputerADcache(string computerName) : base()
         {
             ComputerName = computerName;
 
@@ -61,8 +61,6 @@ namespace ITSWebMgmt.Caches
             };
 
             saveCache(properties, null);
-
-            logger.Info("User {0} requesed info about computer {1}", userName, adpath);
         }
 
         private string getDomain()

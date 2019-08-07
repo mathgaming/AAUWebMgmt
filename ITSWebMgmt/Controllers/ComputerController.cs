@@ -11,6 +11,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using ITSWebMgmt.WebMgmtErrors;
 using ITSWebMgmt.ViewInitialisers.Computer;
+using NLog;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -39,7 +40,7 @@ namespace ITSWebMgmt.Controllers
                 computerName = computerName.Substring(computerName.IndexOf('\\') + 1);
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
-                    ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computerName);
+                    ComputerModel = new ComputerModel(computerName);
                     if (ComputerModel.ComputerFound)
                     {
                         ComputerModel.ShowResultDiv = true;
@@ -62,7 +63,7 @@ namespace ITSWebMgmt.Controllers
             }
             else
             {
-                ComputerModel = new ComputerModel(HttpContext.User.Identity.Name, computerName);
+                ComputerModel = new ComputerModel(computerName);
             }
 
             return ComputerModel;

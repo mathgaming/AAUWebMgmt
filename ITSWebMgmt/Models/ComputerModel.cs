@@ -4,6 +4,7 @@ using System.Management;
 using System.Threading;
 using ITSWebMgmt.Caches;
 using ITSWebMgmt.WebMgmtErrors;
+using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.Models
 {
@@ -71,11 +72,11 @@ namespace ITSWebMgmt.Models
         public bool ShowErrorDiv = false;
         public bool UsesOnedrive = false;
 
-        public ComputerModel(string activeUser, string computerName)
+        public ComputerModel(string computerName)
         {
             if (computerName != null)
             {
-                ADcache = new ComputerADcache(computerName, activeUser);
+                ADcache = new ComputerADcache(computerName);
                 if (ADcache.ComputerFound)
                 {
                     SCCMcache = new SCCMcache();
@@ -103,6 +104,64 @@ namespace ITSWebMgmt.Models
             }
 
             return resourceID;
+        }
+        public List<string> setConfig()
+        {
+            ManagementObjectCollection Collection = this.Collection;
+            ComputerModel ComputerModel = this;
+            if (SCCM.HasValues(Collection))
+            {
+                List<string> namesInCollection = new List<string>();
+                foreach (ManagementObject o in Collection)
+                {
+                    //o.Properties["ResourceID"].Value.ToString();
+                    var collectionID = o.Properties["CollectionID"].Value.ToString();
+
+                    if (collectionID.Equals("AA100015"))
+                    {
+                        ComputerModel.ConfigPC = "AAU7 PC";
+                    }
+                    else if (collectionID.Equals("AA100087"))
+                    {
+                        ComputerModel.ConfigPC = "AAU8 PC";
+                    }
+                    else if (collectionID.Equals("AA1000BC"))
+                    {
+                        ComputerModel.ConfigPC = "AAU10 PC";
+                        ComputerModel.ConfigExtra = "True"; // Hardcode AAU10 is bitlocker enabled
+                    }
+                    else if (collectionID.Equals("AA100027"))
+                    {
+                        ComputerModel.ConfigPC = "Administrativ7 PC";
+                    }
+                    else if (collectionID.Equals("AA1001BD"))
+                    {
+                        ComputerModel.ConfigPC = "Administrativ10 PC";
+                        ComputerModel.ConfigExtra = "True"; // Hardcode AAU10 is bitlocker enabled
+                    }
+                    else if (collectionID.Equals("AA10009C"))
+                    {
+                        ComputerModel.ConfigPC = "Imported";
+                    }
+
+                    if (collectionID.Equals("AA1000B8"))
+                    {
+                        ComputerModel.ConfigExtra = "True";
+                    }
+
+                    var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
+                    ManagementPath path = new ManagementPath(pathString);
+                    ManagementObject obj = new ManagementObject();
+
+                    obj.Scope = SCCM.ms;
+                    obj.Path = path;
+                    obj.Get();
+
+                    namesInCollection.Add(obj["Name"].ToString());
+                }
+                return namesInCollection;
+            }
+            return null;
         }
     }
 }

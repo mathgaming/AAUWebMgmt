@@ -10,17 +10,23 @@ namespace ITSWebMgmt.Controllers
 {
     public class CreateWorkItemController : Controller
     {
-        public IActionResult Index(string userDisplayName)
+        public IActionResult Index(string userPrincipalName, string userID)
         {
             CreateWorkItemModel model = new CreateWorkItemModel();
-            model.AffectedUser = userDisplayName;
+            model.AffectedUser = userPrincipalName;
+            model.UserID = userID;
 
             return View(model);
         }
-
-        protected string createRedirectCode(string userID, string displayName, string title, string description, string submiturl)
+        public IActionResult Win7Index (string userPrincipalName, string computerName, string userID)
         {
-            string jsondata = "{\"Title\":\"" + title + "\",\"Description\":\"" + description + "\",\"RequestedWorkItem\":{\"BaseId\":\"" + userID + "\",\"DisplayName\":\"" + displayName + "\",}}";
+            //Special case of returning predefined form for upgrading windows 7 pc's
+            return createWindows7UpgradeForm(userPrincipalName, computerName, userID);
+        }
+
+        protected string createRedirectCode(string userID, string userPrincipalName, string title, string description, string submiturl)
+        {
+            string jsondata = "{\"Title\":\"" + title + "\",\"Description\":\"" + description + "\",\"RequestedWorkItem\":{\"BaseId\":\"" + userID + "\",\"DisplayName\":\"" + userPrincipalName + "\",}}";
             var sb = new StringBuilder();
 
             sb.Append("<html><head>");
@@ -42,8 +48,23 @@ namespace ITSWebMgmt.Controllers
 
         protected ActionResult createForm(string url, CreateWorkItemModel model)
         {
-            string descriptionConverted = model.AffectedUser.Replace("\n", "\\n").Replace("\r", "\\r");
-            return Content(createRedirectCode(HttpContext.User.Identity.Name, model.AffectedUser, model.Title, descriptionConverted, url), "text/html");
+            string descriptionConverted = "";
+            if (model.Desription != null)
+            {
+                descriptionConverted = model.Desription.Replace("\n", "\\n").Replace("\r", "\\r");
+            }
+            return Content(createRedirectCode(model.UserID, model.AffectedUser, model.Title, descriptionConverted, url), "text/html");
+        }
+
+        [HttpPost]
+        protected ActionResult createWindows7UpgradeForm(string computerOwner, string affectedComputerName, string userID)
+        {
+            CreateWorkItemModel newUpgradeForm = new CreateWorkItemModel();
+            newUpgradeForm.AffectedUser = computerOwner;
+            newUpgradeForm.Title = "Opgradering af Windows 7 til 10";
+            newUpgradeForm.Desription = "PC-navn: " + affectedComputerName;
+            newUpgradeForm.UserID = userID;
+            return CreateSR(newUpgradeForm);
         }
 
         [HttpPost]
