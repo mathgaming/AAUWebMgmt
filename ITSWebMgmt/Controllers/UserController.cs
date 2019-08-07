@@ -412,6 +412,10 @@ namespace ITSWebMgmt.Controllers
                     viewName = "ComputerInformation";
                     UserModel = ComputerInformation.Init(UserModel);
                     break;
+                case "win7to10":
+                    viewName = "Win7to10";
+                    UserModel = Win7to10.Init(UserModel);
+                    break;
                 case "loginscript":
                     viewName = "Loginscript";
                     UserModel = LoginScript.Init(UserModel);

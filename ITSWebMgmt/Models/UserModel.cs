@@ -92,6 +92,7 @@ namespace ITSWebMgmt.Models
         public string UserName = "mhsv16@its.aau.dk";
         public string ErrorCountMessage;
         public string SCSMUserID;
+        public string Windows7to10;
         public bool ShowResultDiv = false;
         public bool ShowErrorDiv = false;
         public bool ShowFixUserOU = false;

@@ -1,31 +1,4 @@
 ﻿@model ITSWebMgmt.Models.UserModel
-@using ITSWebMgmt.Connectors
-<script>
-    $("#smloader > div").hide("fast");
-</script>
 <h2>Computer Information</h2>
 <!-- Information from managerOf computers and logon machines from SCCM -->
-
-@{
-    var scsm = new SCSMConnector();
-    await scsm.getUUID(Model.UserPrincipalName, Model.DisplayName);
-    Model.SCSMUserID = scsm.userID;
-}
-
-@using (Html.BeginForm("CreateWin7UpgradeFormsForUserPCs", "User", FormMethod.Post, new { id = "myForm" }))
-{
-
-    @Html.HiddenFor(m => m.UserPrincipalName)
-    <input id="computerName" name="computerName" type="hidden" value="test">
-    @Html.HiddenFor(m => m.SCSMUserID)
-}
-
-<script type="text/javascript">
-    function submitform(name) {
-        document.getElementById('computerName').value = name;
-        document.getElementById("myForm").submit();
-    }
-</script>
-
 @Html.Raw(Model.ComputerInformation)
-
