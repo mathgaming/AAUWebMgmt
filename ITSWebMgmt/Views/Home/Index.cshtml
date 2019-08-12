@@ -5,120 +5,121 @@
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="ui segment">
 
-                <h1>ITSWebMgmt</h1>
+        <h1>ITSWebMgmt</h1>
 
-                <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a><br />
-                <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />
-                <a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a><br />
+        <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a><br />
+        <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />
+        <a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a><br />
+        <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a><br />
 
-                <h3>Change log</h3>
+        <h3>Change log</h3>
+        <ul>
+            <li>
+                2019-12-07
+            <li style="list-style-type:none">
                 <ul>
-                    <li>
-                        2019-12-07
+                    <li>Get password button works now </li>
+                    <li>Fixed a bug in Windows 7 to 10 upgrade form for users that had a computer where a name in AD and SCCM were different</li>
+                </ul>
+            </li>
+            <li>
+                2019-08-07
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Fixed a bug when a new SR where created from WebMgmt </li>
+                    <li>Added a tab uder User to quickly create a SR for upgrading from Windows 7 to 10 </li>
+                </ul>
+            </li>
+            <li>
+                2019-08-05
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Added field that shows if a computer uses Onedrive</li>
+                </ul>
+            </li>
+            <li>
+                2019-06-27
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Added field that shows if a user uses Onedrive</li>
+                    <li>Fixed AAURedirector</li>
+                </ul>
+            </li>
+            <li>
+                2019-06-26
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Added AAU icon</li>
+                    <li>Fixed a bug that made it crash when the cashe expired</li>
+                    <li>Fixed a bug that made it crash when searching for users or computers that does not exist</li>
+                </ul>
+            </li>
+            <li>
+                2019-06-21
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Fixed crash when searching for a computer or user that does not exist</li>
+                    <li>Fixed bug in group view. Recursive members is now show currectly</li>
+                    <li>Task button have now been tested and are ready for use</li>
+                </ul>
+            </li>
+            <li>
+                2019-06-13
+            <li style="list-style-type:none">
+                <ul>
+                    <li>WebMgmt 2.0 is now open for beta test</li>
+                    <li>Access to more services: print, service manager, defendpoint and ADMdb</li>
+                    <li>Bug fixes</li>
                     <li style="list-style-type:none">
                         <ul>
-                            <li>Get password button works now </li>
-                            <li>Fixed a bug in Windows 7 to 10 upgrade form for users that had a computer where a name in AD and SCCM were different</li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-08-07
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Fixed a bug when a new SR where created from WebMgmt </li>
-                            <li>Added a tab uder User to quickly create a SR for upgrading from Windows 7 to 10 </li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-08-05
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Added field that shows if a computer uses Onedrive</li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-06-27
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Added field that shows if a user uses Onedrive</li>
-                            <li>Fixed AAURedirector</li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-06-26
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Added AAU icon</li>
-                            <li>Fixed a bug that made it crash when the cashe expired</li>
-                            <li>Fixed a bug that made it crash when searching for users or computers that does not exist</li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-06-21
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Fixed crash when searching for a computer or user that does not exist</li>
-                            <li>Fixed bug in group view. Recursive members is now show currectly</li>
-                            <li>Task button have now been tested and are ready for use</li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-06-13
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>WebMgmt 2.0 is now open for beta test</li>
-                            <li>Access to more services: print, service manager, defendpoint and ADMdb</li>
-                            <li>Bug fixes</li>
-                            <li style="list-style-type:none">
-                                <ul>
-                                    <li>Fileshares and exchanges is now shown correctly</li>
-                                    <li>Get admin password button now works</li>
-                                    <li>Fixed crash when building from Pure was not set</li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-06-03
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>New backend for WebMgmt</li>
-                            <li>Added print info</li>
-                            <li>Tabs now load individually for faster load times</li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-03-05
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Added fileshare view</li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-03-04
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Now UserInfo searches on proxyAddress and UPN</li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-02-27
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Managed By can now be set on computers from webmgmt</li>
-                        </ul>
-                    </li>
-                    <li>
-                        2019-02-01
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Inventory details added for computer</li>
+                            <li>Fileshares and exchanges is now shown correctly</li>
+                            <li>Get admin password button now works</li>
+                            <li>Fixed crash when building from Pure was not set</li>
                         </ul>
                     </li>
                 </ul>
-            </div>
-        <div class="ui segment">
-            Du kan bidrage til udviklingen af Webmgmt på siden <a href="https://github.com/AAUITSPlatform/AAUWebMgmt">github.com/AAUITSPlatform/AAUWebMgmt</a>
-        </div>
+            </li>
+            <li>
+                2019-06-03
+            <li style="list-style-type:none">
+                <ul>
+                    <li>New backend for WebMgmt</li>
+                    <li>Added print info</li>
+                    <li>Tabs now load individually for faster load times</li>
+                </ul>
+            </li>
+            <li>
+                2019-03-05
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Added fileshare view</li>
+                </ul>
+            </li>
+            <li>
+                2019-03-04
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Now UserInfo searches on proxyAddress and UPN</li>
+                </ul>
+            </li>
+            <li>
+                2019-02-27
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Managed By can now be set on computers from webmgmt</li>
+                </ul>
+            </li>
+            <li>
+                2019-02-01
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Inventory details added for computer</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <div class="ui segment">
+        Du kan bidrage til udviklingen af Webmgmt på siden <a href="https://github.com/AAUITSPlatform/AAUWebMgmt">github.com/AAUITSPlatform/AAUWebMgmt</a>
+    </div>
 
 </asp:Content>

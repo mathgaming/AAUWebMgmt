@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ITSWebMgmt.WebMgmtErrors;
+using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.Models
 {
@@ -104,11 +105,13 @@ namespace ITSWebMgmt.Models
         public bool ShowLoginScript = false;
         public bool UsesOnedrive = false;
 
-        public UserModel(string username, string adpath)
+        public UserModel(string username, bool loadDataInbackground = true)
         {
+            string adpath = null;
             if (username != null)
             {
                 UserName = username;
+                adpath = ADPathFinder.GetADPath(username);
             }
             if (adpath != null)
             {
@@ -116,7 +119,10 @@ namespace ITSWebMgmt.Models
                 SCCMcache = new SCCMcache();
                 ShowResultDiv = true;
                 ShowErrorDiv = false;
-                LoadDataInbackground();
+                if (loadDataInbackground)
+                {
+                    LoadDataInbackground();
+                }
             }
             else
             {

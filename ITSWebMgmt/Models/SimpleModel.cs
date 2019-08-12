@@ -8,7 +8,6 @@ namespace ITSWebMgmt.Models
 {
     public class SimpleModel
     {
-        [Required]
         public string Text { get; set; }
     }
 }
