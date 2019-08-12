@@ -76,7 +76,7 @@ namespace ITSWebMgmt.Controllers
 
         public string globalSearch(string email)
         {
-            DirectoryEntry de = new DirectoryEntry("GC://aau.dk");
+            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry("GC://aau.dk");
             string filter = string.Format("(|(proxyaddresses=SMTP:{0})(userPrincipalName={0}))", email);
 
             DirectorySearcher search = new DirectorySearcher(de, filter);
@@ -119,7 +119,7 @@ namespace ITSWebMgmt.Controllers
 
             } // else format is ok
 
-            DirectoryEntry de = new DirectoryEntry("GC://aau.dk");
+            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry("GC://aau.dk");
             //string filter = string.Format("(&(objectCategory=person)(telephoneNumber={0}))", number);
             string filter = string.Format("(&(objectCategory=person)(objectClass=user)(telephoneNumber={0}))", number);
 
@@ -219,7 +219,7 @@ namespace ITSWebMgmt.Controllers
 
                 logger.Info("user " + HttpContext.User.Identity.Name + " changed OU on user to: " + newPath + " from " + UserModel.adpath + ".");
 
-                var newLocaltion = new DirectoryEntry(newPath);
+                var newLocaltion = DirectoryEntryCreator.CreateNewDirectoryEntry(newPath);
                 UserModel.ADcache.DE.MoveTo(newLocaltion);
 
                 return Success();

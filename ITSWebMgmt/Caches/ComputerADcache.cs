@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ITSWebMgmt.Helpers;
+using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Runtime.InteropServices;
@@ -16,7 +17,7 @@ namespace ITSWebMgmt.Caches
         {
             ComputerName = computerName;
 
-            DE = new DirectoryEntry("LDAP://" + getDomain());
+            DE = DirectoryEntryCreator.CreateNewDirectoryEntry("LDAP://" + getDomain());
             var search = new DirectorySearcher(DE);
             bool failed = false;
 
@@ -38,7 +39,7 @@ namespace ITSWebMgmt.Caches
             ComputerFound = true;
 
             adpath = result.Properties["ADsPath"][0].ToString();
-            DE = new DirectoryEntry(adpath);
+            DE = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
 
             var PropertyNames = new List<string> { "memberOf", "cn", "ms-Mcs-AdmPwdExpirationTime", "managedBy" };
             //propertyNames.Add("ms-Mcs-AdmPwd");
@@ -84,7 +85,7 @@ namespace ITSWebMgmt.Caches
 
             if (Domain == null)
             {
-                var de = new DirectoryEntry("GC://aau.dk");
+                var de = DirectoryEntryCreator.CreateNewDirectoryEntry("GC://aau.dk");
                 string filter = string.Format("(&(objectClass=computer)(cn={0}))", ComputerName);
 
                 var search = new DirectorySearcher(de);

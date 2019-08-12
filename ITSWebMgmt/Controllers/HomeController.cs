@@ -9,6 +9,7 @@ using System.DirectoryServices;
 using Microsoft.AspNetCore.Diagnostics;
 using System.Net.Mail;
 using System.Threading;
+using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -72,7 +73,7 @@ namespace ITSWebMgmt.Controllers
                 {
                     adpath = "LDAP://" + adpath;
                 }
-                DirectoryEntry de = new DirectoryEntry(adpath);
+                DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
 
                 var type = de.SchemaEntry.Name;
 

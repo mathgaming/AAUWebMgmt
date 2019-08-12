@@ -38,7 +38,7 @@ namespace ITSWebMgmt.Caches
         public ADcache(string adpath, List<Property> properties, List<Property> propertiesToRefresh)
         {
             this.adpath = adpath;
-            DE = new DirectoryEntry(adpath);
+            DE = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
             var search = new DirectorySearcher(DE);
 
             if (propertiesToRefresh != null)

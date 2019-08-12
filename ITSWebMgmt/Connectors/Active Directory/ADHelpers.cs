@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ITSWebMgmt.Helpers;
+using System;
 using System.DirectoryServices;
 using System.Linq;
 
@@ -13,7 +14,7 @@ namespace ITSWebMgmt.Connectors.Active_Directory
         private static void addADuserToGroupUNSAFE(string userADpath, string groupADPath) 
         {
             
-                DirectoryEntry dirEntry = new DirectoryEntry("LDAP://" + groupADPath);
+                DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry("LDAP://" + groupADPath);
                 dirEntry.Properties["member"].Add(userADpath);
                 dirEntry.CommitChanges();
                 dirEntry.Close();
@@ -23,7 +24,7 @@ namespace ITSWebMgmt.Connectors.Active_Directory
         private static void removeADuserFromGroupUNSAFE(string userADpath, string groupADPath)
         {
             
-                DirectoryEntry dirEntry = new DirectoryEntry("LDAP://" + groupADPath);
+                DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry("LDAP://" + groupADPath);
                 dirEntry.Properties["member"].Remove(userADpath);
                 dirEntry.CommitChanges();
                 dirEntry.Close();

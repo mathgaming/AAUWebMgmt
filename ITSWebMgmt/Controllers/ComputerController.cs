@@ -192,7 +192,7 @@ namespace ITSWebMgmt.Controllers
                 return null;
             }
 
-            DirectoryEntry de = new DirectoryEntry(adpath); // srv\svc_webmgmt is used by the old one
+            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath); // srv\svc_webmgmt is used by the old one
 
             Console.WriteLine(de.Username);
 
@@ -260,8 +260,8 @@ namespace ITSWebMgmt.Controllers
         protected void moveComputerToOU(string adpath, string newOUpath)
         {
             //Important that LDAP:// is in upper case ! 
-            DirectoryEntry de = new DirectoryEntry(adpath);
-            var newLocaltion = new DirectoryEntry(newOUpath);
+            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
+            var newLocaltion = DirectoryEntryCreator.CreateNewDirectoryEntry(newOUpath);
             de.MoveTo(newLocaltion);
             de.Close();
             newLocaltion.Close();
@@ -273,7 +273,7 @@ namespace ITSWebMgmt.Controllers
             //Return true if in right ou (or we think its the right ou, or dont know)
             //Return false if we need to move the ou.
 
-            DirectoryEntry de = new DirectoryEntry(adpath);
+            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
 
             string dn = (string)de.Properties["distinguishedName"][0];
             string[] dnarray = dn.Split(',');
