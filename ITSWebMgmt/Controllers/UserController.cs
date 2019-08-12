@@ -1,5 +1,6 @@
 ﻿using ITSWebMgmt.Caches;
 using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Connectors.Active_Directory;
 using ITSWebMgmt.Functions;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Management;
 using System.Net;
@@ -251,6 +253,23 @@ namespace ITSWebMgmt.Controllers
                 UserModel.ShowFixUserOU = false;
             }
             //Password is expired and warning before expire (same timeline as windows displays warning)
+        }
+
+        public ActionResult SetupOnedrive([FromBody]string data)
+        {
+            string[] temp = data.Split('|');
+            UserModel = getUserModel(temp[0]);
+            ComputerModel computerModel = new ComputerModel(temp[1]);
+
+            if (computerModel.ComputerFound)
+            {
+                ADHelpers.AddADUserToGroup(UserModel.adpath, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
+                ADHelpers.AddADUserToGroup(computerModel.adpath, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");//Same code for computer?
+
+                return Success("User and computer added to groups");
+            }
+
+            return Error();
         }
 
         public override ActionResult LoadTab(string tabName, string name)
