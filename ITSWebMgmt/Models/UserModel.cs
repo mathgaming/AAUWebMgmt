@@ -53,7 +53,12 @@ namespace ITSWebMgmt.Models
             foreach (ManagementObject o in getUserMachineRelationshipFromUserName(formattedName))
             {
                 string machineName = o.Properties["ResourceName"].Value.ToString();
-                managedComputerList.Add(new ComputerModel(machineName));
+                ComputerModel model = new ComputerModel(machineName);
+                if (!model.ComputerFound)
+                {
+                    model = new ComputerModel(model.ComputerName);
+                }
+                managedComputerList.Add(model);
             }
             return managedComputerList;
         }
