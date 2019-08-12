@@ -30,11 +30,12 @@
             $('.menu .item').tab({
                 'onVisible': function () {
                     var dataTabName = $(this).attr("data-tab");
+                    var urlParams = new URLSearchParams(window.location.search);
                     $.ajax({
                         type: "GET",
                         url: '@Url.Action("LoadTab", "Computer")',
                         contentType: "application/html; charset=utf-8",
-                        data: { tabName: dataTabName, name: document.getElementById('computername').value },
+                        data: { tabName: dataTabName, name: urlParams.get('computername')},
                         success: function (returnedData) {
                             $("#" + dataTabName).html(returnedData);
                         },
