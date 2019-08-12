@@ -26,7 +26,10 @@ namespace ITSWebMgmt.Controllers
                     System.IO.StreamReader file = new System.IO.StreamReader(@"C:\webmgmtlog\logfile.txt");
                     while ((line = file.ReadLine()) != null)
                     {
-                        lines.Add(line);
+                        if (!line.Contains("(Hidden)"))
+                        {
+                            lines.Add(line);
+                        }
                     }
 
                     file.Close();

@@ -43,8 +43,8 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(username, out UserModel))
                 {
                     username = username.Trim();
-                    logger.Info("User {0} lookedup user {1}", HttpContext.User.Identity.Name, username);
                     UserModel = new UserModel(username);
+                    logger.Info("User {0} lookedup user {1} (Hidden)", HttpContext.User.Identity.Name, username);
                     if (UserModel.ResultError == null)
                     {
                         UserModel = BasicInfo.Init(UserModel, HttpContext);
