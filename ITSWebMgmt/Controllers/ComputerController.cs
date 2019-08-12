@@ -41,6 +41,7 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(computerName);
+                    logger.Info("User {0} requesed info about computer {1} (Hidden)", HttpContext.User.Identity.Name, ComputerModel.adpath);
                     if (ComputerModel.ComputerFound)
                     {
                         ComputerModel.ShowResultDiv = true;
@@ -133,7 +134,7 @@ namespace ITSWebMgmt.Controllers
         {
             //ComputerModel.ShowResultGetPassword = false;
             ComputerModel = getComputerModel(computername);
-            logger.Info("User {0} requesed localadmin password for computer {1}", HttpContext.User.Identity.Name, ComputerModel.adpath);
+            logger.Info("User {0} requesed localadmin password for computer {1} (Hidden)", HttpContext.User.Identity.Name, ComputerModel.adpath);
 
             var passwordRetuned = getLocalAdminPassword(ComputerModel.adpath);
 
@@ -349,6 +350,9 @@ namespace ITSWebMgmt.Controllers
 
             var collectionID = "AA1000B8"; //Enabled Bitlocker Encryption Collection ID
             addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID);
+
+            logger.Info("user " + HttpContext.User.Identity.Name + " enabled bitlocker for " + computername);
+
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = "Bitlocker enabled for " + computername });
         }

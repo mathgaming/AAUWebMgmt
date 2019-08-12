@@ -58,11 +58,12 @@
                 'onVisible': function () {
                     $("#smloader > div").show("fast");
                     var dataTabName = $(this).attr("data-tab");
+                    var urlParams = new URLSearchParams(window.location.search);
                     $.ajax({
                         type: "GET",
                         url: '@Url.Action("LoadTab", "User")',
                         contentType: "application/html; charset=utf-8",
-                        data: { tabName: dataTabName, name: document.getElementById('username').value },
+                        data: { tabName: dataTabName, name: urlParams.get('username')},
                         success: function (returnedData) {
                             $("#" + dataTabName).html(returnedData);
                         },

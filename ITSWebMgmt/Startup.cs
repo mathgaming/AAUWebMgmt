@@ -78,6 +78,9 @@ namespace ITSWebMgmt
                     name: "user",
                     template: "{controller=User}/{action=Index}/{id?}");
                 routes.MapRoute(
+                    name: "log",
+                    template: "{controller=Log}/{action=Index}/{id?}");
+                routes.MapRoute(
                     name: "defendpointchallengeresponse",
                     template: "{controller=DefendpointChallengeResponse}/{action=Index}/{id?}");
                 routes.MapRoute(

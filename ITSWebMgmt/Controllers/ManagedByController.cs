@@ -1,4 +1,6 @@
 ﻿using ITSWebMgmt.Caches;
+using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
@@ -30,11 +32,10 @@ namespace ITSWebMgmt.Controllers
         {
             try
             {
-                UserController uc = new UserController(null);//TODO Test if it still works after update on usercontroller
-                uc.UserModel.adpath = uc.globalSearch(email);
-                if (uc.UserModel.DistinguishedName.Contains("CN="))
+                UserModel model = new UserModel(email);
+                if (model.DistinguishedName.Contains("CN="))
                 {
-                    new GroupADcache(uc.UserModel.adpath).saveProperty("managedBy", uc.UserModel.DistinguishedName);
+                    new GroupADcache(model.adpath).saveProperty("managedBy", model.DistinguishedName);
                     ErrorMessage = "";
                 }
                 else
