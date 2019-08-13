@@ -32,4 +32,14 @@
     <PackageReference Include="SimpleImpersonation" Version="3.0.0" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Reference Include="AdminUI.WqlQueryEngine">
+      <HintPath>..\..\WebMgmtLib\AdminUI.WqlQueryEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ConfigurationManagement.ManagementProvider">
+      <HintPath>..\..\WebMgmtLib\Microsoft.ConfigurationManagement.ManagementProvider.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

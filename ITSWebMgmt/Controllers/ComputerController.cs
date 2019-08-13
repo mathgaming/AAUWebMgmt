@@ -118,10 +118,32 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
-            ComputerModel = ComputerModel = getComputerModel(computername);
+            ComputerModel = getComputerModel(computername);
             moveOU(HttpContext.User.Identity.Name, ComputerModel.adpath);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = "OU moved for" + computername });
+        }
+
+        [HttpPost]
+        public ActionResult AddToAAU10([FromBody]string computername)
+        {
+            return addComputerTocollection(computername, "AA1000BC", "AAU10 PC");
+        }
+
+        [HttpPost]
+        public ActionResult AddToAdministrativ10([FromBody]string computername)
+        {
+            return addComputerTocollection(computername, "AA1001BD", "Administrativ10 PC");
+        }
+
+        private ActionResult addComputerTocollection(string computerName, string collectionId, string collectionName)
+        {
+            ComputerModel = getComputerModel(computerName);
+
+            ComputerModel.AddComputerToCollection(collectionId);
+
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json(new { success = true, message = "Computer added to " + collectionName });
         }
 
         public void TestButton()

@@ -5,6 +5,9 @@ using System.Threading;
 using ITSWebMgmt.Caches;
 using ITSWebMgmt.WebMgmtErrors;
 using ITSWebMgmt.Helpers;
+using System;
+using Microsoft.ConfigurationManagement.ManagementProvider;
+using Microsoft.ConfigurationManagement.ManagementProvider.WqlQueryEngine;
 
 namespace ITSWebMgmt.Models
 {
@@ -105,10 +108,47 @@ namespace ITSWebMgmt.Models
 
             return resourceID;
         }
+
+        public void AddComputerToCollection(string collectionId)
+        {
+            try
+            {
+                // Add to All System collection.
+                IResultObject collection = SCCM.cm.GetInstance($"SMS_Collection.collectionId='{collectionId}'");
+                IResultObject collectionRule = SCCM.cm.CreateEmbeddedObjectInstance("SMS_CollectionRuleDirect");
+                collectionRule["ResourceClassName"].StringValue = "SMS_R_System";
+                collectionRule["ResourceID"].IntegerValue = int.Parse(SCCMcache.ResourceID);
+
+                Dictionary<string, object> inParams2 = new Dictionary<string, object>();
+                inParams2.Add("collectionRule", collectionRule);
+
+                collection.ExecuteMethod("AddMembershipRule", inParams2);
+            }
+            catch (SmsException e)
+            {
+                Console.WriteLine("failed to add the computer" + e.Message);
+                throw;
+            }
+
+            /*try
+            {
+                ManagementClass cls = new ManagementClass(SCCM.ms.Path.Path, "SMS_Client", null);
+                ManagementBaseObject inParams = cls.GetMethodParameters("Add-CMDeviceCollectionDirectMembershipRule");
+                inParams["CollectionId"] = collectionId;
+                inParams["ResourceId"] = SCCMcache.ResourceID;
+                ManagementBaseObject outMPParams = cls.InvokeMethod("Add-CMDeviceCollectionDirectMembershipRule", inParams, null);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Failed to execute method", e);
+            }*/
+        }
+
         public List<string> setConfig()
         {
             ManagementObjectCollection Collection = this.Collection;
             ComputerModel ComputerModel = this;
+            
             if (SCCM.HasValues(Collection))
             {
                 List<string> namesInCollection = new List<string>();

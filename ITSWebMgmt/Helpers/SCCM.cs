@@ -1,4 +1,7 @@
-﻿using System.Management;
+﻿using Microsoft.ConfigurationManagement.ManagementProvider;
+using Microsoft.ConfigurationManagement.ManagementProvider.WqlQueryEngine;
+using System;
+using System.Management;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -6,7 +9,8 @@ namespace ITSWebMgmt.Helpers
     {
         private static string Username = Startup.Configuration["SCCMUsername"];
         private static string Password = Startup.Configuration["SCCMPassword"];
-        public  static ManagementScope ms {get; set; }
+        public static ManagementScope ms {get; set; }
+        public static WqlConnectionManager cm { get; set; }
 
         public static ManagementObjectCollection getResults(WqlObjectQuery wqlq)
         {
@@ -29,6 +33,28 @@ namespace ITSWebMgmt.Helpers
         public static void Init()
         {
             ms = new ManagementScope("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1", GetConnectionOptions());
+            Connect();
+        }
+
+        private static void Connect()
+        {
+            try
+            {
+                SmsNamedValuesDictionary namedValues = new SmsNamedValuesDictionary();
+                WqlConnectionManager connection = new WqlConnectionManager(namedValues);
+
+                connection.Connect("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1", Username, Password);
+
+                cm = connection;
+            }
+            catch (SmsException e)
+            {
+                Console.WriteLine("Failed to Connect. Error: " + e.Message);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                Console.WriteLine("Failed to authenticate. Error:" + e.Message);
+            }
         }
 
         public static ConnectionOptions GetConnectionOptions()
