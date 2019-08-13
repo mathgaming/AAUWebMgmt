@@ -7,17 +7,25 @@ namespace ITSWebMgmt.Connectors.Active_Directory
 {
     public class ADHelpers
     {
-        public static void AddADUserToGroup(string userADpath, string groupADPath)
+        public static void AddMemberToGroup(string userADpath, string groupADPath)
         {
-            DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry("LDAP://" + groupADPath);
-            dirEntry.Properties["member"].Add(userADpath);
-            dirEntry.CommitChanges();
-            dirEntry.Close();
+            try
+            {
+                DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry(groupADPath);
+                dirEntry.Properties["member"].Add(userADpath);
+                dirEntry.CommitChanges();
+                dirEntry.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            
         }
 
-        public static void RemoteADUserFromGroup(string userADpath, string groupADPath)
+        public static void RemoteMemberFromGroup(string userADpath, string groupADPath)
         {
-            DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry("LDAP://" + groupADPath);
+            DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry(groupADPath);
             dirEntry.Properties["member"].Remove(userADpath);
             dirEntry.CommitChanges();
             dirEntry.Close();
@@ -30,7 +38,7 @@ namespace ITSWebMgmt.Connectors.Active_Directory
 
             string[] dnSplit = dn.Split(',');
             string cn = dnSplit[0].ToLower().Replace("cn=", "");
-            string domain = String.Join(".", dnSplit.Where(x => x.ToLower().StartsWith("dc=")).Select(x => x.ToLower().Replace("dc=", "")));
+            string domain = string.Join(".", dnSplit.Where(x => x.ToLower().StartsWith("dc=")).Select(x => x.ToLower().Replace("dc=", "")));
 
             return $"{cn}@{domain}";
 

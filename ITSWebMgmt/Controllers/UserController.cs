@@ -229,7 +229,7 @@ namespace ITSWebMgmt.Controllers
 
         public ActionResult Success(string Message = "Success")
         {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = Message });
         }
 
@@ -263,8 +263,10 @@ namespace ITSWebMgmt.Controllers
 
             if (computerModel.ComputerFound)
             {
-                ADHelpers.AddADUserToGroup(UserModel.adpath, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
-                ADHelpers.AddADUserToGroup(computerModel.adpath, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");//Same code for computer?
+                ADHelpers.AddMemberToGroup(UserModel.DistinguishedName, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
+                ADHelpers.AddMemberToGroup(computerModel.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
+
+                logger.Info($"User {HttpContext.User.Identity.Name} added user {UserModel.UserName} and {computerModel.ComputerName} to Onedrive groups, case: {temp[2]}");
 
                 return Success("User and computer added to groups");
             }

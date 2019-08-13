@@ -13,19 +13,26 @@ Unlock Account (if locked by wrong password):
 <br />
 @if (Model.ShowFixUserOU)
 {
-<div runat="server" id="divFixuserOU">
-    Move user to default OU:
-    <button id="fixUserOU" Style="display: none">Move user to default OU</button>
-    <button type="button" class="ui button" id="btnFixOUShowModal" onclick="$('#modalConfirmOUmove').modal('show');">Move user to default OU</button><br />
-</div>
+    <div runat="server" id="divFixuserOU">
+        Move user to default OU:
+        <button id="fixUserOU" Style="display: none">Move user to default OU</button>
+        <button type="button" class="ui button" id="btnFixOUShowModal" onclick="$('#modalConfirmOUmove').modal('show');">Move user to default OU</button><br />
+    </div>
 }
 <h3>Form for adding user and computer to Onedrive</h3>
+<br />
 <label>Affected User</label>
+<br />
 @Html.TextBoxFor(m => m.UserName, new { @readonly = true })
+<br />
 <label>Computername</label>
-<input type="text" id="computername" />
+<br />
+<input type="text" id="computername"/>
+<br />
 <label>Case number</label>
-<input type="text" id="casenumber" />
+<br />
+<input type="text" id="casenumber"/>
+<br />
 <button id="SetupOneDrive">Setup Onedrive</button>
 <br />
 <br />
@@ -59,10 +66,10 @@ Unlock Account (if locked by wrong password):
             data: data,
             dataType: "json",
             success: function (response) {
-                alert(JSON.parse(response.responseText).message);
+                alert(response.message);
             },
             error: function(response) {
-                alert(JSON.parse(response.responseText).errorMessage);
+                alert(response.errorMessage);
             }
         });
     }
