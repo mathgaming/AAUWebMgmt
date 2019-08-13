@@ -88,7 +88,7 @@ namespace ITSWebMgmt.ViewInitialisers.User
 
             model.BasicInfoTable = sb.ToString();
 
-            var admdb = new ADMdbConnector();
+            /*var admdb = new ADMdbConnector();
 
             string upn = model.UserPrincipalName;
 
@@ -99,19 +99,8 @@ namespace ITSWebMgmt.ViewInitialisers.User
             var domain = tmp[1].Split('.')[0];
 
             //Make lookup in ADMdb
-            //var watch = System.Diagnostics.Stopwatch.StartNew();
-            //basicInfoAdmDBExpireDate.Text = await admdb.loadUserExpiredate(domain, tmp[0], firstName, lastName);
-            //watch.Stop();
-            //System.Diagnostics.Debug.WriteLine("ADMdb Lookup took: " + watch.ElapsedMilliseconds);
+            model.AdmDBExpireDate = admdb.loadUserExpiredate(domain, tmp[0], firstName, lastName).Result;*/
 
-            //Has roaming
-            model.BasicInfoRomaing = "false";
-            if (model.Profilepath != null)
-            {
-                model.BasicInfoRomaing = "true";
-            }
-
-            //Password Expire date "PasswordExpirationDate"
             return model;
         }
     }

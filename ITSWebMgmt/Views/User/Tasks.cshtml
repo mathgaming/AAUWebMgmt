@@ -7,8 +7,10 @@ Unlock Account (if locked by wrong password):
 <button id="unlockUserAccountButton">Unlock Account</button>
 <br />
 <br />
- Roaming Profile (enable/disable):
+ Roaming Profile (Currently enabled: @Html.Raw(Model.BasicInfoRomaing)):
 <button id="ToggleRoaming">ToggleRoaming</button>
+<br />
+(The status might not be correct, because it takes some time to update AD with the new value)
 <br />
 <br />
 @if (Model.ShowFixUserOU)
