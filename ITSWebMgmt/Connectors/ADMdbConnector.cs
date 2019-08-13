@@ -78,7 +78,7 @@ namespace ITSWebMgmt.Connectors
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
 
-            var outgoingQueryString = HttpUtility.ParseQueryString(String.Empty, System.Text.Encoding.GetEncoding("Windows-1252"));
+            var outgoingQueryString = HttpUtility.ParseQueryString(String.Empty, System.Text.Encoding.GetEncoding("ISO-8859-1"));
             //outgoingQueryString.Add("field1", "value1");
             outgoingQueryString.Add("osnames.username", username);
             outgoingQueryString.Add("persons.firstname", firstName);

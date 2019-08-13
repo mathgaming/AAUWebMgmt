@@ -7,8 +7,10 @@ Unlock Account (if locked by wrong password):
 <button id="unlockUserAccountButton">Unlock Account</button>
 <br />
 <br />
- Roaming Profile (enable/disable):
+ Roaming Profile (Currently enabled: @Html.Raw(Model.BasicInfoRomaing)):
 <button id="ToggleRoaming">ToggleRoaming</button>
+<br />
+(The status might not be correct, because it takes some time to update AD with the new value)
 <br />
 <br />
 @if (Model.ShowFixUserOU)
@@ -19,7 +21,23 @@ Unlock Account (if locked by wrong password):
         <button type="button" class="ui button" id="btnFixOUShowModal" onclick="$('#modalConfirmOUmove').modal('show');">Move user to default OU</button><br />
     </div>
 }
-
+<h3>Form for adding user and computer to Onedrive</h3>
+<br />
+<label>Affected User</label>
+<br />
+@Html.TextBoxFor(m => m.UserName, new { @readonly = true })
+<br />
+<label>Computername</label>
+<br />
+<input type="text" id="computername"/>
+<br />
+<label>Case number</label>
+<br />
+<input type="text" id="casenumber"/>
+<br />
+<button id="SetupOneDrive">Setup Onedrive</button>
+<br />
+<br />
 <script>
     $("#fixUserOU").click(function () {
         sendPostRequest("FixUserOu")
@@ -33,19 +51,27 @@ Unlock Account (if locked by wrong password):
         sendPostRequest("UnlockUserAccount")
     });
 
-    function sendPostRequest(Action) {
+    $("#SetupOneDrive").click(function () {
+        var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))' + '|' + $('#computername').val() + '|' + $('#casenumber').val();
+        sendPostRequest("SetupOneDrive", JSON.stringify(data));
+    });
+
+    function sendPostRequest(Action, data) {
         var username = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))';
+        if (arguments.length === 1) {
+            data = JSON.stringify(username);
+        }
         $.ajax({
             type: "POST",
             url: 'User/' + Action,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(username),
+            data: data,
             dataType: "json",
             success: function (response) {
-                alert(JSON.parse(response.responseText).message);
+                alert(response.message);
             },
             error: function(response) {
-                alert(JSON.parse(response.responseText).errorMessage);
+                alert(response.errorMessage);
             }
         });
     }

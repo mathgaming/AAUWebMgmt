@@ -80,15 +80,22 @@ namespace ITSWebMgmt.Models
             };
         }
 
-        public string InfoAdmDBExpireDate;
+        public string AdmDBExpireDate;
         public string BasicInfoDepartmentPDS;
         public string BasicInfoOfficePDS;
         public string BasicInfoPasswordExpired;
         public string BasicInfoPasswordExpireDate;
         public string BasicInfoTable;
-        public string BasicInfoRomaing;
+        public string BasicInfoRomaing
+        {
+            get
+            {
+                return (Profilepath != null).ToString();
+            }
+        }
         public string Print;
         public string CalAgenda;
+        public string CalAgendaStatus;
         public string ServiceManager;
         public string ComputerInformation;
         public string Loginscript;

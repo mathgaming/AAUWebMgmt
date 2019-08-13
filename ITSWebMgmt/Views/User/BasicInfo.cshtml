@@ -7,10 +7,10 @@
             <td>Name</td>
             <td>@Html.DisplayFor(model => model.DisplayName)</td>
         </tr>
-        <tr>
+        @*<tr>
             <td>ADMdb Expire Date</td>
-            <td>@Html.DisplayFor(model => model.InfoAdmDBExpireDate)</td>
-        </tr>
+            <td>@Html.DisplayFor(model => model.AdmDBExpireDate)</td>
+        </tr>*@
         <tr>
             <td>Department (PDS)</td>
             <td>@Html.DisplayFor(model => model.BasicInfoDepartmentPDS)</td>
@@ -21,7 +21,7 @@
         </tr>
         <tr>
             <td>Password Expired</td>
-            <td>@Html.DisplayFor(model => model.InfoAdmDBExpireDate)</td>
+            <td>@Html.DisplayFor(model => model.BasicInfoPasswordExpired)</td>
         </tr>
         <tr>
             <td>Password Expire Date</td>

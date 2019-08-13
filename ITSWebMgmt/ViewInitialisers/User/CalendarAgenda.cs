@@ -12,6 +12,7 @@ namespace ITSWebMgmt.ViewInitialisers.User
     {
         public static UserModel Init(UserModel model)
         {
+            model.CalAgendaStatus = "Free";
             var sb = new StringBuilder();
             // Display available meeting times.
 
@@ -20,17 +21,16 @@ namespace ITSWebMgmt.ViewInitialisers.User
             DateTime now = DateTime.Now;
             foreach (AttendeeAvailability availability in temp.AttendeesAvailability)
             {
-
                 foreach (CalendarEvent calendarItem in availability.CalendarEvents)
                 {
                     if (calendarItem.FreeBusyStatus != LegacyFreeBusyStatus.Free)
                     {
-
                         bool isNow = false;
                         if (now > calendarItem.StartTime && calendarItem.EndTime > now)
                         {
                             sb.Append("<b>");
                             isNow = true;
+                            model.CalAgendaStatus = calendarItem.FreeBusyStatus.ToString();
                         }
                         sb.Append(string.Format("{0}-{1}: {2}<br/>", calendarItem.StartTime.ToString("HH:mm"), calendarItem.EndTime.ToString("HH:mm"), calendarItem.FreeBusyStatus));
 
