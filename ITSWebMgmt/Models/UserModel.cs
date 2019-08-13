@@ -95,6 +95,7 @@ namespace ITSWebMgmt.Models
         }
         public string Print;
         public string CalAgenda;
+        public string CalAgendaStatus;
         public string ServiceManager;
         public string ComputerInformation;
         public string Loginscript;
