@@ -1,10 +1,7 @@
-using Microsoft.ConfigurationManagement.ManagementProvider;
-using Microsoft.ConfigurationManagement.ManagementProvider.WqlQueryEngine;
 using System;
 using System.Management;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Management.Automation;
+using System.Security;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -13,7 +10,6 @@ namespace ITSWebMgmt.Helpers
         private static string Username = Startup.Configuration["SCCMUsername"];
         private static string Password = Startup.Configuration["SCCMPassword"];
         public static ManagementScope ms {get; set; }
-        public static WqlConnectionManager cm { get; set; }
 
         public static ManagementObjectCollection getResults(WqlObjectQuery wqlq)
         {
@@ -36,28 +32,6 @@ namespace ITSWebMgmt.Helpers
         public static void Init()
         {
             ms = new ManagementScope("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1", GetConnectionOptions());
-            Connect();
-        }
-
-        private static void Connect()
-        {
-            try
-            {
-                SmsNamedValuesDictionary namedValues = new SmsNamedValuesDictionary();
-                WqlConnectionManager connection = new WqlConnectionManager(namedValues);
-
-                connection.Connect("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1", Username, Password);
-
-                cm = connection;
-            }
-            catch (SmsException e)
-            {
-                Console.WriteLine("Failed to Connect. Error: " + e.Message);
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                Console.WriteLine("Failed to authenticate. Error:" + e.Message);
-            }
         }
 
         public static ConnectionOptions GetConnectionOptions()
@@ -72,17 +46,29 @@ namespace ITSWebMgmt.Helpers
             return con;
         }
 
+        public static void AddComputerToCollection(string resourceID, string collectionId)
+        {
+            runScript($"Add-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
+        }
 
         private static void runScript(string script)
         {
             ProcessStartInfo psi = new ProcessStartInfo();
+            SecureString password = new SecureString();
             psi.FileName = "powershell";
             psi.UseShellExecute = false;
             psi.RedirectStandardOutput = true;
 
-            psi.Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;Get-CMSite;" + script;
+            psi.Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;" + script;
+            foreach (char c in Password)
+            {
+                password.AppendChar(c);
+            }
+            psi.Password = password;
+            psi.UserName = Username;
             Process p = Process.Start(psi);
             string strOutput = p.StandardOutput.ReadToEnd();
+            string strError = p.StandardError.ReadToEnd();
             p.WaitForExit();
             Console.WriteLine(strOutput);
 

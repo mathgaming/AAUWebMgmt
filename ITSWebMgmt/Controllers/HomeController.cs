@@ -15,7 +15,6 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
-            SCCM.runScript();
             return View();
         }
 
