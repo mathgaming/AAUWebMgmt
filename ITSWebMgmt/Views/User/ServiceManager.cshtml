@@ -6,7 +6,7 @@
 @{
     SCSMConnector sccm = new SCSMConnector();
 
-    Model.ServiceManager = await sccm.getActiveIncidents(Model.UserPrincipalName, Model.DisplayName);
+    Model.ServiceManager = await sccm.getActiveIncidents(Model.UserPrincipalName);
     Model.SCSMUserID = sccm.userID;
 }
 

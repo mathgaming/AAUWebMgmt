@@ -27,7 +27,7 @@ namespace ITSWebMgmt.ViewInitialisers.User
             if (haveWindows7)
             {
                 var scsm = new SCSMConnector();
-                _ = scsm.getUUID(model.UserPrincipalName, model.DisplayName).Result;
+                _ = scsm.getUUID(model.UserPrincipalName).Result;
                 model.SCSMUserID = scsm.userID;
 
                 model.Windows7to10 = helper.GetTable();

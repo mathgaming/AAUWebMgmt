@@ -166,15 +166,8 @@ namespace ITSWebMgmt.Connectors
 
         }
 
-
-        protected async Task<string> getUserUUIDByUPN(string upn, string authkey)
-        {
-            var userName = upn.Split('@')[0];
-            return await getUserUUIDByUPN(upn, userName, authkey);
-        }
-
         //Takes a upn and retuns the users uuid
-        protected async Task<string> getUserUUIDByUPN(string upn, string displayName, string authkey)
+        protected async Task<string> getUserUUIDByUPN(string upn, string authkey)
         {
             //Get username from UPN
 
@@ -261,14 +254,14 @@ namespace ITSWebMgmt.Connectors
 
         }*/
 
-        public async Task<string> getActiveIncidents(string upn, string displayName)
+        public async Task<string> getActiveIncidents(string upn)
         {
-            string uuid = await getUUID(upn, displayName);
+            string uuid = await getUUID(upn);
             
             return doAction(uuid);
         }
 
-        public async Task<string> getUUID(string upn, string displayName)
+        public async Task<string> getUUID(string upn)
         {
             string authkey = await getAuthKey();
 
@@ -277,7 +270,7 @@ namespace ITSWebMgmt.Connectors
                 return "No creds for SCSM";
             }
 
-            return await getUserUUIDByUPN(upn, displayName, authkey);
+            return await getUserUUIDByUPN(upn, authkey);
         }
     }
 }

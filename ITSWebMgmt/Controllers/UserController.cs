@@ -42,6 +42,11 @@ namespace ITSWebMgmt.Controllers
         {
             if (username != null)
             {
+                if (username.Contains('(') && username.Contains(')'))
+                {
+                    username = username.Split('(', ')')[1];
+                }
+
                 if (!_cache.TryGetValue(username, out UserModel))
                 {
                     username = username.Trim();
@@ -242,6 +247,13 @@ namespace ITSWebMgmt.Controllers
                 UserModel.ShowFixUserOU = false;
             }
             //Password is expired and warning before expire (same timeline as windows displays warning)
+        }
+
+        public ActionResult GetUsersByName([FromBody]string name)
+        {
+            List<string> names = new PureConnector().GetUsersByName(name);
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json(new { success = true, names });
         }
 
         public ActionResult SetupOnedrive([FromBody]string data)

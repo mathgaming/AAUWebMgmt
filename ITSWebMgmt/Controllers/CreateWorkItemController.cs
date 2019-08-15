@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,6 +49,15 @@ namespace ITSWebMgmt.Controllers
 
         protected ActionResult createForm(string url, CreateWorkItemModel model)
         {
+            if (model.UserID == null)
+            {
+                SCSMConnector sccm = new SCSMConnector();
+
+                _ = sccm.getActiveIncidents(model.AffectedUser).Result;
+
+                model.UserID = sccm.userID;
+            }
+
             string descriptionConverted = "";
             if (model.Desription != null)
             {
