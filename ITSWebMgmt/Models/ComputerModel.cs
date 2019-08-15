@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Management;
 using ITSWebMgmt.Caches;
 using ITSWebMgmt.Helpers;
@@ -27,6 +28,7 @@ namespace ITSWebMgmt.Models
         public string AdminPasswordExpirationTime { get => ADcache.getProperty("ms-Mcs-AdmPwdExpirationTime"); }
         public string ManagedByAD { get => ADcache.getProperty("managedBy"); set => ADcache.saveProperty("managedBy", value); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
+        public DateTime WhenCreated { get => ADcache.getProperty("whenCreated"); }
 
         //Display
         public string ConfigPC = "Unknown";

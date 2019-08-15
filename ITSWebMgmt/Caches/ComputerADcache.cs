@@ -41,7 +41,7 @@ namespace ITSWebMgmt.Caches
             adpath = result.Properties["ADsPath"][0].ToString();
             DE = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
 
-            var PropertyNames = new List<string> { "memberOf", "cn", "ms-Mcs-AdmPwdExpirationTime", "managedBy" };
+            var PropertyNames = new List<string> { "memberOf", "cn", "ms-Mcs-AdmPwdExpirationTime", "managedBy", "whenCreated" };
             //propertyNames.Add("ms-Mcs-AdmPwd");
 
             search = new DirectorySearcher(DE);
@@ -58,7 +58,8 @@ namespace ITSWebMgmt.Caches
                 new Property("managedBy", typeof(string)),
                 new Property("cn", typeof(string)),
                 new Property("memberOf", typeof(string)),
-                new Property("ms-Mcs-AdmPwdExpirationTime", typeof(object)) //System.__ComObject
+                new Property("ms-Mcs-AdmPwdExpirationTime", typeof(object)), //System.__ComObject
+                new Property("whenCreated", typeof(object)) //System.__ComObject
             };
 
             saveCache(properties, null);
