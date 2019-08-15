@@ -1,4 +1,5 @@
-﻿using ITSWebMgmt.Models;
+﻿using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Models;
 using System;
 
 namespace ITSWebMgmt.ViewInitialisers.User
@@ -13,7 +14,12 @@ namespace ITSWebMgmt.ViewInitialisers.User
 
                 foreach (ComputerModel m in model.getManagedComputers())
                 {
-                    var name = "<a href=\"/Computer?computername=" + m.ComputerName + "\">" + m.ComputerName + "</a> <br />";
+                    string OnedriveWarning = "";
+                    if (model.UsesOnedrive && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
+                    {
+                        OnedriveWarning = "<font color=\"red\"> (Not using Onedrive!)</font>";
+                    }
+                    var name = "<a href=\"/Computer?computername=" + m.ComputerName + "\">" + m.ComputerName + "</a>" + OnedriveWarning + "<br />";
                     var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
                     helper.AddRow(new string[] { name, fjernsupport });
                 }
