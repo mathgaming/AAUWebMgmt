@@ -83,7 +83,7 @@ namespace ITSWebMgmt.Connectors
 
         public PureConnector(string empID)
         {
-            DataObject dataObject = getRequest("?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.names.value&locale=en_GB", empID);
+            DataObject dataObject = getRequest("?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.names.value&locale=en_GB", "/" + empID);
 
             if (dataObject != null)
             {
