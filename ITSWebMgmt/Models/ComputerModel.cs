@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
-using ITSWebMgmt.Controllers;
 using System.Management;
-using System.Threading;
 using ITSWebMgmt.Caches;
-using ITSWebMgmt.WebMgmtErrors;
 using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.Models
@@ -105,10 +102,12 @@ namespace ITSWebMgmt.Models
 
             return resourceID;
         }
+
         public List<string> setConfig()
         {
             ManagementObjectCollection Collection = this.Collection;
             ComputerModel ComputerModel = this;
+            
             if (SCCM.HasValues(Collection))
             {
                 List<string> namesInCollection = new List<string>();

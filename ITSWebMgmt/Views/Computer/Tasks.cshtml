@@ -11,12 +11,19 @@
     }
 </div>
 <br />
-<button id="buttonEnableBitlockerEncryption">Enable Bitlocker Encryption</button>
-<br />
 @if (Model.ShowMoveComputerOUdiv)
 {
     <button id="MoveComputerOU">Move computer to OU Clients</button>
     <p>Only do this if you know what you are doing!</p>
+}
+<p>The buttons below does not work beacuse the new WebMgmt needs permissions</p>
+<button id="buttonEnableBitlockerEncryption">Enable Bitlocker Encryption</button>
+<br />
+@if (Model.ConfigPC == "Unknown")
+{
+    <button id="AddToAdministrativ10">Add computer to Administrativ10 PC</button>
+    <br />
+    <button id="AddToAAU10">Add computer to AAU10 PC</button>
 }
 
 <script>
@@ -32,6 +39,16 @@
     $("#MoveComputerOU").click(function ()
     {
         sendPostRequest("MoveOU_Click")
+    });
+
+    $("#AddToAdministrativ10").click(function ()
+    {
+        sendPostRequest("AddToAdministrativ10")
+    });
+
+    $("#AddToAAU10").click(function ()
+    {
+        sendPostRequest("AddToAAU10")
     });
 
     function sendPostRequest(Action) {

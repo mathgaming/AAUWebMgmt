@@ -45,7 +45,7 @@ namespace ITSWebMgmt.Models
                 }
                 else
                 {
-                    throw new NotImplementedException("not implemented support for MBX group with less than 4 sections: " + group);
+                    Type = "not implemented support for MBX group with less than 4 sections: " + group;
                 }
             }
             else

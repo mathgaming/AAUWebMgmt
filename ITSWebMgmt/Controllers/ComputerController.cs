@@ -118,10 +118,32 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
-            ComputerModel = ComputerModel = getComputerModel(computername);
+            ComputerModel = getComputerModel(computername);
             moveOU(HttpContext.User.Identity.Name, ComputerModel.adpath);
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = "OU moved for" + computername });
+        }
+
+        [HttpPost]
+        public ActionResult AddToAAU10([FromBody]string computername)
+        {
+            return addComputerTocollection(computername, "AA1000BC", "AAU10 PC");
+        }
+
+        [HttpPost]
+        public ActionResult AddToAdministrativ10([FromBody]string computername)
+        {
+            return addComputerTocollection(computername, "AA1001BD", "Administrativ10 PC");
+        }
+
+        private ActionResult addComputerTocollection(string computerName, string collectionId, string collectionName)
+        {
+            ComputerModel = getComputerModel(computerName);
+
+            addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId);
+
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json(new { success = true, message = "Computer added to " + collectionName });
         }
 
         public void TestButton()
@@ -315,16 +337,6 @@ namespace ITSWebMgmt.Controllers
 
         protected void addComputerToCollection(string resourceID, string collectionID)
         {
-            /*  Set collection = SWbemServices.Get ("SMS_Collection.CollectionID=""" & CollID &"""")
-
-                Set CollectionRule = SWbemServices.Get("SMS_CollectionRuleDirect").SpawnInstance_()
-                CollectionRule.ResourceClassName = "SMS_R_System"
-                CollectionRule.RuleName = "Static-"&ResourceID
-                CollectionRule.ResourceID = ResourceID
-                collection.AddMembershipRule CollectionRule*/
-
-            //o.Properties["ResourceID"].Value.ToString();
-
             var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
             ManagementPath path = new ManagementPath(pathString);
             ManagementObject obj = new ManagementObject(path);
