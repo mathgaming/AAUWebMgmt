@@ -222,18 +222,6 @@ namespace ITSWebMgmt.Controllers
             Response.Redirect("/CreateWorkItem/Win7Index?userPrincipalName=" + userPrincipalName + "&computerName=" + computerName + "&userID=" + sCSMUserID);
         }
 
-        public ActionResult Error(string message = "Error")
-        {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return Json(new { success = false, errorMessage = message });
-        }
-
-        public ActionResult Success(string Message = "Success")
-        {
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = Message });
-        }
-
         private void LoadWarnings()
         {
             List<WebMgmtError> errors = new List<WebMgmtError>
@@ -260,6 +248,12 @@ namespace ITSWebMgmt.Controllers
         {
             string[] temp = data.Split('|');
             UserModel = getUserModel(temp[0]);
+
+            if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
+            {
+                return Error("Fields cannot be empty");
+            }
+
             ComputerModel computerModel = new ComputerModel(temp[1]);
 
             if (computerModel.ComputerFound)
@@ -271,8 +265,10 @@ namespace ITSWebMgmt.Controllers
 
                 return Success("User and computer added to groups");
             }
-
-            return Error();
+            else
+            {
+                return Error("Computer not found");
+            }
         }
 
         public override ActionResult LoadTab(string tabName, string name)

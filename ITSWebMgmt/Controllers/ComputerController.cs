@@ -120,8 +120,7 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computername);
             moveOU(HttpContext.User.Identity.Name, ComputerModel.adpath);
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = "OU moved for" + computername });
+            return Success("OU moved for" + computername);
         }
 
         [HttpPost]
@@ -142,8 +141,7 @@ namespace ITSWebMgmt.Controllers
 
             addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId);
 
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = "Computer added to " + collectionName });
+            return Success("Computer added to " + collectionName);
         }
 
         public void TestButton()
@@ -154,7 +152,6 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult ResultGetPassword([FromBody]string computername)
         {
-            //ComputerModel.ShowResultGetPassword = false;
             ComputerModel = getComputerModel(computername);
             logger.Info("User {0} requesed localadmin password for computer {1} (Hidden)", HttpContext.User.Identity.Name, ComputerModel.adpath);
 
@@ -163,8 +160,7 @@ namespace ITSWebMgmt.Controllers
             if (string.IsNullOrEmpty(passwordRetuned))
             {
                 ComputerModel.Result = "Not found";
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, errorMessage = ComputerModel.Result });
+                return Error(ComputerModel.Result);
             }
             else
             {
@@ -184,8 +180,7 @@ namespace ITSWebMgmt.Controllers
                 }
 
                 ComputerModel.Result = "<code>" + passwordWithColor + "</code><br /> Password will expire in 8 hours";
-                Response.StatusCode = (int)HttpStatusCode.OK;
-                return Json(new { success = true, message = ComputerModel.Result});
+                return Success(ComputerModel.Result);
             }
         }
         
@@ -365,8 +360,7 @@ namespace ITSWebMgmt.Controllers
 
             logger.Info("user " + HttpContext.User.Identity.Name + " enabled bitlocker for " + computername);
 
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = "Bitlocker enabled for " + computername });
+            return Success("Bitlocker enabled for " + computername);
         }
 
         private void LoadWarnings()

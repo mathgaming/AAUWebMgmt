@@ -62,10 +62,9 @@
             success: function (response) {
                 alert(response.message);
             },
-            error: function (responce) {
-                document.open();
-                document.write(responce.responseText);
-                document.close();
+            error: function (response) {
+                var r = JSON.parse(response.responseText);
+                alert(r.errorMessage);
             }
         });
     }
