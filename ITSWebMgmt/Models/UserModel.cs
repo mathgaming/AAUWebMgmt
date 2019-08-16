@@ -5,15 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using ITSWebMgmt.WebMgmtErrors;
 using ITSWebMgmt.Helpers;
 using System.Web;
 using Microsoft.Exchange.WebServices.Data;
 using Microsoft.AspNetCore.Http;
 using ITSWebMgmt.Connectors;
-using ITSWebMgmt.Functions;
 
 namespace ITSWebMgmt.Models
 {
@@ -390,7 +387,7 @@ namespace ITSWebMgmt.Models
 
         public void InitLoginScript()
         {
-            ShowResultDiv = false;
+            ShowLoginScript = false;
 
             var loginscripthelper = new Loginscript();
 
@@ -398,7 +395,7 @@ namespace ITSWebMgmt.Models
 
             if (script != null)
             {
-                ShowResultDiv = true;
+                ShowLoginScript = true;
                 Loginscript = loginscripthelper.parseAndDisplayLoginScript(script);
             }
         }

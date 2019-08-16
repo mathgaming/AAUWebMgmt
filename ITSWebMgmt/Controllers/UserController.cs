@@ -47,6 +47,7 @@ namespace ITSWebMgmt.Controllers
                         UserModel.InitBasicInfo(HttpContext);
                         LoadWarnings();
                         UserModel.InitCalendarAgenda();
+                        UserModel.InitLoginScript();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
                     }

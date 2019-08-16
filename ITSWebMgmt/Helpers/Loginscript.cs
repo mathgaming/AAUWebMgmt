@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace ITSWebMgmt.Functions
+namespace ITSWebMgmt.Helpers
 {
     public class Loginscript
     {
