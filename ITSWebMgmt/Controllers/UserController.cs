@@ -1,5 +1,4 @@
 ﻿using ITSWebMgmt.Connectors;
-using ITSWebMgmt.Connectors.Active_Directory;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using ITSWebMgmt.WebMgmtErrors;
@@ -261,8 +260,8 @@ namespace ITSWebMgmt.Controllers
 
             if (computerModel.ComputerFound)
             {
-                ADHelpers.AddMemberToGroup(UserModel.DistinguishedName, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
-                ADHelpers.AddMemberToGroup(computerModel.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
+                ADHelper.AddMemberToGroup(UserModel.DistinguishedName, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
+                ADHelper.AddMemberToGroup(computerModel.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
 
                 logger.Info($"User {HttpContext.User.Identity.Name} added user {UserModel.UserName} and {computerModel.ComputerName} to Onedrive groups, case: {temp[2]}");
 

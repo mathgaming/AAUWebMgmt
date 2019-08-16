@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Management;
 using ITSWebMgmt.Caches;
-using ITSWebMgmt.Connectors.Active_Directory;
 using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.Models
@@ -178,7 +177,7 @@ namespace ITSWebMgmt.Models
 
                 if (!string.IsNullOrWhiteSpace(managerVal))
                 {
-                    string email = ADHelpers.DistinguishedNameToUPN(managerVal);
+                    string email = ADHelper.DistinguishedNameToUPN(managerVal);
                     ManagedBy = email;
                 }
             }

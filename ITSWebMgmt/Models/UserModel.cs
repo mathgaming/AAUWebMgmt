@@ -120,7 +120,7 @@ namespace ITSWebMgmt.Models
             if (username != null)
             {
                 UserName = username;
-                adpath = ADPathFinder.GetADPath(username);
+                adpath = ADHelper.GetADPath(username);
             }
             if (adpath != null)
             {
