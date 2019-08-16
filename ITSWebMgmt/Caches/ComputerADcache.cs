@@ -65,6 +65,13 @@ namespace ITSWebMgmt.Caches
             saveCache(properties, null);
         }
 
+        public void DeleteComputer()
+        {
+            DirectoryEntry computerToDel = result.GetDirectoryEntry();
+            computerToDel.DeleteTree();
+            computerToDel.CommitChanges();
+        }
+
         private string getDomain()
         {
             var tmpName = ComputerName;

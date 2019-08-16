@@ -16,6 +16,8 @@
     <button id="MoveComputerOU">Move computer to OU Clients</button>
     <p>Only do this if you know what you are doing!</p>
 }
+<button id="DeleteComputerFromAD">Delete computer from AD</button>
+<br />
 <p>The buttons below does not work beacuse the new WebMgmt needs permissions</p>
 <button id="buttonEnableBitlockerEncryption">Enable Bitlocker Encryption</button>
 <br />
@@ -49,6 +51,15 @@
     $("#AddToAAU10").click(function ()
     {
         sendPostRequest("AddToAAU10")
+    });
+
+    $("#DeleteComputerFromAD").click(function ()
+    {
+        if (confirm('Are you sure you want to delete @Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName)) from AD?')) {
+            sendPostRequest("DeleteComputerFromAD")
+        } else {
+            // Do nothing!
+        }
     });
 
     function sendPostRequest(Action) {

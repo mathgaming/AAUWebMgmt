@@ -351,16 +351,32 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult EnableBitlockerEncryption([FromBody]string computername)
         {
-            ComputerModel = ComputerModel = getComputerModel(computername);
-            string[] adpathsplit = ComputerModel.adpath.Split('/');
-            string computerName = (adpathsplit[adpathsplit.Length - 1].Split(','))[0].Replace("CN=", "");
+            ComputerModel = getComputerModel(computername);
 
             var collectionID = "AA1000B8"; //Enabled Bitlocker Encryption Collection ID
             addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID);
 
-            logger.Info("user " + HttpContext.User.Identity.Name + " enabled bitlocker for " + computername);
+            logger.Info($"user {HttpContext.User.Identity.Name} enabled bitlocker for {computername}");
 
             return Success("Bitlocker enabled for " + computername);
+        }
+
+        [HttpPost]
+        public ActionResult DeleteComputerFromAD([FromBody]string computername)
+        {
+            try
+            {
+                ComputerModel = getComputerModel(computername);
+                ComputerModel.ADcache.DeleteComputer();
+            }
+            catch (Exception e)
+            {
+                return Error(e.Message);
+            }
+
+            logger.Info($"user {HttpContext.User.Identity.Name} deleted {computername} from AD");
+
+            return Success(computername + " have been deleted from AD");
         }
 
         private void LoadWarnings()
