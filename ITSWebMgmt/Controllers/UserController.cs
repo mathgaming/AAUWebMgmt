@@ -1,24 +1,14 @@
-﻿using ITSWebMgmt.Caches;
-using ITSWebMgmt.Connectors;
+﻿using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Connectors.Active_Directory;
-using ITSWebMgmt.Functions;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
-using ITSWebMgmt.ViewInitialisers.User;
 using ITSWebMgmt.WebMgmtErrors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Exchange.WebServices.Data;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
-using System.DirectoryServices;
-using System.DirectoryServices.AccountManagement;
 using System.Linq;
-using System.Management;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -54,9 +44,9 @@ namespace ITSWebMgmt.Controllers
                     logger.Info("User {0} lookedup user {1} (Hidden)", HttpContext.User.Identity.Name, username);
                     if (UserModel.ResultError == null)
                     {
-                        UserModel = BasicInfo.Init(UserModel, HttpContext);
+                        UserModel.InitBasicInfo(HttpContext);
                         LoadWarnings();
-                        CalendarAgenda.Init(UserModel);
+                        UserModel.InitCalendarAgenda();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
                     }
@@ -294,7 +284,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
-                    UserModel = BasicInfo.Init(UserModel, HttpContext);
+                    UserModel.InitBasicInfo(HttpContext);
                     break;
                 case "groups":
                     viewName = "Groups";
@@ -308,32 +298,30 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "fileshares":
                     viewName = "Fileshares";
-                    model = new PartialGroupModel(UserModel.ADcache, "memberOf");
-                    model = Fileshares.Init(model);
+                    model = UserModel.InitFileshares();
                     break;
                 case "calAgenda":
                     viewName = "CalendarAgenda";
-                    UserModel = CalendarAgenda.Init(UserModel);
+                    UserModel.InitCalendarAgenda();
                     break;
                 case "exchange":
                     viewName = "Exchange";
-                    model = new PartialGroupModel(UserModel.ADcache, "memberOf");
-                    model = Exchange.Init(model);
+                    model = UserModel.InitExchange();
                     break;
                 case "servicemanager":
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
                     viewName = "ComputerInformation";
-                    UserModel = ComputerInformation.Init(UserModel);
+                    UserModel.InitComputerInformation();
                     break;
                 case "win7to10":
                     viewName = "Win7to10";
-                    UserModel = Win7to10.Init(UserModel);
+                    UserModel.InitWin7to10();
                     break;
                 case "loginscript":
                     viewName = "Loginscript";
-                    UserModel = LoginScript.Init(UserModel);
+                    UserModel.InitLoginScript();
                     break;
                 case "print":
                     viewName = "Print";

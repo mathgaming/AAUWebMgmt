@@ -1,17 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ITSWebMgmt.Caches;
 using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices;
 using System.Management;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Microsoft.Extensions.Caching.Memory;
-using System.Net;
 using ITSWebMgmt.WebMgmtErrors;
-using ITSWebMgmt.ViewInitialisers.Computer;
-using NLog;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -45,8 +41,8 @@ namespace ITSWebMgmt.Controllers
                     if (ComputerModel.ComputerFound)
                     {
                         ComputerModel.ShowResultDiv = true;
-                        ComputerModel = SCCMInfo.Init(ComputerModel);
-                        ComputerModel = BasicInfo.Init(ComputerModel);
+                        ComputerModel.InitSCCMInfo();
+                        ComputerModel.InitBasicInfo();
                         LoadWarnings();
                         if (!checkComputerOU(ComputerModel.adpath))
                         {
@@ -78,7 +74,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
-                    ComputerModel = BasicInfo.Init(ComputerModel);
+                    ComputerModel.InitBasicInfo();
                     break;
                 case "groups":
                     viewName = "Groups";
@@ -91,11 +87,11 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "sccminfo":
                     viewName = "SCCMInfo";
-                    ComputerModel = SCCMInfo.Init(ComputerModel);
+                    ComputerModel.InitSCCMInfo();
                     break;
                 case "sccmInventory":
                     viewName = "SCCMInventory";
-                    ComputerModel = SCCMInventory.Init(ComputerModel);
+                    ComputerModel.InitSCCMInventory();
                     break;
                 case "sccmAV":
                     viewName = "SCCMAV";
@@ -105,7 +101,7 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "sccmHW":
                     viewName = "SCCMHW";
-                    ComputerModel = SCCMHW.Init(ComputerModel);
+                    ComputerModel.InitSCCMHW();
                     break;
                 case "rawdata":
                     viewName = "Raw";

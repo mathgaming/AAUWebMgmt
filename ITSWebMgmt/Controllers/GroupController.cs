@@ -6,9 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using ITSWebMgmt.Models;
-using System.Web;
-using System.Net;
-using ITSWebMgmt.ViewInitialisers.Group;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -17,9 +14,7 @@ namespace ITSWebMgmt.Controllers
         //https://localhost:44322/group/index?grouppath=LDAP:%2f%2fCN%3dcm12_config_AAU10%2cOU%3dConfigMgr%2cOU%3dGroups%2cDC%3dsrv%2cDC%3daau%2cDC%3ddk
         public IActionResult Index(string grouppath, bool forceviewgroup = false)
         {
-            GroupModel = new GroupModel();
-            GroupModel.ADcache = new GroupADcache(grouppath);
-            GroupModel = BasicInfo.Init(GroupModel);
+            GroupModel = new GroupModel(grouppath);
             if (forceviewgroup == false && isFileShare(GroupModel.DistinguishedName))
             {
                 string[] tables = GetFileshareTables();
