@@ -46,12 +46,12 @@ namespace ITSWebMgmt.Helpers
             return con;
         }
 
-        public static void AddComputerToCollection(string resourceID, string collectionId)
+        public static bool AddComputerToCollection(string resourceID, string collectionId)
         {
-            runScript($"Add-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
+            return runScript($"Add-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
         }
 
-        private static void runScript(string script)
+        private static bool runScript(string script)
         {
             ProcessStartInfo psi = new ProcessStartInfo();
             SecureString password = new SecureString();
@@ -66,11 +66,15 @@ namespace ITSWebMgmt.Helpers
             }
             psi.Password = password;
             psi.UserName = Username;
-            Process p = Process.Start(psi);
+            psi.RedirectStandardError = true;
+            Process p = Process.Start(psi);            
             string strOutput = p.StandardOutput.ReadToEnd();
-            string strError = p.StandardError.ReadToEnd();
+            string errOutput = p.StandardError.ReadToEnd();
             p.WaitForExit();
+            Console.WriteLine(errOutput);
             Console.WriteLine(strOutput);
+
+            return errOutput.Length == 0;
 
             //The correct way of doing it, but it does not work with dotnet core 2.2, but might work in 3.0
             /* using (PowerShell PowerShellInstance = PowerShell.Create())

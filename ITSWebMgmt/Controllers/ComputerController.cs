@@ -135,9 +135,12 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computerName);
 
-            addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId);
+            if (SCCM.AddComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId))
+            {
+                return Success("Computer added to " + collectionName);
+            }
 
-            return Success("Computer added to " + collectionName);
+            return Error("Failed to add computer to group");
         }
 
         public void TestButton()
@@ -350,11 +353,13 @@ namespace ITSWebMgmt.Controllers
             ComputerModel = getComputerModel(computername);
 
             var collectionID = "AA1000B8"; //Enabled Bitlocker Encryption Collection ID
-            addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID);
 
-            logger.Info($"user {HttpContext.User.Identity.Name} enabled bitlocker for {computername}");
-
-            return Success("Bitlocker enabled for " + computername);
+            if (SCCM.AddComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID))
+            {
+                logger.Info($"user {HttpContext.User.Identity.Name} enabled bitlocker for {computername}");
+                return Success("Bitlocker enabled for " + computername);
+            }
+            return Error("Failed to enable bitlocker");
         }
 
         [HttpPost]
