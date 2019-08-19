@@ -7,7 +7,7 @@ using System.Net;
 
 namespace ITSWebMgmt.Controllers
 {
-    public class ManagedByController : Controller
+    public class ManagedByController : WebMgmtController
     {
         public string ErrorMessage;
 
@@ -18,13 +18,11 @@ namespace ITSWebMgmt.Controllers
 
             if (ErrorMessage == "")
             {
-                Response.StatusCode = (int)HttpStatusCode.OK;
-                return Json(new { success = true });
+                return Success();
             }
             else
             {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, errorMessage = ErrorMessage });
+                return Error(ErrorMessage);
             }
         }
 

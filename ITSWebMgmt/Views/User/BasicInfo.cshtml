@@ -12,11 +12,22 @@
             <td>@Html.DisplayFor(model => model.AdmDBExpireDate)</td>
         </tr>*@
         <tr>
-            <td>Department (PDS)</td>
+            <td>New IR/SR for user</td>
+            <td>
+                @using (Html.BeginForm("CreateNewIRSR", "User", FormMethod.Post))
+                {
+                    @Html.HiddenFor(m => m.UserPrincipalName)
+                    @Html.HiddenFor(m => m.SCSMUserID)
+                    <input type="submit" value="Create new IR/SR" />
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>Department (Pure)</td>
             <td>@Html.DisplayFor(model => model.BasicInfoDepartmentPDS)</td>
         </tr>
         <tr>
-            <td>Office (PDS)</td>
+            <td>Office (Pure)</td>
             <td>@Html.DisplayFor(model => model.BasicInfoOfficePDS)</td>
         </tr>
         <tr>

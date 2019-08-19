@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Management;
 using ITSWebMgmt.Caches;
 using ITSWebMgmt.Helpers;
@@ -27,6 +28,7 @@ namespace ITSWebMgmt.Models
         public string AdminPasswordExpirationTime { get => ADcache.getProperty("ms-Mcs-AdmPwdExpirationTime"); }
         public string ManagedByAD { get => ADcache.getProperty("managedBy"); set => ADcache.saveProperty("managedBy", value); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
+        public DateTime WhenCreated { get => ADcache.getProperty("whenCreated"); }
 
         //Display
         public string ConfigPC = "Unknown";
@@ -162,5 +164,122 @@ namespace ITSWebMgmt.Models
             }
             return null;
         }
+
+        #region loading data
+        public void InitBasicInfo()
+        {
+            //Managed By
+            ManagedBy = "none";
+
+            if (ManagedByAD != null)
+            {
+                string managerVal = ManagedByAD;
+
+                if (!string.IsNullOrWhiteSpace(managerVal))
+                {
+                    string email = ADHelper.DistinguishedNameToUPN(managerVal);
+                    ManagedBy = email;
+                }
+            }
+
+            UsesOnedrive = OneDriveHelper.ComputerUsesOneDrive(ADcache);
+
+            if (AdminPasswordExpirationTime != null)
+            {
+                ShowResultGetPassword = true;
+            }
+        }
+
+        public void InitSCCMHW()
+        {
+            SCCMLD = TableGenerator.CreateVerticalTableFromDatabase(LogicalDisk,
+                new List<string>() { "DeviceID", "FileSystem", "Size", "FreeSpace" },
+                new List<string>() { "DeviceID", "File system", "Size (GB)", "FreeSpace (GB)" },
+                "Disk information not found");
+
+            if (SCCM.HasValues(RAM))
+            {
+                int total = 0;
+                int count = 0;
+
+                foreach (ManagementObject o in RAM) //Has one!
+                {
+                    total += int.Parse(o.Properties["Capacity"].Value.ToString()) / 1024;
+                    count++;
+                }
+
+                SCCMRAM = $"{total} GB RAM in {count} slot(s)";
+            }
+            else
+            {
+                SCCMRAM = "RAM information not found";
+            }
+
+            SCCMBIOS = TableGenerator.CreateVerticalTableFromDatabase(BIOS,
+                new List<string>() { "BIOSVersion", "Description", "Manufacturer", "Name", "SMBIOSBIOSVersion" },
+                "BIOS information not found");
+
+            SCCMVC = TableGenerator.CreateVerticalTableFromDatabase(VideoController,
+                new List<string>() { "AdapterRAM", "CurrentHorizontalResolution", "CurrentVerticalResolution", "DriverDate", "DriverVersion", "Name" },
+                "Video controller information not found");
+
+            SCCMProcessor = TableGenerator.CreateVerticalTableFromDatabase(Processor,
+                new List<string>() { "Is64Bit", "IsMobile", "IsVitualizationCapable", "Manufacturer", "MaxClockSpeed", "Name", "NumberOfCores", "NumberOfLogicalProcessors" },
+                "Processor information not found");
+
+            SCCMDisk = TableGenerator.CreateVerticalTableFromDatabase(Disk,
+                new List<string>() { "Caption", "Model", "Partitions", "Size", "Name" },
+                "Video controller information not found");
+        }
+
+        public void InitSCCMInfo()
+        {
+            /*
+             *     strQuery = "SELECT * FROM SMS_FullCollectionMembership WHERE ResourceID="& computerID
+                    for each fc in foundCollections
+                       Set collection = SWbemServices.Get ("SMS_Collection.CollectionID=""" & fc.CollectionID &"""")
+                       stringResult = stringResult & "<li> "  & collection.Name & "<br />"
+                Next
+
+             * SMS_Collection.CollectionID =
+             *
+             */
+
+            //XXX: remeber to filter out computers that are obsolite in sccm (not active)
+            string error = "";
+            HTMLTableHelper groupTableHelper = new HTMLTableHelper(new string[] { "Collection Name" });
+            var names = setConfig();
+
+            if (names != null)
+            {
+                foreach (var name in names)
+                {
+                    groupTableHelper.AddRow(new string[] { name });
+                }
+            }
+            else
+            {
+                error = "Computer not found i SCCM";
+            }
+
+            //Basal Info
+            var tableAndList = TableGenerator.CreateTableAndRawFromDatabase(System, new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build", "Config" }, "Computer not found i SCCM");
+
+            SCCMComputers = error + groupTableHelper.GetTable();
+            SCCMCollectionsTable = tableAndList.Item1; //Table
+            SCCMCollections = tableAndList.Item2; //List
+        }
+
+        public void InitSCCMInventory()
+        {
+            var tableAndList = TableGenerator.CreateTableAndRawFromDatabase(Computer, new List<string>() { "Manufacturer", "Model", "SystemType", "Roles" }, "No inventory data");
+            SSCMInventoryTable = tableAndList.Item1; //Table
+            SCCMCollecionsSoftware = TableGenerator.CreateTableFromDatabase(Software,
+                new List<string>() { "SoftwareCode", "ProductName", "ProductVersion", "TimeStamp" },
+                new List<string>() { "Product ID", "Name", "Version", "Install date" },
+                "Software information not found");
+            SCCMInventory += tableAndList.Item2; //List
+        }
+        #endregion loding data
     }
 }

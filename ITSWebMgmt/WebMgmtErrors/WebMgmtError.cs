@@ -1,6 +1,7 @@
 ﻿using ITSWebMgmt.Controllers;
 using ITSWebMgmt.Caches;
 using System.Management;
+using System;
 
 namespace ITSWebMgmt.WebMgmtErrors
 {
@@ -53,6 +54,22 @@ namespace ITSWebMgmt.WebMgmtErrors
             int space = computer.ComputerModel.LogicalDisk.GetPropertyInGB("FreeSpace");
             if (space == 0) return false;
             return space <= 5;
+        }
+    }
+
+    public class MissingPCConfig : ComputerWebMgmtError
+    {
+        public MissingPCConfig(ComputerController computer) : base(computer)
+        {
+            Heading = "The PC is missing config";
+            Description = "Please add the computer to config_aau10 or cm12_config_administrativ10";
+            Severeness = Severity.Warning;
+        }
+
+        public override bool HaveError()
+        {
+            DateTime temp = computer.ComputerModel.WhenCreated;
+            return (computer.ComputerModel.ConfigPC == "Unknown" && computer.ComputerModel.WhenCreated > DateTime.Parse("2019-01-01"));
         }
     }
 

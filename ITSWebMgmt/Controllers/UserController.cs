@@ -1,24 +1,13 @@
-﻿using ITSWebMgmt.Caches;
-using ITSWebMgmt.Connectors;
-using ITSWebMgmt.Connectors.Active_Directory;
-using ITSWebMgmt.Functions;
+﻿using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
-using ITSWebMgmt.ViewInitialisers.User;
 using ITSWebMgmt.WebMgmtErrors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Exchange.WebServices.Data;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
-using System.DirectoryServices;
-using System.DirectoryServices.AccountManagement;
 using System.Linq;
-using System.Management;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -42,6 +31,11 @@ namespace ITSWebMgmt.Controllers
         {
             if (username != null)
             {
+                if (username.Contains('(') && username.Contains(')'))
+                {
+                    username = username.Split('(', ')')[1];
+                }
+
                 if (!_cache.TryGetValue(username, out UserModel))
                 {
                     username = username.Trim();
@@ -49,9 +43,10 @@ namespace ITSWebMgmt.Controllers
                     logger.Info("User {0} lookedup user {1} (Hidden)", HttpContext.User.Identity.Name, username);
                     if (UserModel.ResultError == null)
                     {
-                        UserModel = BasicInfo.Init(UserModel, HttpContext);
+                        UserModel.InitBasicInfo(HttpContext);
                         LoadWarnings();
-                        CalendarAgenda.Init(UserModel);
+                        UserModel.InitCalendarAgenda();
+                        UserModel.InitLoginScript();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
                     }
@@ -222,18 +217,6 @@ namespace ITSWebMgmt.Controllers
             Response.Redirect("/CreateWorkItem/Win7Index?userPrincipalName=" + userPrincipalName + "&computerName=" + computerName + "&userID=" + sCSMUserID);
         }
 
-        public ActionResult Error(string message = "Error")
-        {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return Json(new { success = false, errorMessage = message });
-        }
-
-        public ActionResult Success(string Message = "Success")
-        {
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = Message });
-        }
-
         private void LoadWarnings()
         {
             List<WebMgmtError> errors = new List<WebMgmtError>
@@ -256,23 +239,38 @@ namespace ITSWebMgmt.Controllers
             //Password is expired and warning before expire (same timeline as windows displays warning)
         }
 
+        public ActionResult GetUsersByName([FromBody]string name)
+        {
+            List<string> names = new PureConnector().GetUsersByName(name);
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json(new { success = true, names });
+        }
+
         public ActionResult SetupOnedrive([FromBody]string data)
         {
             string[] temp = data.Split('|');
             UserModel = getUserModel(temp[0]);
+
+            if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
+            {
+                return Error("Fields cannot be empty");
+            }
+
             ComputerModel computerModel = new ComputerModel(temp[1]);
 
             if (computerModel.ComputerFound)
             {
-                ADHelpers.AddMemberToGroup(UserModel.DistinguishedName, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
-                ADHelpers.AddMemberToGroup(computerModel.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
+                ADHelper.AddMemberToGroup(UserModel.DistinguishedName, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
+                ADHelper.AddMemberToGroup(computerModel.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
 
                 logger.Info($"User {HttpContext.User.Identity.Name} added user {UserModel.UserName} and {computerModel.ComputerName} to Onedrive groups, case: {temp[2]}");
 
                 return Success("User and computer added to groups");
             }
-
-            return Error();
+            else
+            {
+                return Error("Computer not found");
+            }
         }
 
         public override ActionResult LoadTab(string tabName, string name)
@@ -286,7 +284,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
-                    UserModel = BasicInfo.Init(UserModel, HttpContext);
+                    UserModel.InitBasicInfo(HttpContext);
                     break;
                 case "groups":
                     viewName = "Groups";
@@ -300,32 +298,30 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "fileshares":
                     viewName = "Fileshares";
-                    model = new PartialGroupModel(UserModel.ADcache, "memberOf");
-                    model = Fileshares.Init(model);
+                    model = UserModel.InitFileshares();
                     break;
                 case "calAgenda":
                     viewName = "CalendarAgenda";
-                    UserModel = CalendarAgenda.Init(UserModel);
+                    UserModel.InitCalendarAgenda();
                     break;
                 case "exchange":
                     viewName = "Exchange";
-                    model = new PartialGroupModel(UserModel.ADcache, "memberOf");
-                    model = Exchange.Init(model);
+                    model = UserModel.InitExchange();
                     break;
                 case "servicemanager":
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
                     viewName = "ComputerInformation";
-                    UserModel = ComputerInformation.Init(UserModel);
+                    UserModel.InitComputerInformation();
                     break;
                 case "win7to10":
                     viewName = "Win7to10";
-                    UserModel = Win7to10.Init(UserModel);
+                    UserModel.InitWin7to10();
                     break;
                 case "loginscript":
                     viewName = "Loginscript";
-                    UserModel = LoginScript.Init(UserModel);
+                    UserModel.InitLoginScript();
                     break;
                 case "print":
                     viewName = "Print";

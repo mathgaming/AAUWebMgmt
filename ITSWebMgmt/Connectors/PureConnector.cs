@@ -32,17 +32,41 @@ namespace ITSWebMgmt.Connectors
             }
         }
 
-        public PureConnector(string empID)
+        public List<string> GetUsersByName(string name)
         {
-            string url = "https://vbn.aau.dk/ws/api/514/persons/" + empID;
-            string urlParameters = "?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.names.value&locale=en_GB";
+            List<string> emails = new List<string>();
+            DataObject dataObject = getRequest($"?q={name}&size=30&fields=staffOrganisationAssociations.person.names.value&fields=staffOrganisationAssociations.emails.value");
+
+            if (dataObject != null)
+            {
+                foreach (var item in dataObject.items)
+                {
+                    if (item.staffOrganisationAssociations != null)
+                    {
+                        var user = item.staffOrganisationAssociations[0];
+                        if (user?.emails != null && user?.person?.names != null)
+                        {
+                            emails.Add(user.person.names[0].value + " (" + user.emails[0].value + ")");
+                        }
+                    }
+                }
+            }
+
+            return emails;
+        }
+
+        private DataObject getRequest(string urlParameters, string subSite = "")
+        {
+            string url = "https://vbn.aau.dk/ws/api/514/persons" + subSite;
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(url);
             client.DefaultRequestHeaders.Add("api-key", APIkey);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpResponseMessage response = client.GetAsync(urlParameters).Result;
+            client.Dispose();
+
             DataObject dataObject = null;
 
-            HttpResponseMessage response = client.GetAsync(urlParameters).Result;
             if (response.IsSuccessStatusCode)
             {
                 dataObject = response.Content.ReadAsAsync<DataObject>().Result;
@@ -52,7 +76,14 @@ namespace ITSWebMgmt.Connectors
                 Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
             }
 
-            client.Dispose();
+            return dataObject;
+        }
+
+        public PureConnector() { }
+
+        public PureConnector(string empID)
+        {
+            DataObject dataObject = getRequest("?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.names.value&locale=en_GB", "/" + empID);
 
             if (dataObject != null)
             {
@@ -72,17 +103,34 @@ namespace ITSWebMgmt.Connectors
     public class DataObject
     {
         public List<StaffOrganisationAssociations> staffOrganisationAssociations { get; set; }
+        public List<Item> items { get; set; }
+    }
+
+    public class Item
+    {
+        public List<StaffOrganisationAssociations> staffOrganisationAssociations { get; set; }
     }
 
     public class StaffOrganisationAssociations
     {
         public OrganisationalUnit organisationalUnit { get; set; }
         public List<Address> addresses { get; set; }
+        public Person person { get; set; }
+        public List<EMail> emails { get; set; }
+    }
+
+    public class Person
+    {
+        public List<Name> names { get; set; }
     }
 
     public class OrganisationalUnit
     {
         public List<Name> names { get; set; }
+    }
+    public class EMail
+    {
+        public string value { get; set; }
     }
 
     public class Name

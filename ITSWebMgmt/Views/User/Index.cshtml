@@ -3,6 +3,9 @@
     ViewData["Title"] = "Index";
 }
 
+<link rel="stylesheet" href="~/css/autocomplete.css" />
+<script src="~/js/autocomplete.js" asp-append-version="true"></script>
+
 <div class="ui dimmer modals page transition hidden" style="display: block !important;">
     <div id="modalConfirmOUmove" class="ui small test modal transition hidden" style="margin-top: -92px; display: block !important;">
         <div class="header">
@@ -39,9 +42,9 @@
     <form method="get">
         Username
         <div class="ui action input">
-
-            <input name="username" id="username" class="ui input focus" value=@Html.DisplayFor(model => model.UserName) />
-
+            <div class="autocomplete" style="width:300px;">
+                <input name="username" id="username" type="text" class="ui input focus" value=@Html.DisplayFor(model => model.UserName) />
+            </div>
             <input type="submit" value="Search" onclick='$("#loader > div").show("fast");' />
         </div>
     </form>
@@ -51,8 +54,38 @@
         $(document).ready(function () {
             $('.menu .item').tab({ history: false });
         });
+        window.setInterval(function () {
+            if ($(document.activeElement).attr("type") == "text" || $(document.activeElement).attr("type") == "textarea") {
+                updateautocomplete(document.getElementById("username").value);
+            }
+        }, 1000);
+
+        var names;
+
+        function updateautocomplete(name) {
+            $.ajax({
+                type: "POST",
+                url: 'User/GetUsersByName',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(name),
+                dataType: "json",
+                success: function (response) {
+                    names = response.names.toString().split(',');
+                    autocomplete(document.getElementById("username"), names);
+                    var event = document.createEvent('Event');
+                    event.initEvent('input', true, true);
+                    document.getElementById("username").dispatchEvent(event);
+                },
+                error: function(response) {
+                    var r = JSON.parse(response.responseText);
+                    alert(r.errorMessage);
+                }
+            });
+        }
+        
     </script>
     <script>
+        // Code for changing tab
         $(document).ready(function () {
             $('.menu .item').tab({
                 'onVisible': function () {
@@ -140,7 +173,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="ui tab segment" id="loginscript" data-tab="loginscript" id="divLoginscript"></div>
+                <div class="ui tab segment" id="loginscript" data-tab="loginscript"></div>
                 <div class="ui tab segment" id="rawdata" data-tab="rawdata"></div>
                 <div class="ui tab segment" id="tasks" data-tab="tasks"></div>
                 <div class="ui tab segment" id="networkdrives" data-tab="networkdrives">

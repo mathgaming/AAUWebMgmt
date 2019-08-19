@@ -71,7 +71,8 @@ Unlock Account (if locked by wrong password):
                 alert(response.message);
             },
             error: function(response) {
-                alert(response.errorMessage);
+                var r = JSON.parse(response.responseText);
+                alert(r.errorMessage);
             }
         });
     }

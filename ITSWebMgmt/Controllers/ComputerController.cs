@@ -1,17 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ITSWebMgmt.Caches;
 using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices;
 using System.Management;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Microsoft.Extensions.Caching.Memory;
-using System.Net;
 using ITSWebMgmt.WebMgmtErrors;
-using ITSWebMgmt.ViewInitialisers.Computer;
-using NLog;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -45,8 +41,8 @@ namespace ITSWebMgmt.Controllers
                     if (ComputerModel.ComputerFound)
                     {
                         ComputerModel.ShowResultDiv = true;
-                        ComputerModel = SCCMInfo.Init(ComputerModel);
-                        ComputerModel = BasicInfo.Init(ComputerModel);
+                        ComputerModel.InitSCCMInfo();
+                        ComputerModel.InitBasicInfo();
                         LoadWarnings();
                         if (!checkComputerOU(ComputerModel.adpath))
                         {
@@ -78,7 +74,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
-                    ComputerModel = BasicInfo.Init(ComputerModel);
+                    ComputerModel.InitBasicInfo();
                     break;
                 case "groups":
                     viewName = "Groups";
@@ -91,11 +87,11 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "sccminfo":
                     viewName = "SCCMInfo";
-                    ComputerModel = SCCMInfo.Init(ComputerModel);
+                    ComputerModel.InitSCCMInfo();
                     break;
                 case "sccmInventory":
                     viewName = "SCCMInventory";
-                    ComputerModel = SCCMInventory.Init(ComputerModel);
+                    ComputerModel.InitSCCMInventory();
                     break;
                 case "sccmAV":
                     viewName = "SCCMAV";
@@ -105,7 +101,7 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "sccmHW":
                     viewName = "SCCMHW";
-                    ComputerModel = SCCMHW.Init(ComputerModel);
+                    ComputerModel.InitSCCMHW();
                     break;
                 case "rawdata":
                     viewName = "Raw";
@@ -120,8 +116,7 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computername);
             moveOU(HttpContext.User.Identity.Name, ComputerModel.adpath);
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = "OU moved for" + computername });
+            return Success("OU moved for" + computername);
         }
 
         [HttpPost]
@@ -142,8 +137,7 @@ namespace ITSWebMgmt.Controllers
 
             addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId);
 
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = "Computer added to " + collectionName });
+            return Success("Computer added to " + collectionName);
         }
 
         public void TestButton()
@@ -154,7 +148,6 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult ResultGetPassword([FromBody]string computername)
         {
-            //ComputerModel.ShowResultGetPassword = false;
             ComputerModel = getComputerModel(computername);
             logger.Info("User {0} requesed localadmin password for computer {1} (Hidden)", HttpContext.User.Identity.Name, ComputerModel.adpath);
 
@@ -163,8 +156,7 @@ namespace ITSWebMgmt.Controllers
             if (string.IsNullOrEmpty(passwordRetuned))
             {
                 ComputerModel.Result = "Not found";
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return Json(new { success = false, errorMessage = ComputerModel.Result });
+                return Error(ComputerModel.Result);
             }
             else
             {
@@ -184,8 +176,7 @@ namespace ITSWebMgmt.Controllers
                 }
 
                 ComputerModel.Result = "<code>" + passwordWithColor + "</code><br /> Password will expire in 8 hours";
-                Response.StatusCode = (int)HttpStatusCode.OK;
-                return Json(new { success = true, message = ComputerModel.Result});
+                return Success(ComputerModel.Result);
             }
         }
         
@@ -356,17 +347,32 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult EnableBitlockerEncryption([FromBody]string computername)
         {
-            ComputerModel = ComputerModel = getComputerModel(computername);
-            string[] adpathsplit = ComputerModel.adpath.Split('/');
-            string computerName = (adpathsplit[adpathsplit.Length - 1].Split(','))[0].Replace("CN=", "");
+            ComputerModel = getComputerModel(computername);
 
             var collectionID = "AA1000B8"; //Enabled Bitlocker Encryption Collection ID
             addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID);
 
-            logger.Info("user " + HttpContext.User.Identity.Name + " enabled bitlocker for " + computername);
+            logger.Info($"user {HttpContext.User.Identity.Name} enabled bitlocker for {computername}");
 
-            Response.StatusCode = (int)HttpStatusCode.OK;
-            return Json(new { success = true, message = "Bitlocker enabled for " + computername });
+            return Success("Bitlocker enabled for " + computername);
+        }
+
+        [HttpPost]
+        public ActionResult DeleteComputerFromAD([FromBody]string computername)
+        {
+            try
+            {
+                ComputerModel = getComputerModel(computername);
+                ComputerModel.ADcache.DeleteComputer();
+            }
+            catch (Exception e)
+            {
+                return Error(e.Message);
+            }
+
+            logger.Info($"user {HttpContext.User.Identity.Name} deleted {computername} from AD");
+
+            return Success(computername + " have been deleted from AD");
         }
 
         private void LoadWarnings()
@@ -375,6 +381,7 @@ namespace ITSWebMgmt.Controllers
             {
                 new DriveAlmostFull(this),
                 new NotStandardComputerOU(this),
+                new MissingPCConfig(this)
             };
 
             var errorList = new WebMgmtErrorList(errors);
