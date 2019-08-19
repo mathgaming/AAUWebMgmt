@@ -1,8 +1,66 @@
-﻿@model ITSWebMgmt.Models.SimpleModel
+﻿@model IEnumerable<ITSWebMgmt.Models.LogEntry>
 
-<h2>Log</h2>
-@Html.Raw(Model.Text)
+
+@if (!(bool)ViewData["HaveAccess"])
+{
 
 <script>
     document.documentElement.style.setProperty("--main-width", "1600px");
 </script>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TimeStamp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Type)
+            </th>
+            <th>
+                <b>Description</b>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            @if (!item.Hidden)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TimeStamp)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Type)
+                    </td>
+                    <td>
+                        @Html.Raw(item.ToString())
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+</body>
+</html>
+
+}
+else
+{
+    <p>You do not have access to the log</p>
+}

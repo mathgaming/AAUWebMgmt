@@ -42,7 +42,8 @@ namespace ITSWebMgmt.Controllers
                     //Check if valid response
                     if (output.Contains("Generated Response:"))
                     {
-                        logger.Info("User {0} generated challange with reason {1}", HttpContext.User.Identity.Name, reasonInput);
+                        //TODO log if used again
+                        //new LogEntry(LogEntryType.ResponceChallence, HttpContext.User.Identity.Name, reasonInput);
                         result = "<br/>Response Code: " + output.Replace("Generated Response: ", "");
 
                     }

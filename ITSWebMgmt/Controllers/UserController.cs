@@ -21,10 +21,12 @@ namespace ITSWebMgmt.Controllers
 
         private IMemoryCache _cache;
         public UserModel UserModel;
+        private readonly LogEntryContext _context;
 
-        public UserController(IMemoryCache cache)
+        public UserController(LogEntryContext context, IMemoryCache cache)
         {
             _cache = cache;
+            _context = context;
         }
 
         private UserModel getUserModel(string username)
@@ -40,7 +42,8 @@ namespace ITSWebMgmt.Controllers
                 {
                     username = username.Trim();
                     UserModel = new UserModel(username);
-                    logger.Info("User {0} lookedup user {1} (Hidden)", HttpContext.User.Identity.Name, username);
+                    new Logger(_context).Log(LogEntryType.UserLookup, HttpContext.User.Identity.Name, username, true);
+
                     if (UserModel.ResultError == null)
                     {
                         UserModel.InitBasicInfo(HttpContext);
@@ -58,6 +61,11 @@ namespace ITSWebMgmt.Controllers
             }
 
             return UserModel;
+        }
+
+        private object Logger(LogEntryContext context)
+        {
+            throw new NotImplementedException();
         }
 
         public bool userIsInRightOU()
@@ -134,7 +142,7 @@ namespace ITSWebMgmt.Controllers
                 string newOU = string.Format("{0},{1}", ou[count - 2], ou[count - 1]);
                 string newPath = string.Format("{0}{1}/{2},{3}", protocol, string.Join(".", dcpath).Replace("dc=", ""), newOU, string.Join(",", dcpath));
 
-                logger.Info("user " + HttpContext.User.Identity.Name + " changed OU on user to: " + newPath + " from " + UserModel.adpath + ".");
+                new Logger(_context).Log(LogEntryType.UserMoveOU, HttpContext.User.Identity.Name, new List<string>() {newPath, UserModel.adpath });
 
                 var newLocaltion = DirectoryEntryCreator.CreateNewDirectoryEntry(newPath);
                 UserModel.ADcache.DE.MoveTo(newLocaltion);
@@ -142,14 +150,13 @@ namespace ITSWebMgmt.Controllers
                 return Success();
             }
             //We don't need to do anything, user is placed in the right ou! (we think, can still be in wrong ou fx a guest changed to staff, we cant check that here) 
-            logger.Debug("no need to change user {0} out, all is good", UserModel.adpath);
-            return Success();
+            return Success($"no need to change user {UserModel.adpath} out, all is good");
         }
 
         public ActionResult UnlockUserAccount([FromBody]string username)
         {
             UserModel = getUserModel(username);
-            logger.Info("User {0} unlocked useraccont {1}", HttpContext.User.Identity.Name, UserModel.adpath);
+            new Logger(_context).Log(LogEntryType.UnlockUserAccount, HttpContext.User.Identity.Name, UserModel.adpath);
 
             try
             {
@@ -169,7 +176,7 @@ namespace ITSWebMgmt.Controllers
         {
             UserModel = getUserModel(username);
             //XXX log what the new value of profile is :)
-            logger.Info("User {0} toggled romaing profile for user  {1}", HttpContext.User.Identity.Name, UserModel.adpath);
+            new Logger(_context).Log(LogEntryType.TuggleUserProfile, HttpContext.User.Identity.Name, UserModel.adpath);
 
             //string profilepath = (string)(ADcache.DE.Properties["profilePath"])[0];
 
@@ -263,7 +270,7 @@ namespace ITSWebMgmt.Controllers
                 ADHelper.AddMemberToGroup(UserModel.DistinguishedName, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
                 ADHelper.AddMemberToGroup(computerModel.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
 
-                logger.Info($"User {HttpContext.User.Identity.Name} added user {UserModel.UserName} and {computerModel.ComputerName} to Onedrive groups, case: {temp[2]}");
+                new Logger(_context).Log(LogEntryType.Onedrive, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserName, computerModel.ComputerName, temp[2] });
 
                 return Success("User and computer added to groups");
             }
