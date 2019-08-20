@@ -1,6 +1,6 @@
-﻿@model PaginatedList<ITSWebMgmt.Models.LogEntry>
+@model PaginatedList<ITSWebMgmt.Models.LogEntry>
 
-@if (!(bool)ViewData["HaveAccess"])
+@if ((bool)ViewData["HaveAccess"])
 {
     <script>
         document.documentElement.style.setProperty("--main-width", "1600px");
