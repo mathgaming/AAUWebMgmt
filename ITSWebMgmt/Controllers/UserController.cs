@@ -176,7 +176,7 @@ namespace ITSWebMgmt.Controllers
         {
             UserModel = getUserModel(username);
             //XXX log what the new value of profile is :)
-            new Logger(_context).Log(LogEntryType.TuggleUserProfile, HttpContext.User.Identity.Name, UserModel.adpath);
+            new Logger(_context).Log(LogEntryType.ToggleUserProfile, HttpContext.User.Identity.Name, UserModel.adpath);
 
             //string profilepath = (string)(ADcache.DE.Properties["profilePath"])[0];
 

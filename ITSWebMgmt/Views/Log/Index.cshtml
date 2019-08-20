@@ -1,66 +1,93 @@
-﻿@model IEnumerable<ITSWebMgmt.Models.LogEntry>
-
+﻿@model PaginatedList<ITSWebMgmt.Models.LogEntry>
 
 @if (!(bool)ViewData["HaveAccess"])
 {
+    <script>
+        document.documentElement.style.setProperty("--main-width", "1600px");
+    </script>
 
-<script>
-    document.documentElement.style.setProperty("--main-width", "1600px");
-</script>
+    <!DOCTYPE html>
 
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
-</head>
-<body>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TimeStamp)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Type)
-            </th>
-            <th>
-                <b>Description</b>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            @if (!item.Hidden)
-            {
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>Log</title>
+    </head>
+    <body>
+        <form asp-action="Index" method="get">
+            <div class="form-actions no-color">
+                <p>
+                    Find by user name: <input type="text" name="SearchString" value="@ViewData["currentFilter"]" />
+                    Type: <select name="type" asp-items="Html.GetEnumSelectList<LogEntryType>()">
+                        <option selected="selected" value="100">All</option>
+                    </select>
+                    Show hidden log entries: <input class="check-box" type="checkbox" name="showHidden">
+                    <input type="submit" value="Search" class="btn btn-default" /> |
+                    <a asp-action="Index">Reset search</a>
+                </p>
+            </div>
+        </form>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.TimeStamp)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UserName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Type)
-                    </td>
-                    <td>
-                        @Html.Raw(item.ToString())
-                    </td>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Time stamp</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Type</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">User name</a>
+                    </th>
+                    <th>
+                        <b>Description</b>
+                    </th>
                 </tr>
-            }
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TimeStamp)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Type)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserName)
+                        </td>
+                        <td>
+                            @Html.Raw(item.ToString())
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
         }
-    </tbody>
-</table>
-</body>
+
+        <a asp-action="Index"
+           asp-route-sortOrder="@ViewData["CurrentSort"]"
+           asp-route-pageNumber="@(Model.PageIndex - 1)"
+           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+           class="btn btn-default @prevDisabled">
+            Previous
+        </a>
+        <a asp-action="Index"
+           asp-route-sortOrder="@ViewData["CurrentSort"]"
+           asp-route-pageNumber="@(Model.PageIndex + 1)"
+           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+           class="btn btn-default @nextDisabled">
+            Next
+        </a>
+    </body>
 </html>
 
 }
 else
 {
-    <p>You do not have access to the log</p>
+<p>You do not have access to the log</p>
 }

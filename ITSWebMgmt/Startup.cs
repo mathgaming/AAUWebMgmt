@@ -34,8 +34,8 @@ namespace ITSWebMgmt
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
-            //"https://srv-webmgmt-p02.srv.aau.dk/"
-            services.AddDbContext<LogEntryContext>();
+            var connection = Configuration.GetConnectionString("MyConnectionString");
+            services.AddDbContext<LogEntryContext>(options => options.UseSqlServer(connection));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
