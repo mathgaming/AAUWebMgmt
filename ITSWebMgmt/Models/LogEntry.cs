@@ -45,34 +45,38 @@ namespace ITSWebMgmt.Models
 
         public LogEntry(LogEntryType type, string userName, string argument, bool hidden = false) : this(type, userName, new List<string>() { argument }, hidden) { }
 
-        public override string ToString()
+        public string GetDescription()
         {
-            string dateAndTime = $"{DateTimeConverter.Convert(TimeStamp)} - {UserName} ";
             switch (Type)
             {
                 case LogEntryType.UserLookup:
-                    return dateAndTime + $"lookedup user {Arguments[0]}";
+                    return $"lookedup user {Arguments[0]}";
                 case LogEntryType.ComputerLookup:
-                    return dateAndTime + $"requesed info about computer {Arguments[0]}";
+                    return $"requesed info about computer {Arguments[0]}";
                 case LogEntryType.ComputerAdminPassword:
-                    return dateAndTime + $"requesed localadmin password for computer {Arguments[0]}";
+                    return $"requesed localadmin password for computer {Arguments[0]}";
                 case LogEntryType.Bitlocker:
-                    return dateAndTime + $"enabled bitlocker for {Arguments[0]}.";
+                    return $"enabled bitlocker for {Arguments[0]}.";
                 case LogEntryType.ComputerDeletedFromAD:
-                    return dateAndTime + $"deleted {Arguments[0]} from AD";
+                    return $"deleted {Arguments[0]} from AD";
                 case LogEntryType.ResponceChallence:
-                    return dateAndTime + $"generated challange with reason {Arguments[0]}";
+                    return $"generated challange with reason {Arguments[0]}";
                 case LogEntryType.UserMoveOU:
-                    return dateAndTime + $"changed OU on user to: {Arguments[0]} from {Arguments[1]}.";
+                    return $"changed OU on user to: {Arguments[0]} from {Arguments[1]}.";
                 case LogEntryType.UnlockUserAccount:
-                    return dateAndTime + $"unlocked useraccont {Arguments[0]}";
+                    return $"unlocked useraccont {Arguments[0]}";
                 case LogEntryType.ToggleUserProfile:
-                    return dateAndTime + $"toggled romaing profile for user {Arguments[0]}";
+                    return $"toggled romaing profile for user {Arguments[0]}";
                 case LogEntryType.Onedrive:
-                    return dateAndTime + $"added user {Arguments[0]} and {Arguments[1]} to Onedrive groups, case: {Arguments[2]}";
+                    return $"added user {Arguments[0]} and {Arguments[1]} to Onedrive groups, case: {Arguments[2]}";
                 default:
                     return "LogEntry type not found";
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{DateTimeConverter.Convert(TimeStamp)} - {UserName} {GetDescription()}";
         }
     }
 
@@ -94,7 +98,7 @@ namespace ITSWebMgmt.Models
         }
     }
 
-    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive};
+    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive, All = 100};
 
     public class PaginatedList<T> : List<T>
     {

@@ -38,60 +38,64 @@ namespace ITSWebMgmt.Helpers
 
         public void FixImport()
         {
-            List<DateTime> dates = new List<DateTime>();
-            List<string> argumentsTo = new List<string>();
-            List<string> argumentsFrom = new List<string>();
-            string line;
-            System.IO.StreamReader file = new System.IO.StreamReader(@"C:\webmgmtlog\old-importlogfile.txt");
-            while ((line = file.ReadLine()) != null)
+            if (File.Exists(@"C:\webmgmtlog\fix-importlogfile.txt"))
             {
-                var parts = line.Split(" ");
-                
-                if (line.Contains("changed OU on user to:") && !line.Contains("{3}"))
+                List<DateTime> dates = new List<DateTime>();
+                List<string> argumentsTo = new List<string>();
+                List<string> argumentsFrom = new List<string>();
+                string line;
+                System.IO.StreamReader file = new System.IO.StreamReader(@"C:\webmgmtlog\fix-importlogfile.txt");
+                while ((line = file.ReadLine()) != null)
                 {
-                    int startTo = line.IndexOf("LDAP");
-                    int endTo = line.IndexOf(" from");
-                    int startFrom = line.IndexOf("LDAP", line.IndexOf("LDAP") + 1);
-                    int endFrom = line.Length - 1;
+                    var parts = line.Split(" ");
 
-                    DateTime date = DateTime.Parse(parts[0] + " " + parts[1].Split("|")[0]);
-
-                    argumentsTo.Add(line.Substring(startTo, endTo - startTo));
-                    argumentsFrom.Add(line.Substring(startFrom, endFrom - startFrom));
-                    dates.Add(date);
-                }
-            }
-
-            file.Close();
-
-            var logEntries = _context.LogEntries.Include(e => e.Arguments).AsNoTracking().Where(s => s.Type == LogEntryType.UserMoveOU);
-
-            foreach (var logEntry in logEntries)
-            {
-                int index = dates.IndexOf(logEntry.TimeStamp);
-                if (index != -1)
-                {
-                    LogEntry current = _context.LogEntries.Include(e => e.Arguments).AsNoTracking().Where(s => s.TimeStamp == logEntry.TimeStamp).FirstOrDefault();
-                    List<LogEntryArgument> args = _context.LogEntryArguments.AsNoTracking().Where(b => EF.Property<int>(b, "LogEntryId") == current.Id).ToList();
-                    foreach (var arg in args)
+                    if (line.Contains("changed OU on user to:") && !line.Contains("{3}"))
                     {
-                        current.Arguments.Remove(arg);
-                        _context.Remove(arg);
+                        int startTo = line.IndexOf("LDAP");
+                        int endTo = line.IndexOf(" from");
+                        int startFrom = line.IndexOf("LDAP", line.IndexOf("LDAP") + 1);
+                        int endFrom = line.Length - 1;
+
+                        DateTime date = DateTime.Parse(parts[0] + " " + parts[1].Split("|")[0]);
+
+                        argumentsTo.Add(line.Substring(startTo, endTo - startTo));
+                        argumentsFrom.Add(line.Substring(startFrom, endFrom - startFrom));
+                        dates.Add(date);
                     }
-
-                    current.Arguments.Clear();
-                    current.Arguments.Add(new LogEntryArgument(argumentsTo[index]));
-                    current.Arguments.Add(new LogEntryArgument(argumentsFrom[index]));
-                    _context.Update(current);
                 }
-            }
 
-            _context.SaveChanges();
+                file.Close();
+                File.Delete(@"C:\webmgmtlog\fix-importlogfile.txt");
+
+                var logEntries = _context.LogEntries.Include(e => e.Arguments).AsNoTracking().Where(s => s.Type == LogEntryType.UserMoveOU);
+
+                foreach (var logEntry in logEntries)
+                {
+                    int index = dates.IndexOf(logEntry.TimeStamp);
+                    if (index != -1)
+                    {
+                        LogEntry current = _context.LogEntries.Include(e => e.Arguments).AsNoTracking().Where(s => s.TimeStamp == logEntry.TimeStamp).FirstOrDefault();
+                        List<LogEntryArgument> args = _context.LogEntryArguments.AsNoTracking().Where(b => EF.Property<int>(b, "LogEntryId") == current.Id).ToList();
+                        foreach (var arg in args)
+                        {
+                            current.Arguments.Remove(arg);
+                            _context.Remove(arg);
+                        }
+
+                        current.Arguments.Clear();
+                        current.Arguments.Add(new LogEntryArgument(argumentsTo[index]));
+                        current.Arguments.Add(new LogEntryArgument(argumentsFrom[index]));
+                        _context.Update(current);
+                    }
+                }
+
+                _context.SaveChanges();
+            }
         }
 
         public void ImportLogEntriesFromFile()
         {
-            FixImport();
+            FixImport(); // Fix wrongly imported adpaths because of spaces in the path (only for LogEntryType.UserMoveOU)
             if (File.Exists(@"C:\webmgmtlog\importlogfile.txt"))
             {
                 //Newest added from new = 2019-08-16 13:58:01.9908|INFO|ITSWebMgmt.Controllers.WebMgmtController|User ITS\ampo18 lookedup user mgranl18@student.aau.dk (Hidden)
@@ -199,10 +203,17 @@ namespace ITSWebMgmt.Helpers
                         arguments.Add(parts[parts.Length - 3]);
                     }
 
+                    else if (line.Contains("enabled bitlocker for"))
+                    {
+                        type = LogEntryType.Bitlocker;
+                        arguments.Add(parts[parts.Length - 1]);
+                    }
+
                     Log(type, username, arguments, hidden, date);
                 }
 
                 file.Close();
+                File.Delete(@"C:\webmgmtlog\importlogfile.txt");
                 _context.SaveChanges();
             }
         }

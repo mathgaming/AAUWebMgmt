@@ -1,4 +1,5 @@
 @model PaginatedList<ITSWebMgmt.Models.LogEntry>
+@using ITSWebMgmt.Helpers;
 
 @if ((bool)ViewData["HaveAccess"])
 {
@@ -18,12 +19,31 @@
             <div class="form-actions no-color">
                 <p>
                     Find by user name: <input type="text" name="SearchString" value="@ViewData["currentFilter"]" />
-                    Type: <select name="type" asp-items="Html.GetEnumSelectList<LogEntryType>()">
-                        <option selected="selected" value="100">All</option>
+                    Type: <select name="type">
+                        @foreach (var type in Html.GetEnumSelectList<LogEntryType>())
+                        {
+                            var names = Enum.GetNames(typeof(LogEntryType));
+                            if (type.Value == @ViewData["TypeFilter"].ToString())
+                            {
+                                <option value="@type.Value" selected="selected">@type.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@type.Value">@type.Text</option>
+                            }
+                        }
                     </select>
-                    Show hidden log entries: <input class="check-box" type="checkbox" name="showHidden">
+                    Show hidden log entries: <input class="check-box" type="checkbox" name="showHidden" id="showHidden">
+                    @if (ViewData["HiddenFilter"] != null && ViewData["HiddenFilter"].ToString() == "on")
+                    {
+                        <script>
+                            $('#showHidden').prop('checked', true);
+                        </script>
+                    }
                     <input type="submit" value="Search" class="btn btn-default" /> |
                     <a asp-action="Index">Reset search</a>
+                    <br />
+                    <p>Some adpaths in the log might be missing the first part</p>
                 </p>
             </div>
         </form>
@@ -49,7 +69,7 @@
                 {
                     <tr>
                         <td>
-                            @Html.DisplayFor(modelItem => item.TimeStamp)
+                            @DateTimeConverter.Convert(item.TimeStamp)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Type)
@@ -58,7 +78,7 @@
                             @Html.DisplayFor(modelItem => item.UserName)
                         </td>
                         <td>
-                            @Html.Raw(item.ToString())
+                            @Html.Raw(item.GetDescription())
                         </td>
                     </tr>
                 }
@@ -70,6 +90,8 @@
         }
 
         <a asp-action="Index"
+           asp-route-showHidden="@ViewData["HiddenFilter"]"
+           asp-route-type="@ViewData["TypeFilter"]"
            asp-route-sortOrder="@ViewData["CurrentSort"]"
            asp-route-pageNumber="@(Model.PageIndex - 1)"
            asp-route-currentFilter="@ViewData["CurrentFilter"]"
@@ -77,6 +99,8 @@
             Previous
         </a>
         <a asp-action="Index"
+           asp-route-showHidden="@ViewData["HiddenFilter"]"
+           asp-route-type="@ViewData["TypeFilter"]"
            asp-route-sortOrder="@ViewData["CurrentSort"]"
            asp-route-pageNumber="@(Model.PageIndex + 1)"
            asp-route-currentFilter="@ViewData["CurrentFilter"]"

@@ -31,14 +31,22 @@ namespace ITSWebMgmt.Controllers
                 }
             }
 
-            new Logger(_context).ImportLogEntriesFromFile();
+            //Does not work on server, because it does not have access to the file
+            //new Logger(_context).ImportLogEntriesFromFile();
+
+            if (type == null)
+            {
+                type = 100;
+            }
 
             ViewData["CurrentSort"] = sortOrder;
+            ViewData["TypeFilter"] = type;
+            ViewData["HiddenFilter"] = showHidden;
 
             if (string.IsNullOrEmpty(sortOrder))
             {
                 ViewData["NameSortParm"] = "name_desc";
-                ViewData["DateSortParm"] = "date_desc";
+                ViewData["DateSortParm"] = "date";
                 ViewData["TypeSortParm"] = "type_desc";
             }
             else
