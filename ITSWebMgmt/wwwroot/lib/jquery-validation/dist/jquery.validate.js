@@ -163,7 +163,7 @@ $.extend( $.fn, {
 			staticRules = settings.rules;
 			existingRules = $.validator.staticRules( element );
 			switch ( command ) {
-			case LogEntryType.add":
+			case "add":
 				$.extend( existingRules, $.validator.normalizeRule( argument ) );
 
 				// Remove messages from rules, but allow them to be set separately
@@ -173,7 +173,7 @@ $.extend( $.fn, {
 					settings.messages[ element.name ] = $.extend( settings.messages[ element.name ], argument.messages );
 				}
 				break;
-			case LogEntryType.remove":
+			case "remove":
 				if ( !argument ) {
 					delete staticRules[ element.name ];
 					return existingRules;
@@ -1057,9 +1057,9 @@ $.extend( $.validator, {
 
 		getLength: function( value, element ) {
 			switch ( element.nodeName.toLowerCase() ) {
-			case LogEntryType.select":
+			case "select":
 				return $( "option:selected", element ).length;
-			case LogEntryType.input":
+			case "input":
 				if ( this.checkable( element ) ) {
 					return this.findByName( element.name ).filter( ":checked" ).length;
 				}
@@ -1274,10 +1274,10 @@ $.extend( $.validator, {
 			if ( val.param || val.depends ) {
 				var keepRule = true;
 				switch ( typeof val.depends ) {
-				case LogEntryType.string":
+				case "string":
 					keepRule = !!$( val.depends, element.form ).length;
 					break;
-				case LogEntryType.function":
+				case "function":
 					keepRule = val.depends.call( element, element );
 					break;
 				}
