@@ -273,7 +273,7 @@ namespace ITSWebMgmt.Controllers
                 string newOU = string.Format("OU=Clients");
                 string newPath = string.Format("{0}{1}/{2},{3}", protocol, Domain, newOU, string.Join(",", dcpath));
 
-                new Logger(_context).Log(LogEntryType.UserMoveOU, user, newPath);
+                new Logger(_context).Log(LogEntryType.UserMoveOU, user, new List<string>() { newPath, adpath });
                 moveComputerToOU(adpath, newPath);
             }
         }

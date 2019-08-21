@@ -11,6 +11,7 @@ namespace ITSWebMgmt.Models
     {
         public LogEntryContext(DbContextOptions<LogEntryContext> options) : base(options) { }
         public DbSet<LogEntry> LogEntries { get; set; }
+        public DbSet<LogEntryArgument> LogEntryArguments { get; set; }
     }
 
     public class LogEntry

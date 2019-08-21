@@ -1,4 +1,5 @@
 ﻿using ITSWebMgmt.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -35,8 +36,62 @@ namespace ITSWebMgmt.Helpers
             _context.Add(entry);
         }
 
+        public void FixImport()
+        {
+            List<DateTime> dates = new List<DateTime>();
+            List<string> argumentsTo = new List<string>();
+            List<string> argumentsFrom = new List<string>();
+            string line;
+            System.IO.StreamReader file = new System.IO.StreamReader(@"C:\webmgmtlog\old-importlogfile.txt");
+            while ((line = file.ReadLine()) != null)
+            {
+                var parts = line.Split(" ");
+                
+                if (line.Contains("changed OU on user to:") && !line.Contains("{3}"))
+                {
+                    int startTo = line.IndexOf("LDAP");
+                    int endTo = line.IndexOf(" from");
+                    int startFrom = line.IndexOf("LDAP", line.IndexOf("LDAP") + 1);
+                    int endFrom = line.Length - 1;
+
+                    DateTime date = DateTime.Parse(parts[0] + " " + parts[1].Split("|")[0]);
+
+                    argumentsTo.Add(line.Substring(startTo, endTo - startTo));
+                    argumentsFrom.Add(line.Substring(startFrom, endFrom - startFrom));
+                    dates.Add(date);
+                }
+            }
+
+            file.Close();
+
+            var logEntries = _context.LogEntries.Include(e => e.Arguments).AsNoTracking().Where(s => s.Type == LogEntryType.UserMoveOU);
+
+            foreach (var logEntry in logEntries)
+            {
+                int index = dates.IndexOf(logEntry.TimeStamp);
+                if (index != -1)
+                {
+                    LogEntry current = _context.LogEntries.Include(e => e.Arguments).AsNoTracking().Where(s => s.TimeStamp == logEntry.TimeStamp).FirstOrDefault();
+                    List<LogEntryArgument> args = _context.LogEntryArguments.AsNoTracking().Where(b => EF.Property<int>(b, "LogEntryId") == current.Id).ToList();
+                    foreach (var arg in args)
+                    {
+                        current.Arguments.Remove(arg);
+                        _context.Remove(arg);
+                    }
+
+                    current.Arguments.Clear();
+                    current.Arguments.Add(new LogEntryArgument(argumentsTo[index]));
+                    current.Arguments.Add(new LogEntryArgument(argumentsFrom[index]));
+                    _context.Update(current);
+                }
+            }
+
+            _context.SaveChanges();
+        }
+
         public void ImportLogEntriesFromFile()
         {
+            FixImport();
             if (File.Exists(@"C:\webmgmtlog\importlogfile.txt"))
             {
                 //Newest added from new = 2019-08-16 13:58:01.9908|INFO|ITSWebMgmt.Controllers.WebMgmtController|User ITS\ampo18 lookedup user mgranl18@student.aau.dk (Hidden)
@@ -128,8 +183,14 @@ namespace ITSWebMgmt.Helpers
                     else if (line.Contains("changed OU on user to:"))
                     {
                         type = LogEntryType.UserMoveOU;
-                        arguments.Add(parts[parts.Length - 3]);
-                        arguments.Add(parts[parts.Length - 1].Remove(parts[parts.Length - 1].Length - 1));
+
+                        int startTo = line.IndexOf("LDAP");
+                        int endTo = line.IndexOf(" from");
+                        int startFrom = line.IndexOf("LDAP", line.IndexOf("LDAP") + 1);
+                        int endFrom = line.Length - 1;
+
+                        arguments.Add(line.Substring(startTo, endTo - startTo));
+                        arguments.Add(line.Substring(startFrom, endFrom - startFrom));
                     }
 
                     else if (line.Contains(" from AD"))
@@ -142,6 +203,7 @@ namespace ITSWebMgmt.Helpers
                 }
 
                 file.Close();
+                _context.SaveChanges();
             }
         }
     }
