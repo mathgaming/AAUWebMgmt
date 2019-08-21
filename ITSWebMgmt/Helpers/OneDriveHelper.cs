@@ -11,10 +11,10 @@ namespace ITSWebMgmt.Helpers
     {
         const string COMPUTER_USES_1DRIVE_FLAG = "GPO_Computer_UseOnedriveStorage";
         const string USER_USES_1DRIVE_FLAG = "GPO_User_DenyFolderRedirection";
-        public static bool doesUserUseOneDrive(HttpContext context, UserModel user) {
-            return doesUserHaveDeniedFolderRedirect(user) && doesOneComputerUseOneDrive(context, user);
+        public static bool doesUserUseOneDrive(UserModel user) {
+            return doesUserHaveDeniedFolderRedirect(user) && doesOneComputerUseOneDrive(user);
         }
-        private static bool doesOneComputerUseOneDrive(HttpContext context, UserModel user)
+        private static bool doesOneComputerUseOneDrive(UserModel user)
         {
             string upn = user.UserPrincipalName;
             string[] upnsplit = upn.Split('@');
@@ -25,7 +25,7 @@ namespace ITSWebMgmt.Helpers
             ManagementObjectCollection connectedComputers = user.getUserMachineRelationshipFromUserName(userName);
             foreach (ManagementObject comp in connectedComputers)
             {
-                if (computerUsesOneDrive(context, comp))
+                if (computerUsesOneDrive(comp))
                 {
                     return true;
                 }
@@ -38,7 +38,7 @@ namespace ITSWebMgmt.Helpers
             return memberGroups.Exists(x => x.Contains(USER_USES_1DRIVE_FLAG));
         }
 
-        public static bool computerUsesOneDrive(HttpContext context, ManagementObject comp)
+        public static bool computerUsesOneDrive(ManagementObject comp)
         {
             string computerName = comp.Properties["ResourceName"].Value.ToString();
             ADcache cache = new ComputerADcache(computerName);

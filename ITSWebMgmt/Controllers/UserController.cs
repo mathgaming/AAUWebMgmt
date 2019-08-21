@@ -46,7 +46,7 @@ namespace ITSWebMgmt.Controllers
 
                     if (UserModel.ResultError == null)
                     {
-                        UserModel.InitBasicInfo(HttpContext);
+                        UserModel.InitBasicInfo();
                         LoadWarnings();
                         UserModel.InitCalendarAgenda();
                         UserModel.InitLoginScript();
@@ -298,7 +298,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
-                    UserModel.InitBasicInfo(HttpContext);
+                    UserModel.InitBasicInfo();
                     break;
                 case "groups":
                     viewName = "Groups";

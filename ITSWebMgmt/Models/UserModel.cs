@@ -145,7 +145,7 @@ namespace ITSWebMgmt.Models
         }
 
         #region loading data
-        public void InitBasicInfo(HttpContext context)
+        public void InitBasicInfo()
         {
             //lblbasicInfoOfficePDS
             if (AAUStaffID != null)
@@ -214,7 +214,7 @@ namespace ITSWebMgmt.Models
                 BasicInfoPasswordExpireDate = UserPasswordExpiryTimeComputed;
             }
 
-            UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(context, this);
+            UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(this);
 
             //OneDrive
             sb.Append($"<tr><td>Uses OneDrive?</td><td>{UsesOnedrive}</td></tr>");
