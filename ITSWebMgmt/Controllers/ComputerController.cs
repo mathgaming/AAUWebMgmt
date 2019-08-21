@@ -360,7 +360,7 @@ namespace ITSWebMgmt.Controllers
 
             if (SCCM.AddComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID))
             {
-                new Logger(_context).Log(LogEntryType.Bitlocker, HttpContext.User.Identity.Name, computername);
+                new Logger(_context).Log(LogEntryType.Bitlocker, HttpContext.User.Identity.Name, ComputerModel.adpath);
                 return Success("Bitlocker enabled for " + computername);
             }
             return Error("Failed to enable bitlocker");
@@ -379,7 +379,7 @@ namespace ITSWebMgmt.Controllers
                 return Error(e.Message);
             }
 
-            new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, computername);
+            new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, ComputerModel.adpath);
 
             return Success(computername + " have been deleted from AD");
         }

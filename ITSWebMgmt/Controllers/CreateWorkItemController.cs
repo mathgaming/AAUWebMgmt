@@ -31,7 +31,6 @@ namespace ITSWebMgmt.Controllers
             var sb = new StringBuilder();
 
             sb.Append("<html><head>");
-            //sb.Append("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js\" ></script>");
             sb.Append("</head>");
             sb.Append(@"<body onload='document.forms[""form""].submit()'>");
 

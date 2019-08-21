@@ -42,7 +42,7 @@ namespace ITSWebMgmt.Controllers
                 {
                     username = username.Trim();
                     UserModel = new UserModel(username);
-                    new Logger(_context).Log(LogEntryType.UserLookup, HttpContext.User.Identity.Name, username, true);
+                    new Logger(_context).Log(LogEntryType.UserLookup, HttpContext.User.Identity.Name, UserModel.UserPrincipalName, true);
 
                     if (UserModel.ResultError == null)
                     {
@@ -263,6 +263,13 @@ namespace ITSWebMgmt.Controllers
                 return Error("Fields cannot be empty");
             }
 
+            string firstTwoLetters = temp[2].Substring(0, 2).ToUpper();
+
+            if (firstTwoLetters == "IR" || firstTwoLetters == "SR")
+            {
+                return Error("Case number is on a wrong format");
+            }
+
             ComputerModel computerModel = new ComputerModel(temp[1]);
 
             if (computerModel.ComputerFound)
@@ -270,7 +277,7 @@ namespace ITSWebMgmt.Controllers
                 ADHelper.AddMemberToGroup(UserModel.DistinguishedName, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
                 ADHelper.AddMemberToGroup(computerModel.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
 
-                new Logger(_context).Log(LogEntryType.Onedrive, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserName, computerModel.ComputerName, temp[2] });
+                new Logger(_context).Log(LogEntryType.Onedrive, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserPrincipalName, computerModel.ComputerName, temp[2] });
 
                 return Success("User and computer added to groups");
             }

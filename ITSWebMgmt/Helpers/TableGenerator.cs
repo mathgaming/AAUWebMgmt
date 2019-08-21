@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
@@ -145,12 +145,7 @@ namespace ITSWebMgmt.Helpers
                 {
                     builder.Append("<td rowspan=\"" + a.Count + "\">" + a.PropertyName + "</td>");
                     
-                    var v = a[0];
-                    var temp = convertToStringIfDate(v);
-                    if (temp != null)
-                    {
-                        v = temp;
-                    }
+                    string v = convertToStringWithCorrectFormatIfDate(a[0]);
 
                     if (a.Count == 1)
                     {
@@ -161,12 +156,7 @@ namespace ITSWebMgmt.Helpers
                         builder.Append("<td>" + v + "</td>");
                         for (int i = 1; i < a.Count; i++)
                         {
-                            v = a[i];
-                            temp = convertToStringIfDate(v);
-                            if(temp != null)
-                            {
-                                v = temp;
-                            }
+                            v = convertToStringWithCorrectFormatIfDate(a[i]);
                             builder.Append("<tr><td>" + v + "</td></tr>");
                         }
                     }
@@ -182,7 +172,17 @@ namespace ITSWebMgmt.Helpers
             return builder.ToString();
         }
 
-        public static string convertToStringIfDate(dynamic v)
+        public static string splitStingOnCommaToHtml(string v)
+        {
+            if (v != null && v.Length > 20)
+            {
+                return string.Join(",<br />", v.Split(","));
+            }
+
+            return v;
+        }
+
+        public static string convertToStringWithCorrectFormatIfDate(dynamic v)
         {
             if (v.GetType().Equals(typeof(DateTime)))
             {
@@ -197,7 +197,7 @@ namespace ITSWebMgmt.Helpers
                 }
                 catch (Exception) { }
             }
-            return null;
+            return v.ToString();
         }
 
         public static string CreateVerticalTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage) => CreateVerticalTableFromDatabase(results, keys, keys, errorMessage);

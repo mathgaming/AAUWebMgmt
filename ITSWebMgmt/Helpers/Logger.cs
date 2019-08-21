@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Models;
+using ITSWebMgmt.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -93,6 +93,24 @@ namespace ITSWebMgmt.Helpers
             }
         }
 
+        public string getADPathFromString(string input)
+        {
+            int start = input.IndexOf("LDAP");
+            int end = input.IndexOf("(Hidden)");
+            
+            if (start == -1)
+            {
+                var parts = input.Split(" ");
+                return parts[parts.Length - 1];
+            }
+            else if (end > start)
+            {
+                return input.Substring(start, end - start);
+            }
+
+            return input.Substring(start);
+        }
+
         public void ImportLogEntriesFromFile()
         {
             FixImport(); // Fix wrongly imported adpaths because of spaces in the path (only for LogEntryType.UserMoveOU)
@@ -119,13 +137,9 @@ namespace ITSWebMgmt.Helpers
                     if (line.Contains("requesed info about computer"))
                     {
                         type = LogEntryType.ComputerLookup;
-                        if (hidden)
+                        arguments.Add(getADPathFromString(line));
+                        if (!hidden)
                         {
-                            arguments.Add(parts[parts.Length - 2]);
-                        }
-                        else
-                        {
-                            arguments.Add(parts[parts.Length - 1]);
                             hidden = true;
                         }
                     }
@@ -147,13 +161,9 @@ namespace ITSWebMgmt.Helpers
                     else if (line.Contains("requesed localadmin password for computer"))
                     {
                         type = LogEntryType.ComputerAdminPassword;
-                        if (hidden)
+                        arguments.Add(getADPathFromString(line));
+                        if (!hidden)
                         {
-                            arguments.Add(parts[parts.Length - 2]);
-                        }
-                        else
-                        {
-                            arguments.Add(parts[parts.Length - 1]);
                             hidden = true;
                         }
                     }
@@ -169,19 +179,21 @@ namespace ITSWebMgmt.Helpers
                     else if (line.Contains("unlocked useraccont"))
                     {
                         type = LogEntryType.UnlockUserAccount;
-                        arguments.Add(parts[parts.Length - 1]);
+                        arguments.Add(getADPathFromString(line));
                     }
 
                     else if (line.Contains("toggled romaing profile for user"))
                     {
                         type = LogEntryType.ToggleUserProfile;
-                        arguments.Add(parts[parts.Length - 1]);
+                        arguments.Add(getADPathFromString(line));
                     }
 
                     else if (line.Contains("generated challange with reason"))
                     {
                         type = LogEntryType.ResponceChallence;
-                        arguments.Add(parts[parts.Length - 1]);
+                        string search = " generated challange with reason ";
+                        int start = line.IndexOf(search) + search.Length;
+                        arguments.Add(line.Substring(start));
                     }
 
                     else if (line.Contains("changed OU on user to:"))
