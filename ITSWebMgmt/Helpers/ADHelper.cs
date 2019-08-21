@@ -85,10 +85,18 @@ namespace ITSWebMgmt.Helpers
             }
         }
 
-        private static string globalSearch(string email)
+        private static string globalSearch(string seachString)
         {
             DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry("GC://aau.dk");
-            string filter = string.Format("(|(proxyaddresses=SMTP:{0})(userPrincipalName={0}))", email);
+            string filter;
+            if (seachString.Length == 6)
+            {
+                filter = string.Format("(|(proxyaddresses=SMTP:{0})(aauAAUID={0}))", seachString);
+            }
+            else
+            {
+                filter = string.Format("(|(proxyaddresses=SMTP:{0})(userPrincipalName={0}))", seachString);
+            }
 
             DirectorySearcher search = new DirectorySearcher(de, filter);
             SearchResult r = search.FindOne();
