@@ -1,6 +1,4 @@
 ﻿using ITSWebMgmt.Caches;
-using Microsoft.AspNetCore.Mvc;
-using NLog;
 using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Threading;

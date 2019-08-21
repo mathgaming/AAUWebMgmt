@@ -15,15 +15,21 @@
 {
     <button id="MoveComputerOU">Move computer to OU Clients</button>
     <p>Only do this if you know what you are doing!</p>
+    <br />
+    <br />
 }
 <button id="DeleteComputerFromAD">Delete computer from AD</button>
 <br />
-<p>The buttons below does not work beacuse the new WebMgmt needs permissions</p>
+<br />
 <button id="buttonEnableBitlockerEncryption">Enable Bitlocker Encryption</button>
+<br />
 <br />
 @if (Model.ConfigPC == "Unknown")
 {
+    <p>The computer is not in the Administrativ10 PC or AAU10 PC group. Plase add it to one of them</p>
+    <p>It takes 30 secounds before you get responce, that says if it succesfully was added, please be patient</p>
     <button id="AddToAdministrativ10">Add computer to Administrativ10 PC</button>
+    <br />
     <br />
     <button id="AddToAAU10">Add computer to AAU10 PC</button>
 }

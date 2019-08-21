@@ -1,13 +1,10 @@
-﻿using ITSWebMgmt.Caches;
-using Microsoft.AspNetCore.Mvc;
-using NLog;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace ITSWebMgmt.Controllers
 {
     public abstract class WebMgmtController : Controller
     {
-        public static Logger logger = LogManager.GetCurrentClassLogger();
         public ActionResult Error(string message = "Error")
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;

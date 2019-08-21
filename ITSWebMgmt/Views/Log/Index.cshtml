@@ -1,8 +1,117 @@
-﻿@model ITSWebMgmt.Models.SimpleModel
+@model PaginatedList<ITSWebMgmt.Models.LogEntry>
+@using ITSWebMgmt.Helpers;
 
-<h2>Log</h2>
-@Html.Raw(Model.Text)
+@if ((bool)ViewData["HaveAccess"])
+{
+    <script>
+        document.documentElement.style.setProperty("--main-width", "1600px");
+    </script>
 
-<script>
-    document.documentElement.style.setProperty("--main-width", "1600px");
-</script>
+    <!DOCTYPE html>
+
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>Log</title>
+    </head>
+    <body>
+        <form asp-action="Index" method="get">
+            <div class="form-actions no-color">
+                <p>
+                    Find by user name: <input type="text" name="SearchString" value="@ViewData["currentFilter"]" />
+                    Type: <select name="type">
+                        @foreach (var type in Html.GetEnumSelectList<LogEntryType>())
+                        {
+                            var names = Enum.GetNames(typeof(LogEntryType));
+                            if (type.Value == @ViewData["TypeFilter"].ToString())
+                            {
+                                <option value="@type.Value" selected="selected">@type.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@type.Value">@type.Text</option>
+                            }
+                        }
+                    </select>
+                    Show hidden log entries: <input class="check-box" type="checkbox" name="showHidden" id="showHidden">
+                    @if (ViewData["HiddenFilter"] != null && ViewData["HiddenFilter"].ToString() == "on")
+                    {
+                        <script>
+                            $('#showHidden').prop('checked', true);
+                        </script>
+                    }
+                    <input type="submit" value="Search" class="btn btn-default" /> |
+                    <a asp-action="Index">Reset search</a>
+                    <br />
+                    <p>Some adpaths in the log might be missing the first part</p>
+                </p>
+            </div>
+        </form>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Time stamp</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Type</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">User name</a>
+                    </th>
+                    <th>
+                        <b>Description</b>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @DateTimeConverter.Convert(item.TimeStamp)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Type)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserName)
+                        </td>
+                        <td>
+                            @Html.Raw(item.GetDescription())
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+        }
+
+        <a asp-action="Index"
+           asp-route-showHidden="@ViewData["HiddenFilter"]"
+           asp-route-type="@ViewData["TypeFilter"]"
+           asp-route-sortOrder="@ViewData["CurrentSort"]"
+           asp-route-pageNumber="@(Model.PageIndex - 1)"
+           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+           class="btn btn-default @prevDisabled">
+            Previous
+        </a>
+        <a asp-action="Index"
+           asp-route-showHidden="@ViewData["HiddenFilter"]"
+           asp-route-type="@ViewData["TypeFilter"]"
+           asp-route-sortOrder="@ViewData["CurrentSort"]"
+           asp-route-pageNumber="@(Model.PageIndex + 1)"
+           asp-route-currentFilter="@ViewData["CurrentFilter"]"
+           class="btn btn-default @nextDisabled">
+            Next
+        </a>
+    </body>
+</html>
+
+}
+else
+{
+<p>You do not have access to the log</p>
+}

@@ -1,8 +1,6 @@
 ﻿using HtmlAgilityPack;
-using NLog;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -13,8 +11,6 @@ namespace ITSWebMgmt.Connectors
 {
     public class ADMdbConnector
     {
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
         Dictionary<string, string> admdburl = new Dictionary<string, string>() {
             {"its","https://tools.ist.aau.dk/its/i88/adm_db/adm.pl"},
             {"adm","https://tools.ist.aau.dk/adm/i93/adm_db/adm.pl"},
@@ -129,7 +125,6 @@ namespace ITSWebMgmt.Connectors
                 }
                 catch (Exception)
                 {
-                    logger.Debug("User not found on key username: " + domain + "\\" + username);
                     return "UserInfo Error on Lookup";
                 }
 

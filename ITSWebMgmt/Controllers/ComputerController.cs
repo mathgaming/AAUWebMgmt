@@ -21,11 +21,13 @@ namespace ITSWebMgmt.Controllers
         }
 
         private IMemoryCache _cache;
+        private LogEntryContext _context;
         public ComputerModel ComputerModel;
 
-        public ComputerController(IMemoryCache cache)
+        public ComputerController(LogEntryContext context,IMemoryCache cache)
         {
             _cache = cache;
+            _context = context;
         }
 
         private ComputerModel getComputerModel(string computerName)
@@ -37,21 +39,28 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(computerName);
-                    logger.Info("User {0} requesed info about computer {1} (Hidden)", HttpContext.User.Identity.Name, ComputerModel.adpath);
+                    new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.adpath, true);
                     if (ComputerModel.ComputerFound)
                     {
-                        ComputerModel.ShowResultDiv = true;
-                        ComputerModel.InitSCCMInfo();
-                        ComputerModel.InitBasicInfo();
-                        LoadWarnings();
-                        if (!checkComputerOU(ComputerModel.adpath))
+                        try
                         {
-                            ComputerModel.ShowMoveComputerOUdiv = true;
+                            int testForSCCM = ComputerModel.Collection.Count;
+                            ComputerModel.ShowResultDiv = true;
+                            ComputerModel.InitSCCMInfo();
+                            ComputerModel.InitBasicInfo();
+                            LoadWarnings();
+                            if (!checkComputerOU(ComputerModel.adpath))
+                            {
+                                ComputerModel.ShowMoveComputerOUdiv = true;
+                            }
                         }
-                    }
-                    else
-                    {
-                        ComputerModel.Result = "Computer Not Found";
+                        catch (Exception)
+                        {
+                            ComputerModel.ComputerFound = false;
+                            ComputerModel.ShowResultDiv = false;
+                            ComputerModel.ShowErrorDiv = true;
+                            ComputerModel.ResultError = "Computer found in AD but not in SCCM";
+                        }
                     }
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
@@ -135,9 +144,12 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computerName);
 
-            addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId);
+            if (SCCM.AddComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId))
+            {
+                return Success("Computer added to " + collectionName);
+            }
 
-            return Success("Computer added to " + collectionName);
+            return Error("Failed to add computer to group");
         }
 
         public void TestButton()
@@ -149,7 +161,7 @@ namespace ITSWebMgmt.Controllers
         public ActionResult ResultGetPassword([FromBody]string computername)
         {
             ComputerModel = getComputerModel(computername);
-            logger.Info("User {0} requesed localadmin password for computer {1} (Hidden)", HttpContext.User.Identity.Name, ComputerModel.adpath);
+            new Logger(_context).Log(LogEntryType.ComputerAdminPassword, HttpContext.User.Identity.Name, ComputerModel.adpath, true);
 
             var passwordRetuned = getLocalAdminPassword(ComputerModel.adpath);
 
@@ -261,13 +273,8 @@ namespace ITSWebMgmt.Controllers
                 string newOU = string.Format("OU=Clients");
                 string newPath = string.Format("{0}{1}/{2},{3}", protocol, Domain, newOU, string.Join(",", dcpath));
 
-                logger.Info("user " + user + " changed OU on user to: " + newPath + " from " + adpath + ".");
+                new Logger(_context).Log(LogEntryType.UserMoveOU, user, new List<string>() { newPath, adpath });
                 moveComputerToOU(adpath, newPath);
-
-            }
-            else
-            {
-                logger.Debug("computer " + adpath + " is in the right ou");
             }
         }
 
@@ -350,11 +357,13 @@ namespace ITSWebMgmt.Controllers
             ComputerModel = getComputerModel(computername);
 
             var collectionID = "AA1000B8"; //Enabled Bitlocker Encryption Collection ID
-            addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID);
 
-            logger.Info($"user {HttpContext.User.Identity.Name} enabled bitlocker for {computername}");
-
-            return Success("Bitlocker enabled for " + computername);
+            if (SCCM.AddComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID))
+            {
+                new Logger(_context).Log(LogEntryType.Bitlocker, HttpContext.User.Identity.Name, computername);
+                return Success("Bitlocker enabled for " + computername);
+            }
+            return Error("Failed to enable bitlocker");
         }
 
         [HttpPost]
@@ -370,7 +379,7 @@ namespace ITSWebMgmt.Controllers
                 return Error(e.Message);
             }
 
-            logger.Info($"user {HttpContext.User.Identity.Name} deleted {computername} from AD");
+            new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, computername);
 
             return Success(computername + " have been deleted from AD");
         }

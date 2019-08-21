@@ -24,7 +24,7 @@ namespace ITSWebMgmt.Models
         //ADcache
         public string ComputerNameAD { get => ADcache.ComputerName; }
         public string Domain { get => ADcache.Domain; }
-        public bool ComputerFound { get => ADcache.ComputerFound; }
+        public bool ComputerFound { get => ADcache.ComputerFound; set => ADcache.ComputerFound = value; }
         public string AdminPasswordExpirationTime { get => ADcache.getProperty("ms-Mcs-AdmPwdExpirationTime"); }
         public string ManagedByAD { get => ADcache.getProperty("managedBy"); set => ADcache.saveProperty("managedBy", value); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
@@ -87,7 +87,7 @@ namespace ITSWebMgmt.Models
                 {
                     ShowResultDiv = false;
                     ShowErrorDiv = true;
-                    ResultError = "Not found";
+                    ResultError = "Computer Not Found";
                 }
             }
         }
@@ -98,8 +98,14 @@ namespace ITSWebMgmt.Models
             //XXX use ad path to get right object in sccm, also dont get obsolite
             foreach (ManagementObject o in SCCMcache.getResourceIDFromComputerName(computername))
             {
-                resourceID = o.Properties["ResourceID"].Value.ToString();
-                break;
+                var tempCache = new SCCMcache();
+                tempCache.ResourceID = o.Properties["ResourceID"].Value.ToString();
+
+                if (tempCache.System.GetProperty("Obsolete") != 1)
+                {
+                    resourceID = tempCache.ResourceID;
+                    break;
+                }
             }
 
             return resourceID;
