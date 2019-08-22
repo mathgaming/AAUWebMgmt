@@ -18,6 +18,18 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computername);
 
+            if (computername != null)
+            {
+                if (ComputerModel.ComputerFound)
+                {
+                    new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.adpath, true);
+                }
+                else
+                {
+                    new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, computername + " (Not found)", true);
+                }
+            }
+
             return View(ComputerModel);
         }
 
@@ -40,7 +52,7 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(computerName);
-                    new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.adpath, true);
+                    
                     if (ComputerModel.ComputerFound)
                     {
                         try

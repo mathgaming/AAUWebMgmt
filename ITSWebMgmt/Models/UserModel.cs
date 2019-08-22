@@ -66,6 +66,8 @@ namespace ITSWebMgmt.Models
             return managedComputerList;
         }
 
+        public bool UserFound = false;
+
         public string[] getUserInfo()
         {
             return new string[]

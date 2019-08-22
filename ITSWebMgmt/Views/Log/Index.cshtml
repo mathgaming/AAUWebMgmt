@@ -2,15 +2,14 @@
 @using ITSWebMgmt.Helpers;
 @using ITSWebMgmt.Models.Log;
 
-@if (!(bool)ViewData["HaveAccess"])
-{
-    <script>
-        document.documentElement.style.setProperty("--main-width", "1600px");
-    </script>
 
-    <!DOCTYPE html>
+<script>
+    document.documentElement.style.setProperty("--main-width", "1600px");
+</script>
 
-    <html>
+<!DOCTYPE html>
+
+<html>
     <head>
         <meta name="viewport" content="width=device-width" />
         <title>Log</title>
@@ -44,7 +43,6 @@
                     <input type="submit" value="Search" class="btn btn-default" /> |
                     <a asp-action="Index">Reset search</a>
                     <br />
-                    <p>Some adpaths in the log might be missing the first part</p>
                 </p>
             </div>
         </form>
@@ -52,13 +50,13 @@
             <thead>
                 <tr>
                     <th>
-                        <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Time stamp</a>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-showHidden="@ViewData["HiddenFilter"]" asp-route-type="@ViewData["TypeFilter"]">Time stamp</a>
                     </th>
                     <th>
-                        <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Type</a>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-showHidden="@ViewData["HiddenFilter"]" asp-route-type="@ViewData["TypeFilter"]">Type</a>
                     </th>
                     <th>
-                        <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">User name</a>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]" asp-route-showHidden="@ViewData["HiddenFilter"]" asp-route-type="@ViewData["TypeFilter"]">User name</a>
                     </th>
                     <th>
                         <b>Description</b>
@@ -110,9 +108,3 @@
         </a>
     </body>
 </html>
-
-}
-else
-{
-<p>You do not have access to the log</p>
-}

@@ -8,7 +8,7 @@ using ITSWebMgmt.Models;
 
 namespace ITSWebMgmt.Controllers
 {
-    public class LogController : Controller
+    public class LogController : WebMgmtController
     {
         private readonly LogEntryContext _context;
 
@@ -20,16 +20,9 @@ namespace ITSWebMgmt.Controllers
         // GET: LogEntries
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string showHidden, int? type, int? pageNumber)
         {
-            ViewData["HaveAccess"] = false;
-            if (HttpContext.User.Identity.Name != null)
+            if (!Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
             {
-                UserModel userModel = new UserModel(HttpContext.User.Identity.Name, false);
-                var temp = userModel.ADcache.getGroups("memberOf");
-
-                if (temp.Any(x => x.Contains("CN=platform")))
-                {
-                    ViewData["HaveAccess"] = true;
-                }
+                return AccessDenied();
             }
 
             //Does not work on server, because it does not have access to the file

@@ -16,5 +16,10 @@ namespace ITSWebMgmt.Controllers
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = Message });
         }
+
+        public ContentResult AccessDenied()
+        {
+            return Content("You do not have access to this");
+        }
     }
 }

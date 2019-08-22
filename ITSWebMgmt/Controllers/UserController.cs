@@ -1,6 +1,7 @@
 ﻿using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
+using ITSWebMgmt.Models.Log;
 using ITSWebMgmt.WebMgmtErrors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -16,6 +17,19 @@ namespace ITSWebMgmt.Controllers
         public IActionResult Index(string username)
         {
             UserModel = getUserModel(username);
+
+            if (username != null)
+            {
+                if (UserModel.UserFound)
+                {
+                    new Logger(_context).Log(LogEntryType.UserLookup, HttpContext.User.Identity.Name, UserModel.UserPrincipalName, true);
+                }
+                else
+                {
+                    new Logger(_context).Log(LogEntryType.UserLookup, HttpContext.User.Identity.Name, username + " (Not found)", true);
+                }
+            }
+
             return View(UserModel);
         }
 
@@ -42,7 +56,6 @@ namespace ITSWebMgmt.Controllers
                 {
                     username = username.Trim();
                     UserModel = new UserModel(username);
-                    new Logger(_context).Log(LogEntryType.UserLookup, HttpContext.User.Identity.Name, UserModel.UserPrincipalName, true);
 
                     if (UserModel.ResultError == null)
                     {
@@ -52,6 +65,7 @@ namespace ITSWebMgmt.Controllers
                         UserModel.InitLoginScript();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
+                        UserModel.UserFound = true;
                     }
                 }
             }
@@ -61,11 +75,6 @@ namespace ITSWebMgmt.Controllers
             }
 
             return UserModel;
-        }
-
-        private object Logger(LogEntryContext context)
-        {
-            throw new NotImplementedException();
         }
 
         public bool userIsInRightOU()
