@@ -1,5 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<ITSWebMgmt.Models.KnownIssue>
+
+@{
+    ViewData["Title"] = "WebMgmt";
 }
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
@@ -11,9 +13,27 @@
         <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />
         @*<a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a><br />*@
         <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a><br />
+        <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage know issues (Only for platform)</a><br />
+
+        <h2>Known issues</h2>
+        @foreach (var item in Model)
+        {
+            <h4>@item.Title</h4>
+            <p>
+                <a href='@item.OneNoteLink'>View in OneNote</a>  |  <a href='@item.CaseLink'>View case</a>
+            </p>
+            @Html.Raw(item.Description.Replace(System.Environment.NewLine, "<br />"))
+        }
 
         <h3>Change log</h3>
         <ul>
+            <li>
+                2019-08-22
+            <li style="list-style-type:none">
+                <ul>
+                    <li>Added list of know issues to front page</li>
+                </ul>
+            </li>
             <li>
                 2019-08-21
             <li style="list-style-type:none">

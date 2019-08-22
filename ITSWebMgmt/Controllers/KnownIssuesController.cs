@@ -13,12 +13,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class KnownIssuesController : WebMgmtController
     {
-        private readonly LogEntryContext _context;
-
-        public KnownIssuesController(LogEntryContext context)
-        {
-            _context = context;
-        }
+        public KnownIssuesController(LogEntryContext context) : base(context) { }
 
         // GET: KnownIssues
         public async Task<IActionResult> Index()

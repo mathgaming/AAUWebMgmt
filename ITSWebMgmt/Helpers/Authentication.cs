@@ -35,11 +35,11 @@ namespace ITSWebMgmt.Helpers
 
                 if (members.Contains(user))
                 {
-                    return false;
+                    return !false;
                 }
             }
 
-            return true;
+            return !true;
         }
     }
 }

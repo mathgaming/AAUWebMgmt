@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using ITSWebMgmt.Models;
+using ITSWebMgmt.Models.Log;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -30,6 +31,8 @@ namespace ITSWebMgmt.Controllers
         }
 
         public GroupModel GroupModel;
+
+        public GroupController(LogEntryContext context) : base(context) {}
 
         public bool isGroup()
         {

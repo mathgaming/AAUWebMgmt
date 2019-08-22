@@ -34,13 +34,11 @@ namespace ITSWebMgmt.Controllers
         }
 
         private IMemoryCache _cache;
-        private LogEntryContext _context;
         public ComputerModel ComputerModel;
 
-        public ComputerController(LogEntryContext context,IMemoryCache cache)
+        public ComputerController(LogEntryContext context,IMemoryCache cache) : base(context)
         {
             _cache = cache;
-            _context = context;
         }
 
         private ComputerModel getComputerModel(string computerName)

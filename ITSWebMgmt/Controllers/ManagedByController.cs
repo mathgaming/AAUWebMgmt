@@ -1,6 +1,7 @@
 ﻿using ITSWebMgmt.Caches;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
+using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
@@ -10,6 +11,8 @@ namespace ITSWebMgmt.Controllers
     public class ManagedByController : WebMgmtController
     {
         public string ErrorMessage;
+
+        public ManagedByController(LogEntryContext context) : base(context) {}
 
         [HttpPost]
         public ActionResult SaveEditManagedBy([FromBody]string email)

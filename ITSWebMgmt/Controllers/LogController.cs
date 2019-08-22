@@ -10,17 +10,12 @@ namespace ITSWebMgmt.Controllers
 {
     public class LogController : WebMgmtController
     {
-        private readonly LogEntryContext _context;
-
-        public LogController(LogEntryContext context)
-        {
-            _context = context;
-        }
+        public LogController(LogEntryContext context) : base(context) { }
 
         // GET: LogEntries
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string showHidden, int? type, int? pageNumber)
         {
-            if (!Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
             {
                 return AccessDenied();
             }
