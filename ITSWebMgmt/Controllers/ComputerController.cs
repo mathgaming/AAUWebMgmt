@@ -8,6 +8,7 @@ using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Microsoft.Extensions.Caching.Memory;
 using ITSWebMgmt.WebMgmtErrors;
+using ITSWebMgmt.Models.Log;
 
 namespace ITSWebMgmt.Controllers
 {

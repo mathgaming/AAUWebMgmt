@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ITSWebMgmt.Models;
+using ITSWebMgmt.Models.Log;
 using System.Linq;
 using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Models;
 
 namespace ITSWebMgmt.Controllers
 {

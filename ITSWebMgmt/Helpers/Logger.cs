@@ -1,4 +1,5 @@
 using ITSWebMgmt.Models;
+using ITSWebMgmt.Models.Log;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -111,14 +112,60 @@ namespace ITSWebMgmt.Helpers
             return input.Substring(start);
         }
 
+        public void UpdateIdsFromFile()
+        {
+            if (File.Exists(@"C:\webmgmtlog\server-backup - Copy.sql"))
+            {
+                string line;
+                System.IO.StreamReader file = new System.IO.StreamReader(@"C:\webmgmtlog\server-backup - Copy.sql");
+                FileStream outputFile = File.Create(@"C:\webmgmtlog\server-backup-updated.sql");
+                StreamWriter output = new StreamWriter(outputFile);
+                while ((line = file.ReadLine()) != null)
+                {
+                    var parts = line.Split(" ");
+
+                    if (line.Length > 90)
+                    {
+                        if (line.Contains("LogEntries"))
+                        {
+                            int startId = line.IndexOf("S (") + 3;
+                            int IdLength = 6;
+                            string oldId = line.Substring(startId, IdLength);
+
+                            line = line.Replace(oldId, (int.Parse(oldId) + 47634).ToString());
+                        }
+                        else if (line.Contains("LogEntryArguments"))
+                        {
+                            int startId = line.IndexOf("S (") + 3;
+                            int IdLength = 5;
+                            int startIdRef = line.IndexOf("', ") + 3;
+                            int IdRefLength = 6;
+
+                            string oldId = line.Substring(startId, IdLength);
+                            string oldIdRef = line.Substring(startIdRef, IdRefLength);
+
+                            line = line.Replace(oldId, (int.Parse(oldId) + 120).ToString());
+                            line = line.Replace(oldIdRef, (int.Parse(oldIdRef) + 47634).ToString());
+                        }
+                    }
+                    output.WriteLine(line);
+                }
+
+                file.Close();
+                output.Close();
+            }
+        }
+
         public void ImportLogEntriesFromFile()
         {
             FixImport(); // Fix wrongly imported adpaths because of spaces in the path (only for LogEntryType.UserMoveOU)
+            UpdateIdsFromFile();
             if (File.Exists(@"C:\webmgmtlog\importlogfile.txt"))
             {
                 //Newest added from new = 2019-08-16 13:58:01.9908|INFO|ITSWebMgmt.Controllers.WebMgmtController|User ITS\ampo18 lookedup user mgranl18@student.aau.dk (Hidden)
                 //Newest added from old = 2019-08-20 10:45:15.8220|INFO|ITSWebMgmt.Controllers.Controller`1|User AUB\ano requesed localadmin password for computer LDAP://aub.aau.dk/CN=AAU112419,OU=Clients,DC=aub,DC=aau,DC=dk
                 string line;
+                int count = 0;
                 System.IO.StreamReader file = new System.IO.StreamReader(@"C:\webmgmtlog\importlogfile.txt");
                 while ((line = file.ReadLine()) != null)
                 {
@@ -222,6 +269,12 @@ namespace ITSWebMgmt.Helpers
                     }
 
                     Log(type, username, arguments, hidden, date);
+
+                    count++;
+                    if (count % 100 == 0)
+                    {
+                        _context.SaveChanges();
+                    }
                 }
 
                 file.Close();
