@@ -62,6 +62,10 @@ namespace ITSWebMgmt.Models.Log
                     return $"toggled romaing profile for user {Arguments[0]}";
                 case LogEntryType.Onedrive:
                     return $"added user {Arguments[0]} and {Arguments[1]} to Onedrive groups, case: {Arguments[2]}";
+                case LogEntryType.LoadedTabUser:
+                    return $"loaded tab {Arguments[0]} for user {Arguments[1]}";
+                case LogEntryType.LoadedTabComputer:
+                    return $"loaded tab {Arguments[0]} for computer {Arguments[1]}";
                 default:
                     return "LogEntry type not found";
             }
@@ -73,5 +77,5 @@ namespace ITSWebMgmt.Models.Log
         }
     }
 
-    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive, All = 100};
+    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive, LoadedTabUser, LoadedTabComputer, All = 100};
 }

@@ -272,7 +272,7 @@ namespace ITSWebMgmt.Controllers
 
             string firstTwoLetters = temp[2].Substring(0, 2).ToUpper();
 
-            if (firstTwoLetters == "IR" || firstTwoLetters == "SR")
+            if (firstTwoLetters != "IR" && firstTwoLetters != "SR")
             {
                 return Error("Case number is on a wrong format");
             }
@@ -353,6 +353,9 @@ namespace ITSWebMgmt.Controllers
                     UserModel.Rawdata = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
                     break;
             }
+
+            new Logger(_context).Log(LogEntryType.LoadedTabUser, HttpContext.User.Identity.Name, new List<string>() { tabName , UserModel.UserPrincipalName }, true);
+
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);
         }
     }

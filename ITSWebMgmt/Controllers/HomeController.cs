@@ -21,6 +21,11 @@ namespace ITSWebMgmt.Controllers
             return View(_context.KnownIssues.Where(x => x.Active));
         }
 
+        public IActionResult ChangeLog()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

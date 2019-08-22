@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ITS Web Mgmt</title>
+    <title>@ViewData["Title"] - ITS Web Management</title>
 
     <!--<environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -59,14 +59,15 @@
                 <a class="item" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                 <div href="#" class="ui simple dropdown item">
                     Tools <i class="dropdown icon"></i>
-                          <div class="menu">
-                              <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a>
-                              <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a>
-                              @*<a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a>*@
-                              <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a>
-                              <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage know issues (Only for platform)</a>
-                          </div>
+                    <div class="menu">
+                        <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a>
+                        <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a>
+                        @*<a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a>*@
+                        <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a>
+                        <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage know issues (Only for platform)</a>
+                    </div>
                 </div>
+                <a class="item" asp-area="" asp-controller="Home" asp-action="ChangeLog">Changelog</a>
                 <a href="onenote:https://docs.its.aau.dk/Documentation/SupportDokumentation" class="item">Dokumentation (onenote)</a>
             </div>
         </div>

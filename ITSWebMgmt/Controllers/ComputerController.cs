@@ -128,6 +128,9 @@ namespace ITSWebMgmt.Controllers
                     ComputerModel.Raw = TableGenerator.buildRawTable(ComputerModel.ADcache.getAllProperties());
                     break;
             }
+
+            new Logger(_context).Log(LogEntryType.LoadedTabComputer, HttpContext.User.Identity.Name, new List<string>() { tabName, ComputerModel.adpath }, true);
+
             return PartialView(viewName, ComputerModel);
         }
 
