@@ -8,6 +8,7 @@ using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Microsoft.Extensions.Caching.Memory;
 using ITSWebMgmt.WebMgmtErrors;
+using ITSWebMgmt.Models.Log;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -17,17 +18,27 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computername);
 
+            if (computername != null)
+            {
+                if (ComputerModel.ComputerFound)
+                {
+                    new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.adpath, true);
+                }
+                else
+                {
+                    new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, computername + " (Not found)", true);
+                }
+            }
+
             return View(ComputerModel);
         }
 
         private IMemoryCache _cache;
-        private LogEntryContext _context;
         public ComputerModel ComputerModel;
 
-        public ComputerController(LogEntryContext context,IMemoryCache cache)
+        public ComputerController(LogEntryContext context,IMemoryCache cache) : base(context)
         {
             _cache = cache;
-            _context = context;
         }
 
         private ComputerModel getComputerModel(string computerName)
@@ -39,7 +50,7 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(computerName);
-                    new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.adpath, true);
+                    
                     if (ComputerModel.ComputerFound)
                     {
                         try
@@ -117,6 +128,9 @@ namespace ITSWebMgmt.Controllers
                     ComputerModel.Raw = TableGenerator.buildRawTable(ComputerModel.ADcache.getAllProperties());
                     break;
             }
+
+            new Logger(_context).Log(LogEntryType.LoadedTabComputer, HttpContext.User.Identity.Name, new List<string>() { tabName, ComputerModel.adpath }, true);
+
             return PartialView(viewName, ComputerModel);
         }
 
@@ -360,7 +374,7 @@ namespace ITSWebMgmt.Controllers
 
             if (SCCM.AddComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID))
             {
-                new Logger(_context).Log(LogEntryType.Bitlocker, HttpContext.User.Identity.Name, computername);
+                new Logger(_context).Log(LogEntryType.Bitlocker, HttpContext.User.Identity.Name, ComputerModel.adpath);
                 return Success("Bitlocker enabled for " + computername);
             }
             return Error("Failed to enable bitlocker");
@@ -379,7 +393,7 @@ namespace ITSWebMgmt.Controllers
                 return Error(e.Message);
             }
 
-            new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, computername);
+            new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, ComputerModel.adpath);
 
             return Success(computername + " have been deleted from AD");
         }

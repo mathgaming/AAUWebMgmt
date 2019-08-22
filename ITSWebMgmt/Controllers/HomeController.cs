@@ -6,14 +6,22 @@ using Microsoft.AspNetCore.Diagnostics;
 using System.Net.Mail;
 using System.Threading;
 using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Models.Log;
 
 namespace ITSWebMgmt.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : WebMgmtController
     {
         private string Password = Startup.Configuration["Email-password"];
 
+        public HomeController(LogEntryContext context) : base(context) { }
+
         public IActionResult Index()
+        {
+            return View(_context.KnownIssues.Where(x => x.Active));
+        }
+
+        public IActionResult ChangeLog()
         {
             return View();
         }

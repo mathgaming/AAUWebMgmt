@@ -5,15 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ITSWebMgmt.Models
+namespace ITSWebMgmt.Models.Log
 {
-    public class LogEntryContext : DbContext
-    {
-        public LogEntryContext(DbContextOptions<LogEntryContext> options) : base(options) { }
-        public DbSet<LogEntry> LogEntries { get; set; }
-        public DbSet<LogEntryArgument> LogEntryArguments { get; set; }
-    }
-
     public class LogEntry
     {
         public int Id { get; set; }
@@ -69,6 +62,10 @@ namespace ITSWebMgmt.Models
                     return $"toggled romaing profile for user {Arguments[0]}";
                 case LogEntryType.Onedrive:
                     return $"added user {Arguments[0]} and {Arguments[1]} to Onedrive groups, case: {Arguments[2]}";
+                case LogEntryType.LoadedTabUser:
+                    return $"loaded tab {Arguments[0]} for user {Arguments[1]}";
+                case LogEntryType.LoadedTabComputer:
+                    return $"loaded tab {Arguments[0]} for computer {Arguments[1]}";
                 default:
                     return "LogEntry type not found";
             }
@@ -80,60 +77,5 @@ namespace ITSWebMgmt.Models
         }
     }
 
-    public class LogEntryArgument
-    {
-        public int Id { get; set; }
-        public string Value { get; set; }
-
-        public LogEntryArgument() { }
-
-        public LogEntryArgument(string argument)
-        {
-            Value = argument;
-        }
-
-        public override string ToString()
-        {
-            return Value;
-        }
-    }
-
-    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive, All = 100};
-
-    public class PaginatedList<T> : List<T>
-    {
-        public int PageIndex { get; private set; }
-        public int TotalPages { get; private set; }
-
-        public PaginatedList(List<T> items, int count, int pageIndex, int pageSize)
-        {
-            PageIndex = pageIndex;
-            TotalPages = (int)Math.Ceiling(count / (double)pageSize);
-
-            this.AddRange(items);
-        }
-
-        public bool HasPreviousPage
-        {
-            get
-            {
-                return (PageIndex > 1);
-            }
-        }
-
-        public bool HasNextPage
-        {
-            get
-            {
-                return (PageIndex < TotalPages);
-            }
-        }
-
-        public static async Task<PaginatedList<T>> CreateAsync(IQueryable<T> source, int pageIndex, int pageSize)
-        {
-            var count = await source.CountAsync();
-            var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
-            return new PaginatedList<T>(items, count, pageIndex, pageSize);
-        }
-    }
+    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive, LoadedTabUser, LoadedTabComputer, All = 100};
 }

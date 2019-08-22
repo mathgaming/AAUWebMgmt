@@ -1,34 +1,77 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ITSWebMgmt.Models;
+using ITSWebMgmt.Models.Log;
 using System.Linq;
 using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Models;
+using System.Collections.Generic;
+using System.Text;
 
 namespace ITSWebMgmt.Controllers
 {
-    public class LogController : Controller
+    public class LogController : WebMgmtController
     {
-        private readonly LogEntryContext _context;
+        public LogController(LogEntryContext context) : base(context) { }
 
-        public LogController(LogEntryContext context)
+        private IQueryable<LogEntry> logEntries;
+
+        public IActionResult Statistics()
         {
-            _context = context;
+            logEntries = _context.LogEntries.Include(e => e.Arguments).AsNoTracking();
+
+            StringBuilder sb = new StringBuilder();
+
+            List<string> computerTabNames = new List<string>() { "basicinfo", "groups", "sccmInfo", "sccmInventory", "sccmAV", "sccmHW", "rawdata", "tasks", "warnings" };
+            List<string> userTabNames = new List<string>() { "basicinfo", "groups", "servicemanager", "calAgenda", "computerInformation", "win7to10", "fileshares", "exchange", "loginscript", "print", "rawdata", "tasks", "warnings" };
+
+            var loadedComputerTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabComputer);
+
+            sb.Append("<h1>General</h1>");
+            sb.Append($"Computer lookups: {getCount(LogEntryType.ComputerLookup)}\n");
+            sb.Append($"User lookups: {getCount(LogEntryType.UserLookup)}\n");
+
+            sb.Append("<h1>Tasks</h1>");
+            sb.Append($"Get admin password: {getCount(LogEntryType.ComputerAdminPassword)}\n");
+            sb.Append($"Bitlocker enabled: {getCount(LogEntryType.Bitlocker)}\n");
+            sb.Append($"Computer deleted from AD (since 2019-08-16): {getCount(LogEntryType.ComputerDeletedFromAD)}\n");
+            sb.Append($"Responce challence: {getCount(LogEntryType.ResponceChallence)}\n");
+            sb.Append($"Moved user OU: {getCount(LogEntryType.UserMoveOU)}\n");
+            sb.Append($"unlocked user account: {getCount(LogEntryType.UnlockUserAccount)}\n");
+            sb.Append($"Toggled user profile: {getCount(LogEntryType.ToggleUserProfile)}\n");
+            sb.Append($"Onedrive (since 2019-08-13): {getCount(LogEntryType.Onedrive)}\n");
+
+            sb.Append($"\n(All statistics below is since 2019-08-22)");
+            sb.Append($"<h1>Computer tabs</h1>");
+            foreach (var tab in computerTabNames)
+            {
+                int count = loadedComputerTabs.Where(x => x.Arguments[0].Value == tab).ToList().Count;
+                sb.Append($"{tab}: {count}\n");
+            }
+
+            var loadeduserTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabUser);
+
+            sb.Append($"<h1>User tabs</h1>");
+            foreach (var tab in userTabNames)
+            {
+                int count = loadeduserTabs.Where(x => x.Arguments[0].Value == tab).ToList().Count;
+                sb.Append($"{tab}: {count}\n");
+            }
+
+            return View(new SimpleModel(sb.ToString()));
+        }
+
+        private int getCount(LogEntryType type)
+        {
+            return logEntries.Where(x => x.Type == type).ToList().Count;
         }
 
         // GET: LogEntries
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string showHidden, int? type, int? pageNumber)
         {
-            ViewData["HaveAccess"] = false;
-            if (HttpContext.User.Identity.Name != null)
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
             {
-                UserModel userModel = new UserModel(HttpContext.User.Identity.Name, false);
-                var temp = userModel.ADcache.getGroups("memberOf");
-
-                if (temp.Any(x => x.Contains("CN=platform")))
-                {
-                    ViewData["HaveAccess"] = true;
-                }
+                return AccessDenied();
             }
 
             //Does not work on server, because it does not have access to the file

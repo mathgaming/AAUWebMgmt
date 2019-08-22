@@ -17,6 +17,26 @@ namespace ITSWebMgmt.Controllers
             model.AffectedUser = userPrincipalName;
             model.UserID = userID;
 
+            UserModel userModel = new UserModel(userPrincipalName);
+            userModel.InitBasicInfo();
+
+            model.Desription = "\n\n\n\n\n" +
+                "\nDo not edit below this line" +
+                "\n(The format is shown correctly on service.aau.dk)" +
+                "\n----------------------------------------------------------" +
+                "\nDepartment:                 " + userModel.BasicInfoDepartmentPDS +
+                "\nOffice(Pure):                  " + userModel.BasicInfoOfficePDS +
+                "\nPassword Expired:        " + userModel.BasicInfoPasswordExpired +
+                "\nPassword Expire Date: " + userModel.BasicInfoPasswordExpireDate +
+                "\nAAU-ID:                        " + userModel.AAUAAUID +
+                "\nUserStatus:                   " + userModel.AAUUserStatus +
+                "\nStaffID:                         " + userModel.AAUStaffID +
+                "\nStudentID:                    " + userModel.AAUStudentID +
+                "\nUserClassification:        " + userModel.AAUUserClassification +
+                "\nTelephone:                    " + userModel.TelephoneNumber +
+                "\nUses OneDrive?            " + userModel.UsesOnedrive +
+                "\nRomaing Profile            " + userModel.BasicInfoRomaing;
+
             return View(model);
         }
         public IActionResult Win7Index (string userPrincipalName, string computerName, string userID)
@@ -31,7 +51,6 @@ namespace ITSWebMgmt.Controllers
             var sb = new StringBuilder();
 
             sb.Append("<html><head>");
-            //sb.Append("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js\" ></script>");
             sb.Append("</head>");
             sb.Append(@"<body onload='document.forms[""form""].submit()'>");
 

@@ -1,173 +1,29 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<ITSWebMgmt.Models.KnownIssue>
+
+@{
+    ViewData["Title"] = "WebMgmt";
 }
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="ui segment">
 
-        <h1>ITSWebMgmt</h1>
+        <h1>ITS Web Manager</h1>
 
         <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a><br />
         <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />
         @*<a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a><br />*@
         <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a><br />
+        <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage know issues (Only for platform)</a><br />
 
-        <h3>Change log</h3>
-        <ul>
-            <li>
-                2019-08-21
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Added options to filter and search the log</li>
-                </ul>
-            </li>
-            <li>
-                2019-08-20
-            <li style="list-style-type:none">
-                <ul>
-                    <li>WebMgmt does now allways show the non obsolete computer object from SCCM, when the computer have been reinstalled</li>
-                </ul>
-            </li>
-            <li>
-                2019-08-19
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Added popup for Internet Explorer users, because Internet Explorer is not supported by WebMgmt</li>
-                    <li>Added buttons under task for computer for adding the computer to the Administrativ10 PC or AAU10 PC group if it is not in any of them</li>
-                </ul>
-            </li>
-            <li>
-                2019-08-16
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Added a button for removing a computer from AD under Tasks</li>
-                    <li>Removed Defendpoint challenge</li>
-                </ul>
-            </li>
-            <li>
-                2019-08-15
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Better error messages for some taks</li>
-                    <li>Users can now be found by searching on their name</li>
-                    <li>Added warning for when PC Config is not set on new computers</li>
-                    <li>Added a warnings for the computers in the Computer Information tab for User, when the user uses Onedrive and the computer does not</li>
-                </ul>
-            </li>
-            <li>
-                2019-08-13
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Added button under User -> Task for adding user and computer to Onedrive groups</li>
-                    <li>ToggleRoaming now shows current status</li>
-                    <li>Calendar tab now shows current availability</li>
-                </ul>
-            </li>
-            <li>
-                2019-08-12
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Get password button works now </li>
-                    <li>Members of platform can now see the log of what you are doing on WebMgmt </li>
-                    <li>Fixed a bug in Windows 7 to 10 upgrade form for users that had a computer where a name in AD and SCCM were different</li>
-                    <li>Fixed a bug were the user/computer changed before pressing search</li>
-                </ul>
-            </li>
-            <li>
-                2019-08-07
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Fixed a bug when a new SR where created from WebMgmt </li>
-                    <li>Added a tab uder User to quickly create a SR for upgrading from Windows 7 to 10 </li>
-                </ul>
-            </li>
-            <li>
-                2019-08-05
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Added field that shows if a computer uses Onedrive</li>
-                </ul>
-            </li>
-            <li>
-                2019-06-27
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Added field that shows if a user uses Onedrive</li>
-                    <li>Fixed AAURedirector</li>
-                </ul>
-            </li>
-            <li>
-                2019-06-26
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Added AAU icon</li>
-                    <li>Fixed a bug that made it crash when the cashe expired</li>
-                    <li>Fixed a bug that made it crash when searching for users or computers that does not exist</li>
-                </ul>
-            </li>
-            <li>
-                2019-06-21
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Fixed crash when searching for a computer or user that does not exist</li>
-                    <li>Fixed bug in group view. Recursive members is now show currectly</li>
-                    <li>Task button have now been tested and are ready for use</li>
-                </ul>
-            </li>
-            <li>
-                2019-06-13
-            <li style="list-style-type:none">
-                <ul>
-                    <li>WebMgmt 2.0 is now open for beta test</li>
-                    <li>Access to more services: print, service manager, defendpoint and ADMdb</li>
-                    <li>Bug fixes</li>
-                    <li style="list-style-type:none">
-                        <ul>
-                            <li>Fileshares and exchanges is now shown correctly</li>
-                            <li>Get admin password button now works</li>
-                            <li>Fixed crash when building from Pure was not set</li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                2019-06-03
-            <li style="list-style-type:none">
-                <ul>
-                    <li>New backend for WebMgmt</li>
-                    <li>Added print info</li>
-                    <li>Tabs now load individually for faster load times</li>
-                </ul>
-            </li>
-            <li>
-                2019-03-05
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Added fileshare view</li>
-                </ul>
-            </li>
-            <li>
-                2019-03-04
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Now UserInfo searches on proxyAddress and UPN</li>
-                </ul>
-            </li>
-            <li>
-                2019-02-27
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Managed By can now be set on computers from webmgmt</li>
-                </ul>
-            </li>
-            <li>
-                2019-02-01
-            <li style="list-style-type:none">
-                <ul>
-                    <li>Inventory details added for computer</li>
-                </ul>
-            </li>
-        </ul>
+        <h2>Known issues</h2>
+        @foreach (var item in Model)
+        {
+            <h3>@item.Title</h3>
+            <p>
+                <a href='@item.OneNoteLink'>View in OneNote</a>  |  <a href='@item.CaseLink'>View case</a>
+            </p>
+            @Html.Raw(item.Description.Replace(System.Environment.NewLine, "<br />"))
+        }
     </div>
     <div class="ui segment">
         Du kan bidrage til udviklingen af Webmgmt på siden <a href="https://github.com/AAUITSPlatform/AAUWebMgmt">github.com/AAUITSPlatform/AAUWebMgmt</a>

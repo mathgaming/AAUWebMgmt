@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITSWebMgmt.Migrations
 {
     [DbContext(typeof(LogEntryContext))]
-    [Migration("20190821074340_AddProductReviews")]
-    partial class AddProductReviews
+    [Migration("20190822103310_KnowIssues")]
+    partial class KnowIssues
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,28 @@ namespace ITSWebMgmt.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("ITSWebMgmt.Models.LogEntry", b =>
+            modelBuilder.Entity("ITSWebMgmt.Models.KnownIssue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Active");
+
+                    b.Property<string>("CaseLink");
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("OneNoteLink");
+
+                    b.Property<string>("Title");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KnownIssues");
+                });
+
+            modelBuilder.Entity("ITSWebMgmt.Models.Log.LogEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -40,7 +61,7 @@ namespace ITSWebMgmt.Migrations
                     b.ToTable("LogEntries");
                 });
 
-            modelBuilder.Entity("ITSWebMgmt.Models.LogEntryArgument", b =>
+            modelBuilder.Entity("ITSWebMgmt.Models.Log.LogEntryArgument", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,9 +78,9 @@ namespace ITSWebMgmt.Migrations
                     b.ToTable("LogEntryArguments");
                 });
 
-            modelBuilder.Entity("ITSWebMgmt.Models.LogEntryArgument", b =>
+            modelBuilder.Entity("ITSWebMgmt.Models.Log.LogEntryArgument", b =>
                 {
-                    b.HasOne("ITSWebMgmt.Models.LogEntry")
+                    b.HasOne("ITSWebMgmt.Models.Log.LogEntry")
                         .WithMany("Arguments")
                         .HasForeignKey("LogEntryId");
                 });

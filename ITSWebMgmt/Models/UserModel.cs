@@ -66,6 +66,8 @@ namespace ITSWebMgmt.Models
             return managedComputerList;
         }
 
+        public bool UserFound = false;
+
         public string[] getUserInfo()
         {
             return new string[]
@@ -145,7 +147,7 @@ namespace ITSWebMgmt.Models
         }
 
         #region loading data
-        public void InitBasicInfo(HttpContext context)
+        public void InitBasicInfo()
         {
             //lblbasicInfoOfficePDS
             if (AAUStaffID != null)
@@ -214,7 +216,7 @@ namespace ITSWebMgmt.Models
                 BasicInfoPasswordExpireDate = UserPasswordExpiryTimeComputed;
             }
 
-            UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(context, this);
+            UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(this);
 
             //OneDrive
             sb.Append($"<tr><td>Uses OneDrive?</td><td>{UsesOnedrive}</td></tr>");
@@ -317,7 +319,7 @@ namespace ITSWebMgmt.Models
                 }
                 ComputerInformation = "<h4>Links til computerinfo kan være til maskiner i et forkert domæne, da info omkring computer domæne ikke er tilgængelig i denne søgning</h4>" + helper.GetTable();
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 ComputerInformation = "Service user does not have SCCM access.";
             }

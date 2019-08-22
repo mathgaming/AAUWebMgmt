@@ -7,12 +7,15 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ITSWebMgmt.Caches;
 using ITSWebMgmt.Models;
+using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ITSWebMgmt.Controllers
 {
     public class DefendpointChallengeResponseController : WebMgmtController
     {
+        public DefendpointChallengeResponseController(LogEntryContext context) : base(context) {}
+
         public IActionResult Index(string challanageInput, string reasonInput)
         {
             string result = "";

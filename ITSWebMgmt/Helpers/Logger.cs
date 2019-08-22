@@ -1,4 +1,5 @@
-﻿using ITSWebMgmt.Models;
+using ITSWebMgmt.Models;
+using ITSWebMgmt.Models.Log;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -93,14 +94,78 @@ namespace ITSWebMgmt.Helpers
             }
         }
 
+        public string getADPathFromString(string input)
+        {
+            int start = input.IndexOf("LDAP");
+            int end = input.IndexOf("(Hidden)");
+            
+            if (start == -1)
+            {
+                var parts = input.Split(" ");
+                return parts[parts.Length - 1];
+            }
+            else if (end > start)
+            {
+                return input.Substring(start, end - start);
+            }
+
+            return input.Substring(start);
+        }
+
+        public void UpdateIdsFromFile()
+        {
+            if (File.Exists(@"C:\webmgmtlog\server-backup - Copy.sql"))
+            {
+                string line;
+                System.IO.StreamReader file = new System.IO.StreamReader(@"C:\webmgmtlog\server-backup - Copy.sql");
+                FileStream outputFile = File.Create(@"C:\webmgmtlog\server-backup-updated.sql");
+                StreamWriter output = new StreamWriter(outputFile);
+                while ((line = file.ReadLine()) != null)
+                {
+                    var parts = line.Split(" ");
+
+                    if (line.Length > 90)
+                    {
+                        if (line.Contains("LogEntries"))
+                        {
+                            int startId = line.IndexOf("S (") + 3;
+                            int IdLength = 6;
+                            string oldId = line.Substring(startId, IdLength);
+
+                            line = line.Replace(oldId, (int.Parse(oldId) + 47634).ToString());
+                        }
+                        else if (line.Contains("LogEntryArguments"))
+                        {
+                            int startId = line.IndexOf("S (") + 3;
+                            int IdLength = 5;
+                            int startIdRef = line.IndexOf("', ") + 3;
+                            int IdRefLength = 6;
+
+                            string oldId = line.Substring(startId, IdLength);
+                            string oldIdRef = line.Substring(startIdRef, IdRefLength);
+
+                            line = line.Replace(oldId, (int.Parse(oldId) + 120).ToString());
+                            line = line.Replace(oldIdRef, (int.Parse(oldIdRef) + 47634).ToString());
+                        }
+                    }
+                    output.WriteLine(line);
+                }
+
+                file.Close();
+                output.Close();
+            }
+        }
+
         public void ImportLogEntriesFromFile()
         {
             FixImport(); // Fix wrongly imported adpaths because of spaces in the path (only for LogEntryType.UserMoveOU)
+            UpdateIdsFromFile();
             if (File.Exists(@"C:\webmgmtlog\importlogfile.txt"))
             {
                 //Newest added from new = 2019-08-16 13:58:01.9908|INFO|ITSWebMgmt.Controllers.WebMgmtController|User ITS\ampo18 lookedup user mgranl18@student.aau.dk (Hidden)
                 //Newest added from old = 2019-08-20 10:45:15.8220|INFO|ITSWebMgmt.Controllers.Controller`1|User AUB\ano requesed localadmin password for computer LDAP://aub.aau.dk/CN=AAU112419,OU=Clients,DC=aub,DC=aau,DC=dk
                 string line;
+                int count = 0;
                 System.IO.StreamReader file = new System.IO.StreamReader(@"C:\webmgmtlog\importlogfile.txt");
                 while ((line = file.ReadLine()) != null)
                 {
@@ -119,13 +184,9 @@ namespace ITSWebMgmt.Helpers
                     if (line.Contains("requesed info about computer"))
                     {
                         type = LogEntryType.ComputerLookup;
-                        if (hidden)
+                        arguments.Add(getADPathFromString(line));
+                        if (!hidden)
                         {
-                            arguments.Add(parts[parts.Length - 2]);
-                        }
-                        else
-                        {
-                            arguments.Add(parts[parts.Length - 1]);
                             hidden = true;
                         }
                     }
@@ -147,13 +208,9 @@ namespace ITSWebMgmt.Helpers
                     else if (line.Contains("requesed localadmin password for computer"))
                     {
                         type = LogEntryType.ComputerAdminPassword;
-                        if (hidden)
+                        arguments.Add(getADPathFromString(line));
+                        if (!hidden)
                         {
-                            arguments.Add(parts[parts.Length - 2]);
-                        }
-                        else
-                        {
-                            arguments.Add(parts[parts.Length - 1]);
                             hidden = true;
                         }
                     }
@@ -169,19 +226,21 @@ namespace ITSWebMgmt.Helpers
                     else if (line.Contains("unlocked useraccont"))
                     {
                         type = LogEntryType.UnlockUserAccount;
-                        arguments.Add(parts[parts.Length - 1]);
+                        arguments.Add(getADPathFromString(line));
                     }
 
                     else if (line.Contains("toggled romaing profile for user"))
                     {
                         type = LogEntryType.ToggleUserProfile;
-                        arguments.Add(parts[parts.Length - 1]);
+                        arguments.Add(getADPathFromString(line));
                     }
 
                     else if (line.Contains("generated challange with reason"))
                     {
                         type = LogEntryType.ResponceChallence;
-                        arguments.Add(parts[parts.Length - 1]);
+                        string search = " generated challange with reason ";
+                        int start = line.IndexOf(search) + search.Length;
+                        arguments.Add(line.Substring(start));
                     }
 
                     else if (line.Contains("changed OU on user to:"))
@@ -210,6 +269,12 @@ namespace ITSWebMgmt.Helpers
                     }
 
                     Log(type, username, arguments, hidden, date);
+
+                    count++;
+                    if (count % 100 == 0)
+                    {
+                        _context.SaveChanges();
+                    }
                 }
 
                 file.Close();

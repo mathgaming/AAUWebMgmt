@@ -1,6 +1,7 @@
 ﻿using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
+using ITSWebMgmt.Models.Log;
 using ITSWebMgmt.WebMgmtErrors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -16,17 +17,28 @@ namespace ITSWebMgmt.Controllers
         public IActionResult Index(string username)
         {
             UserModel = getUserModel(username);
+
+            if (username != null)
+            {
+                if (UserModel.UserFound)
+                {
+                    new Logger(_context).Log(LogEntryType.UserLookup, HttpContext.User.Identity.Name, UserModel.UserPrincipalName, true);
+                }
+                else
+                {
+                    new Logger(_context).Log(LogEntryType.UserLookup, HttpContext.User.Identity.Name, username + " (Not found)", true);
+                }
+            }
+
             return View(UserModel);
         }
 
         private IMemoryCache _cache;
         public UserModel UserModel;
-        private readonly LogEntryContext _context;
 
-        public UserController(LogEntryContext context, IMemoryCache cache)
+        public UserController(LogEntryContext context, IMemoryCache cache) : base(context)
         {
             _cache = cache;
-            _context = context;
         }
 
         private UserModel getUserModel(string username)
@@ -42,16 +54,16 @@ namespace ITSWebMgmt.Controllers
                 {
                     username = username.Trim();
                     UserModel = new UserModel(username);
-                    new Logger(_context).Log(LogEntryType.UserLookup, HttpContext.User.Identity.Name, username, true);
 
                     if (UserModel.ResultError == null)
                     {
-                        UserModel.InitBasicInfo(HttpContext);
+                        UserModel.InitBasicInfo();
                         LoadWarnings();
                         UserModel.InitCalendarAgenda();
                         UserModel.InitLoginScript();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
+                        UserModel.UserFound = true;
                     }
                 }
             }
@@ -61,11 +73,6 @@ namespace ITSWebMgmt.Controllers
             }
 
             return UserModel;
-        }
-
-        private object Logger(LogEntryContext context)
-        {
-            throw new NotImplementedException();
         }
 
         public bool userIsInRightOU()
@@ -263,6 +270,13 @@ namespace ITSWebMgmt.Controllers
                 return Error("Fields cannot be empty");
             }
 
+            string firstTwoLetters = temp[2].Substring(0, 2).ToUpper();
+
+            if (firstTwoLetters != "IR" && firstTwoLetters != "SR")
+            {
+                return Error("Case number is on a wrong format");
+            }
+
             ComputerModel computerModel = new ComputerModel(temp[1]);
 
             if (computerModel.ComputerFound)
@@ -270,7 +284,7 @@ namespace ITSWebMgmt.Controllers
                 ADHelper.AddMemberToGroup(UserModel.DistinguishedName, "LDAP://CN=GPO_User_DenyFolderRedirection,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
                 ADHelper.AddMemberToGroup(computerModel.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
 
-                new Logger(_context).Log(LogEntryType.Onedrive, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserName, computerModel.ComputerName, temp[2] });
+                new Logger(_context).Log(LogEntryType.Onedrive, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserPrincipalName, computerModel.ComputerName, temp[2] });
 
                 return Success("User and computer added to groups");
             }
@@ -291,7 +305,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
-                    UserModel.InitBasicInfo(HttpContext);
+                    UserModel.InitBasicInfo();
                     break;
                 case "groups":
                     viewName = "Groups";
@@ -339,6 +353,9 @@ namespace ITSWebMgmt.Controllers
                     UserModel.Rawdata = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
                     break;
             }
+
+            new Logger(_context).Log(LogEntryType.LoadedTabUser, HttpContext.User.Identity.Name, new List<string>() { tabName , UserModel.UserPrincipalName }, true);
+
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);
         }
     }
