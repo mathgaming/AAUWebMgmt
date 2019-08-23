@@ -15,9 +15,10 @@ namespace ITSWebMgmt.Controllers
         public ManagedByController(LogEntryContext context) : base(context) {}
 
         [HttpPost]
-        public ActionResult SaveEditManagedBy([FromBody]string email)
+        public ActionResult SaveEditManagedBy([FromBody]string data)
         {
-            SaveManagedBy(email);
+            var parts = data.Split('|');
+            SaveManagedBy(parts[0], parts[1]);
 
             if (ErrorMessage == "")
             {
@@ -29,14 +30,14 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
-        public void SaveManagedBy(string email)
+        public void SaveManagedBy(string email, string adpath)
         {
             try
             {
                 UserModel model = new UserModel(email);
                 if (model.DistinguishedName.Contains("CN="))
                 {
-                    new GroupADcache(model.adpath).saveProperty("managedBy", model.DistinguishedName);
+                    new GroupADcache(adpath).saveProperty("managedBy", model.DistinguishedName);
                     ErrorMessage = "";
                 }
                 else
