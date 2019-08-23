@@ -15,14 +15,30 @@
         <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a><br />
         <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage know issues (Only for platform)</a><br />
 
+    </div>
+    <div class="ui segment">
         <h2>Known issues</h2>
         @foreach (var item in Model)
         {
             <h3>@item.Title</h3>
-            <p>
-                <a href='@item.OneNoteLink'>View in OneNote</a>  |  <a href='@item.CaseLink'>View case</a>
-            </p>
             @Html.Raw(item.Description.Replace(System.Environment.NewLine, "<br />"))
+            @if (@item.OneNoteLink != null && @item.CaseLink != null)
+            {
+                <p>
+                    <a href='@item.OneNoteLink'>View in OneNote</a> | <a href='@item.CaseLink'>View case</a>
+                </p>
+            }
+            else
+            {
+                @if (@item.OneNoteLink != null)
+                {
+                    <p><a href='@item.OneNoteLink'>View in OneNote</a></p>
+                }
+                @if (@item.CaseLink != null)
+                {
+                    <p><a href='@item.CaseLink'>View case</a></p>
+                }
+            }
         }
     </div>
     <div class="ui segment">

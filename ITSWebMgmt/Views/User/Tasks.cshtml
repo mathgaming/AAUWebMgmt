@@ -26,18 +26,34 @@ Unlock Account (if locked by wrong password):
 <label>Affected User</label>
 <br />
 @Html.TextBoxFor(m => m.UserPrincipalName, new { @readonly = true })
-<br />
 <label>Computername</label>
 <br />
-<input type="text" id="computername"/>
+<input type="text" id="computername" />
 <br />
 <label>Case number</label>
 <br />
-<input type="text" id="casenumber"/>
+<input type="text" id="casenumber" />
 <br />
 <button id="SetupOneDrive">Setup Onedrive</button>
 <br />
 <br />
+<h3>Form for adding user and computer to Onedrive</h3>
+<label>Affected User</label>
+<br />
+@Html.TextBoxFor(m => m.UserPrincipalName, new { @readonly = true })
+<br />
+<label>Reason</label>
+<br />
+<input type="text" id="reason" />
+<br />
+<label>Case number</label>
+<br />
+<input type="text" id="casenumber2" />
+<br />
+<button id="DisableADUser">Disable user from AD</button>
+<br />
+<br />
+
 <script>
     $("#fixUserOU").click(function () {
         sendPostRequest("FixUserOu")
@@ -54,6 +70,11 @@ Unlock Account (if locked by wrong password):
     $("#SetupOneDrive").click(function () {
         var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))' + '|' + $('#computername').val() + '|' + $('#casenumber').val();
         sendPostRequest("SetupOneDrive", JSON.stringify(data));
+    });
+
+    $("#DisableADUser").click(function () {
+        var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))' + '|' + $('#reason').val() + '|' + $('#casenumber2').val();
+        sendPostRequest("DisableADUser", JSON.stringify(data));
     });
 
     function sendPostRequest(Action, data) {
