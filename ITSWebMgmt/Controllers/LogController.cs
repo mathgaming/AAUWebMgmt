@@ -40,6 +40,7 @@ namespace ITSWebMgmt.Controllers
             sb.Append($"unlocked user account: {getCount(LogEntryType.UnlockUserAccount)}\n");
             sb.Append($"Toggled user profile: {getCount(LogEntryType.ToggleUserProfile)}\n");
             sb.Append($"Onedrive (since 2019-08-13): {getCount(LogEntryType.Onedrive)}\n");
+            sb.Append($"Onedrive (since 2019-08-23): {getCount(LogEntryType.DisabledAdUser)}\n");
 
             sb.Append($"\n(All statistics below is since 2019-08-22)");
             sb.Append($"<h1>Computer tabs</h1>");

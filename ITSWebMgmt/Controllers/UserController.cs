@@ -311,7 +311,7 @@ namespace ITSWebMgmt.Controllers
                 return Error("Case number is on a wrong format");
             }
 
-            if (ADHelper.Disableuser(UserModel.adpath))
+            if (ADHelper.DisableUser(UserModel.adpath))
             {
                 new Logger(_context).Log(LogEntryType.Onedrive, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserPrincipalName, temp[1], temp[2] });
 
