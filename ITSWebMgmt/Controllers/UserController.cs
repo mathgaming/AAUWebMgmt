@@ -313,7 +313,7 @@ namespace ITSWebMgmt.Controllers
 
             if (ADHelper.DisableUser(UserModel.adpath))
             {
-                new Logger(_context).Log(LogEntryType.Onedrive, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserPrincipalName, temp[1], temp[2] });
+                new Logger(_context).Log(LogEntryType.DisabledAdUser, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserPrincipalName, temp[1], temp[2] });
 
                 return Success("User disabled in AD");
             }
