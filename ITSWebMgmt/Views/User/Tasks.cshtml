@@ -76,7 +76,8 @@ Unlock Account (if locked by wrong password):
         var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))' + '|' + $('#reason').val() + '|' + $('#casenumber2').val();
         sendPostRequest("DisableADUser", JSON.stringify(data));
     });
-
+        
+    //script for sending button presses as POST request to controller
     function sendPostRequest(Action, data) {
         var username = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))';
         if (arguments.length === 1) {

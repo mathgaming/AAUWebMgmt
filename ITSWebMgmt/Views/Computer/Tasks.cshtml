@@ -22,17 +22,9 @@
 <br />
 <br />
 <button id="buttonEnableBitlockerEncryption">Enable Bitlocker Encryption</button>
+<p>It can take over 30 secounds before you get responce, that says if Bitlocker succesfully was enabled, please be patient</p>
 <br />
 <br />
-@if (Model.ConfigPC == "Unknown")
-{
-    <p>The computer is not in the Administrativ10 PC or AAU10 PC group. Plase add it to one of them</p>
-    <p>It takes 30 secounds before you get responce, that says if it succesfully was added, please be patient</p>
-    <button id="AddToAdministrativ10">Add computer to Administrativ10 PC</button>
-    <br />
-    <br />
-    <button id="AddToAAU10">Add computer to AAU10 PC</button>
-}
 
 <script>
     $("#btnPassword2").click(function ()
@@ -49,16 +41,6 @@
         sendPostRequest("MoveOU_Click")
     });
 
-    $("#AddToAdministrativ10").click(function ()
-    {
-        sendPostRequest("AddToAdministrativ10")
-    });
-
-    $("#AddToAAU10").click(function ()
-    {
-        sendPostRequest("AddToAAU10")
-    });
-
     $("#DeleteComputerFromAD").click(function ()
     {
         if (confirm('Are you sure you want to delete @Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName)) from AD?')) {
@@ -67,22 +49,4 @@
             // Do nothing!
         }
     });
-
-    function sendPostRequest(Action) {
-        var computername = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName))';
-        $.ajax({
-            type: "POST",
-            url: 'Computer/' + Action,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(computername),
-            dataType: "json",
-            success: function (response) {
-                alert(response.message);
-            },
-            error: function (response) {
-                var r = JSON.parse(response.responseText);
-                alert(r.errorMessage);
-            }
-        });
-    }
 </script>
