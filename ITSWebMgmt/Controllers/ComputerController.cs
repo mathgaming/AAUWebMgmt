@@ -160,6 +160,7 @@ namespace ITSWebMgmt.Controllers
 
             if (SCCM.AddComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId))
             {
+                new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.adpath, collectionName });
                 return Success("Computer added to " + collectionName);
             }
 
