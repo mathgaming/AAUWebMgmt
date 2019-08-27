@@ -16,6 +16,8 @@ namespace ITSWebMgmt.Controllers
         public IActionResult Index(string grouppath, bool forceviewgroup = false)
         {
             GroupModel = new GroupModel(grouppath);
+            new Logger(_context).Log(LogEntryType.GroupLookup, HttpContext.User.Identity.Name, grouppath, true);
+
             if (forceviewgroup == false && isFileShare(GroupModel.DistinguishedName))
             {
                 string[] tables = GetFileshareTables();

@@ -4,6 +4,7 @@ using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace ITSWebMgmt.Controllers
@@ -18,7 +19,7 @@ namespace ITSWebMgmt.Controllers
         public ActionResult SaveEditManagedBy([FromBody]string data)
         {
             var parts = data.Split('|');
-            SaveManagedBy(parts[0], parts[1]);
+            SaveManagedBy(parts[0], parts[1], parts[2]);
 
             if (ErrorMessage == "")
             {
@@ -30,7 +31,7 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
-        public void SaveManagedBy(string email, string adpath)
+        public void SaveManagedBy(string email, string adpath, string oldEmail)
         {
             try
             {
@@ -38,6 +39,7 @@ namespace ITSWebMgmt.Controllers
                 if (model.DistinguishedName.Contains("CN="))
                 {
                     new GroupADcache(adpath).saveProperty("managedBy", model.DistinguishedName);
+                    new Logger(_context).Log(LogEntryType.ChangedManagedBy, HttpContext.User.Identity.Name, new List<string>() { adpath, model.UserPrincipalName, oldEmail });
                     ErrorMessage = "";
                 }
                 else

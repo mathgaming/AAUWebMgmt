@@ -19,7 +19,7 @@
         });
         $("#btnSave").click(function () {
             var email = $('#inputText').val();
-            var data = email + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.adpath))';
+            var data = email + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.adpath))' + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ManagedBy))';
 
             $.ajax({
                 type: "POST",
