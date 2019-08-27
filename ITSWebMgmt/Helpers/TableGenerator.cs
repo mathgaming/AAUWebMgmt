@@ -29,6 +29,19 @@ namespace ITSWebMgmt.Helpers
             return string.Format("<a href=\"/User?username={0}%40{1}.aau.dk\">{0}</a><br/>", name, domain);
         }
 
+        public static string getPersonLinkFromADPath(string adpath)
+        {
+            if (adpath == "")
+            {
+                return "Not found";
+            }
+            var split = adpath.Split(',');
+            var name = split[0].Replace("CN=", "");
+            var domain = split.Where<string>(s => s.StartsWith("DC=")).ToArray<string>()[0].Replace("DC=", "");
+
+            return string.Format("<a href=\"/User?username={0}%40{1}.aau.dk\">{0}@{1}.aau.dk</a><br/>", name, domain);
+        }
+
         public static void createGroupTableRows(List<string> adpaths, HTMLTableHelper groupTableHelper, string accessName = null)
         {
             foreach (string adpath in adpaths)

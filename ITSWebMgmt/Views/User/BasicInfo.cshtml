@@ -1,5 +1,5 @@
 ﻿@model ITSWebMgmt.Models.UserModel
-
+@using ITSWebMgmt.Helpers
 <partial>
 <table class="ui definition table">
     <tbody>
@@ -39,6 +39,10 @@
             <td>@Html.DisplayFor(model => model.BasicInfoPasswordExpireDate)</td>
         </tr>
         @Html.Raw(Model.BasicInfoTable)
+        <tr>
+            <td>Primary leader (AD)</td>
+            <td>@Html.Raw(TableGenerator.getPersonLinkFromADPath(Model.Manager))</td>
+        </tr>
         <tr>
             <td>Romaing Profile</td>
             <td>@Html.DisplayFor(model => model.BasicInfoRomaing)</td>

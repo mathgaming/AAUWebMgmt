@@ -43,6 +43,7 @@ namespace ITSWebMgmt.Models
         public string AAUUUID { get => ADcache.getProperty("aauUUID"); }
         public string TelephoneNumber { get => ADcache.getProperty("telephoneNumber"); set => ADcache.saveProperty("telephoneNumber", value); }
         public string LastLogon { get => ADcache.getProperty("lastLogon"); }
+        public string Manager { get => ADcache.getProperty("manager"); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
         public ManagementObjectCollection getUserMachineRelationshipFromUserName(string userName) => SCCMcache.getUserMachineRelationshipFromUserName(userName);
         public List<ComputerModel> getManagedComputers() {
@@ -80,7 +81,8 @@ namespace ITSWebMgmt.Models
                 AAUStudentID,
                 AAUUserClassification,
                 TelephoneNumber,
-                LastLogon
+                LastLogon,
+                Manager
             };
         }
 
@@ -160,7 +162,7 @@ namespace ITSWebMgmt.Models
             }
 
             //Other fileds
-            var attrDisplayName = "UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
+            var attrDisplayName = "UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.), Manager";
             var attrArry = getUserInfo();
             var dispArry = attrDisplayName.Split(',');
             string[] dateFields = { "lastLogon", "badPasswordTime" };

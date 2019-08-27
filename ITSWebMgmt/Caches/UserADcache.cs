@@ -27,7 +27,8 @@ namespace ITSWebMgmt.Caches
             new Property("telephoneNumber", typeof(string)),
             new Property("lastLogon", typeof(object)), //System.__ComObject
             new Property("distinguishedName", typeof(string)),
-            new Property("objectGUID", typeof(object[]))
+            new Property("objectGUID", typeof(object[])),
+            new Property("manager", typeof(string)),
         }, new List<Property>
         {
             new Property("msDS-User-Account-Control-Computed", typeof(int)),
