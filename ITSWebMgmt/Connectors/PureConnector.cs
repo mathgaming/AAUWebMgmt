@@ -35,7 +35,7 @@ namespace ITSWebMgmt.Connectors
         public List<string> GetUsersByName(string name)
         {
             List<string> emails = new List<string>();
-            DataObject dataObject = getRequest($"?q={name}&size=30&fields=staffOrganisationAssociations.person.names.value&fields=staffOrganisationAssociations.emails.value");
+            PureDataObject dataObject = getRequest($"?q={name}&size=30&fields=staffOrganisationAssociations.person.names.value&fields=staffOrganisationAssociations.emails.value");
 
             if (dataObject != null)
             {
@@ -55,7 +55,7 @@ namespace ITSWebMgmt.Connectors
             return emails;
         }
 
-        private DataObject getRequest(string urlParameters, string subSite = "")
+        private PureDataObject getRequest(string urlParameters, string subSite = "")
         {
             string url = "https://vbn.aau.dk/ws/api/514/persons" + subSite;
             HttpClient client = new HttpClient();
@@ -65,11 +65,11 @@ namespace ITSWebMgmt.Connectors
             HttpResponseMessage response = client.GetAsync(urlParameters).Result;
             client.Dispose();
 
-            DataObject dataObject = null;
+            PureDataObject dataObject = null;
 
             if (response.IsSuccessStatusCode)
             {
-                dataObject = response.Content.ReadAsAsync<DataObject>().Result;
+                dataObject = response.Content.ReadAsAsync<PureDataObject>().Result;
             }
             else
             {
@@ -83,7 +83,7 @@ namespace ITSWebMgmt.Connectors
 
         public PureConnector(string empID)
         {
-            DataObject dataObject = getRequest("?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.names.value&locale=en_GB", "/" + empID);
+            PureDataObject dataObject = getRequest("?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.names.value&locale=en_GB", "/" + empID);
 
             if (dataObject != null)
             {
@@ -100,7 +100,7 @@ namespace ITSWebMgmt.Connectors
         }
     }
 
-    public class DataObject
+    public class PureDataObject
     {
         public List<StaffOrganisationAssociations> staffOrganisationAssociations { get; set; }
         public List<Item> items { get; set; }

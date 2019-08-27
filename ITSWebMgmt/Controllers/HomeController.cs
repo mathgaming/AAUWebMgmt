@@ -7,6 +7,7 @@ using System.Net.Mail;
 using System.Threading;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models.Log;
+using ITSWebMgmt.Connectors;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -18,6 +19,7 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
+            _ = new JamfConnector();
             return View(_context.KnownIssues.Where(x => x.Active));
         }
 
