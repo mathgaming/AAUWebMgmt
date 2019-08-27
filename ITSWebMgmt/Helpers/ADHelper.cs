@@ -7,6 +7,44 @@ namespace ITSWebMgmt.Helpers
 {
     public class ADHelper
     {
+        public static bool DisableUser(string adpath)
+        {
+            return setUserDisableState(adpath, false);
+        }
+
+        public static bool EnableUser(string adpath)
+        {
+            return setUserDisableState(adpath, true);
+        }
+
+        private static bool setUserDisableState(string adpath, bool enable)
+        {
+            try
+            {
+                DirectoryEntry user = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
+                int val = (int)user.Properties["userAccountControl"].Value;
+                if (enable)
+                {
+                    user.Properties["userAccountControl"].Value = val & ~0x2;
+                }
+                else
+                {
+                    user.Properties["userAccountControl"].Value = val | 0x2;
+                }
+                
+                //ADS_UF_ACCOUNTDISABLE;
+
+                user.CommitChanges();
+                user.Close();
+
+                return true;
+            }
+            catch (DirectoryServicesCOMException)
+            {
+                return false;
+            }
+        }
+
         public static void AddMemberToGroup(string userADpath, string groupADPath)
         {
             try

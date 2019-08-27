@@ -1,6 +1,5 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using System.Web;
+
 <td>Managed By:</td>
 <td>
     <div id="editDiv">
@@ -18,13 +17,15 @@
             document.getElementById('saveDiv').style.display = "block";
             document.getElementById('inputText').value = document.getElementById('managedBy').textContent;
         });
-        $("#btnSave").click(function() {
+        $("#btnSave").click(function () {
             var email = $('#inputText').val();
+            var data = email + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.adpath))';
+
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("SaveEditManagedBy", "ManagedBy")',
                 contentType: "application/json; charset=utf-8",
-                data: JSON.stringify(email),
+                data: JSON.stringify(data),
                 dataType: "json",
                 success: function () {
                     document.getElementById('editDiv').style.display = "block";

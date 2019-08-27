@@ -294,6 +294,35 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
+        public ActionResult DisableADUser([FromBody]string data)
+        {
+            string[] temp = data.Split('|');
+            UserModel = getUserModel(temp[0]);
+
+            if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
+            {
+                return Error("Fields cannot be empty");
+            }
+
+            string firstTwoLetters = temp[2].Substring(0, 2).ToUpper();
+
+            if (firstTwoLetters != "IR" && firstTwoLetters != "SR")
+            {
+                return Error("Case number is on a wrong format");
+            }
+
+            if (ADHelper.DisableUser(UserModel.adpath))
+            {
+                new Logger(_context).Log(LogEntryType.DisabledAdUser, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserPrincipalName, temp[1], temp[2] });
+
+                return Success("User disabled in AD");
+            }
+            else
+            {
+                return Error("User could not be disabled");
+            }
+        }
+
         public override ActionResult LoadTab(string tabName, string name)
         {
             UserModel = getUserModel(name);

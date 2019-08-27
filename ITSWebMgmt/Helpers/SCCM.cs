@@ -2,6 +2,7 @@ using System;
 using System.Management;
 using System.Diagnostics;
 using System.Security;
+using System.IO;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -58,22 +59,21 @@ namespace ITSWebMgmt.Helpers
             psi.FileName = "powershell";
             psi.UseShellExecute = false;
             psi.RedirectStandardOutput = true;
+            psi.RedirectStandardError = true;
 
-            psi.Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;" + script;
+            psi.Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;" + script + ";cd C:";
             foreach (char c in Password)
             {
                 password.AppendChar(c);
             }
             psi.Password = password;
             psi.UserName = Username;
-            psi.RedirectStandardError = true;
-            Process p = Process.Start(psi);            
+            
+            Process p = Process.Start(psi);
+            p.WaitForExit();
             string strOutput = p.StandardOutput.ReadToEnd();
             string errOutput = p.StandardError.ReadToEnd();
-            p.WaitForExit();
-            Console.WriteLine(errOutput);
-            Console.WriteLine(strOutput);
-
+            
             return errOutput.Length == 0;
 
             //The correct way of doing it, but it does not work with dotnet core 2.2, but might work in 3.0

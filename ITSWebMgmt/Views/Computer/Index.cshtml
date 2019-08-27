@@ -1,7 +1,5 @@
 @model ITSWebMgmt.Models.ComputerModel
-@{
-    ViewData["Title"] = "Index";
-}
+@using System.Web;
 <script>
     $(document).ready(function () {
         $('.menu .item').tab({ history: false });
@@ -49,6 +47,26 @@
                 }
             });
         });
+    </script>
+    <script>
+        //script for sending button presses as POST request to controller
+    function sendPostRequest(Action) {
+        var computername = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName))';
+        $.ajax({
+            type: "POST",
+            url: 'Computer/' + Action,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(computername),
+            dataType: "json",
+            success: function (response) {
+                alert(response.message);
+            },
+            error: function (response) {
+                var r = JSON.parse(response.responseText);
+                alert(r.errorMessage);
+            }
+        });
+    }
     </script>
     @if (Model.ShowErrorDiv)
     {

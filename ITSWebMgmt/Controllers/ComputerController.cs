@@ -158,8 +158,9 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computerName);
 
-            if (SCCM.AddComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId))
+            if (addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId))
             {
+                new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.adpath, collectionName });
                 return Success("Computer added to " + collectionName);
             }
 
@@ -347,7 +348,7 @@ namespace ITSWebMgmt.Controllers
 
         }
 
-        protected void addComputerToCollection(string resourceID, string collectionID)
+        protected bool addComputerToCollection(string resourceID, string collectionID)
         {
             var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
             ManagementPath path = new ManagementPath(pathString);
@@ -362,22 +363,8 @@ namespace ITSWebMgmt.Controllers
             rule["ResourceClassName"] = "SMS_R_System";
             rule["ResourceID"] = resourceID;
             obj.InvokeMethod("AddMembershipRule", new object[] { rule });
-        }
 
-
-        [HttpPost]
-        public ActionResult EnableBitlockerEncryption([FromBody]string computername)
-        {
-            ComputerModel = getComputerModel(computername);
-
-            var collectionID = "AA1000B8"; //Enabled Bitlocker Encryption Collection ID
-
-            if (SCCM.AddComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID))
-            {
-                new Logger(_context).Log(LogEntryType.Bitlocker, HttpContext.User.Identity.Name, ComputerModel.adpath);
-                return Success("Bitlocker enabled for " + computername);
-            }
-            return Error("Failed to enable bitlocker");
+            return true;
         }
 
         [HttpPost]
