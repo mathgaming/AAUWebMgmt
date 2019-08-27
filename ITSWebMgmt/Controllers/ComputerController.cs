@@ -367,22 +367,6 @@ namespace ITSWebMgmt.Controllers
             return true;
         }
 
-
-        [HttpPost]
-        public ActionResult EnableBitlockerEncryption([FromBody]string computername)
-        {
-            ComputerModel = getComputerModel(computername);
-
-            var collectionID = "AA1000B8"; //Enabled Bitlocker Encryption Collection ID
-
-            if (addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionID))
-            {
-                new Logger(_context).Log(LogEntryType.Bitlocker, HttpContext.User.Identity.Name, ComputerModel.adpath);
-                return Success("Bitlocker enabled for " + computername);
-            }
-            return Error("Failed to enable bitlocker");
-        }
-
         [HttpPost]
         public ActionResult DeleteComputerFromAD([FromBody]string computername)
         {

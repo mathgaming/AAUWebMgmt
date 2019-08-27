@@ -21,19 +21,11 @@
 <button id="DeleteComputerFromAD">Delete computer from AD</button>
 <br />
 <br />
-<button id="buttonEnableBitlockerEncryption">Enable Bitlocker Encryption</button>
-<p>It can take over 30 secounds before you get responce, that says if Bitlocker succesfully was enabled, please be patient</p>
-<br />
-<br />
 
 <script>
     $("#btnPassword2").click(function ()
     {
         getPassword('2');
-    });
-    $("#buttonEnableBitlockerEncryption").click(function ()
-    {
-        sendPostRequest("EnableBitlockerEncryption")
     });
 
     $("#MoveComputerOU").click(function ()

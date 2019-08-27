@@ -61,7 +61,7 @@ namespace ITSWebMgmt.Helpers
             psi.RedirectStandardOutput = true;
             psi.RedirectStandardError = true;
 
-            psi.Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;" + script + ";cd D:";
+            psi.Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;" + script + ";cd C:";
             foreach (char c in Password)
             {
                 password.AppendChar(c);
