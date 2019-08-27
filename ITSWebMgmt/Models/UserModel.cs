@@ -81,8 +81,7 @@ namespace ITSWebMgmt.Models
                 AAUStudentID,
                 AAUUserClassification,
                 TelephoneNumber,
-                LastLogon,
-                Manager
+                LastLogon
             };
         }
 
@@ -162,7 +161,7 @@ namespace ITSWebMgmt.Models
             }
 
             //Other fileds
-            var attrDisplayName = "UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.), Manager";
+            var attrDisplayName = "UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
             var attrArry = getUserInfo();
             var dispArry = attrDisplayName.Split(',');
             string[] dateFields = { "lastLogon", "badPasswordTime" };
