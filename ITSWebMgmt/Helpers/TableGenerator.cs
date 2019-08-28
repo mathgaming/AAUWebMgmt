@@ -363,20 +363,39 @@ namespace ITSWebMgmt.Helpers
             }
         }
 
-        public static string CreateTableFromJamf(JObject jsonVal, string tokenName, List<string> namesToskip)
+        public static string CreateRawTableFromJamf(JObject jsonVal, string tokenName, List<string> names, bool skipNames = false)
         {
-            dynamic computer = jsonVal.SelectToken(tokenName);
+            dynamic token = jsonVal.SelectToken(tokenName);
 
             HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] {"Property name", "Value" });
 
-            foreach (dynamic info in computer)
+            foreach (dynamic info in token)
             {
-                if (!namesToskip.Contains(info.Name))
+                if (names.Contains(info.Name) != skipNames)
                 {
-                    tableHelper.AddRow(new string[] { info.Name.Replace('_', ' '), info.Value.Value.Tostring() });
+                    tableHelper.AddRow(new string[] { info.Name.Replace('_', ' '), info.Value.Value.ToString() });
                 }
             }
             
+            return tableHelper.GetTable();
+        }
+
+        public static string CreateTableFromJamf(JObject jsonVal, string tokenName, List<string> attributeNames, string[] headings)
+        {
+            dynamic token = jsonVal.SelectToken(tokenName);
+
+            HTMLTableHelper tableHelper = new HTMLTableHelper(headings);
+
+            foreach (dynamic info in token)
+            {
+                List<string> rowEntries = new List<string>();
+                foreach (var name in attributeNames)
+                {
+                    rowEntries.Add(info.SelectToken(name).Value.ToString());
+                }
+                tableHelper.AddRow(rowEntries.ToArray());
+            }
+
             return tableHelper.GetTable();
         }
     }

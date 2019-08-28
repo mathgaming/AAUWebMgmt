@@ -80,7 +80,14 @@
         <div class="ui grid">
             <div class="four wide column">
                 <div class="ui vertical fluid tabular menu">
-                    <a class="active item" data-tab="basicinfo">Basic Info</a>
+                    @if (Model.IsWindows)
+                    {
+                        <a class="active item" data-tab="basicinfo">Basic Info</a>
+                    }
+                    else
+                    {
+                        <a class="active item" data-tab="macbasicinfo">Basic Info</a>
+                    }
                     @foreach (var tab in Model.Tabs)
                     {
                         <a class="item" data-tab=@tab.TabId>@tab.TabName</a>
@@ -97,7 +104,7 @@
                 }
                 else
                 {
-                    <div id="macbasicinfo" class="ui active tab segment" data-tab="macbasicinfo">@Html.Partial("Mac/BasicInfo", Model.Mac)</div>
+                    <div id="macbasicinfo" class="ui active tab segment" data-tab="macbasicinfo">@Html.Partial("RawHTMLTab", new RawHTMLModel("Basic info", Model.Mac.HTMLForBasicInfo))</div>
                 }
                 @foreach (var tab in Model.Tabs)
                 {

@@ -147,8 +147,20 @@ namespace ITSWebMgmt.Controllers
                 case "rawdata":
                     string rawTable = TableGenerator.buildRawTable(ComputerModel.Windows.ADcache.getAllProperties());
                     return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
+                case "macbasicinfo":
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Basic info", ComputerModel.Mac.HTMLForBasicInfo));
                 case "macHW":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Hardware info", ComputerModel.Mac.HTMLForHardware));
+                case "macSW":
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Software info", ComputerModel.Mac.HTMLForSoftware));
+                case "macgroups":
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Groups", ComputerModel.Mac.HTMLForGroups));
+                case "macnetwork":
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Network info", ComputerModel.Mac.HTMLForNetwork));
+                case "macloaclaccounts":
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Local accounts", ComputerModel.Mac.HTMLForLocalAccounts));
+                case "macDisk":
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Disk info", ComputerModel.Mac.HTMLForDisk));
             }
 
             return PartialView(viewName, ComputerModel.Windows);

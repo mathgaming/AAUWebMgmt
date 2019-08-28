@@ -47,7 +47,12 @@ namespace ITSWebMgmt.Models
             }
             else
             {
+                Tabs.Add(new TabModel("macgroups", "Groups"));
                 Tabs.Add(new TabModel("macHW", "Hardware info"));
+                Tabs.Add(new TabModel("macDisk", "Disk info"));
+                Tabs.Add(new TabModel("macSW", "Software info"));
+                Tabs.Add(new TabModel("macnetwork", "Network info"));
+                Tabs.Add(new TabModel("macloaclaccounts", "Local accounts"));
             }
         }
     }
