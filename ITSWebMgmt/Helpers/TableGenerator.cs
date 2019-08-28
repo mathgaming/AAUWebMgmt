@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
@@ -360,6 +361,23 @@ namespace ITSWebMgmt.Helpers
             {
                 return errorMessage;
             }
+        }
+
+        public static string CreateTableFromJamf(JObject jsonVal, string tokenName, List<string> namesToskip, List<string> headers, string errorMessage)
+        {
+            dynamic computer = jsonVal.SelectToken(tokenName);
+
+            HTMLTableHelper tableHelper = new HTMLTableHelper(headers.ToArray());
+
+            foreach (dynamic info in computer)
+            {
+                if (!namesToskip.Contains(info.Name))
+                {
+                    tableHelper.AddRow(new string[] { info.Name, info.Value.Value });
+                }
+            }
+
+            return tableHelper.GetTable();
         }
     }
 }

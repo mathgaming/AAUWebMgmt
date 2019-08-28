@@ -4,6 +4,8 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ITSWebMgmt.Connectors
 {
@@ -16,7 +18,15 @@ namespace ITSWebMgmt.Connectors
             setAuth();
 
             int id = getComputerIdByName("AAU81190");
-            var result = getComputerInformation(id).Content.ReadAsStringAsync().Result;
+            var result = getComputerInformation(id);
+            var jsonString = getComputerInformation(id).Content.ReadAsStringAsync().Result;
+            JObject jsonVal = JObject.Parse(jsonString) as JObject;
+            dynamic computer = jsonVal.SelectToken("computer.general");
+
+            foreach (dynamic info in computer)
+            {
+                Console.WriteLine(info.Name + info.Value.Value);
+            }
 
             var temp = 1;
         }
