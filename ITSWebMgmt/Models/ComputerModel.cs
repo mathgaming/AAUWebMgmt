@@ -14,7 +14,7 @@ namespace ITSWebMgmt.Models
         public WindowsComputerModel Windows;
 
         //Display
-        public bool IsWindows { get; set; };
+        public bool IsWindows { get; set; }
         public string ComputerName { get; set; } = "AAU115359";
         public string ErrorCountMessage { get; set; }
         public string ErrorMessages { get; set; }
@@ -44,6 +44,10 @@ namespace ITSWebMgmt.Models
                 Tabs.Add(new TabModel("rawdata", "Raw Data"));
                 Tabs.Add(new TabModel("tasks", "Tasks"));
                 Tabs.Add(new TabModel("warnings", "Warnings"));
+            }
+            else
+            {
+                Tabs.Add(new TabModel("macHW", "Hardware info"));
             }
         }
     }

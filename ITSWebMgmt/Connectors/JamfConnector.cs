@@ -15,20 +15,11 @@ namespace ITSWebMgmt.Connectors
 
         public JamfConnector()
         {
-            setAuth();
-
-            int id = getComputerIdByName("AAU81190");
-            var result = getComputerInformation(id);
-            var jsonString = getComputerInformation(id).Content.ReadAsStringAsync().Result;
-            JObject jsonVal = JObject.Parse(jsonString) as JObject;
-            dynamic computer = jsonVal.SelectToken("computer.general");
-
-            foreach (dynamic info in computer)
-            {
-                Console.WriteLine(info.Name + info.Value.Value);
-            }
-
-            var temp = 1;
+            string user = Startup.Configuration["cred:jamf:username"];
+            string pass = Startup.Configuration["cred:jamf:password"];
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(user + ":" + pass);
+            string base64encodedusernpass = Convert.ToBase64String(plainTextBytes);
+            Auth = "Basic " + base64encodedusernpass;
         }
 
         private HttpResponseMessage sendGetReuest(string url, string urlParameters)
@@ -45,12 +36,12 @@ namespace ITSWebMgmt.Connectors
             return response;
         }
 
-        private HttpResponseMessage getComputerInformation(int id)
+        public string GetAllComputerInformationAsJSONString(int id)
         { 
-            return sendGetReuest("computers/id/" + id, "?fiels=computer.general");
+            return sendGetReuest("computers/id/" + id, "?fiels=computer.general").Content.ReadAsStringAsync().Result;
         }
 
-        private int getComputerIdByName(string name)
+        public int GetComputerIdByName(string name)
         {
             HttpResponseMessage response = sendGetReuest("computers/match/" + name, "");
 
@@ -64,15 +55,17 @@ namespace ITSWebMgmt.Connectors
             return -1;
         }
 
-        private void setAuth()
+        public class Computers
         {
-            string user = Startup.Configuration["cred:jamf:username"];
-            string pass = Startup.Configuration["cred:jamf:password"];
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(user + ":" + pass);
-            string base64encodedusernpass = Convert.ToBase64String(plainTextBytes);
-            Auth = "Basic " + base64encodedusernpass;
+            public List<Computer> computers { get; set; }
         }
 
+        public class Computer
+        {
+            public int id { get; set; }
+        }
+
+        #region Samples from new Jamf API
         private void SampleRequestNewAPI()
         {
             string token = getToken();
@@ -117,20 +110,12 @@ namespace ITSWebMgmt.Connectors
             return null;
         }
 
-        public class Computers
-        {
-            public List<Computer> computers { get; set; }
-        }
-
-        public class Computer
-        {
-            public int id { get; set; }
-        }
-
         public class Token
         {
             public string token { get; set; }
             public string expires { get; set; }
         }
+
+        #endregion Samples from new Jamf API
     }
 }

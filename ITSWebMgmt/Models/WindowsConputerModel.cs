@@ -78,13 +78,8 @@ namespace ITSWebMgmt.Models
                     SCCMcache = new SCCMcache();
                     SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
                     BaseModel.ComputerName = ADcache.ComputerName;
+                    BaseModel.ComputerFound = ADcache.ComputerFound;
                     LoadDataInbackground();
-                }
-                else
-                {
-                    BaseModel.ShowResultDiv = false;
-                    BaseModel.ShowErrorDiv = true;
-                    BaseModel.ResultError = "Computer Not Found";
                 }
             }
         }

@@ -91,7 +91,14 @@
                 <div class="ui tab segment">
                     none<!-- spacer as the fist elemen else is placed differencet -->
                 </div>
-                <div id="basicinfo" class="ui active tab segment" data-tab="basicinfo">@Html.Partial("BasicInfo", Model.Windows)</div>
+                @if (Model.IsWindows)
+                {
+                    <div id="basicinfo" class="ui active tab segment" data-tab="basicinfo">@Html.Partial("Windows/BasicInfo", Model.Windows)</div>
+                }
+                else
+                {
+                    <div id="macbasicinfo" class="ui active tab segment" data-tab="macbasicinfo">@Html.Partial("Mac/BasicInfo", Model.Mac)</div>
+                }
                 @foreach (var tab in Model.Tabs)
                 {
                     <div class="ui tab segment" id=@tab.TabId data-tab=@tab.TabId>

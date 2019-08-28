@@ -363,20 +363,20 @@ namespace ITSWebMgmt.Helpers
             }
         }
 
-        public static string CreateTableFromJamf(JObject jsonVal, string tokenName, List<string> namesToskip, List<string> headers, string errorMessage)
+        public static string CreateTableFromJamf(JObject jsonVal, string tokenName, List<string> namesToskip)
         {
             dynamic computer = jsonVal.SelectToken(tokenName);
 
-            HTMLTableHelper tableHelper = new HTMLTableHelper(headers.ToArray());
+            HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] {"Property name", "Value" });
 
             foreach (dynamic info in computer)
             {
                 if (!namesToskip.Contains(info.Name))
                 {
-                    tableHelper.AddRow(new string[] { info.Name, info.Value.Value });
+                    tableHelper.AddRow(new string[] { info.Name.Replace('_', ' '), info.Value.Value.Tostring() });
                 }
             }
-
+            
             return tableHelper.GetTable();
         }
     }

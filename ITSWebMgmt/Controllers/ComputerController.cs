@@ -58,7 +58,8 @@ namespace ITSWebMgmt.Controllers
                 {
                     ComputerModel = new ComputerModel(computerName);
                     ComputerModel.Windows = new WindowsComputerModel(ComputerModel);
-                    
+                    ComputerModel.Mac = new MacComputerModel(ComputerModel);
+
                     if (ComputerModel.Windows.ComputerFound)
                     {
                         try
@@ -82,10 +83,17 @@ namespace ITSWebMgmt.Controllers
                             ComputerModel.ResultError = "Computer found in AD but not in SCCM";
                         }
                     }
-                    else
+                    else if (ComputerModel.Mac.ComputerFound)
                     {
                         ComputerModel.IsWindows = false;
-                        ComputerModel.Mac = new MacComputerModel(ComputerModel);
+                        ComputerModel.ShowResultDiv = true;
+                        ComputerModel.SetTabs();
+                    }
+                    else
+                    {
+                        ComputerModel.ShowResultDiv = false;
+                        ComputerModel.ShowErrorDiv = true;
+                        ComputerModel.ResultError = "Computer Not Found";
                     }
 
 
@@ -111,34 +119,36 @@ namespace ITSWebMgmt.Controllers
             switch (tabName)
             {
                 case "basicinfo":
-                    viewName = "BasicInfo";
+                    viewName = "Windows/BasicInfo";
                     ComputerModel.Windows.InitBasicInfo();
                     break;
                 case "groups":
                     viewName = "Groups";
                     return PartialView(viewName, new PartialGroupModel(ComputerModel.Windows.ADcache, "memberOf"));
                 case "tasks":
-                    return PartialView("Tasks", ComputerModel);
+                    return PartialView("Windows/Tasks", ComputerModel);
                 case "warnings":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Warnings", ComputerModel.ErrorMessages));
                 case "sccminfo":
-                    viewName = "SCCMInfo";
+                    viewName = "Windows/SCCMInfo";
                     ComputerModel.Windows.InitSCCMInfo();
                     break;
                 case "sccmInventory":
-                    viewName = "SCCMInventory";
+                    viewName = "Windows/SCCMInventory";
                     ComputerModel.Windows.InitSCCMInventory();
                     break;
                 case "sccmAV":
                     string AVTable = TableGenerator.CreateTableFromDatabase(ComputerModel.Windows.Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found");
                     return PartialView("RawHTMLTab", new RawHTMLModel("Antivirus Info", AVTable));
                 case "sccmHW":
-                    viewName = "SCCMHW";
+                    viewName = "Windows/SCCMHW";
                     ComputerModel.Windows.InitSCCMHW();
                     break;
                 case "rawdata":
                     string rawTable = TableGenerator.buildRawTable(ComputerModel.Windows.ADcache.getAllProperties());
                     return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
+                case "macHW":
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Hardware info", ComputerModel.Mac.HTMLForHardware));
             }
 
             return PartialView(viewName, ComputerModel.Windows);
