@@ -37,7 +37,7 @@ namespace ITSWebMgmt.Models
             if (IsWindows)
             {
                 Tabs.Add(new TabModel("groups", "Groups"));
-                Tabs.Add(new TabModel("sccmInfo", "SCCM Info"));
+                Tabs.Add(new TabModel("sccminfo", "SCCM Info"));
                 Tabs.Add(new TabModel("sccmInventory", "Inventory"));
                 Tabs.Add(new TabModel("sccmAV", "Antivirus"));
                 Tabs.Add(new TabModel("sccmHW", "Hardware inventory"));

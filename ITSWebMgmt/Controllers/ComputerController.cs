@@ -57,8 +57,7 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(computerName);
-                    ComputerModel.Windows = new WindowsComputerModel(ComputerModel);
-                    ComputerModel.Mac = new MacComputerModel(ComputerModel);
+                    ComputerModel.Windows = new WindowsComputerModel(ComputerModel);                    
 
                     if (ComputerModel.Windows.ComputerFound)
                     {
@@ -83,19 +82,22 @@ namespace ITSWebMgmt.Controllers
                             ComputerModel.ResultError = "Computer found in AD but not in SCCM";
                         }
                     }
-                    else if (ComputerModel.Mac.ComputerFound)
-                    {
-                        ComputerModel.IsWindows = false;
-                        ComputerModel.ShowResultDiv = true;
-                        ComputerModel.SetTabs();
-                    }
                     else
                     {
-                        ComputerModel.ShowResultDiv = false;
-                        ComputerModel.ShowErrorDiv = true;
-                        ComputerModel.ResultError = "Computer Not Found";
+                        ComputerModel.Mac = new MacComputerModel(ComputerModel);
+                        if (ComputerModel.Mac.ComputerFound)
+                        {
+                            ComputerModel.IsWindows = false;
+                            ComputerModel.ShowResultDiv = true;
+                            ComputerModel.SetTabs();
+                        }
+                        else
+                        {
+                            ComputerModel.ShowResultDiv = false;
+                            ComputerModel.ShowErrorDiv = true;
+                            ComputerModel.ResultError = "Computer Not Found";
+                        }
                     }
-
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(ComputerModel.ComputerName, ComputerModel, cacheEntryOptions);
@@ -126,7 +128,7 @@ namespace ITSWebMgmt.Controllers
                     viewName = "Groups";
                     return PartialView(viewName, new PartialGroupModel(ComputerModel.Windows.ADcache, "memberOf"));
                 case "tasks":
-                    return PartialView("Windows/Tasks", ComputerModel);
+                    return PartialView("Windows/Tasks", ComputerModel.Windows);
                 case "warnings":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Warnings", ComputerModel.ErrorMessages));
                 case "sccminfo":

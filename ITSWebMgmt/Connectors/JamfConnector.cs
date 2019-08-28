@@ -49,7 +49,10 @@ namespace ITSWebMgmt.Connectors
             {
                 response.Content.Headers.ContentType.MediaType = "application/json";
                 Computers computers = response.Content.ReadAsAsync<Computers>().Result;
-                return computers.computers[0].id;
+                if (computers.computers.Count != 0)
+                {
+                    return computers.computers[0].id;
+                }
             }
 
             return -1;
