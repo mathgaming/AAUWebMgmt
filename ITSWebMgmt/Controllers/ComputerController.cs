@@ -22,7 +22,14 @@ namespace ITSWebMgmt.Controllers
             {
                 if (ComputerModel.ComputerFound)
                 {
-                    new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.adpath, true);
+                    if (ComputerModel.IsWindows)
+                    {
+                        new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.Windows.adpath, true);
+                    }
+                    else
+                    {
+                        new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.ComputerName, true); //TODO consider other value for mac
+                    }
                 }
                 else
                 {
@@ -50,30 +57,37 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(computerName);
+                    ComputerModel.Windows = new WindowsComputerModel(ComputerModel);
                     
-                    if (ComputerModel.ComputerFound)
+                    if (ComputerModel.Windows.ComputerFound)
                     {
                         try
                         {
-                            int testForSCCM = ComputerModel.Collection.Count;
+                            ComputerModel.IsWindows = true;
                             ComputerModel.ShowResultDiv = true;
-                            ComputerModel.InitSCCMInfo();
-                            ComputerModel.InitBasicInfo();
+                            ComputerModel.Windows.InitSCCMInfo();
+                            ComputerModel.Windows.InitBasicInfo();
                             LoadWarnings();
-                            ComputerModel.SetTabs(false);
-                            if (!checkComputerOU(ComputerModel.adpath))
+                            ComputerModel.SetTabs();
+                            if (!checkComputerOU(ComputerModel.Windows.adpath))
                             {
-                                ComputerModel.ShowMoveComputerOUdiv = true;
+                                ComputerModel.Windows.ShowMoveComputerOUdiv = true;
                             }
                         }
                         catch (Exception)
                         {
-                            ComputerModel.ComputerFound = false;
+                            ComputerModel.Windows.ComputerFound = false;
                             ComputerModel.ShowResultDiv = false;
                             ComputerModel.ShowErrorDiv = true;
                             ComputerModel.ResultError = "Computer found in AD but not in SCCM";
                         }
                     }
+                    else
+                    {
+                        ComputerModel.IsWindows = false;
+                        ComputerModel.Mac = new MacComputerModel(ComputerModel);
+                    }
+
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                     _cache.Set(ComputerModel.ComputerName, ComputerModel, cacheEntryOptions);
@@ -91,51 +105,50 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(name);
 
-            new Logger(_context).Log(LogEntryType.LoadedTabComputer, HttpContext.User.Identity.Name, new List<string>() { tabName, ComputerModel.adpath }, true);
+            new Logger(_context).Log(LogEntryType.LoadedTabComputer, HttpContext.User.Identity.Name, new List<string>() { tabName, ComputerModel.Windows.adpath }, true);
 
             string viewName = tabName;
             switch (tabName)
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
-                    ComputerModel.InitBasicInfo();
+                    ComputerModel.Windows.InitBasicInfo();
                     break;
                 case "groups":
                     viewName = "Groups";
-                    return PartialView(viewName, new PartialGroupModel(ComputerModel.ADcache, "memberOf"));
+                    return PartialView(viewName, new PartialGroupModel(ComputerModel.Windows.ADcache, "memberOf"));
                 case "tasks":
-                    viewName = "Tasks";
-                    break;
+                    return PartialView("Tasks", ComputerModel);
                 case "warnings":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Warnings", ComputerModel.ErrorMessages));
                 case "sccminfo":
                     viewName = "SCCMInfo";
-                    ComputerModel.InitSCCMInfo();
+                    ComputerModel.Windows.InitSCCMInfo();
                     break;
                 case "sccmInventory":
                     viewName = "SCCMInventory";
-                    ComputerModel.InitSCCMInventory();
+                    ComputerModel.Windows.InitSCCMInventory();
                     break;
                 case "sccmAV":
-                    string AVTable = TableGenerator.CreateTableFromDatabase(ComputerModel.Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found");
+                    string AVTable = TableGenerator.CreateTableFromDatabase(ComputerModel.Windows.Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found");
                     return PartialView("RawHTMLTab", new RawHTMLModel("Antivirus Info", AVTable));
                 case "sccmHW":
                     viewName = "SCCMHW";
-                    ComputerModel.InitSCCMHW();
+                    ComputerModel.Windows.InitSCCMHW();
                     break;
                 case "rawdata":
-                    string rawTable = TableGenerator.buildRawTable(ComputerModel.ADcache.getAllProperties());
+                    string rawTable = TableGenerator.buildRawTable(ComputerModel.Windows.ADcache.getAllProperties());
                     return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
             }
 
-            return PartialView(viewName, ComputerModel);
+            return PartialView(viewName, ComputerModel.Windows);
         }
 
         [HttpPost]
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
             ComputerModel = getComputerModel(computername);
-            moveOU(HttpContext.User.Identity.Name, ComputerModel.adpath);
+            moveOU(HttpContext.User.Identity.Name, ComputerModel.Windows.adpath);
             return Success("OU moved for" + computername);
         }
 
@@ -155,9 +168,9 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computerName);
 
-            if (addComputerToCollection(ComputerModel.SCCMcache.ResourceID, collectionId))
+            if (addComputerToCollection(ComputerModel.Windows.SCCMcache.ResourceID, collectionId))
             {
-                new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.adpath, collectionName });
+                new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.adpath, collectionName });
                 return Success("Computer added to " + collectionName);
             }
 
@@ -173,14 +186,13 @@ namespace ITSWebMgmt.Controllers
         public ActionResult ResultGetPassword([FromBody]string computername)
         {
             ComputerModel = getComputerModel(computername);
-            new Logger(_context).Log(LogEntryType.ComputerAdminPassword, HttpContext.User.Identity.Name, ComputerModel.adpath, true);
+            new Logger(_context).Log(LogEntryType.ComputerAdminPassword, HttpContext.User.Identity.Name, ComputerModel.Windows.adpath, true);
 
-            var passwordRetuned = getLocalAdminPassword(ComputerModel.adpath);
+            var passwordRetuned = getLocalAdminPassword(ComputerModel.Windows.adpath);
 
             if (string.IsNullOrEmpty(passwordRetuned))
             {
-                ComputerModel.Result = "Not found";
-                return Error(ComputerModel.Result);
+                return Error("Not found");
             }
             else
             {
@@ -199,8 +211,7 @@ namespace ITSWebMgmt.Controllers
 
                 }
 
-                ComputerModel.Result = "<code>" + passwordWithColor + "</code><br /> Password will expire in 8 hours";
-                return Success(ComputerModel.Result);
+                return Success("<code>" + passwordWithColor + "</code><br /> Password will expire in 8 hours");
             }
         }
         
@@ -370,14 +381,14 @@ namespace ITSWebMgmt.Controllers
             try
             {
                 ComputerModel = getComputerModel(computername);
-                ComputerModel.ADcache.DeleteComputer();
+                ComputerModel.Windows.ADcache.DeleteComputer();
             }
             catch (Exception e)
             {
                 return Error(e.Message);
             }
 
-            new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, ComputerModel.adpath);
+            new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, ComputerModel.Windows.adpath);
 
             return Success(computername + " have been deleted from AD");
         }

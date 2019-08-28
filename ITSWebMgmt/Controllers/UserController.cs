@@ -278,7 +278,7 @@ namespace ITSWebMgmt.Controllers
                 return Error("Case number is on a wrong format");
             }
 
-            ComputerModel computerModel = new ComputerModel(temp[1]);
+            WindowsComputerModel computerModel = new WindowsComputerModel(temp[1]);
 
             if (computerModel.ComputerFound)
             {

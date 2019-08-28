@@ -47,21 +47,21 @@ namespace ITSWebMgmt.Models
         public string Manager { get => ADcache.getProperty("manager"); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
         public ManagementObjectCollection getUserMachineRelationshipFromUserName(string userName) => SCCMcache.getUserMachineRelationshipFromUserName(userName);
-        public List<ComputerModel> getManagedComputers() {
+        public List<WindowsComputerModel> getManagedWindowsComputers() {
             string[] upnsplit = UserPrincipalName.Split('@');
             string domain = upnsplit[1].Split('.')[0];
 
             string formattedName = string.Format("{0}\\\\{1}", domain, upnsplit[0]);
 
-            List<ComputerModel> managedComputerList = new List<ComputerModel>();
+            List<WindowsComputerModel> managedComputerList = new List<WindowsComputerModel>();
 
             foreach (ManagementObject o in getUserMachineRelationshipFromUserName(formattedName))
             {
                 string machineName = o.Properties["ResourceName"].Value.ToString();
-                ComputerModel model = new ComputerModel(machineName);
+                WindowsComputerModel model = new WindowsComputerModel(machineName);
                 if (!model.ComputerFound)
                 {
-                    model = new ComputerModel(model.ComputerName);
+                    model = new WindowsComputerModel(model.ComputerName);
                 }
                 managedComputerList.Add(model);
             }
@@ -318,7 +318,7 @@ namespace ITSWebMgmt.Models
             {
                 var helper = new HTMLTableHelper(new string[] { "Computername", "AAU Fjernsupport" });
 
-                foreach (ComputerModel m in getManagedComputers())
+                foreach (WindowsComputerModel m in getManagedWindowsComputers())
                 {
                     string OnedriveWarning = "";
                     if (UsesOnedrive && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
@@ -421,7 +421,7 @@ namespace ITSWebMgmt.Models
             bool haveWindows7 = false;
             var helper = new HTMLTableHelper(new string[] { "Computername", "Windows 7 to 10 upgrade" });
 
-            foreach (ComputerModel m in getManagedComputers())
+            foreach (WindowsComputerModel m in getManagedWindowsComputers())
             {
                 m.setConfig();
                 string upgradeButton = "";
