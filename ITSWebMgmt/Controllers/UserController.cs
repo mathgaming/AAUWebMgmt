@@ -61,6 +61,7 @@ namespace ITSWebMgmt.Controllers
                         LoadWarnings();
                         UserModel.InitCalendarAgenda();
                         UserModel.InitLoginScript();
+                        UserModel.SetTabs();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
                         UserModel.UserFound = true;
@@ -327,6 +328,8 @@ namespace ITSWebMgmt.Controllers
         {
             UserModel = getUserModel(name);
 
+            new Logger(_context).Log(LogEntryType.LoadedTabUser, HttpContext.User.Identity.Name, new List<string>() { tabName, UserModel.UserPrincipalName }, true);
+
             PartialGroupModel model = null;
 
             string viewName = tabName;
@@ -344,46 +347,36 @@ namespace ITSWebMgmt.Controllers
                     viewName = "Tasks";
                     break;
                 case "warnings":
-                    viewName = "Warnings";
-                    break;
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Warnings", UserModel.ErrorMessages));
                 case "fileshares":
-                    viewName = "Fileshares";
                     model = UserModel.InitFileshares();
-                    break;
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Fileshares", model.Data));
                 case "calAgenda":
-                    viewName = "CalendarAgenda";
-                    UserModel.InitCalendarAgenda();
-                    break;
+                    string calAgenda = UserModel.InitCalendarAgenda();
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Calendar Agenda(today)", calAgenda));
                 case "exchange":
-                    viewName = "Exchange";
                     model = UserModel.InitExchange();
-                    break;
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Exchange", model.Data));
                 case "servicemanager":
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
-                    viewName = "ComputerInformation";
-                    UserModel.InitComputerInformation();
-                    break;
+                    string computerTable = UserModel.InitComputerInformation();
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Computer information", computerTable));
                 case "win7to10":
                     viewName = "Win7to10";
                     UserModel.InitWin7to10();
                     break;
                 case "loginscript":
-                    viewName = "Loginscript";
-                    UserModel.InitLoginScript();
-                    break;
+                    string loginHtml = UserModel.InitLoginScript();
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Loginscript", loginHtml));
                 case "print":
-                    viewName = "Print";
-                    UserModel.Print = new PrintConnector(UserModel.Guid.ToString()).doStuff();
-                    break;
+                    string printHtml = new PrintConnector(UserModel.Guid.ToString()).doStuff();
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Print", printHtml));
                 case "rawdata":
-                    viewName = "Raw";
-                    UserModel.Rawdata = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
-                    break;
+                    string rawTable = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
             }
-
-            new Logger(_context).Log(LogEntryType.LoadedTabUser, HttpContext.User.Identity.Name, new List<string>() { tabName , UserModel.UserPrincipalName }, true);
 
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);
         }

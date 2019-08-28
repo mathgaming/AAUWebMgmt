@@ -17,17 +17,16 @@ namespace ITSWebMgmt.Models
         public string ADManagedBy { get => ADcache.getProperty("managedBy"); }
         public string GroupType { get => ADcache.getProperty("groupType").ToString(); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName").ToString(); }
-        public string Title;
-        public string Domain;
-        public string ManagedBy;
-        public string SecurityGroup;
-        public string GroupScope;
-        public string GroupSegment;
-        public string GroupsAllSegment;
-        public string GroupOfSegment;
-        public string GroupsOfAllSegment;
-        public string Raw;
-        public bool IsFileShare = false;
+        public string Title { get; set; }
+        public string Domain { get; set; }
+        public string ManagedBy { get; set; }
+        public string SecurityGroup { get; set; }
+        public string GroupScope { get; set; }
+        public string GroupSegment { get; set; }
+        public string GroupsAllSegment { get; set; }
+        public string GroupOfSegment { get; set; }
+        public string GroupsOfAllSegment { get; set; }
+        public bool IsFileShare { get; set; } = false;
 
         public GroupModel(string adpath)
         {

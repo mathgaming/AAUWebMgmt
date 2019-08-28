@@ -6,7 +6,6 @@ namespace ITSWebMgmt.Models
     public class ExchangeMailboxGroupModel
     {
         public string RawValue { get; }
-
         public string Type { get; }
         public string Domain { get; }
         public string Name { get; }

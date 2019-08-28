@@ -7,12 +7,12 @@ namespace ITSWebMgmt.Models
 {
     public class ChangeModel
     {
-        public string changeID;
-        public string Name;
-        public string Discription;
-        public string Start;
-        public string End;
-        public string Resposeble;
-        public string Error;
+        public string changeID { get; set; }
+        public string Name { get; set; }
+        public string Discription { get; set; }
+        public string Start { get; set; }
+        public string End { get; set; }
+        public string Resposeble { get; set; }
+        public string Error { get; set; }
     }
 }

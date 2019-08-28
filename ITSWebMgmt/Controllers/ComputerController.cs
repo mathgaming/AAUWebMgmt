@@ -60,6 +60,7 @@ namespace ITSWebMgmt.Controllers
                             ComputerModel.InitSCCMInfo();
                             ComputerModel.InitBasicInfo();
                             LoadWarnings();
+                            ComputerModel.SetTabs(false);
                             if (!checkComputerOU(ComputerModel.adpath))
                             {
                                 ComputerModel.ShowMoveComputerOUdiv = true;
@@ -89,6 +90,9 @@ namespace ITSWebMgmt.Controllers
         public override ActionResult LoadTab(string tabName, string name)
         {
             ComputerModel = getComputerModel(name);
+
+            new Logger(_context).Log(LogEntryType.LoadedTabComputer, HttpContext.User.Identity.Name, new List<string>() { tabName, ComputerModel.adpath }, true);
+
             string viewName = tabName;
             switch (tabName)
             {
@@ -103,8 +107,7 @@ namespace ITSWebMgmt.Controllers
                     viewName = "Tasks";
                     break;
                 case "warnings":
-                    viewName = "Warnings";
-                    break;
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Warnings", ComputerModel.ErrorMessages));
                 case "sccminfo":
                     viewName = "SCCMInfo";
                     ComputerModel.InitSCCMInfo();
@@ -114,22 +117,16 @@ namespace ITSWebMgmt.Controllers
                     ComputerModel.InitSCCMInventory();
                     break;
                 case "sccmAV":
-                    viewName = "SCCMAV";
-                    //DetectionID is required for UserName (SELECT * FROM SMS_G_System_Threats WHERE DetectionID='{04155F79-EB84-4828-9CEC-AC0749C4EDA6}' AND ResourceID=16787705)
-                    //Only few computers with data, one them is AAU112782
-                    ComputerModel.SCCMAV = TableGenerator.CreateTableFromDatabase(ComputerModel.Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found");
-                    break;
+                    string AVTable = TableGenerator.CreateTableFromDatabase(ComputerModel.Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found");
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Antivirus Info", AVTable));
                 case "sccmHW":
                     viewName = "SCCMHW";
                     ComputerModel.InitSCCMHW();
                     break;
                 case "rawdata":
-                    viewName = "Raw";
-                    ComputerModel.Raw = TableGenerator.buildRawTable(ComputerModel.ADcache.getAllProperties());
-                    break;
+                    string rawTable = TableGenerator.buildRawTable(ComputerModel.ADcache.getAllProperties());
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
             }
-
-            new Logger(_context).Log(LogEntryType.LoadedTabComputer, HttpContext.User.Identity.Name, new List<string>() { tabName, ComputerModel.adpath }, true);
 
             return PartialView(viewName, ComputerModel);
         }

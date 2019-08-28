@@ -16,6 +16,7 @@ namespace ITSWebMgmt.Models
 {
     public class UserModel : WebMgmtModel<UserADcache>
     {
+        public List<TabModel> Tabs = new List<TabModel>();
         public string Guid { get => new Guid((byte[])(ADcache.getProperty("objectGUID"))).ToString(); }
         public string UserPrincipalName { get => ADcache.getProperty("userPrincipalName"); }
         public string DisplayName { get => ADcache.getProperty("displayName"); }
@@ -85,12 +86,12 @@ namespace ITSWebMgmt.Models
             };
         }
 
-        public string AdmDBExpireDate;
-        public string BasicInfoDepartmentPDS;
-        public string BasicInfoOfficePDS;
-        public string BasicInfoPasswordExpired;
-        public string BasicInfoPasswordExpireDate;
-        public string BasicInfoTable;
+        public string AdmDBExpireDate { get; set; }
+        public string BasicInfoDepartmentPDS { get; set; }
+        public string BasicInfoOfficePDS { get; set; }
+        public string BasicInfoPasswordExpired { get; set; }
+        public string BasicInfoPasswordExpireDate { get; set; }
+        public string BasicInfoTable { get; set; }
         public string BasicInfoRomaing
         {
             get
@@ -98,24 +99,19 @@ namespace ITSWebMgmt.Models
                 return (Profilepath != null).ToString();
             }
         }
-        public string Print;
-        public string CalAgenda;
-        public string CalAgendaStatus;
-        public string ServiceManager;
-        public string ComputerInformation;
-        public string Loginscript;
-        public string Rawdata;
-        public string ErrorMessages;
-        public string ResultError;
-        public string UserName = "mhsv16@its.aau.dk";
-        public string ErrorCountMessage;
-        public string SCSMUserID;
-        public string Windows7to10;
-        public bool ShowResultDiv = false;
-        public bool ShowErrorDiv = false;
-        public bool ShowFixUserOU = false;
-        public bool ShowLoginScript = false;
-        public bool UsesOnedrive = false;
+        public string CalAgendaStatus { get; set; }
+        public string ServiceManager { get; set; }
+        public string ErrorMessages { get; set; }
+        public string ResultError { get; set; }
+        public string UserName { get; set; } = "mhsv16@its.aau.dk";
+        public string ErrorCountMessage { get; set; }
+        public string SCSMUserID { get; set; }
+        public string Windows7to10 { get; set; }
+        public bool ShowResultDiv { get; set; } = false;
+        public bool ShowErrorDiv { get; set; } = false;
+        public bool ShowFixUserOU { get; set; } = false;
+        public bool ShowLoginScript { get; set; } = false;
+        public bool UsesOnedrive { get; set; } = false;
 
         public UserModel(string username, bool loadDataInbackground = true)
         {
@@ -145,6 +141,21 @@ namespace ITSWebMgmt.Models
                 ShowResultDiv = false;
                 ShowErrorDiv = true;
             }
+        }
+
+        public void SetTabs()
+        {
+            Tabs.Add(new TabModel("servicemanager", "Service Manager", true));
+            Tabs.Add(new TabModel("calAgenda", "Calendar, Currently: " + CalAgendaStatus));
+            Tabs.Add(new TabModel("computerInformation", "Computer Information"));
+            Tabs.Add(new TabModel("win7to10", "Windows 7 to 10 upgrade", true));
+            Tabs.Add(new TabModel("groups", "Groups"));
+            Tabs.Add(new TabModel("fileshares", "Fileshares"));
+            Tabs.Add(new TabModel("exchange", "Exchange Resources"));
+            Tabs.Add(new TabModel("print", "Print"));
+            Tabs.Add(new TabModel("rawdata", "Raw Data"));
+            Tabs.Add(new TabModel("tasks", "Tasks"));
+            Tabs.Add(new TabModel("warnings", "Warnings"));
         }
 
         #region loading data
@@ -238,7 +249,7 @@ namespace ITSWebMgmt.Models
             AdmDBExpireDate = admdb.loadUserExpiredate(domain, tmp[0], firstName, lastName).Result;*/
         }
 
-        public void InitCalendarAgenda()
+        public string InitCalendarAgenda()
         {
             CalAgendaStatus = "Free";
             var sb = new StringBuilder();
@@ -270,7 +281,7 @@ namespace ITSWebMgmt.Models
                 }
             }
 
-            CalAgenda = sb.ToString();
+            return sb.ToString();
         }
 
         public static async Task<GetUserAvailabilityResults> getFreeBusyResultsAsync(UserModel UserModel)
@@ -301,7 +312,7 @@ namespace ITSWebMgmt.Models
             return await service.GetUserAvailability(attendees, window, AvailabilityData.FreeBusy, myOptions);
         }
 
-        public void InitComputerInformation()
+        public string InitComputerInformation()
         {
             try
             {
@@ -318,11 +329,11 @@ namespace ITSWebMgmt.Models
                     var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
                     helper.AddRow(new string[] { name, fjernsupport });
                 }
-                ComputerInformation = "<h4>Links til computerinfo kan være til maskiner i et forkert domæne, da info omkring computer domæne ikke er tilgængelig i denne søgning</h4>" + helper.GetTable();
+                return "<h4>Links til computerinfo kan være til maskiner i et forkert domæne, da info omkring computer domæne ikke er tilgængelig i denne søgning</h4>" + helper.GetTable();
             }
             catch (UnauthorizedAccessException)
             {
-                ComputerInformation = "Service user does not have SCCM access.";
+                return "Service user does not have SCCM access.";
             }
         }
 
@@ -388,7 +399,7 @@ namespace ITSWebMgmt.Models
             return model;
         }
 
-        public void InitLoginScript()
+        public string InitLoginScript()
         {
             ShowLoginScript = false;
 
@@ -399,8 +410,10 @@ namespace ITSWebMgmt.Models
             if (script != null)
             {
                 ShowLoginScript = true;
-                Loginscript = loginscripthelper.parseAndDisplayLoginScript(script);
+                return loginscripthelper.parseAndDisplayLoginScript(script);
             }
+
+            return null;
         }
 
         public void InitWin7to10()

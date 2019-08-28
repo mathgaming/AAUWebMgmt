@@ -8,6 +8,7 @@ namespace ITSWebMgmt.Models
 {
     public class ComputerModel : WebMgmtModel<ComputerADcache>
     {
+        public List<TabModel> Tabs = new List<TabModel>();
         //SCCMcache
         public ManagementObjectCollection RAM { get => SCCMcache.RAM; private set { } }
         public ManagementObjectCollection LogicalDisk { get => SCCMcache.LogicalDisk; private set { } }
@@ -31,12 +32,11 @@ namespace ITSWebMgmt.Models
         public DateTime WhenCreated { get => ADcache.getProperty("whenCreated"); }
 
         //Display
-        public string ConfigPC = "Unknown";
-        public string ConfigExtra = "False";
-        public string ComputerName = "ITS\\AAU115359";
-        public string ManagedBy;
-        public string Raw;
-        public string Result;
+        public string ConfigPC { get; set; } = "Unknown";
+        public string ConfigExtra { get; set; } = "False";
+        public string ComputerName { get; set; } = "ITS\\AAU115359";
+        public string ManagedBy { get; set; }
+        public string Result { get; set; }
         public string PasswordExpireDate { get
             {
                 if (AdminPasswordExpirationTime != null)
@@ -49,27 +49,26 @@ namespace ITSWebMgmt.Models
                 }
             }
         }
-        public string SSCMInventoryTable;
-        public string SCCMCollecionsSoftware;
-        public string SCCMInventory;
-        public string SCCMComputers;
-        public string SCCMCollectionsTable;
-        public string SCCMCollections;
-        public string SCCMAV;
-        public string SCCMLD;
-        public string SCCMRAM;
-        public string SCCMBIOS;
-        public string SCCMVC;
-        public string SCCMProcessor;
-        public string SCCMDisk;
-        public string ErrorCountMessage;
-        public string ErrorMessages;
-        public string ResultError;
-        public bool ShowResultDiv = false;
-        public bool ShowResultGetPassword = false;
-        public bool ShowMoveComputerOUdiv = false;
-        public bool ShowErrorDiv = false;
-        public bool UsesOnedrive = false;
+        public string SSCMInventoryTable { get; set; }
+        public string SCCMCollecionsSoftware { get; set; }
+        public string SCCMInventory { get; set; }
+        public string SCCMComputers { get; set; }
+        public string SCCMCollectionsTable { get; set; }
+        public string SCCMCollections { get; set; }
+        public string SCCMLD { get; set; }
+        public string SCCMRAM { get; set; }
+        public string SCCMBIOS { get; set; }
+        public string SCCMVC { get; set; }
+        public string SCCMProcessor { get; set; }
+        public string SCCMDisk { get; set; }
+        public string ErrorCountMessage { get; set; }
+        public string ErrorMessages { get; set; }
+        public string ResultError { get; set; }
+        public bool ShowResultDiv { get; set; } = false;
+        public bool ShowResultGetPassword { get; set; } = false;
+        public bool ShowMoveComputerOUdiv { get; set; } = false;
+        public bool ShowErrorDiv { get; set; } = false;
+        public bool UsesOnedrive { get; set; } = false;
 
         public ComputerModel(string computerName)
         {
@@ -89,6 +88,25 @@ namespace ITSWebMgmt.Models
                     ShowErrorDiv = true;
                     ResultError = "Computer Not Found";
                 }
+            }
+        }
+
+        public void SetTabs(bool mac)
+        {
+            if (mac)
+            {
+
+            }
+            else
+            {
+                Tabs.Add(new TabModel("groups", "Groups"));
+                Tabs.Add(new TabModel("sccmInfo", "SCCM Info"));
+                Tabs.Add(new TabModel("sccmInventory", "Inventory"));
+                Tabs.Add(new TabModel("sccmAV", "Antivirus"));
+                Tabs.Add(new TabModel("sccmHW", "Hardware inventory"));
+                Tabs.Add(new TabModel("rawdata", "Raw Data"));
+                Tabs.Add(new TabModel("tasks", "Tasks"));
+                Tabs.Add(new TabModel("warnings", "Warnings"));
             }
         }
 
