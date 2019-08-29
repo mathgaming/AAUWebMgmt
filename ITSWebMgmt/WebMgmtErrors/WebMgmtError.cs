@@ -131,8 +131,8 @@ namespace ITSWebMgmt.WebMgmtErrors
     {
         public PasswordExpired(UserController user) : base(user)
         {
-            Heading = "Password Expired";
-            Description = "The user account is locked due to an expired password. User must change password or reset the users password.";
+            Heading = "Account locked";
+            Description = "The user account is locked, maybe due to too many failed password attempts.";
             Severeness = Severity.Error;
         }
 

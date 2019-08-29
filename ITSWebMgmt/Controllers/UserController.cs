@@ -55,7 +55,7 @@ namespace ITSWebMgmt.Controllers
                     username = username.Trim();
                     UserModel = new UserModel(username);
 
-                    if (UserModel.ResultError == null)
+                    if (UserModel.UserFound)
                     {
                         UserModel.InitBasicInfo();
                         LoadWarnings();
@@ -64,7 +64,6 @@ namespace ITSWebMgmt.Controllers
                         UserModel.SetTabs();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
-                        UserModel.UserFound = true;
                     }
                 }
             }

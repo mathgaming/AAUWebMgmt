@@ -433,5 +433,35 @@ namespace ITSWebMgmt.Controllers
             //Password is expired and warning before expire (same timeline as windows displays warning)
         }
 
+        public ActionResult AddToOneDrive([FromBody]string data)
+        {
+            string[] temp = data.Split('|');
+            ComputerModel = getComputerModel(temp[0]);
+
+            if (temp[1].Length == 0)
+            {
+                return Error("User email cannot be empty");
+            }
+
+            UserModel userModel = new UserModel(temp[1]);
+
+            if (userModel.UserFound)
+            {
+                if (OneDriveHelper.doesUserUseOneDrive(userModel))
+                {
+                    ADHelper.AddMemberToGroup(ComputerModel.Windows.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
+
+                    new Logger(_context).Log(LogEntryType.Onedrive, HttpContext.User.Identity.Name, new List<string>() { userModel.UserPrincipalName, ComputerModel.ComputerName, "Additional computer" });
+
+                    return Success("Computer added to Onedrive group");
+                }
+
+                return Error("Could not add computer to Onedrive, because the user do not use Onedrive.\n The user can be added under task for the user");
+            }
+            else
+            {
+                return Error("User not found");
+            }
+        }
     }
 }

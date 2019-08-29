@@ -50,13 +50,16 @@
     </script>
     <script>
         //script for sending button presses as POST request to controller
-    function sendPostRequest(Action) {
+    function sendPostRequest(Action, data) {
         var computername = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName))';
+        if (arguments.length === 1) {
+            data = JSON.stringify(computername);
+        }
         $.ajax({
             type: "POST",
             url: 'Computer/' + Action,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(computername),
+            data: data,
             dataType: "json",
             success: function (response) {
                 alert(response.message);

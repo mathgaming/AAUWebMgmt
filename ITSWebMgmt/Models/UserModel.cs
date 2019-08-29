@@ -127,6 +127,7 @@ namespace ITSWebMgmt.Models
                 SCCMcache = new SCCMcache();
                 ShowResultDiv = true;
                 ShowErrorDiv = false;
+                UserFound = true;
                 if (loadDataInbackground)
                 {
                     LoadDataInbackground();
