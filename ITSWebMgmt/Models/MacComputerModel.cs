@@ -58,8 +58,8 @@ namespace ITSWebMgmt.Models
 
         private void setSoftware(JObject jsonVal)
         {
-            string applications = TableGenerator.CreateTableFromJamf(jsonVal, "computer.software.applications", new List<string>() { "name", "path", "version" }, new string[] { "Name", "Path", "Version" });
-            string plugins = TableGenerator.CreateTableFromJamf(jsonVal, "computer.software.plugins", new List<string>() { "name", "path", "version" }, new string[] { "Name", "Path", "Version" });
+            string applications = TableGenerator.CreateTableFromJamf(jsonVal, "computer.software.applications", new List<string>() { "name", "version" }, new string[] { "Name", "Version" });
+            string plugins = TableGenerator.CreateTableFromJamf(jsonVal, "computer.software.plugins", new List<string>() { "name", "version" }, new string[] { "Name", "Version" });
             HTMLForSoftware = $"<h3>Applications</h3>{applications}<h3>Plugins</h3>{plugins}";
         }
 
@@ -102,7 +102,9 @@ namespace ITSWebMgmt.Models
 
             HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] { "Property name", "Value" });
 
-            List<string> names = new List<string>() { "username", "real_name", "email_address", "position"};
+            tableHelper.AddRow(new string[] { "Computer type", "Mac" });
+
+            List<string> names = new List<string>() { "username", "real_name", "email_address"};
 
             foreach (dynamic info in token)
             {
@@ -112,17 +114,21 @@ namespace ITSWebMgmt.Models
                 }
             }
 
-            dynamic jamfVersion = jsonVal.SelectToken("computer.general.jamf_version");
-            tableHelper.AddRow(new string[] { "Jamf version", jamfVersion.Value });
-
             token = jsonVal.SelectToken("computer.extension_attributes");
+            names = new List<string>() { /*"AAU Computer Type",*/ "AAU-1x Username", "auto-update2", "Battery Health Status" };
 
             foreach (dynamic info in token)
             {
                 dynamic name = info.SelectToken("name");
-                dynamic value = info.SelectToken("value");
-                tableHelper.AddRow(new string[] { name.Value, value.Value });
+                if (names.Contains(name.Value))
+                {
+                    dynamic value = info.SelectToken("value");
+                    tableHelper.AddRow(new string[] { name.Value, value.Value });
+                }
             }
+
+            dynamic jamfVersion = jsonVal.SelectToken("computer.general.jamf_version");
+            tableHelper.AddRow(new string[] { "Jamf version", jamfVersion.Value });
 
             HTMLForBasicInfo = tableHelper.GetTable();
         }
