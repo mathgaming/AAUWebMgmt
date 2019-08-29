@@ -70,6 +70,10 @@ namespace ITSWebMgmt.Models.Log
                     return $"disabled {Arguments[0]} from AD beacuse {Arguments[1]}, case: {Arguments[2]}";
                 case LogEntryType.FixPCConfig:
                     return $"set PCConfig for {Arguments[0]} to {Arguments[1]}";
+                case LogEntryType.ChangedManagedBy:
+                    return $"changed ManagedBy for computer/group {Arguments[0]} to {Arguments[1]} from {Arguments[2]}";
+                case LogEntryType.GroupLookup:
+                    return $"lookedup group {Arguments[0]}";
                 default:
                     return "LogEntry type not found";
             }
@@ -81,5 +85,5 @@ namespace ITSWebMgmt.Models.Log
         }
     }
 
-    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive, LoadedTabUser, LoadedTabComputer, DisabledAdUser, FixPCConfig, All = 100};
+    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive, LoadedTabUser, LoadedTabComputer, DisabledAdUser, FixPCConfig, ChangedManagedBy, GroupLookup, All = 100};
 }

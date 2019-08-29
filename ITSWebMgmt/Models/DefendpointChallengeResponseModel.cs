@@ -7,7 +7,7 @@ namespace ITSWebMgmt.Models
 {
     public class DefendpointChallengeResponseModel
     {
-        public string Data;
+        public string Data { get; set; }
         public DefendpointChallengeResponseModel(string result)
         {
             Data = result;

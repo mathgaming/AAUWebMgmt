@@ -51,7 +51,7 @@ namespace ITSWebMgmt.WebMgmtErrors
 
         public override bool HaveError()
         {
-            int space = computer.ComputerModel.LogicalDisk.GetPropertyInGB("FreeSpace");
+            int space = computer.ComputerModel.Windows.LogicalDisk.GetPropertyInGB("FreeSpace");
             if (space == 0) return false;
             return space <= 5;
         }
@@ -86,8 +86,8 @@ namespace ITSWebMgmt.WebMgmtErrors
 
         public override bool HaveError()
         {
-            DateTime temp = computer.ComputerModel.WhenCreated;
-            return (computer.ComputerModel.ConfigPC == "Unknown" && computer.ComputerModel.WhenCreated > DateTime.Parse("2019-01-01"));
+            DateTime temp = computer.ComputerModel.Windows.WhenCreated;
+            return (computer.ComputerModel.Windows.ConfigPC == "Unknown" && computer.ComputerModel.Windows.WhenCreated > DateTime.Parse("2019-01-01"));
         }
     }
 
@@ -112,7 +112,7 @@ namespace ITSWebMgmt.WebMgmtErrors
             Severeness = Severity.Error;
         }
 
-        public override bool HaveError() => !computer.computerIsInRightOU(computer.ComputerModel.DistinguishedName);
+        public override bool HaveError() => !computer.computerIsInRightOU(computer.ComputerModel.Windows.DistinguishedName);
     }
 
     public class MissingAAUAttr : UserWebMgmtError
@@ -131,8 +131,8 @@ namespace ITSWebMgmt.WebMgmtErrors
     {
         public PasswordExpired(UserController user) : base(user)
         {
-            Heading = "Password Expired";
-            Description = "The user account is locked due to an expired password. User must change password or reset the users password.";
+            Heading = "Account locked";
+            Description = "The user account is locked, maybe due to too many failed password attempts.";
             Severeness = Severity.Error;
         }
 

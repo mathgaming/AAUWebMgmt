@@ -42,6 +42,8 @@ namespace ITSWebMgmt.Controllers
             sb.Append($"Onedrive (since 2019-08-13): {getCount(LogEntryType.Onedrive)}\n");
             sb.Append($"Disabled user from AD (since 2019-08-23): {getCount(LogEntryType.DisabledAdUser)}\n");
             sb.Append($"Fixed PCConfigs (since 2019-08-23): {getCount(LogEntryType.FixPCConfig)}\n");
+            sb.Append($"Changed ManagedBy (since 2019-08-27): {getCount(LogEntryType.ChangedManagedBy)}\n");
+            sb.Append($"Group lookups (since 2019-08-27): {getCount(LogEntryType.GroupLookup)}\n");
 
             sb.Append($"\n(All statistics below is since 2019-08-22)");
             sb.Append($"<h1>Computer tabs</h1>");

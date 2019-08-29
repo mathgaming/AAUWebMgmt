@@ -126,63 +126,34 @@
             <div class="four wide column">
                 <div class="ui vertical fluid tabular menu">
                     <a class="active item" data-tab="basicinfo">Basic Info</a>
-                    <a class="item" data-tab="servicemanager">Service Manager</a>
-                    <a class="item" data-tab="calAgenda">Calendar, Currently: @Html.Raw(Model.CalAgendaStatus)</a>
-                    <a class="item" data-tab="computerInformation">Computer Information</a>
-                    <a class="item" data-tab="win7to10">Windows 7 to 10 upgrade</a>
-                    <!--<a class="item" data-tab="advancedinfo">Advanced Info</a> -->
-                    <a class="item" data-tab="groups">Groups</a>
-                    <a class="item" data-tab="fileshares">Fileshares</a>
-                    <a class="item" data-tab="exchange">Exchange Resources</a>
+                    @foreach (var tab in Model.Tabs)
+                    {
+                        <a class="item" data-tab=@tab.TabId>@tab.TabName</a>
+                    }
                     @if (Model.ShowLoginScript)
                     {
                         <a class="item" data-tab="loginscript" runat="server" id="menuLoginScript">Loginscript</a>
                     }
-                    <a class="item" data-tab="print" runat="server" id="menuPrint">Print</a>
-                    <a class="item" data-tab="rawdata">Raw Data</a>
-                    <a class="item" data-tab="tasks">Tasks</a>
-                    <a class="item" data-tab="warnings">Warnings</a>
-                    <!--<a class="item" data-tab="networkdrives">Networkdrives</a>-->
-                    <!--<a class="item" data-tab="statustest">Statustest</a> -->
                 </div>
             </div>
             <div class="twelve wide stretched column">
                 <div class="ui tab segment">
                     none<!-- spacer as the fist elemen else is placed differencet -->
                 </div>
-                <div class="ui tab segment" id="warnings" data-tab="warnings">@Html.Partial("Warnings", Model)</div>
                 <div class="ui active tab segment" id="" data-tab="basicinfo">@Html.Partial("BasicInfo", Model)</div>
-                <div class="ui tab segment" id="advancedinfo" data-tab="advancedinfo">advanced</div>
-                <div class="ui tab segment" id="print" data-tab="print"></div>
-                <div class="ui tab segment" id="groups" data-tab="groups"></div>
-                <div class="ui tab segment" id="fileshares" data-tab="fileshares"></div>
-                <div class="ui tab segment" id="calAgenda" data-tab="calAgenda"></div>
-                <div class="ui tab segment" id="exchange" data-tab="exchange"></div>
-                <div class="ui tab segment" id="servicemanager" data-tab="servicemanager">
-                    <div id="smloader">
-                        <div class="ui active dimmer" style="display: none">
-                            <div class="ui text loader">Loading</div>
-                        </div>
+                @foreach (var tab in Model.Tabs)
+                {
+                    <div class="ui tab segment" id=@tab.TabId data-tab=@tab.TabId>
+                        @if (tab.ShowLoader)
+                        {
+                            <div id="smloader">
+                                <div class="ui active dimmer" style="display: none">
+                                    <div class="ui text loader">Loading</div>
+                                </div>
+                            </div>
+                        }
                     </div>
-                </div>
-                <div class="ui tab segment" id="computerInformation" data-tab="computerInformation"> </div>
-                <div class="ui tab segment" id="win7to10" data-tab="win7to10">
-                    <div id="smloader">
-                        <div class="ui active dimmer" style="display: none">
-                            <div class="ui text loader">Loading</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="ui tab segment" id="loginscript" data-tab="loginscript"></div>
-                <div class="ui tab segment" id="rawdata" data-tab="rawdata"></div>
-                <div class="ui tab segment" id="tasks" data-tab="tasks"></div>
-                <div class="ui tab segment" id="networkdrives" data-tab="networkdrives">
-                    <h2>networkdrives</h2>
-                    <h3>GPO mounted</h3>
-                    not inplemented
-                    <h3>Logonscript</h3>
-                    not inplemented
-                </div>
+                }
             </div>
         </div>
     }

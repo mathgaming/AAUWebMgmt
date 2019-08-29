@@ -16,6 +16,7 @@ namespace ITSWebMgmt.Models
 {
     public class UserModel : WebMgmtModel<UserADcache>
     {
+        public List<TabModel> Tabs = new List<TabModel>();
         public string Guid { get => new Guid((byte[])(ADcache.getProperty("objectGUID"))).ToString(); }
         public string UserPrincipalName { get => ADcache.getProperty("userPrincipalName"); }
         public string DisplayName { get => ADcache.getProperty("displayName"); }
@@ -46,21 +47,21 @@ namespace ITSWebMgmt.Models
         public string Manager { get => ADcache.getProperty("manager"); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
         public ManagementObjectCollection getUserMachineRelationshipFromUserName(string userName) => SCCMcache.getUserMachineRelationshipFromUserName(userName);
-        public List<ComputerModel> getManagedComputers() {
+        public List<WindowsComputerModel> getManagedWindowsComputers() {
             string[] upnsplit = UserPrincipalName.Split('@');
             string domain = upnsplit[1].Split('.')[0];
 
             string formattedName = string.Format("{0}\\\\{1}", domain, upnsplit[0]);
 
-            List<ComputerModel> managedComputerList = new List<ComputerModel>();
+            List<WindowsComputerModel> managedComputerList = new List<WindowsComputerModel>();
 
             foreach (ManagementObject o in getUserMachineRelationshipFromUserName(formattedName))
             {
                 string machineName = o.Properties["ResourceName"].Value.ToString();
-                ComputerModel model = new ComputerModel(machineName);
+                WindowsComputerModel model = new WindowsComputerModel(machineName);
                 if (!model.ComputerFound)
                 {
-                    model = new ComputerModel(model.ComputerName);
+                    model = new WindowsComputerModel(model.ComputerName);
                 }
                 managedComputerList.Add(model);
             }
@@ -81,17 +82,16 @@ namespace ITSWebMgmt.Models
                 AAUStudentID,
                 AAUUserClassification,
                 TelephoneNumber,
-                LastLogon,
-                Manager
+                LastLogon
             };
         }
 
-        public string AdmDBExpireDate;
-        public string BasicInfoDepartmentPDS;
-        public string BasicInfoOfficePDS;
-        public string BasicInfoPasswordExpired;
-        public string BasicInfoPasswordExpireDate;
-        public string BasicInfoTable;
+        public string AdmDBExpireDate { get; set; }
+        public string BasicInfoDepartmentPDS { get; set; }
+        public string BasicInfoOfficePDS { get; set; }
+        public string BasicInfoPasswordExpired { get; set; }
+        public string BasicInfoPasswordExpireDate { get; set; }
+        public string BasicInfoTable { get; set; }
         public string BasicInfoRomaing
         {
             get
@@ -99,24 +99,19 @@ namespace ITSWebMgmt.Models
                 return (Profilepath != null).ToString();
             }
         }
-        public string Print;
-        public string CalAgenda;
-        public string CalAgendaStatus;
-        public string ServiceManager;
-        public string ComputerInformation;
-        public string Loginscript;
-        public string Rawdata;
-        public string ErrorMessages;
-        public string ResultError;
-        public string UserName = "mhsv16@its.aau.dk";
-        public string ErrorCountMessage;
-        public string SCSMUserID;
-        public string Windows7to10;
-        public bool ShowResultDiv = false;
-        public bool ShowErrorDiv = false;
-        public bool ShowFixUserOU = false;
-        public bool ShowLoginScript = false;
-        public bool UsesOnedrive = false;
+        public string CalAgendaStatus { get; set; }
+        public string ServiceManager { get; set; }
+        public string ErrorMessages { get; set; }
+        public string ResultError { get; set; }
+        public string UserName { get; set; } = "mhsv16@its.aau.dk";
+        public string ErrorCountMessage { get; set; }
+        public string SCSMUserID { get; set; }
+        public string Windows7to10 { get; set; }
+        public bool ShowResultDiv { get; set; } = false;
+        public bool ShowErrorDiv { get; set; } = false;
+        public bool ShowFixUserOU { get; set; } = false;
+        public bool ShowLoginScript { get; set; } = false;
+        public bool UsesOnedrive { get; set; } = false;
 
         public UserModel(string username, bool loadDataInbackground = true)
         {
@@ -132,6 +127,7 @@ namespace ITSWebMgmt.Models
                 SCCMcache = new SCCMcache();
                 ShowResultDiv = true;
                 ShowErrorDiv = false;
+                UserFound = true;
                 if (loadDataInbackground)
                 {
                     LoadDataInbackground();
@@ -148,6 +144,21 @@ namespace ITSWebMgmt.Models
             }
         }
 
+        public void SetTabs()
+        {
+            Tabs.Add(new TabModel("servicemanager", "Service Manager", true));
+            Tabs.Add(new TabModel("calAgenda", "Calendar, Currently: " + CalAgendaStatus));
+            Tabs.Add(new TabModel("computerInformation", "Computer Information"));
+            Tabs.Add(new TabModel("win7to10", "Windows 7 to 10 upgrade", true));
+            Tabs.Add(new TabModel("groups", "Groups"));
+            Tabs.Add(new TabModel("fileshares", "Fileshares"));
+            Tabs.Add(new TabModel("exchange", "Exchange Resources"));
+            Tabs.Add(new TabModel("print", "Print"));
+            Tabs.Add(new TabModel("rawdata", "Raw Data"));
+            Tabs.Add(new TabModel("tasks", "Tasks"));
+            Tabs.Add(new TabModel("warnings", "Warnings"));
+        }
+
         #region loading data
         public void InitBasicInfo()
         {
@@ -162,7 +173,7 @@ namespace ITSWebMgmt.Models
             }
 
             //Other fileds
-            var attrDisplayName = "UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.), Manager";
+            var attrDisplayName = "UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
             var attrArry = getUserInfo();
             var dispArry = attrDisplayName.Split(',');
             string[] dateFields = { "lastLogon", "badPasswordTime" };
@@ -239,7 +250,7 @@ namespace ITSWebMgmt.Models
             AdmDBExpireDate = admdb.loadUserExpiredate(domain, tmp[0], firstName, lastName).Result;*/
         }
 
-        public void InitCalendarAgenda()
+        public string InitCalendarAgenda()
         {
             CalAgendaStatus = "Free";
             var sb = new StringBuilder();
@@ -271,7 +282,7 @@ namespace ITSWebMgmt.Models
                 }
             }
 
-            CalAgenda = sb.ToString();
+            return sb.ToString();
         }
 
         public static async Task<GetUserAvailabilityResults> getFreeBusyResultsAsync(UserModel UserModel)
@@ -302,13 +313,13 @@ namespace ITSWebMgmt.Models
             return await service.GetUserAvailability(attendees, window, AvailabilityData.FreeBusy, myOptions);
         }
 
-        public void InitComputerInformation()
+        public string InitComputerInformation()
         {
             try
             {
                 var helper = new HTMLTableHelper(new string[] { "Computername", "AAU Fjernsupport" });
 
-                foreach (ComputerModel m in getManagedComputers())
+                foreach (WindowsComputerModel m in getManagedWindowsComputers())
                 {
                     string OnedriveWarning = "";
                     if (UsesOnedrive && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
@@ -319,11 +330,11 @@ namespace ITSWebMgmt.Models
                     var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
                     helper.AddRow(new string[] { name, fjernsupport });
                 }
-                ComputerInformation = "<h4>Links til computerinfo kan være til maskiner i et forkert domæne, da info omkring computer domæne ikke er tilgængelig i denne søgning</h4>" + helper.GetTable();
+                return "<h4>Links til computerinfo kan være til maskiner i et forkert domæne, da info omkring computer domæne ikke er tilgængelig i denne søgning</h4>" + helper.GetTable();
             }
             catch (UnauthorizedAccessException)
             {
-                ComputerInformation = "Service user does not have SCCM access.";
+                return "Service user does not have SCCM access.";
             }
         }
 
@@ -389,7 +400,7 @@ namespace ITSWebMgmt.Models
             return model;
         }
 
-        public void InitLoginScript()
+        public string InitLoginScript()
         {
             ShowLoginScript = false;
 
@@ -400,8 +411,10 @@ namespace ITSWebMgmt.Models
             if (script != null)
             {
                 ShowLoginScript = true;
-                Loginscript = loginscripthelper.parseAndDisplayLoginScript(script);
+                return loginscripthelper.parseAndDisplayLoginScript(script);
             }
+
+            return null;
         }
 
         public void InitWin7to10()
@@ -409,7 +422,7 @@ namespace ITSWebMgmt.Models
             bool haveWindows7 = false;
             var helper = new HTMLTableHelper(new string[] { "Computername", "Windows 7 to 10 upgrade" });
 
-            foreach (ComputerModel m in getManagedComputers())
+            foreach (WindowsComputerModel m in getManagedWindowsComputers())
             {
                 m.setConfig();
                 string upgradeButton = "";

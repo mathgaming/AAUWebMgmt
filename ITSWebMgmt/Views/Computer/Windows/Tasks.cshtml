@@ -1,4 +1,4 @@
-﻿@model ITSWebMgmt.Models.ComputerModel
+﻿@model ITSWebMgmt.Models.WindowsComputerModel
 @using System.Web;
 
 <h2>Tasks</h2>
@@ -22,6 +22,19 @@
 <br />
 <br />
 
+<h3>Form for adding an additional computer to Onedrive</h3>
+<label>User email</label>
+<br />
+<input type="text" id="username" />
+<br />
+<label>Computername</label>
+<br />
+@Html.TextBoxFor(m => m.ComputerName, new { @readonly = true })
+<br />
+<button id="AddToOneDrive">Add to Onedrive</button>
+<br />
+<br />
+
 <script>
     $("#btnPassword2").click(function ()
     {
@@ -31,6 +44,11 @@
     $("#MoveComputerOU").click(function ()
     {
         sendPostRequest("MoveOU_Click")
+    });
+
+    $("#AddToOneDrive").click(function () {
+        var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName))' + '|' + $('#username').val();
+        sendPostRequest("AddToOneDrive", JSON.stringify(data));
     });
 
     $("#DeleteComputerFromAD").click(function ()
