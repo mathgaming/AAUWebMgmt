@@ -295,9 +295,15 @@ namespace ITSWebMgmt.Models
 
             List<AttendeeInfo> attendees = new List<AttendeeInfo>();
 
+            string address = UserModel.UserPrincipalName;
+            if (UserModel.UserPrincipalName == "")
+            {
+                address = UserModel.UserName;
+            }
+
             attendees.Add(new AttendeeInfo()
             {
-                SmtpAddress = UserModel.UserPrincipalName,
+                SmtpAddress = address,
                 AttendeeType = MeetingAttendeeType.Organizer
             });
 
@@ -330,7 +336,7 @@ namespace ITSWebMgmt.Models
                     var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
                     helper.AddRow(new string[] { name, fjernsupport });
                 }
-                return "<h4>Links til computerinfo kan være til maskiner i et forkert domæne, da info omkring computer domæne ikke er tilgængelig i denne søgning</h4>" + helper.GetTable();
+                return "<h4>Links til computerinfo kan vï¿½re til maskiner i et forkert domï¿½ne, da info omkring computer domï¿½ne ikke er tilgï¿½ngelig i denne sï¿½gning</h4>" + helper.GetTable();
             }
             catch (UnauthorizedAccessException)
             {
@@ -346,7 +352,7 @@ namespace ITSWebMgmt.Models
             var members = model.getGroupsTransitive(model.AttributeName);
             if (members.Count == 0)
             {
-                transitiv = "<h3>NB: Listen viser kun direkte medlemsskaber, kunne ikke finde fuld liste på denne Domain Controller eller domæne</h3>";
+                transitiv = "<h3>NB: Listen viser kun direkte medlemsskaber, kunne ikke finde fuld liste pï¿½ denne Domain Controller eller domï¿½ne</h3>";
                 members = model.getGroups(model.AttributeName);
             }
 
@@ -377,7 +383,7 @@ namespace ITSWebMgmt.Models
 
             if (members.Count == 0)
             {
-                transitiv = "<h3>NB: Listen viser kun direkte medlemsskaber, kunne ikke finde fuld liste på denne Domain Controller eller domæne</h3>";
+                transitiv = "<h3>NB: Listen viser kun direkte medlemsskaber, kunne ikke finde fuld liste pï¿½ denne Domain Controller eller domï¿½ne</h3>";
                 members = model.getGroups(model.AttributeName);
             }
 
