@@ -49,11 +49,15 @@ namespace ITSWebMgmt.Models
         public string ConfigPC { get; set; } = "Unknown";
         public string ConfigExtra { get; set; } = "False";
         public string ManagedBy { get; set; }
-        public string SSCMInventoryTable { get; set; }
-        public string SCCMCollecionsSoftware { get; set; }
-        public string SCCMInventory { get; set; }
-        public string SCCMComputers { get; set; }
-        public string SCCMCollectionsTable { get; set; }
+        public string LastLogonUserName { get; set; }
+        public string IPAddresses { get; set; }
+        public string MACAddresses { get; set; }
+        public string Build { get; set; }
+        public string SCCMAV { get; set; }
+        public string SCCMRaw { get; set; }
+        public string SCCMInfoComputer { get; set; }
+        public string SCCMInfoSystem { get; set; }
+        public string SCCMSoftware { get; set; }
         public string SCCMCollections { get; set; }
         public string SCCMLD { get; set; }
         public string SCCMRAM { get; set; }
@@ -194,7 +198,6 @@ namespace ITSWebMgmt.Models
         {
             SCCMLD = TableGenerator.CreateVerticalTableFromDatabase(LogicalDisk,
                 new List<string>() { "DeviceID", "FileSystem", "Size", "FreeSpace" },
-                new List<string>() { "DeviceID", "File system", "Size (GB)", "FreeSpace (GB)" },
                 "Disk information not found");
 
             if (SCCM.HasValues(RAM))
@@ -232,20 +235,8 @@ namespace ITSWebMgmt.Models
                 "Video controller information not found");
         }
 
-        public void InitSCCMInfo()
+        public void InitSCCMCollections()
         {
-            /*
-             *     strQuery = "SELECT * FROM SMS_FullCollectionMembership WHERE ResourceID="& computerID
-                    for each fc in foundCollections
-                       Set collection = SWbemServices.Get ("SMS_Collection.CollectionID=""" & fc.CollectionID &"""")
-                       stringResult = stringResult & "<li> "  & collection.Name & "<br />"
-                Next
-
-             * SMS_Collection.CollectionID =
-             *
-             */
-
-            //XXX: remeber to filter out computers that are obsolite in sccm (not active)
             string error = "";
             HTMLTableHelper groupTableHelper = new HTMLTableHelper(new string[] { "Collection Name" });
             var names = setConfig();
@@ -262,23 +253,28 @@ namespace ITSWebMgmt.Models
                 error = "Computer not found i SCCM";
             }
 
-            //Basal Info
-            var tableAndList = TableGenerator.CreateTableAndRawFromDatabase(System, new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build", "Config" }, "Computer not found i SCCM");
-
-            SCCMComputers = error + groupTableHelper.GetTable();
-            SCCMCollectionsTable = tableAndList.Item1; //Table
-            SCCMCollections = tableAndList.Item2; //List
+            SCCMCollections = error + groupTableHelper.GetTable();
         }
 
-        public void InitSCCMInventory()
+        public void InitSCCMSoftware()
         {
-            var tableAndList = TableGenerator.CreateTableAndRawFromDatabase(Computer, new List<string>() { "Manufacturer", "Model", "SystemType", "Roles" }, "No inventory data");
-            SSCMInventoryTable = tableAndList.Item1; //Table
-            SCCMCollecionsSoftware = TableGenerator.CreateTableFromDatabase(Software,
+            SCCMSoftware = TableGenerator.CreateTableFromDatabase(Software,
                 new List<string>() { "SoftwareCode", "ProductName", "ProductVersion", "TimeStamp" },
                 new List<string>() { "Product ID", "Name", "Version", "Install date" },
-                "Software information not found");
-            SCCMInventory += tableAndList.Item2; //List
+                "Software information not found");            
+        }
+
+        public void InitRawSCCM()
+        {
+            string computerSCCM = TableGenerator.CreateRawFromDatabase(Computer, "No inventory data");
+            string systemSCCM = TableGenerator.CreateRawFromDatabase(System, "Computer not found i SCCM");
+            SCCMRaw = $"<h3>Computer (Inventory)</h3>{computerSCCM}<h3>System (SCCM Info)</h3>{systemSCCM}";
+        }
+
+        public void InitSCCMInfo()
+        {
+            SCCMInfoSystem = TableGenerator.CreateVerticalTableFromDatabase(System, new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build" }, "Computer not found in SCCM");
+            SCCMInfoComputer = TableGenerator.CreateVerticalTableFromDatabase(Computer, new List<string>() { "Manufacturer", "Model", "SystemType", "Roles" }, "No inventory data");
         }
         #endregion loding data
     }

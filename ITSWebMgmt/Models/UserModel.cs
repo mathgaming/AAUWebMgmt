@@ -111,7 +111,7 @@ namespace ITSWebMgmt.Models
         public bool ShowErrorDiv { get; set; } = false;
         public bool ShowFixUserOU { get; set; } = false;
         public bool ShowLoginScript { get; set; } = false;
-        public bool UsesOnedrive { get; set; } = false;
+        public string UsesOnedrive { get; set; } = "False";
 
         public UserModel(string username, bool loadDataInbackground = true)
         {
@@ -295,9 +295,15 @@ namespace ITSWebMgmt.Models
 
             List<AttendeeInfo> attendees = new List<AttendeeInfo>();
 
+            string address = UserModel.UserPrincipalName;
+            if (UserModel.UserPrincipalName == "")
+            {
+                address = UserModel.UserName;
+            }
+
             attendees.Add(new AttendeeInfo()
             {
-                SmtpAddress = UserModel.UserPrincipalName,
+                SmtpAddress = address,
                 AttendeeType = MeetingAttendeeType.Organizer
             });
 
@@ -322,7 +328,7 @@ namespace ITSWebMgmt.Models
                 foreach (WindowsComputerModel m in getManagedWindowsComputers())
                 {
                     string OnedriveWarning = "";
-                    if (UsesOnedrive && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
+                    if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
                     {
                         OnedriveWarning = "<font color=\"red\"> (Not using Onedrive!)</font>";
                     }
@@ -330,7 +336,7 @@ namespace ITSWebMgmt.Models
                     var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
                     helper.AddRow(new string[] { name, fjernsupport });
                 }
-                return "<h4>Links til computerinfo kan være til maskiner i et forkert domæne, da info omkring computer domæne ikke er tilgængelig i denne søgning</h4>" + helper.GetTable();
+                return "<h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>" + helper.GetTable();
             }
             catch (UnauthorizedAccessException)
             {
@@ -346,7 +352,7 @@ namespace ITSWebMgmt.Models
             var members = model.getGroupsTransitive(model.AttributeName);
             if (members.Count == 0)
             {
-                transitiv = "<h3>NB: Listen viser kun direkte medlemsskaber, kunne ikke finde fuld liste på denne Domain Controller eller domæne</h3>";
+                transitiv = "<h3>The list only shoes direct members, could not find the full list for the Controller or domain</h3>";
                 members = model.getGroups(model.AttributeName);
             }
 
@@ -377,7 +383,7 @@ namespace ITSWebMgmt.Models
 
             if (members.Count == 0)
             {
-                transitiv = "<h3>NB: Listen viser kun direkte medlemsskaber, kunne ikke finde fuld liste på denne Domain Controller eller domæne</h3>";
+                transitiv = "<h3>The list only shoes direct members, could not find the full list for the Controller or domain</h3>";
                 members = model.getGroups(model.AttributeName);
             }
 

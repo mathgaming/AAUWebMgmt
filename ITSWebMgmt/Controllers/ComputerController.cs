@@ -65,7 +65,7 @@ namespace ITSWebMgmt.Controllers
                         {
                             ComputerModel.IsWindows = true;
                             ComputerModel.ShowResultDiv = true;
-                            ComputerModel.Windows.InitSCCMInfo();
+                            ComputerModel.Windows.setConfig();
                             ComputerModel.Windows.InitBasicInfo();
                             LoadWarnings();
                             ComputerModel.SetTabs();
@@ -135,13 +135,15 @@ namespace ITSWebMgmt.Controllers
                     viewName = "Windows/SCCMInfo";
                     ComputerModel.Windows.InitSCCMInfo();
                     break;
+                case "sccmcollections":
+                    ComputerModel.Windows.InitSCCMCollections();
+                    return PartialView("RawHTMLTab", new RawHTMLModel("SCCM collections", ComputerModel.Windows.SCCMCollections));
                 case "sccmInventory":
-                    viewName = "Windows/SCCMInventory";
-                    ComputerModel.Windows.InitSCCMInventory();
-                    break;
+                    ComputerModel.Windows.InitSCCMSoftware();
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Software infomation", ComputerModel.Windows.SCCMSoftware));
                 case "sccmAV":
                     string AVTable = TableGenerator.CreateTableFromDatabase(ComputerModel.Windows.Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found");
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Antivirus Info", AVTable));
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Antivirus infomation", AVTable));
                 case "sccmHW":
                     viewName = "Windows/SCCMHW";
                     ComputerModel.Windows.InitSCCMHW();
@@ -149,6 +151,9 @@ namespace ITSWebMgmt.Controllers
                 case "rawdata":
                     string rawTable = TableGenerator.buildRawTable(ComputerModel.Windows.ADcache.getAllProperties());
                     return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
+                case "rawdatasccm":
+                    ComputerModel.Windows.InitRawSCCM();
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Raw (SCCM)", ComputerModel.Windows.SCCMRaw));
                 case "macbasicinfo":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Basic info", ComputerModel.Mac.HTMLForBasicInfo));
                 case "macHW":
@@ -192,18 +197,13 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computerName);
 
-            if (addComputerToCollection(ComputerModel.Windows.SCCMcache.ResourceID, collectionId))
+            if (SCCM.AddComputerToCollection(ComputerModel.Windows.SCCMcache.ResourceID, collectionId))
             {
                 new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.adpath, collectionName });
                 return Success("Computer added to " + collectionName);
             }
 
             return Error("Failed to add computer to group");
-        }
-
-        public void TestButton()
-        {
-            Console.WriteLine("Test button is in basic info");
         }
 
         [HttpPost]
@@ -447,7 +447,7 @@ namespace ITSWebMgmt.Controllers
 
             if (userModel.UserFound)
             {
-                if (OneDriveHelper.doesUserUseOneDrive(userModel))
+                if (OneDriveHelper.doesUserUseOneDrive(userModel).Contains("True"))
                 {
                     ADHelper.AddMemberToGroup(ComputerModel.Windows.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
 

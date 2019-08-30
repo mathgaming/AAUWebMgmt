@@ -104,7 +104,7 @@ namespace ITSWebMgmt.Models
 
             tableHelper.AddRow(new string[] { "Computer type", "Mac" });
 
-            List<string> names = new List<string>() { "username", "real_name", "email_address"};
+            List<string> names = new List<string>() { "email_address"};
 
             foreach (dynamic info in token)
             {

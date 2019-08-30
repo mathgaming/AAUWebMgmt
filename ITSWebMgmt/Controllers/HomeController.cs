@@ -19,7 +19,6 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
-            _ = new JamfConnector();
             return View(_context.KnownIssues.Where(x => x.Active));
         }
 
@@ -55,7 +54,7 @@ namespace ITSWebMgmt.Controllers
 
         private void sendEmail(ErrorViewModel model)
         {
-            MailMessage mail = new MailMessage("mhsv16@its.aau.dk", "mhsv16@its.aau.dk");
+            MailMessage mail = new MailMessage("mhsv16@its.aau.dk", "platform@its.aau.dk");
             SmtpClient client = new SmtpClient();
             client.Port = 587;
             client.DeliveryMethod = SmtpDeliveryMethod.Network;

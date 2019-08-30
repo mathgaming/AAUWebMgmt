@@ -21,7 +21,14 @@ namespace ITSWebMgmt
             table.Append("<table class=\"ui celled table\">");
 
             table.Append("<thead>");
-            AddRow(headers);
+            foreach (string s in headers)
+            {
+                table.Append("<th>");
+                table.Append(s);
+                table.Append("</th>");
+            }
+
+            table.Append("</tr>");
             table.Append("</thead>");
         }
 

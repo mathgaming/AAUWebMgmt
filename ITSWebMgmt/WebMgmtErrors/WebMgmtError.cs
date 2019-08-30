@@ -2,6 +2,7 @@ using ITSWebMgmt.Controllers;
 using ITSWebMgmt.Caches;
 using System.Management;
 using System;
+using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.WebMgmtErrors
 {
@@ -62,9 +63,7 @@ namespace ITSWebMgmt.WebMgmtErrors
         public MissingPCConfig(ComputerController computer) : base(computer)
         {
             Heading = "The PC is missing config";
-            Description = "The computer is not in the Administrativ10 PC or AAU10 PC group. Plase contact Client Management Windows and ask them to add it to one of them";
-                /*
-                @"<p>The computer is not in the Administrativ10 PC or AAU10 PC group. Plase add it to one of them</p>
+            Description = @"<p>The computer is not in the Administrativ10 PC or AAU10 PC group. Plase add it to one of them</p>
                             <p>It can take over 30 secounds before you get responce, that says if it succesfully was added, please be patient</p>
                             <button id=""AddToAdministrativ10"">Add computer to Administrativ10 PC</button>
                             <br />
@@ -80,7 +79,7 @@ namespace ITSWebMgmt.WebMgmtErrors
                                 {
                                     sendPostRequest(""AddToAAU10"")
                                 });
-                            </script>";*/
+                            </script>";
             Severeness = Severity.Error;
         }
 

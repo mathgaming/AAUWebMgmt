@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Helpers;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -440,36 +440,6 @@ namespace ITSWebMgmt.Caches
             {
                 getQuery(i);
             }
-        }
-    }
-    
-    public static class ManagementObjectCollectionExtension
-    {
-        public static dynamic GetProperty(this ManagementObjectCollection moc, string property)
-        {
-            return moc.OfType<ManagementObject>().FirstOrDefault()?.Properties[property]?.Value;
-        }
-
-        public static T GetPropertyAs<T>(this ManagementObjectCollection moc, string property)
-        {
-            var tc = TypeDescriptor.GetConverter(typeof(T));
-            var temp = GetPropertyAsString(moc, property);
-            if (temp == "")
-            {
-                return default(T);
-            }
-            return (T)(tc.ConvertFromInvariantString(temp));
-        }
-
-        public static int GetPropertyInGB(this ManagementObjectCollection moc, string property)
-        {
-            return GetPropertyAs<int>(moc, property) / 1024;
-        }
-
-        public static string GetPropertyAsString(this ManagementObjectCollection moc, string property)
-        {
-            var temp = GetProperty(moc, property);
-            return temp == null ? ""  : temp.ToString();
         }
     }
 }
