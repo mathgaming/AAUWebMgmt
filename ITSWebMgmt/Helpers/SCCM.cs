@@ -3,10 +3,12 @@ using System.Management;
 using System.Diagnostics;
 using System.Security;
 using System.IO;
+using System.Linq;
+using System.ComponentModel;
 
 namespace ITSWebMgmt.Helpers
 {
-    public class SCCM
+    public static class SCCM
     {
         private static string Username = Startup.Configuration["SCCMUsername"];
         private static string Password = Startup.Configuration["SCCMPassword"];
@@ -76,6 +78,52 @@ namespace ITSWebMgmt.Helpers
             string errOutput = p.StandardError.ReadToEnd();
 
             return errOutput.Length == 0;
+        }
+
+        public static dynamic GetProperty(this ManagementObjectCollection moc, string property)
+        {
+            return moc.OfType<ManagementObject>().FirstOrDefault()?.Properties[property]?.Value;
+        }
+
+        public static T GetPropertyAs<T>(this ManagementObjectCollection moc, string property)
+        {
+            var tc = TypeDescriptor.GetConverter(typeof(T));
+            var temp = GetPropertyAsString(moc, property);
+            if (temp == "")
+            {
+                return default(T);
+            }
+            return (T)(tc.ConvertFromInvariantString(temp));
+        }
+
+        public static int GetPropertyInGB(this ManagementObjectCollection moc, string property)
+        {
+            return GetPropertyAs<int>(moc, property) / 1024;
+        }
+
+        public static string GetPropertyAsString(this ManagementObjectCollection moc, string property) => GetPropertyAsString(moc.OfType<ManagementObject>().FirstOrDefault()?.Properties[property]);
+
+        public static string GetPropertyAsString(PropertyData property)
+        {
+            var value = property.Value;
+            if (value != null)
+            {
+                if (value.GetType().Equals(typeof(string[])))
+                {
+                    return string.Join(", ", (string[])value);
+
+                }
+                else if (property.Type.ToString() == "DateTime")
+                {
+                    return DateTimeConverter.Convert(value.ToString());
+                }
+                else
+                {
+                    return value.ToString();
+                }
+            }
+
+            return "not found";
         }
     }
 }

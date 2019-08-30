@@ -214,37 +214,26 @@ namespace ITSWebMgmt.Helpers
             return v.ToString();
         }
 
-        public static string CreateVerticalTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage) => CreateVerticalTableFromDatabase(results, keys, keys, errorMessage);
-
-        public static string CreateVerticalTableFromDatabase(ManagementObjectCollection results, List<string> keys, List<string> names, string errorMessage)
+        public static string CreateVerticalTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage)
         {
-            HTMLTableHelper tableHelper = new HTMLTableHelper(2);
+            HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] {"Property", "Value" });
             var sb = new StringBuilder();
 
             if (SCCM.HasValues(results))
             {
-                int i = 0;
                 var o = results.OfType<ManagementObject>().FirstOrDefault();
 
                 foreach (var p in keys)
                 {
                     var property = o.Properties[p];
-                    if (o.Properties[p].Value == null) {
-                        tableHelper.AddRow(new string[] { names[i], "not found" });
-                    }
-                    else if (o.Properties[p].Name == "Size" || o.Properties[p].Name == "FreeSpace")
+                    if (p == "Size" || p == "FreeSpace")
                     {
-                        tableHelper.AddRow(new string[] { names[i], (int.Parse(o.Properties[p].Value.ToString()) / 1024).ToString() });
-                    }
-                    else if (property.Type.ToString() == "DateTime")
-                    {
-                        tableHelper.AddRow(new string[] { names[i], DateTimeConverter.Convert(o.Properties[p].Value.ToString()) });
+                        tableHelper.AddRow(new string[] { p + " (GB)", (int.Parse(o.Properties[p].Value.ToString()) / 1024).ToString() });
                     }
                     else
                     {
-                        tableHelper.AddRow(new string[] { names[i], o.Properties[p].Value.ToString() });
+                        tableHelper.AddRow(new string[] { p, SCCM.GetPropertyAsString(property) });
                     }
-                    i++;
                 }
             }
             else
@@ -255,68 +244,53 @@ namespace ITSWebMgmt.Helpers
             return tableHelper.GetTable();
         }
 
-        public static Tuple<string, string> CreateTableAndRawFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage)
+        public static string CreateRawFromDatabase(ManagementObjectCollection results, string errorMessage)
         {
-            HTMLTableHelper tableHelper = new HTMLTableHelper(2);
-            var sb = new StringBuilder();
-
+            var builder = new StringBuilder();
             if (SCCM.HasValues(results))
             {
-                foreach (ManagementObject o in results) //Has one!
+                builder.Append("<table class=\"ui celled structured table\"><thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>");
+                foreach (ManagementObject o in results)
                 {
-                    //OperatingSystemNameandVersion = Microsoft Windows NT Workstation 6.1
-
                     foreach (var property in o.Properties)
                     {
                         string key = property.Name;
                         object value = property.Value;
-
-                        if (keys.Contains(key))
-                        {
-                            if (value != null)
-                            {
-                                if (value.GetType().Equals(typeof(string[])))
-                                {
-                                    string joinedValues = string.Join(", ", (string[])value);
-                                    tableHelper.AddRow(new string[] { key, joinedValues });
-
-                                }
-                                else if (property.Type.ToString() == "DateTime")
-                                {
-                                    tableHelper.AddRow(new string[] { key, DateTimeConverter.Convert(value.ToString()) });
-                                }
-                                else
-                                {
-                                    tableHelper.AddRow(new string[] { key, value.ToString() });
-                                }
-                            }
-                            else
-                            {
-                                tableHelper.AddRow(new string[] { key, "" });
-                            }
-                        }
-
                         int i = 0;
                         string[] arry = null;
+
                         if (value != null && value.GetType().IsArray)
                         {
                             if (value is string[])
                             {
                                 arry = (string[])value;
+                                if (arry.Length > 0)
+                                {
+                                    builder.Append("<tr><td rowspan=\"" + arry.Length + "\">" + key + "</td>");
+                                }
+                                else
+                                {
+                                    builder.Append("<tr><td rowspan=\"" + 1 + "\">" + key + "</td>");
+                                    builder.Append("<td></td></tr>");
+                                }
                             }
                             else
                             {
                                 arry = new string[] { "none-string value" }; //XXX get the byte value
                             }
-                            foreach (string f in arry)
+                            if (arry.Length > 0)
                             {
-                                sb.Append(string.Format("{0}[{2}]: {1}<br />", key, f, i));
-                                i++;
+                                builder.Append("<td>" + arry[0] + "</td>");
+                                foreach (string f in arry.Skip(1))
+                                {
+                                    builder.Append("<tr><td>" + f + "</td></tr>");
+                                }
                             }
                         }
                         else
                         {
-                            sb.Append(string.Format("{0}: {1}<br />", key, property.Value));
+                            builder.Append("<tr><td rowspan=\"" + 1 + "\">" + key + "</td>");
+                            builder.Append("<td>" + value + "</td></tr>");
                         }
 
                     }
@@ -325,11 +299,14 @@ namespace ITSWebMgmt.Helpers
             }
             else
             {
-                sb.Append(errorMessage);
+                return errorMessage;
             }
 
-            return Tuple.Create(tableHelper.GetTable(), sb.ToString());
+            builder.Append("</tbody></table>");
+
+            return builder.ToString();
         }
+
 
         public static string CreateTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage) => CreateTableFromDatabase(results, keys, keys, errorMessage);
 
@@ -344,13 +321,7 @@ namespace ITSWebMgmt.Helpers
                     List<string> properties = new List<string>();
                     foreach (var p in keys)
                     {
-                        string temp = o.Properties[p].Value.ToString();
-                        if (o.Properties[p].Type.ToString() == "DateTime")
-                        {
-                            temp = DateTimeConverter.Convert(temp);
-                        }
-                        properties.Add(temp);
-
+                        properties.Add(results.GetPropertyAsString(p));
                     }
                     tableHelper.AddRow(properties.ToArray());
                 }

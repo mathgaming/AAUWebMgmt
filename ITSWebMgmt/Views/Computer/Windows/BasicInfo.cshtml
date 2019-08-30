@@ -60,7 +60,7 @@
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(computername),
             dataType: "json",
-            success: function (response) {                
+            success: function (response) {
                 document.getElementById('passworddiv' + buttonNumber).style.display = "none";
                 document.getElementById('password' + buttonNumber).innerHTML = response.message;
             },
