@@ -447,7 +447,7 @@ namespace ITSWebMgmt.Controllers
 
             if (userModel.UserFound)
             {
-                if (OneDriveHelper.doesUserUseOneDrive(userModel))
+                if (OneDriveHelper.doesUserUseOneDrive(userModel).Contains("True"))
                 {
                     ADHelper.AddMemberToGroup(ComputerModel.Windows.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
 

@@ -111,7 +111,7 @@ namespace ITSWebMgmt.Models
         public bool ShowErrorDiv { get; set; } = false;
         public bool ShowFixUserOU { get; set; } = false;
         public bool ShowLoginScript { get; set; } = false;
-        public bool UsesOnedrive { get; set; } = false;
+        public string UsesOnedrive { get; set; } = "False";
 
         public UserModel(string username, bool loadDataInbackground = true)
         {
@@ -328,7 +328,7 @@ namespace ITSWebMgmt.Models
                 foreach (WindowsComputerModel m in getManagedWindowsComputers())
                 {
                     string OnedriveWarning = "";
-                    if (UsesOnedrive && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
+                    if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
                     {
                         OnedriveWarning = "<font color=\"red\"> (Not using Onedrive!)</font>";
                     }

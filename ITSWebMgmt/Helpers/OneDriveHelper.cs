@@ -11,8 +11,23 @@ namespace ITSWebMgmt.Helpers
     {
         const string COMPUTER_USES_1DRIVE_FLAG = "GPO_Computer_UseOnedriveStorage";
         const string USER_USES_1DRIVE_FLAG = "GPO_User_DenyFolderRedirection";
-        public static bool doesUserUseOneDrive(UserModel user) {
-            return doesUserHaveDeniedFolderRedirect(user) && doesOneComputerUseOneDrive(user);
+        public static string doesUserUseOneDrive(UserModel user) {
+            bool userOnedrive = doesUserHaveDeniedFolderRedirect(user);
+            bool computerOnedreive = doesOneComputerUseOneDrive(user);
+
+            if (userOnedrive)
+            {
+                if (computerOnedreive)
+                {
+                    return "True";
+                }
+                else
+                {
+                    return "True (computer does not)";
+                }
+            }
+
+            return "False";
         }
         private static bool doesOneComputerUseOneDrive(UserModel user)
         {

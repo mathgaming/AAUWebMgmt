@@ -277,6 +277,11 @@ namespace ITSWebMgmt.Controllers
                 return Error("Case number is on a wrong format");
             }
 
+            if (UserModel.AAUUserClassification == "guest")
+            {
+                return Error("The user is a guest, and guests do not have an Office 365 licence and can therefore not be setup to use Onedrive");
+            }
+
             WindowsComputerModel computerModel = new WindowsComputerModel(temp[1]);
 
             if (computerModel.ComputerFound)
