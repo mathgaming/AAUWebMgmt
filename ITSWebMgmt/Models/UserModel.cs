@@ -336,7 +336,7 @@ namespace ITSWebMgmt.Models
                     var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
                     helper.AddRow(new string[] { name, fjernsupport });
                 }
-                return "<h4>Links til computerinfo kan v�re til maskiner i et forkert dom�ne, da info omkring computer dom�ne ikke er tilg�ngelig i denne s�gning</h4>" + helper.GetTable();
+                return "<h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>" + helper.GetTable();
             }
             catch (UnauthorizedAccessException)
             {
@@ -352,7 +352,7 @@ namespace ITSWebMgmt.Models
             var members = model.getGroupsTransitive(model.AttributeName);
             if (members.Count == 0)
             {
-                transitiv = "<h3>NB: Listen viser kun direkte medlemsskaber, kunne ikke finde fuld liste p� denne Domain Controller eller dom�ne</h3>";
+                transitiv = "<h3>The list only shoes direct members, could not find the full list for the Controller or domain</h3>";
                 members = model.getGroups(model.AttributeName);
             }
 
@@ -383,7 +383,7 @@ namespace ITSWebMgmt.Models
 
             if (members.Count == 0)
             {
-                transitiv = "<h3>NB: Listen viser kun direkte medlemsskaber, kunne ikke finde fuld liste p� denne Domain Controller eller dom�ne</h3>";
+                transitiv = "<h3>The list only shoes direct members, could not find the full list for the Controller or domain</h3>";
                 members = model.getGroups(model.AttributeName);
             }
 
