@@ -40,10 +40,10 @@ namespace ITSWebMgmt.Models
                 Tabs.Add(new TabModel("sccminfo", "SCCM info"));
                 Tabs.Add(new TabModel("sccmcollections", "SCCM Collections"));
                 Tabs.Add(new TabModel("sccmInventory", "Software info"));
+                Tabs.Add(new TabModel("sccmHW", "Hardware info"));
                 Tabs.Add(new TabModel("sccmAV", "Antivirus"));
-                Tabs.Add(new TabModel("sccmHW", "Hardware inventory"));
-                Tabs.Add(new TabModel("rawdata", "Raw Data (AD)"));
-                Tabs.Add(new TabModel("rawdatasccm", "Raw Data (SCCM)"));
+                Tabs.Add(new TabModel("rawdata", "Raw data (AD)"));
+                Tabs.Add(new TabModel("rawdatasccm", "Raw data (SCCM)"));
                 Tabs.Add(new TabModel("tasks", "Tasks"));
                 Tabs.Add(new TabModel("warnings", "Warnings"));
             }

@@ -140,10 +140,10 @@ namespace ITSWebMgmt.Controllers
                     return PartialView("RawHTMLTab", new RawHTMLModel("SCCM collections", ComputerModel.Windows.SCCMCollections));
                 case "sccmInventory":
                     ComputerModel.Windows.InitSCCMSoftware();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("SCCM Software", ComputerModel.Windows.SCCMSoftware));
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Software infomation", ComputerModel.Windows.SCCMSoftware));
                 case "sccmAV":
                     string AVTable = TableGenerator.CreateTableFromDatabase(ComputerModel.Windows.Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found");
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Antivirus Info", AVTable));
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Antivirus infomation", AVTable));
                 case "sccmHW":
                     viewName = "Windows/SCCMHW";
                     ComputerModel.Windows.InitSCCMHW();
