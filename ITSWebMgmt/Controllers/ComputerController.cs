@@ -192,18 +192,13 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computerName);
 
-            if (addComputerToCollection(ComputerModel.Windows.SCCMcache.ResourceID, collectionId))
+            if (SCCM.AddComputerToCollection(ComputerModel.Windows.SCCMcache.ResourceID, collectionId))
             {
                 new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.adpath, collectionName });
                 return Success("Computer added to " + collectionName);
             }
 
             return Error("Failed to add computer to group");
-        }
-
-        public void TestButton()
-        {
-            Console.WriteLine("Test button is in basic info");
         }
 
         [HttpPost]

@@ -62,49 +62,20 @@ namespace ITSWebMgmt.Helpers
             psi.RedirectStandardError = true;
 
             psi.Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;" + script + ";cd C:";
-            foreach (char c in Password)
+            //It is not possible to run a process as a diffent user. Therefore is the user set in IIS for the application pool for WebMGmt.
+            /*foreach (char c in Password)
             {
                 password.AppendChar(c);
             }
             psi.Password = password;
-            psi.UserName = Username;
-            
+            psi.UserName = Username;*/
+
             Process p = Process.Start(psi);
             p.WaitForExit();
             string strOutput = p.StandardOutput.ReadToEnd();
             string errOutput = p.StandardError.ReadToEnd();
-            
+
             return errOutput.Length == 0;
-
-            //The correct way of doing it, but it does not work with dotnet core 2.2, but might work in 3.0
-            /* using (PowerShell PowerShellInstance = PowerShell.Create())
-             {
-                 PowerShellInstance.AddScript(
-                     "Set-ExecutionPolicy RemoteSigned\n" +
-                     //"[System.Reflection.Assembly]::LoadWithPartialName(\"System.Windows.Forms\")\n" +
-                     @"cd ""C:\Program Files (x86)\Microsoft Configuration Manager\AdminConsole\bin""" + "\n" +
-                     "import-module .\\ConfigurationManager.psd1\n" +
-                     "CD AA1:\n" +
-                     "Get-CMSite\n" +
-                     "get-date\n");
-
-                 Collection <PSObject> PSOutput = PowerShellInstance.Invoke();
-
-                 Console.WriteLine(PowerShellInstance.Streams.Error);
-
-                 foreach (var error in PowerShellInstance.Streams.Error)
-                 {
-                     Console.WriteLine(error.Exception.Message);
-                 }
-
-                 foreach (PSObject outputItem in PSOutput)
-                 {
-                     if (outputItem != null)
-                     {
-                         Console.WriteLine(outputItem);
-                     }
-                 }
-             }*/
         }
     }
 }

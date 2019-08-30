@@ -19,7 +19,6 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
-            _ = new JamfConnector();
             return View(_context.KnownIssues.Where(x => x.Active));
         }
 

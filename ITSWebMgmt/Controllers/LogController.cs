@@ -18,6 +18,10 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Statistics()
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
             logEntries = _context.LogEntries.Include(e => e.Arguments).AsNoTracking();
 
             StringBuilder sb = new StringBuilder();
