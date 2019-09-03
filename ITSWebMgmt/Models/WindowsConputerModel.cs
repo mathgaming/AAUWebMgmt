@@ -266,7 +266,7 @@ namespace ITSWebMgmt.Models
 
         public void InitRawSCCM()
         {
-            string computerSCCM = TableGenerator.CreateRawFromDatabase(Computer, "No inventory data");
+            string computerSCCM = TableGenerator.CreateRawFromDatabase(Computer, "Computer information not found");
             string systemSCCM = TableGenerator.CreateRawFromDatabase(System, "Computer not found i SCCM");
             SCCMRaw = $"<h3>Computer (Inventory)</h3>{computerSCCM}<h3>System (SCCM Info)</h3>{systemSCCM}";
         }
@@ -274,7 +274,7 @@ namespace ITSWebMgmt.Models
         public void InitSCCMInfo()
         {
             SCCMInfoSystem = TableGenerator.CreateVerticalTableFromDatabase(System, new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build" }, "Computer not found in SCCM");
-            SCCMInfoComputer = TableGenerator.CreateVerticalTableFromDatabase(Computer, new List<string>() { "Manufacturer", "Model", "SystemType", "Roles" }, "No inventory data");
+            SCCMInfoComputer = TableGenerator.CreateVerticalTableFromDatabase(Computer, new List<string>() { "Manufacturer", "Model", "SystemType", "Roles" }, "Computer information not found");
         }
         #endregion loding data
     }
