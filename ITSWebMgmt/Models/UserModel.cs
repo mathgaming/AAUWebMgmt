@@ -336,7 +336,7 @@ namespace ITSWebMgmt.Models
                     var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
                     helper.AddRow(new string[] { name, fjernsupport });
                 }
-                return "<h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>" + helper.GetTable();
+                return "<h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>" + helper.GetTable() + "<h4>The list does only show Windows computers</h4>";
             }
             catch (UnauthorizedAccessException)
             {
