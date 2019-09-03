@@ -1,7 +1,11 @@
 ﻿using SimpleImpersonation;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace ITSWebMgmt.Connectors
@@ -34,12 +38,9 @@ namespace ITSWebMgmt.Connectors
             var credentials = new UserCredentials(domain, username, secret);
             Impersonation.RunAsUser(credentials, LogonType.NewCredentials, () =>
             {
-                // do whatever you want as this user.
+                SqlConnection myConnection = new SqlConnection("Data Source = AD-SQL2-MISC.AAU.DK; Database = eqcas; Integrated Security=SSPI; MultipleActiveResultSets=true");
 
-                //SqlConnection myConnection = new SqlConnection("Data Source = ad-sql1-i13.aau.dk\\sqlequitrac; Database = eqcas; Integrated Security=SSPI");
-                SqlConnection myConnection = new SqlConnection("Data Source = AD-SQL2-MISC.AAU.DK; Database = eqcas; Integrated Security=SSPI");
-
-                bool SQLSuccess = true;
+                bool SQLSuccess = true;                
 
                 try
                 {
@@ -64,7 +65,8 @@ namespace ITSWebMgmt.Connectors
                     		account.balance, 
 		                    account.primarypin as AAUCardXerox,
 		                    altp.primarypin as AAUCardKonica, 
-                            dept.valtype as departmentThing
+                            dept.valtype as departmentThing,
+                            dept.name as departmentName
                     
                     	FROM cat_validation account
                     		LEFT OUTER JOIN cas_val_assoc      ass  ON ass.associd= account.id
@@ -76,6 +78,8 @@ namespace ITSWebMgmt.Connectors
                     		Where syncidentifier = @adguid;
                    ";
 
+                    //sqlcommand = "SELECT * FROM cat_validation;";
+
                     var command = new SqlCommand(sqlcommand, myConnection);
                     command.Parameters.AddWithValue("@adguid", adguid);
 
@@ -83,21 +87,18 @@ namespace ITSWebMgmt.Connectors
                     {
                         if (reader.Read())
                         {
-                            //sb.Append("User: " + reader["AAUCardXerox"]);
+
+                            var valueArray = new object[reader.FieldCount];
+                            var temp = reader.GetValues(valueArray);
                             string AAUCardXerox = reader["AAUCardXerox"] as string;
                             string AAUCardKonica = reader["AAUCardKonica"] as string;
                             string departmentThing = reader["departmentThing"] as string;
+                            string departmentName = reader["departmentname"] as string;
                             int state = reader.GetByte(reader.GetOrdinal("state"));
 
                             decimal free = reader.GetDecimal(reader.GetOrdinal("freemoney"));
                             decimal balance = reader.GetDecimal(reader.GetOrdinal("balance"));
                             decimal paid = balance - free;
-
-
-
-                            //sb.Append("stuff:" + AAUCardXerox);
-                            //sb.Append("stuff1:" + AAUCardKonica);
-                            //sb.Append("stuff2:" + state);
 
                             bool cardok = true;
 
@@ -144,6 +145,8 @@ namespace ITSWebMgmt.Connectors
                             }
                             else
                             {
+                                sb.Append("Department: " + departmentName);
+                                sb.Append("<br/>");
                                 sb.Append("User has \"free print\"");
                             }
 
@@ -152,25 +155,33 @@ namespace ITSWebMgmt.Connectors
 
                     myConnection.Close();
                 }
-
-                //ad:{8d0ef212-766e-44b8-8900-ead976e4f7cb} // kyrke
             });
-
-
 
             return sb.ToString();
         }
 
+        Dictionary<string, List<string>> GetAllColumnNames(SqlConnection connection)
+        {
+            Dictionary<string, List<string>> tables = new Dictionary<string, List<string>>();
 
+            foreach (var item in GetAllTables(connection))
+            {
+                string[] restrictions = new string[4] { null, null, item, null };
+                var columnList = connection.GetSchema("Columns", restrictions).AsEnumerable().Select(s => s.Field<String>("Column_Name")).ToList();
+                tables.Add(item, columnList);
+            }
 
+            return tables;
+        }
 
-
-
-
-
-
-
-
-
+        string[] GetAllTables(SqlConnection connection)
+        {
+            List<string> result = new List<string>();
+            SqlCommand cmd = new SqlCommand("SELECT name FROM sys.Tables", connection);
+            System.Data.SqlClient.SqlDataReader reader = cmd.ExecuteReader();
+            while (reader.Read())
+                result.Add(reader["name"].ToString());
+            return result.ToArray();
+        }
     }
 }

@@ -57,6 +57,10 @@ namespace ITSWebMgmt.Helpers
         {
             string computerName = comp.Properties["ResourceName"].Value.ToString();
             ADcache cache = new ComputerADcache(computerName);
+            if (cache.Path == "LDAP://") //AD-OESSTEST can not be found in AD
+            {
+                return false;
+            }
             return ComputerUsesOneDrive(cache);
         }
 

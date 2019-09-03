@@ -74,12 +74,12 @@ namespace ITSWebMgmt.Controllers
                                 ComputerModel.Windows.ShowMoveComputerOUdiv = true;
                             }
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
                             ComputerModel.Windows.ComputerFound = false;
                             ComputerModel.ShowResultDiv = false;
                             ComputerModel.ShowErrorDiv = true;
-                            ComputerModel.ResultError = "Computer found in AD but not in SCCM";
+                            ComputerModel.ResultError = "An error uccered while looking up the computer: " + e.Message;
                         }
                     }
                     else
@@ -421,6 +421,7 @@ namespace ITSWebMgmt.Controllers
         {
             List<WebMgmtError> errors = new List<WebMgmtError>
             {
+                new MissingDataFromSCCM(this),
                 new DriveAlmostFull(this),
                 new NotStandardComputerOU(this),
                 new MissingPCConfig(this)

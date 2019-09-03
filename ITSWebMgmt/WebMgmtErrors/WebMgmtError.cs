@@ -40,6 +40,17 @@ namespace ITSWebMgmt.WebMgmtErrors
             this.computer = computer;
         }
     }
+    public class MissingDataFromSCCM : ComputerWebMgmtError
+    {
+        public MissingDataFromSCCM(ComputerController computer) : base(computer)
+        {
+            Heading = "Computer missing data from SCCM";
+            Description = "Some infomation cannot be shown due to missing information from SCCM";
+            Severeness = Severity.Warning;
+        }
+
+        public override bool HaveError() => computer.ComputerModel.Windows.LogicalDisk.Count == 0;
+    }
 
     public class DriveAlmostFull : ComputerWebMgmtError
     {
@@ -52,9 +63,14 @@ namespace ITSWebMgmt.WebMgmtErrors
 
         public override bool HaveError()
         {
-            int space = computer.ComputerModel.Windows.LogicalDisk.GetPropertyInGB("FreeSpace");
-            if (space == 0) return false;
-            return space <= 5;
+            if (computer.ComputerModel.Windows.LogicalDisk.Count != 0)
+            {
+                int space = computer.ComputerModel.Windows.LogicalDisk.GetPropertyInGB("FreeSpace");
+                if (space == 0) return false;
+                return space <= 5;
+            }
+
+            return false;
         }
     }
 
