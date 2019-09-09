@@ -21,6 +21,7 @@ namespace ITSWebMgmt.Controllers
             model.Path = e.Path;
             model.Error = e.Error;
             model.AffectedUser = HttpContext.User.Identity.Name;
+            model.HttpStatusCode = HttpContext.Response.StatusCode;
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
@@ -42,6 +43,7 @@ namespace ITSWebMgmt.Controllers
             client.Host = "smtp.aau.dk";
             mail.Subject = "WebMgmt error";
             mail.Body = $"Person: {model.AffectedUser}\n" +
+                        $"Http status code: {model.HttpStatusCode}\n" +
                         $"Error: {model.ErrorMessage}\n" +
                         $"Url: {model.Url}\n" +
                         $"Stacktrace:\n{model.Stacktrace}\n";
