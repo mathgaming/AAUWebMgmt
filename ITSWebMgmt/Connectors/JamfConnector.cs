@@ -41,6 +41,24 @@ namespace ITSWebMgmt.Connectors
             return sendGetReuest("computers/id/" + id, "?fiels=computer.general").Content.ReadAsStringAsync().Result;
         }
 
+        public List<string> getComputerNamesForUser(string user)
+        {
+            HttpResponseMessage response = sendGetReuest("computers/match/" + user, "");
+            List<string> computerNames = new List<string>();
+
+            if (response.IsSuccessStatusCode)
+            {
+                response.Content.Headers.ContentType.MediaType = "application/json";
+                Computers computers = response.Content.ReadAsAsync<Computers>().Result;
+                foreach (Computer computer in computers.computers)
+                {
+                    computerNames.Add(computer.asset_tag);
+                }
+            }
+
+            return computerNames;
+        }
+
         public int GetComputerIdByName(string name)
         {
             HttpResponseMessage response = sendGetReuest("computers/match/" + name, "");
@@ -66,6 +84,8 @@ namespace ITSWebMgmt.Connectors
         public class Computer
         {
             public int id { get; set; }
+            public string name { get; set; }
+            public string asset_tag { get; set; }
         }
 
         #region Samples from new Jamf API
