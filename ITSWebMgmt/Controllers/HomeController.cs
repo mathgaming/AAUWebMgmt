@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models.Log;
+using ITSWebMgmt.Connectors;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -12,6 +13,7 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
+            IndkoebConnector.getInfo("115359");
             return View(_context.KnownIssues.Where(x => x.Active));
         }
 
