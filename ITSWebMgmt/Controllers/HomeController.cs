@@ -13,7 +13,7 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
-            IndkoebConnector.getInfo("115359");
+            IndkoebConnector.getInfo("AAU115359");
             return View(_context.KnownIssues.Where(x => x.Active));
         }
 
