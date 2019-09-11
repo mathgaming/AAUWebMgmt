@@ -35,18 +35,22 @@ namespace ITSWebMgmt.Connectors
         public List<string> GetUsersByName(string name)
         {
             List<string> emails = new List<string>();
-            PureDataObject dataObject = getRequest($"?q={name}&size=30&fields=staffOrganisationAssociations.person.names.value&fields=staffOrganisationAssociations.emails.value");
 
-            if (dataObject != null)
+            if (name != null && name != "")
             {
-                foreach (var item in dataObject.items)
+                PureDataObject dataObject = getRequest($"?q={name}&size=30&fields=staffOrganisationAssociations.person.names.value&fields=staffOrganisationAssociations.emails.value");
+
+                if (dataObject != null)
                 {
-                    if (item.staffOrganisationAssociations != null)
+                    foreach (var item in dataObject.items)
                     {
-                        var user = item.staffOrganisationAssociations[0];
-                        if (user?.emails != null && user?.person?.names != null)
+                        if (item.staffOrganisationAssociations != null)
                         {
-                            emails.Add(user.person.names[0].value + " (" + user.emails[0].value + ")");
+                            var user = item.staffOrganisationAssociations[0];
+                            if (user?.emails != null && user?.person?.names != null)
+                            {
+                                emails.Add(user.person.names[0].value + " (" + user.emails[0].value + ")");
+                            }
                         }
                     }
                 }

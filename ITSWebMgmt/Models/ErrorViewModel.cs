@@ -9,6 +9,7 @@ namespace ITSWebMgmt.Models
         public string AffectedUser { get; set; }
         public string Path { get; set; }
         public string QueryString { get; set; }
+        public int HttpStatusCode { get; set; }
         public string Url { get => Path + QueryString; }
         public string ErrorMessage { get => Error.Message; }
         public string Stacktrace { get => Error.StackTrace; }

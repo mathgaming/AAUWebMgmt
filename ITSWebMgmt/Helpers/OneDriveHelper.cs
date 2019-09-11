@@ -32,19 +32,23 @@ namespace ITSWebMgmt.Helpers
         private static bool doesOneComputerUseOneDrive(UserModel user)
         {
             string upn = user.UserPrincipalName;
-            string[] upnsplit = upn.Split('@');
-            string domain = upnsplit[1].Split('.')[0];
-
-            string userName = string.Format("{0}\\\\{1}", domain, upnsplit[0]);
-
-            ManagementObjectCollection connectedComputers = user.getUserMachineRelationshipFromUserName(userName);
-            foreach (ManagementObject comp in connectedComputers)
+            if (upn != "")
             {
-                if (computerUsesOneDrive(comp))
+                string[] upnsplit = upn.Split('@');
+                string domain = upnsplit[1].Split('.')[0];
+
+                string userName = string.Format("{0}\\\\{1}", domain, upnsplit[0]);
+
+                ManagementObjectCollection connectedComputers = user.getUserMachineRelationshipFromUserName(userName);
+                foreach (ManagementObject comp in connectedComputers)
                 {
-                    return true;
+                    if (computerUsesOneDrive(comp))
+                    {
+                        return true;
+                    }
                 }
             }
+            
             return false;
         }
         private static bool doesUserHaveDeniedFolderRedirect(UserModel user)

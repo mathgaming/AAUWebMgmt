@@ -48,23 +48,27 @@ namespace ITSWebMgmt.Models
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
         public ManagementObjectCollection getUserMachineRelationshipFromUserName(string userName) => SCCMcache.getUserMachineRelationshipFromUserName(userName);
         public List<WindowsComputerModel> getManagedWindowsComputers() {
-            string[] upnsplit = UserPrincipalName.Split('@');
-            string domain = upnsplit[1].Split('.')[0];
-
-            string formattedName = string.Format("{0}\\\\{1}", domain, upnsplit[0]);
-
             List<WindowsComputerModel> managedComputerList = new List<WindowsComputerModel>();
 
-            foreach (ManagementObject o in getUserMachineRelationshipFromUserName(formattedName))
+            if (UserPrincipalName != "")
             {
-                string machineName = o.Properties["ResourceName"].Value.ToString();
-                WindowsComputerModel model = new WindowsComputerModel(machineName);
-                if (!model.ComputerFound)
+                string[] upnsplit = UserPrincipalName.Split('@');
+                string domain = upnsplit[1].Split('.')[0];
+
+                string formattedName = string.Format("{0}\\\\{1}", domain, upnsplit[0]);
+
+                foreach (ManagementObject o in getUserMachineRelationshipFromUserName(formattedName))
                 {
-                    model = new WindowsComputerModel(model.ComputerName);
+                    string machineName = o.Properties["ResourceName"].Value.ToString();
+                    WindowsComputerModel model = new WindowsComputerModel(machineName);
+                    if (!model.ComputerFound)
+                    {
+                        model = new WindowsComputerModel(model.ComputerName);
+                    }
+                    managedComputerList.Add(model);
                 }
-                managedComputerList.Add(model);
             }
+            
             return managedComputerList;
         }
 
@@ -323,20 +327,54 @@ namespace ITSWebMgmt.Models
         {
             try
             {
-                var helper = new HTMLTableHelper(new string[] { "Computername", "AAU Fjernsupport" });
+                string windows = "<h3>Windows computers</h3>";
+                var windowsComputers = getManagedWindowsComputers();
 
-                foreach (WindowsComputerModel m in getManagedWindowsComputers())
+                if (windowsComputers.Count != 0)
                 {
-                    string OnedriveWarning = "";
-                    if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
+                    var helper = new HTMLTableHelper(new string[] { "Computer name", "AAU Fjernsupport" });
+
+                    foreach (WindowsComputerModel m in windowsComputers)
                     {
-                        OnedriveWarning = "<font color=\"red\"> (Not using Onedrive!)</font>";
+                        string OnedriveWarning = "";
+                        if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
+                        {
+                            OnedriveWarning = "<font color=\"red\"> (Not using Onedrive!)</font>";
+                        }
+                        var name = "<a href=\"/Computer?computername=" + m.ComputerName + "\">" + m.ComputerName + "</a>" + OnedriveWarning + "<br />";
+                        var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
+                        helper.AddRow(new string[] { name, fjernsupport });
                     }
-                    var name = "<a href=\"/Computer?computername=" + m.ComputerName + "\">" + m.ComputerName + "</a>" + OnedriveWarning + "<br />";
-                    var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
-                    helper.AddRow(new string[] { name, fjernsupport });
+
+                    windows += helper.GetTable();
                 }
-                return "<h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>" + helper.GetTable() + "<h4>The list does only show Windows computers</h4>";
+                else
+                {
+                    windows += "User do not have any Windows computer";
+                }
+
+                string mac = "<h3>Mac computers</h3>";
+                JamfConnector jamf = new JamfConnector();
+                var macComputers = jamf.getComputerNamesForUser(UserPrincipalName);
+
+                if (macComputers.Count != 0)
+                {
+                    var macHelper = new HTMLTableHelper(new string[] { "Computer name" });
+
+                    foreach (string computername in macComputers)
+                    {
+                        var name = "<a href=\"/Computer?computername=" + computername + "\">" + computername + "</a>" + "<br />";
+                        macHelper.AddRow(new string[] { name });
+                    }
+
+                    mac += macHelper.GetTable();
+                }
+                else
+                {
+                    mac += "User do not have any Mac computer";
+                }
+
+                return $"<h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>{windows}{mac}";
             }
             catch (UnauthorizedAccessException)
             {
