@@ -42,6 +42,7 @@ namespace ITSWebMgmt.Models
                 Tabs.Add(new TabModel("sccmInventory", "Software info"));
                 Tabs.Add(new TabModel("sccmHW", "Hardware info"));
                 Tabs.Add(new TabModel("sccmAV", "Antivirus"));
+                Tabs.Add(new TabModel("purchase", "Purchase info"));
                 Tabs.Add(new TabModel("rawdata", "Raw data (AD)"));
                 Tabs.Add(new TabModel("rawdatasccm", "Raw data (SCCM)"));
                 Tabs.Add(new TabModel("tasks", "Tasks"));
@@ -55,6 +56,7 @@ namespace ITSWebMgmt.Models
                 Tabs.Add(new TabModel("macSW", "Software info"));
                 Tabs.Add(new TabModel("macnetwork", "Network info"));
                 Tabs.Add(new TabModel("macloaclaccounts", "Local accounts"));
+                Tabs.Add(new TabModel("purchase", "Purchase info"));
             }
         }
     }

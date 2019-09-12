@@ -1,5 +1,6 @@
 ﻿using Oracle.ManagedDataAccess.Client;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.DirectoryServices;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace ITSWebMgmt.Connectors
 {
-    public class IndkoebConnector
+    public class PurchaseDBConnector
     {
         public static string getInfo(string computerName)
         {
@@ -35,25 +36,65 @@ namespace ITSWebMgmt.Connectors
                 PROJEKT_NR as projectNumber,
                 KOMMENTAR as comment,
                 INDKOEBER as buyer,
-                FROM indkoebsoversigt_v
+                FROM ITSINDKOEB.INDKOEBSOVERSIGT_V
                 WHERE ?? LIKE " + computerName.Substring(3);
+
+            //sqlcommand = @"SELECT * from table_privileges";
+            /*sqlcommand = @"SELECT
+                  table_name,
+                  column_name,
+                  data_type
+             FROM all_tab_cols
+            WHERE table_name = 'INDKOEBSOVERSIGT_V'";*/
+
+            sqlcommand = $"SELECT * FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE SRNR LIKE {computerName.Substring(3)}";
 
             IDbCommand command = conn.CreateCommand();
             command.CommandText = sqlcommand;
 
             HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] { "Property", "Value" });
-
+            List<string> tables = new List<string>();
+            int results = 0;
+            int id = int.Parse(computerName.Substring(3));
             using (IDataReader reader = command.ExecuteReader())
             {
-                if (reader.Read())
+                while (reader.Read())
                 {
-                    tableHelper.AddRow(new string[] { "Buyer", reader["buyer"] as string });
+                    results++;
+                    for (int i = 0; i < 31; i++)
+                    {
+                        var value1 = reader.GetValue(i).ToString();
+                        int a;
+                        if (int.TryParse(value1, out a))
+                        {
+                            if (id == a)
+                            {
+                                Console.WriteLine("Yeah");
+                            }
+                            var tet = reader.GetName(i);
+                            Console.WriteLine(tet);
+                        }
+                        tableHelper.AddRow(new string[] { reader.GetName(i), reader.GetValue(i).ToString() });
+                    }
                 }
             }
 
+            var tablessergterher = tableHelper.GetTable();
+
             conn.Close();
 
-            return tableHelper.GetTable();
+            if (results == 0)
+            {
+                return "AAU number not found in purchase database";
+            }
+            else if (results > 1)
+            {
+                return "<h2>Multiple results found! All are listed below</h2>" + tableHelper.GetTable();
+            }
+            else
+            {
+                return tableHelper.GetTable();
+            }
         }
         private static IDbConnection GetDatabaseConnection()
         {

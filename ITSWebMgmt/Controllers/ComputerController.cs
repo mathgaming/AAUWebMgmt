@@ -9,6 +9,7 @@ using ITSWebMgmt.Models;
 using Microsoft.Extensions.Caching.Memory;
 using ITSWebMgmt.WebMgmtErrors;
 using ITSWebMgmt.Models.Log;
+using ITSWebMgmt.Connectors;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -168,6 +169,8 @@ namespace ITSWebMgmt.Controllers
                     return PartialView("RawHTMLTab", new RawHTMLModel("Local accounts", ComputerModel.Mac.HTMLForLocalAccounts));
                 case "macDisk":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Disk info", ComputerModel.Mac.HTMLForDisk));
+                case "purchase":
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Purchase info", PurchaseDBConnector.getInfo(ComputerModel.ComputerName)));
             }
 
             return PartialView(viewName, ComputerModel.Windows);
