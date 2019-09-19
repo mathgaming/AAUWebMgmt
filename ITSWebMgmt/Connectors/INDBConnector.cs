@@ -102,7 +102,7 @@ namespace ITSWebMgmt.Connectors
             }
             else
             {
-                return $"Computer have not been registrered in AD or Jamf, but was found in INDB. The manicaturer is {manifacturer} and the model is {model}";
+                return $"Computer has not been registrered in AD or Jamf, but was found in INDB. The manufacturer is {manifacturer} and the model is {model}";
             }
         }
 
