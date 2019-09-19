@@ -170,7 +170,7 @@ namespace ITSWebMgmt.Controllers
                 case "macDisk":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Disk info", ComputerModel.Mac.HTMLForDisk));
                 case "purchase":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Purchase info", PurchaseDBConnector.getInfo(ComputerModel.ComputerName)));
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Purchase info", INDBConnector.getInfo(ComputerModel.ComputerName)));
             }
 
             return PartialView(viewName, ComputerModel.Windows);

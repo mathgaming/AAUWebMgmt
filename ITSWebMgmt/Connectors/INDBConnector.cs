@@ -1,4 +1,5 @@
-﻿using Oracle.ManagedDataAccess.Client;
+﻿using ITSWebMgmt.Helpers;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace ITSWebMgmt.Connectors
 {
-    public class PurchaseDBConnector
+    public class INDBConnector
     {
         public static string getInfo(string computerName)
         {
@@ -26,60 +27,44 @@ namespace ITSWebMgmt.Connectors
             {
                 conn.Open();
             }
-            catch (SqlException)
+            catch (Exception)
             {
                 return "Error connection to indkoeb database.";
             }
 
-            string sqlcommand = @"SELECT 
-                SRNR as SRNR,
-                PROJEKT_NR as projectNumber,
-                KOMMENTAR as comment,
-                INDKOEBER as buyer,
-                FROM ITSINDKOEB.INDKOEBSOVERSIGT_V
-                WHERE ?? LIKE " + computerName.Substring(3);
-
-            //sqlcommand = @"SELECT * from table_privileges";
-            /*sqlcommand = @"SELECT
-                  table_name,
-                  column_name,
-                  data_type
-             FROM all_tab_cols
-            WHERE table_name = 'INDKOEBSOVERSIGT_V'";*/
-
-            sqlcommand = $"SELECT * FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE SRNR LIKE {computerName.Substring(3)}";
-
             IDbCommand command = conn.CreateCommand();
-            command.CommandText = sqlcommand;
+            command.CommandText = $"SELECT " +
+                $"BESTILLINGS_DATO," +
+                $"FABRIKAT," +
+                $"MODELLEN," +
+                $"MODTAGELSESDATO," +
+                $"SERIENR," +
+                $"SLUTBRUGER" +
+                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName.Substring(3)}";
 
             HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] { "Property", "Value" });
             List<string> tables = new List<string>();
             int results = 0;
-            int id = int.Parse(computerName.Substring(3));
             using (IDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
                     results++;
-                    for (int i = 0; i < 31; i++)
+                    tableHelper = new HTMLTableHelper(new string[] { "Property", "Value" });
+                    for (int i = 0; i < 6; i++)
                     {
-                        var value1 = reader.GetValue(i).ToString();
-                        int a;
-                        if (int.TryParse(value1, out a))
+                        if (reader.GetName(i) == "BESTILLINGS_DATO" || reader.GetName(i) == "MODTAGELSESDATO")
                         {
-                            if (id == a)
-                            {
-                                Console.WriteLine("Yeah");
-                            }
-                            var tet = reader.GetName(i);
-                            Console.WriteLine(tet);
+                            tableHelper.AddRow(new string[] { reader.GetName(i), DateTime.Parse(reader.GetValue(i).ToString()).ToString("yyyy-MM-dd") });
                         }
-                        tableHelper.AddRow(new string[] { reader.GetName(i), reader.GetValue(i).ToString() });
+                        else
+                        {
+                            tableHelper.AddRow(new string[] { reader.GetName(i), reader.GetValue(i).ToString() });
+                        }
                     }
+                    tables.Add(tableHelper.GetTable());
                 }
             }
-
-            var tablessergterher = tableHelper.GetTable();
 
             conn.Close();
 
@@ -89,13 +74,56 @@ namespace ITSWebMgmt.Connectors
             }
             else if (results > 1)
             {
-                return "<h2>Multiple results found! All are listed below</h2>" + tableHelper.GetTable();
+                return "<h2>Multiple results found! All are listed below</h2>" + string.Join("<br/>", tables);
             }
             else
             {
                 return tableHelper.GetTable();
             }
         }
+
+        //Only used for test
+        public static string getFullInfo(IDbConnection conn, string computerName)
+        {
+            IDbCommand command = conn.CreateCommand();
+            command.CommandText = $"SELECT * FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName.Substring(3)}";
+
+            HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] { "Property", "Value" });
+            List<string> tables = new List<string>();
+            
+            int results = 0;
+            using (IDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    results++;
+                    tableHelper = new HTMLTableHelper(new string[] { "Property", "Value" });
+                    for (int i = 0; i < 31; i++)
+                    {
+                        tableHelper.AddRow(new string[] { reader.GetName(i), reader.GetValue(i).ToString() });
+                    }
+                    tables.Add(tableHelper.GetTable());
+                }
+            }
+
+            conn.Close();
+
+            if (results == 0)
+            {
+                return "AAU number not found in purchase database";
+            }
+            else if (results > 1)
+            {
+                return "<h2>Multiple results found! All are listed below</h2>" + string.Join("<br/>", tables);
+            }
+            else
+            {
+                return tableHelper.GetTable();
+            }
+        }
+
+
+
         private static IDbConnection GetDatabaseConnection()
         {
             string directoryServer = "sqlnet.adm.aau.dk:389";
