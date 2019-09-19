@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models.Log;
+using ITSWebMgmt.Connectors;
 
 namespace ITSWebMgmt.Controllers
 {

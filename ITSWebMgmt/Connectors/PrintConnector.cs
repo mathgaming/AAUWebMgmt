@@ -1,4 +1,4 @@
-﻿using SimpleImpersonation;
+using SimpleImpersonation;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -30,7 +30,7 @@ namespace ITSWebMgmt.Connectors
             string username = Startup.Configuration["cred:equitrac:username"];
             string secret = Startup.Configuration["cred:equitrac:password"];
 
-            if (domain == null || username == null || secret == null )
+            if (domain == null || username == null || secret == null)
             {
                 return "No valid creds for Equitrac";
             }
@@ -78,8 +78,6 @@ namespace ITSWebMgmt.Connectors
                     		Where syncidentifier = @adguid;
                    ";
 
-                    //sqlcommand = "SELECT * FROM cat_validation;";
-
                     var command = new SqlCommand(sqlcommand, myConnection);
                     command.Parameters.AddWithValue("@adguid", adguid);
 
@@ -87,9 +85,6 @@ namespace ITSWebMgmt.Connectors
                     {
                         if (reader.Read())
                         {
-
-                            var valueArray = new object[reader.FieldCount];
-                            var temp = reader.GetValues(valueArray);
                             string AAUCardXerox = reader["AAUCardXerox"] as string;
                             string AAUCardKonica = reader["AAUCardKonica"] as string;
                             string departmentThing = reader["departmentThing"] as string;
@@ -149,7 +144,6 @@ namespace ITSWebMgmt.Connectors
                                 sb.Append("<br/>");
                                 sb.Append("User has \"free print\"");
                             }
-
                         }
                     }
 
