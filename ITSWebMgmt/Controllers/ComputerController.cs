@@ -96,7 +96,7 @@ namespace ITSWebMgmt.Controllers
                         {
                             ComputerModel.ShowResultDiv = false;
                             ComputerModel.ShowErrorDiv = true;
-                            ComputerModel.ResultError = "Computer Not Found";
+                            ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
                         }
                     }
 
