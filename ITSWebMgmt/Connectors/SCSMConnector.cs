@@ -69,6 +69,7 @@ namespace ITSWebMgmt.Connectors
                 return sb.ToString();
             }
 
+            //if userjson is "no creds for SCSM", it means you lack the password-file.
             var json = JsonConvert.DeserializeObject<Dictionary<string, object>>(userjson);
 
             sb.Append("<br /><br />" + string.Format("<a href=\"{0}{1}\">Servie Portal User Info</a>", "https://service.aau.dk/user/UserRelatedInfoById/", userID) + "<br/>");
