@@ -4,6 +4,7 @@ using System.DirectoryServices;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models.Log;
 using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Models;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -13,6 +14,8 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
+            var table = INDBConnector.GetAllMacs();
+            return View("RawHTMLTab", new RawHTMLModel("All macs", table));
             return View(_context.KnownIssues.Where(x => x.Active));
         }
 

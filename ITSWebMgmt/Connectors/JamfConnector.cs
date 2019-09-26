@@ -76,6 +76,30 @@ namespace ITSWebMgmt.Connectors
             return -1;
         }
 
+        public List<int> GetAllComputers()
+        {
+            HttpResponseMessage response = sendGetReuest("computers", "");
+
+            List<int> names = new List<int>();
+
+            if (response.IsSuccessStatusCode)
+            {
+                response.Content.Headers.ContentType.MediaType = "application/json";
+                Computers computers = response.Content.ReadAsAsync<Computers>().Result;
+                if (computers.computers.Count != 0)
+                {
+                    foreach (var computer in computers.computers)
+                    {
+                        names.Add(computer.id);
+                    }
+                }
+
+                return names;
+            }
+
+            return null;
+        }
+
         public class Computers
         {
             public List<Computer> computers { get; set; }
@@ -86,6 +110,7 @@ namespace ITSWebMgmt.Connectors
             public int id { get; set; }
             public string name { get; set; }
             public string asset_tag { get; set; }
+            public string serial_number { get; set; }
         }
 
         #region Samples from new Jamf API
