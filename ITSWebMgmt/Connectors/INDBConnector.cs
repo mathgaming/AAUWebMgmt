@@ -13,24 +13,11 @@ namespace ITSWebMgmt.Connectors
     {
         public static string getInfo(string computerName)
         {
-            string username = Startup.Configuration["cred:indkoeb:username"];
-            string password = Startup.Configuration["cred:indkoeb:password"];
+            var connection = tryConnect();
+            if (connection.conn == null)
+                return connection.error;
 
-            if (username == null || password == null)
-            {
-                return "Invalid creds for indkoeb";
-            }
-
-            IDbConnection conn = GetDatabaseConnection();
-
-            try
-            {
-                conn.Open();
-            }
-            catch (Exception)
-            {
-                return "Error connection to indkoeb database.";
-            }
+            var conn = connection.conn;
 
             IDbCommand command = conn.CreateCommand();
             command.CommandText = $"SELECT " +
@@ -82,6 +69,43 @@ namespace ITSWebMgmt.Connectors
             }
         }
 
+        public static string LookupComputer(string computerName)
+        {
+            var connection = tryConnect();
+            if (connection.conn == null)
+                return connection.error;
+
+            var conn = connection.conn;
+
+            IDbCommand command = conn.CreateCommand();
+            command.CommandText = $"SELECT " +
+                $"FABRIKAT," +
+                $"MODELLEN " +
+                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName.Substring(3)}";
+
+            string manifacturer = "";
+            string model = "";
+            using (IDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    manifacturer = reader.GetValue(0).ToString();
+                    model = reader.GetValue(1).ToString();
+                }
+            }
+
+            conn.Close();
+
+            if (manifacturer.Length == 0)
+            {
+                return "Conputer not found";
+            }
+            else
+            {
+                return $"Computer has not been registrered in AD or Jamf, but was found in INDB. The manufacturer is {manifacturer} and the model is {model}";
+            }
+        }
+
         //Only used for test
         public static string getFullInfo(IDbConnection conn, string computerName)
         {
@@ -123,6 +147,29 @@ namespace ITSWebMgmt.Connectors
         }
 
 
+        private static (IDbConnection conn, string error) tryConnect()
+        {
+            string username = Startup.Configuration["cred:indkoeb:username"];
+            string password = Startup.Configuration["cred:indkoeb:password"];
+
+            if (username == null || password == null)
+            {
+                return (null, "Invalid creds for indkoeb");
+            }
+
+            IDbConnection conn = GetDatabaseConnection();
+
+            try
+            {
+                conn.Open();
+            }
+            catch (Exception)
+            {
+                return (null, "Error connection to indkoeb database.");
+            }
+
+            return (conn, null);
+        }
 
         private static IDbConnection GetDatabaseConnection()
         {
