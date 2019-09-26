@@ -77,6 +77,11 @@ namespace ITSWebMgmt.Connectors
 
             var conn = connection.conn;
 
+            if (!computerName.StartsWith("AAU"))
+            {
+                return "Computer not found";
+            }
+
             IDbCommand command = conn.CreateCommand();
             command.CommandText = $"SELECT " +
                 $"FABRIKAT," +
@@ -98,7 +103,7 @@ namespace ITSWebMgmt.Connectors
 
             if (manifacturer.Length == 0)
             {
-                return "Conputer not found";
+                return "Computer not found";
             }
             else
             {
