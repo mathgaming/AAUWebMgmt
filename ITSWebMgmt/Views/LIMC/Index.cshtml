@@ -1,0 +1,12 @@
+﻿@model LIMCModel
+<script>
+    document.documentElement.style.setProperty("--main-width", "1600px");
+</script>
+<h1>LIMC IDM->Mail Converter</h1>
+<h2>*indsæt knap her*</h2>
+<div id="rawInput" style="float: left; width: 45%;">
+    @Html.TextArea("RawCSVInput", null, new {rows = "20", style="resize:none; overflow-y:scroll; width: 100%;"})
+</div>
+<div id="mailOutput" style="float: left; width: 45%;">
+    @Html.TextArea("MailOutput", null, new {rows = "20", style="resize:none; overflow-y:scroll; width: 100%;"})
+</div>
