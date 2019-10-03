@@ -337,10 +337,18 @@ namespace ITSWebMgmt.Models
                     foreach (WindowsComputerModel m in windowsComputers)
                     {
                         string OnedriveWarning = "";
-                        if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
+                        try
                         {
-                            OnedriveWarning = "<font color=\"red\"> (Not using Onedrive!)</font>";
+                            if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
+                            {
+                                OnedriveWarning = "<font color=\"red\"> (Not using Onedrive!)</font>";
+                            }
                         }
+                        catch (System.Runtime.InteropServices.COMException e)
+                        {
+                            // Does get an unknown error (0x80005000) when computer is found in SCCM, but not in AD
+                        }
+
                         var name = "<a href=\"/Computer?computername=" + m.ComputerName + "\">" + m.ComputerName + "</a>" + OnedriveWarning + "<br />";
                         var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
                         helper.AddRow(new string[] { name, fjernsupport });

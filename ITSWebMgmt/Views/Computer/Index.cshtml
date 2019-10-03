@@ -71,11 +71,11 @@
         });
     }
     </script>
-    @if (Model.ShowErrorDiv)
+    @if (!Model.ComputerFound)
     {
         @Html.DisplayFor(model => model.ResultError)
     }
-    @if (Model.ShowResultDiv)
+    else
     {
         <div runat="server" id="warningsAndErrorDIV">
             @Html.Raw(Model.ErrorCountMessage)
