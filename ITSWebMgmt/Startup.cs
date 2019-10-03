@@ -24,6 +24,7 @@ namespace ITSWebMgmt
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllersWithViews();
             services.AddMemoryCache();
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -58,33 +59,18 @@ namespace ITSWebMgmt
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseRouting();
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-                routes.MapRoute(
-                    name: "group",
-                    template: "{controller=Group}/{action=Index}/{id?}");
-                routes.MapRoute(
-                    name: "computer",
-                    template: "{controller=Computer}/{action=Index}/{id?}");
-                routes.MapRoute(
-                    name: "user",
-                    template: "{controller=User}/{action=Index}/{id?}");
-                routes.MapRoute(
-                    name: "log",
-                    template: "{controller=Log}/{action=Index}/{id?}");
-                routes.MapRoute(
-                    name: "defendpointchallengeresponse",
-                    template: "{controller=DefendpointChallengeResponse}/{action=Index}/{id?}");
-                routes.MapRoute(
-                    name: "createworkitem",
-                    template: "{controller=CreateWorkItem}/{action=Index}/{id?}");
-                routes.MapRoute(
-                    name: "aauredirector",
-                    template: "{controller=AAURedirector}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("group", "{controller=Group}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("computer", "{controller=Computer}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("user", "{controller=User}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("log", "{controller=Log}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("defendpointchallengeresponse", "{controller=DefendpointChallengeResponse}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("createworkitem", "{controller=CreateWorkItem}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute("aauredirector", "{controller=AAURedirector}/{action=Index}/{id?}");
             });
         }
     }
