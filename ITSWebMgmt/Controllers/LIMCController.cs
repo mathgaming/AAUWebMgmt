@@ -23,15 +23,20 @@ namespace ITSWebMgmt.Controllers
         public ActionResult GetMail([FromBody]string inputCSV)
         {
             model = new LIMCModel(inputCSV);
-            model.MailOutput = model.RawCSVInput;
+            string outputString = "";
             List<string> usernameList = inputCSV.Split(",").ToList();
             List<string> emailList = new List<string>();
             foreach (string username in usernameList)
             {
-                UserModel userModel = new UserModel(username);
+                if (!outputString.Length.Equals(0))
+                {
+                    outputString += ',';
+                }
+                UserModel userModel = new UserModel(username, false);
+                List<string> emails = userModel.getUserMails();
+                outputString += String.Join(",", emails);
             }
-
-            return Success(model.MailOutput);
+            return Success(outputString);
         }
 
     }

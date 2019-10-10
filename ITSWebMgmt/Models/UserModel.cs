@@ -214,17 +214,14 @@ namespace ITSWebMgmt.Models
             }
 
             //Email
-            string email = "";
-            foreach (string s in ProxyAddresses)
+            List<string> emails = getUserMails();
+            string emailString = "";
+            foreach (string mailAddress in emails)
             {
-                if (s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    var tmp2 = s.ToLower().Replace("smtp:", "");
-                    email += string.Format("<a href=\"mailto:{0}\">{0}</a><br/>", tmp2);
-                }
+                emailString += string.Format("<a href=\"mailto:{0}\">{0}</a><br/>", mailAddress);
             }
-            sb.Append($"<tr><td>E-mails</td><td>{email}</td></tr>");
-
+            sb.Append($"<tr><td>E-mails</td><td>{emailString}</td></tr>");
+            
             const int UF_LOCKOUT = 0x0010;
             int userFlags = UserAccountControlComputed;
 
@@ -263,6 +260,21 @@ namespace ITSWebMgmt.Models
 
             //Make lookup in ADMdb
             AdmDBExpireDate = admdb.loadUserExpiredate(domain, tmp[0], firstName, lastName).Result;*/
+        }
+        public List<string> getUserMails(){
+            List<string> emails = new List<string>();
+            foreach (string s in ProxyAddresses)
+            {
+                if (isAnEmail(s))
+                {
+                    emails.Add(s.ToLower().Replace("smtp:", ""));
+                }
+            }
+            return emails;
+        }
+        private bool isAnEmail(string s)
+        {
+            return s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase);
         }
 
         public string InitCalendarAgenda()
