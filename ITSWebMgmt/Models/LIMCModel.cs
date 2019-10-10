@@ -7,9 +7,12 @@ namespace ITSWebMgmt.Models
 {
     public class LIMCModel
     {
-        string RawCSVInput;
-        string MailOutput;
-        public string RawCSVInput1 { get => RawCSVInput; set => RawCSVInput = value; }
-        public string MailOutput1 { get => MailOutput; set => MailOutput = value; }
+        public string RawCSVInput { get; set; }
+        public string MailOutput { get; set; }
+        public LIMCModel(){ }
+        public LIMCModel(string inputCSV)
+        {
+            RawCSVInput = inputCSV;
+        }
     }
 }

@@ -1,12 +1,42 @@
 ﻿@model LIMCModel
+@using System.Web;
 <script>
     document.documentElement.style.setProperty("--main-width", "1600px");
 </script>
 <h1>LIMC IDM->Mail Converter</h1>
-<h2>*indsæt knap her*</h2>
+<button id="GetMail">Convert to mail</button>
+<br />
+<br />
 <div id="rawInput" style="float: left; width: 45%;">
     @Html.TextArea("RawCSVInput", null, new {rows = "20", style="resize:none; overflow-y:scroll; width: 100%;"})
 </div>
 <div id="mailOutput" style="float: left; width: 45%;">
-    @Html.TextArea("MailOutput", null, new {rows = "20", style="resize:none; overflow-y:scroll; width: 100%;"})
+    @Html.TextArea("MailOutput", null, new {rows = "20", @readonly = "readonly", style="resize:none; overflow-y:scroll; width: 100%;"})
 </div>
+
+<script>
+    $("#GetMail").click(function () {
+        let inputTextElement = document.getElementById('RawCSVInput');
+        sendPostRequest("GetMail", inputTextElement.value);
+    });
+
+    //script for sending button presses as POST request to controller
+    function sendPostRequest(Action, data) {
+        data = JSON.stringify(data);
+        $.ajax({
+            type: "POST",
+            url: 'LIMC/' + Action,
+            data: data,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                let mailOutputElement = document.getElementById('MailOutput');
+                mailOutputElement.value = response.message;
+            },
+            error: function(response) {
+                var r = JSON.parse(response.responseText);
+                alert(r.errorMessage);
+            }
+        });
+    }
+</script>
