@@ -57,6 +57,7 @@ namespace ITSWebMgmt.Controllers
 
                     if (UserModel.UserFound)
                     {
+                        UserModel.BasicInfoADFSLocked = new SplunkConnector(_cache).IsAccountADFSLocked(UserModel.UserPrincipalName).ToString();
                         UserModel.InitBasicInfo();
                         LoadWarnings();
                         UserModel.InitCalendarAgenda();

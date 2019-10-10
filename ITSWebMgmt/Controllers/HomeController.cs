@@ -13,7 +13,6 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
-            SplunkConnector c = new SplunkConnector();
             return View(_context.KnownIssues.Where(x => x.Active));
         }
 

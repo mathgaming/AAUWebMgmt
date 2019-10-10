@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -11,15 +12,33 @@ namespace ITSWebMgmt.Connectors
 {
     public class SplunkConnector
     {
+        private IMemoryCache _cache;
         public static string Auth { private get; set; }
-        public SplunkConnector()
+        public SplunkConnector(IMemoryCache cache)
         {
+            _cache = cache;
             string user = Startup.Configuration["cred:ad:username"];
             string pass = Startup.Configuration["cred:ad:password"];
             var plainTextBytes = Encoding.UTF8.GetBytes(user + ":" + pass);
             string base64encodedusernpass = Convert.ToBase64String(plainTextBytes);
             Auth = "Basic " + base64encodedusernpass;
+        }
 
+        public bool IsAccountADFSLocked(string upn)
+        {
+            List<string> lockedAccounts;
+            if (!_cache.TryGetValue("ADFSLockedAccounts", out lockedAccounts))
+            {
+                lockedAccounts = getLockedAccounts();
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
+                _cache.Set("ADFSLockedAccounts", lockedAccounts, cacheEntryOptions);
+            }
+
+            return lockedAccounts.Contains(upn);
+        }
+
+        private List<string> getLockedAccounts()
+        {
             var temp = getData().Content.ReadAsStringAsync().Result; // This is done with a regex, becuase i could not find a NDJSON parser
             Regex regex = new Regex(@"sec_id"":""(?<email>[^ ]*) "".*""nBad_Password_Count"":""(?<count>[^ ]*) ");
             var entries = temp.Substring(0, temp.Length - 2).Split('\n');
@@ -29,11 +48,12 @@ namespace ITSWebMgmt.Connectors
                 Match match = regex.Match(entry);
                 if (int.Parse(match.Groups["count"].Value) >= 5)
                 {
-                    lockedAccouts.Add(match.Groups["email"].Value);
+                    // The account that match this might only be the accounts that actualy exist, but all is added to the list to be sure.
                 }
+                lockedAccouts.Add(match.Groups["email"].Value);
             }
 
-            Console.WriteLine(temp);
+            return lockedAccouts;
         }
 
         private HttpResponseMessage getData()
