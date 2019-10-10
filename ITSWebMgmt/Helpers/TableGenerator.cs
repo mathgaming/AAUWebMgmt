@@ -321,7 +321,7 @@ namespace ITSWebMgmt.Helpers
                     List<string> properties = new List<string>();
                     foreach (var p in keys)
                     {
-                        properties.Add(results.GetPropertyAsString(p));
+                        properties.Add(SCCM.GetPropertyAsString(o.Properties[p]));
                     }
                     tableHelper.AddRow(properties.ToArray());
                 }

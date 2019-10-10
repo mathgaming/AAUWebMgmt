@@ -19,8 +19,6 @@ namespace ITSWebMgmt.Models
         public string ErrorCountMessage { get; set; }
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
-        public bool ShowResultDiv { get; set; } = false;
-        public bool ShowErrorDiv { get; set; } = false;
         public virtual bool ComputerFound { get; set; }
 
 

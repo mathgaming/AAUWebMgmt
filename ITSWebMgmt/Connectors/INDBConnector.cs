@@ -42,7 +42,15 @@ namespace ITSWebMgmt.Connectors
                     {
                         if (reader.GetName(i) == "BESTILLINGS_DATO" || reader.GetName(i) == "MODTAGELSESDATO")
                         {
-                            tableHelper.AddRow(new string[] { reader.GetName(i), DateTime.Parse(reader.GetValue(i).ToString()).ToString("yyyy-MM-dd") });
+                            string value = reader.GetValue(i).ToString();
+                            if (value == "")
+                            {
+                                tableHelper.AddRow(new string[] { reader.GetName(i), "Date not found" });
+                            }
+                            else
+                            {
+                                tableHelper.AddRow(new string[] { reader.GetName(i), DateTime.Parse(value).ToString("yyyy-MM-dd") });
+                            }
                         }
                         else
                         {
@@ -77,6 +85,18 @@ namespace ITSWebMgmt.Connectors
 
             var conn = connection.conn;
 
+            if (!computerName.StartsWith("AAU"))
+            {
+                return "Computer not found";
+            }
+
+            var computerNameDegits = computerName.Substring(3);
+            int val = 0;
+            if (!int.TryParse(computerNameDegits, out val))
+            {
+                return "Computer not found";
+            }
+
             IDbCommand command = conn.CreateCommand();
             command.CommandText = $"SELECT " +
                 $"FABRIKAT," +
@@ -98,7 +118,7 @@ namespace ITSWebMgmt.Connectors
 
             if (manifacturer.Length == 0)
             {
-                return "Conputer not found";
+                return "Computer not found";
             }
             else
             {

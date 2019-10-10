@@ -58,14 +58,13 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(computerName);
-                    ComputerModel.Windows = new WindowsComputerModel(ComputerModel);                    
+                    ComputerModel.Windows = new WindowsComputerModel(ComputerModel);
 
                     if (ComputerModel.Windows.ComputerFound)
                     {
                         try
                         {
                             ComputerModel.IsWindows = true;
-                            ComputerModel.ShowResultDiv = true;
                             ComputerModel.Windows.setConfig();
                             ComputerModel.Windows.InitBasicInfo();
                             LoadWarnings();
@@ -78,8 +77,6 @@ namespace ITSWebMgmt.Controllers
                         catch (Exception e)
                         {
                             ComputerModel.Windows.ComputerFound = false;
-                            ComputerModel.ShowResultDiv = false;
-                            ComputerModel.ShowErrorDiv = true;
                             ComputerModel.ResultError = "An error uccered while looking up the computer: " + e.Message;
                         }
                     }
@@ -89,13 +86,10 @@ namespace ITSWebMgmt.Controllers
                         if (ComputerModel.Mac.ComputerFound)
                         {
                             ComputerModel.IsWindows = false;
-                            ComputerModel.ShowResultDiv = true;
                             ComputerModel.SetTabs();
                         }
                         else
                         {
-                            ComputerModel.ShowResultDiv = false;
-                            ComputerModel.ShowErrorDiv = true;
                             ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
                         }
                     }
