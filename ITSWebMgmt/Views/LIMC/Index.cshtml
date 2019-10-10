@@ -7,17 +7,26 @@
 <button id="GetMail">Convert to mail</button>
 <br />
 <br />
+<div id="modes">
+    <input type="radio" name="mode" value="idm"> Convert IDM to email <input type="radio" name="mode" value="jamf"> Convert Jamf CSV to email
+</div>
 <div id="rawInput" style="float: left; width: 45%;">
-    @Html.TextArea("RawCSVInput", null, new {rows = "20", style="resize:none; overflow-y:scroll; width: 100%;"})
+    @Html.TextArea("RawCSVInput", null, new { rows = "20", style = "resize:none; overflow-y:scroll; width: 100%;" })
 </div>
 <div id="mailOutput" style="float: left; width: 45%;">
-    @Html.TextArea("MailOutput", null, new {rows = "20", @readonly = "readonly", style="resize:none; overflow-y:scroll; width: 100%;"})
+    @Html.TextArea("MailOutput", null, new { rows = "20", @readonly = "readonly", style = "resize:none; overflow-y:scroll; width: 100%;" })
 </div>
 
 <script>
     $("#GetMail").click(function () {
         let inputTextElement = document.getElementById('RawCSVInput');
-        sendPostRequest("GetMail", inputTextElement.value);
+        alert(inputTextElement.value);
+        if (document.getElementById('modes').value === "idm") {
+            sendPostRequest("GetMail", inputTextElement.value);
+        }
+        else {
+            sendPostRequest("JamfConvert", inputTextElement.value);
+        } 
     });
 
     //script for sending button presses as POST request to controller
@@ -33,7 +42,7 @@
                 let mailOutputElement = document.getElementById('MailOutput');
                 mailOutputElement.value = response.message;
             },
-            error: function(response) {
+            error: function (response) {
                 var r = JSON.parse(response.responseText);
                 alert(r.errorMessage);
             }
