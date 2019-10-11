@@ -46,11 +46,14 @@ namespace ITSWebMgmt.Connectors
             foreach (var entry in entries)
             {
                 Match match = regex.Match(entry);
-                if (int.Parse(match.Groups["count"].Value) >= 5)
+                if (match.Success)
                 {
-                    // The account that match this might only be the accounts that actualy exist, but all is added to the list to be sure.
+                    if (int.Parse(match.Groups["count"].Value) >= 5)
+                    {
+                        // The account that match this might only be the accounts that actualy exist, but all is added to the list to be sure.
+                    }
+                    lockedAccouts.Add(match.Groups["email"].Value);
                 }
-                lockedAccouts.Add(match.Groups["email"].Value);
             }
 
             return lockedAccouts;
