@@ -26,7 +26,7 @@ namespace ITSWebMgmt.Controllers
                 "\n----------------------------------------------------------" +
                 "\nDepartment:                 " + userModel.BasicInfoDepartmentPDS +
                 "\nOffice(Pure):                  " + userModel.BasicInfoOfficePDS +
-                "\nPassword Expired:        " + userModel.BasicInfoPasswordExpired +
+                "\nPassword Expired:        " + userModel.BasicInfoLocked +
                 "\nPassword Expire Date: " + userModel.BasicInfoPasswordExpireDate +
                 "\nAAU-ID:                        " + userModel.AAUAAUID +
                 "\nUserStatus:                   " + userModel.AAUUserStatus +
