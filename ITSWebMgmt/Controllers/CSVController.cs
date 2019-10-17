@@ -9,21 +9,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ITSWebMgmt.Controllers
 {
-    public class LIMCController : WebMgmtController
+    public class CSVController : WebMgmtController
     {
-        //LIMC stands for LIMC IDM to Mail Converter
-        public LIMCController(LogEntryContext context) : base(context) { }
-        LIMCModel model;
+        public CSVController(LogEntryContext context) : base(context) { }
 
          public IActionResult Index()
         {
-            model = new LIMCModel();
-            return View(model);
+            return View();
         }
 
         public ActionResult GetMail([FromBody]string inputCSV)
         {
-            model = new LIMCModel(inputCSV);
             string outputString = "";
             List<string> usernameList = inputCSV.Split(",").ToList();
             List<string> emailList = new List<string>();
@@ -54,14 +50,26 @@ namespace ITSWebMgmt.Controllers
 
             foreach (var line in lines.Skip(1))
             {
-                List<string> columbs = line.Split(',').ToList();
-                string email = columbs[emailIndex];
-                if (email != "")
+                if (line.Length > 3)
                 {
-                    email = columbs[secundaryEmailIndex];
+                    List<string> columbs = line.Split(',').ToList();
+                    string email = columbs[emailIndex];
+                    if (email == "" || email == "Unknown")
+                    {
+                        email = columbs[secundaryEmailIndex];
+                    }
+                    if (email != "" && email != "Unknown")
+                    {
+                        try
+                        {
+                            string name = new UserModel(email, false).DisplayName;
+                            sb.Append($"{email};{columbs[aauNumberIndex]};{name}\n");
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
                 }
-                string name = new UserModel(email, false).DisplayName;
-                sb.Append($"{email};{columbs[aauNumberIndex]};{name}\n");
             }
 
             return Success(sb.ToString());
