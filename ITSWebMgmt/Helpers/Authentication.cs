@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Models;
+using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;

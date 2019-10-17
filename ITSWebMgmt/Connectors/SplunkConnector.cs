@@ -24,7 +24,7 @@ namespace ITSWebMgmt.Connectors
             Auth = "Basic " + base64encodedusernpass;
         }
 
-        public bool IsAccountADFSLocked(string upn)
+        public string IsAccountADFSLocked(string upn)
         {
             List<string> lockedAccounts;
             if (!_cache.TryGetValue("ADFSLockedAccounts", out lockedAccounts))
@@ -34,29 +34,41 @@ namespace ITSWebMgmt.Connectors
                 _cache.Set("ADFSLockedAccounts", lockedAccounts, cacheEntryOptions);
             }
 
-            return lockedAccounts.Contains(upn);
+            if (lockedAccounts.Count == 0)
+            {
+                return "Data not found";
+            }
+
+            return lockedAccounts.Contains(upn).ToString();
         }
 
         private List<string> getLockedAccounts()
         {
-            var temp = getData().Content.ReadAsStringAsync().Result; // This is done with a regex, becuase i could not find a NDJSON parser
-            Regex regex = new Regex(@"sec_id"":""(?<email>[^ ]*) "".*""nBad_Password_Count"":""(?<count>[^ ]*) ");
-            var entries = temp.Substring(0, temp.Length - 2).Split('\n');
-            List<string> lockedAccouts = new List<string>();
-            foreach (var entry in entries)
+            try
             {
-                Match match = regex.Match(entry);
-                if (match.Success)
+                var temp = getData().Content.ReadAsStringAsync().Result; // This is done with a regex, becuase i could not find a NDJSON parser
+                Regex regex = new Regex(@"sec_id"":""(?<email>[^ ]*) "".*""nBad_Password_Count"":""(?<count>[^ ]*) ");
+                var entries = temp.Substring(0, temp.Length - 2).Split('\n');
+                List<string> lockedAccouts = new List<string>();
+                foreach (var entry in entries)
                 {
-                    if (int.Parse(match.Groups["count"].Value) >= 5)
+                    Match match = regex.Match(entry);
+                    if (match.Success)
                     {
-                        // The account that match this might only be the accounts that actualy exist, but all is added to the list to be sure.
+                        if (int.Parse(match.Groups["count"].Value) >= 5)
+                        {
+                            // The account that match this might only be the accounts that actualy exist, but all is added to the list to be sure.
+                        }
+                        lockedAccouts.Add(match.Groups["email"].Value);
                     }
-                    lockedAccouts.Add(match.Groups["email"].Value);
                 }
-            }
 
-            return lockedAccouts;
+                return lockedAccouts;
+            }
+            catch (Exception)
+            {
+                return new List<string>();
+            }
         }
 
         private HttpResponseMessage getData()

@@ -75,7 +75,7 @@ namespace ITSWebMgmt.Controllers
         }
 
         // GET: LogEntries
-        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string showHidden, int? type, int? pageNumber)
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string showHidden, LogEntryType? type, int? pageNumber)
         {
             if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
             {
@@ -87,7 +87,7 @@ namespace ITSWebMgmt.Controllers
 
             if (type == null)
             {
-                type = 100;
+                type = LogEntryType.All;
             }
 
             ViewData["CurrentSort"] = sortOrder;
@@ -130,9 +130,9 @@ namespace ITSWebMgmt.Controllers
                 logEntries = logEntries.Where(s => s.Hidden == false);
             }
 
-            if (type != null && type != 100)
+            if (type != null && type != LogEntryType.All)
             {
-                logEntries = logEntries.Where(s => (int)s.Type == type);
+                logEntries = logEntries.Where(s => s.Type == type);
             }
 
             switch (sortOrder)
