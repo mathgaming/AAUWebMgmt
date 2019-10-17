@@ -422,7 +422,7 @@ namespace ITSWebMgmt.Controllers
                 new DriveAlmostFull(this),
                 new NotStandardComputerOU(this),
                 new MissingPCConfig(this),
-                new ManagerAndComputerNotInSameDomain(this)
+                new ManagerAndComputerNotInSameDomain(this)                
             };
 
             var errorList = new WebMgmtErrorList(errors);

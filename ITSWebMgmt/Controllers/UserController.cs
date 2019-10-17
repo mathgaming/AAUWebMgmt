@@ -238,9 +238,10 @@ namespace ITSWebMgmt.Controllers
             {
                 new UserDisabled(this),
                 new UserLockedDiv(this),
-                new PasswordExpired(this),
+                new AccountLocked(this),
                 new MissingAAUAttr(this),
-                new NotStandardOU(this)
+                new NotStandardOU(this),
+                new ADFSLocked(this)
             };
 
             var errorList = new WebMgmtErrorList(errors);

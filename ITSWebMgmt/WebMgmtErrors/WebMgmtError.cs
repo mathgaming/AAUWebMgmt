@@ -171,9 +171,9 @@ namespace ITSWebMgmt.WebMgmtErrors
         public override bool HaveError() => user.UserModel.AAUUserClassification == null || user.UserModel.AAUUserStatus == null || (user.UserModel.AAUStaffID == null && user.UserModel.AAUStudentID == null);
     }
 
-    public class PasswordExpired : UserWebMgmtError
+    public class AccountLocked : UserWebMgmtError
     {
-        public PasswordExpired(UserController user) : base(user)
+        public AccountLocked(UserController user) : base(user)
         {
             Heading = "Account locked";
             Description = "The user account is locked, maybe due to too many failed password attempts.";
@@ -187,6 +187,20 @@ namespace ITSWebMgmt.WebMgmtErrors
             int userFlags = (int)user.UserModel.UserAccountControlComputed;
 
             return (userFlags & UF_LOCKOUT) == UF_LOCKOUT;
+        }
+    }
+    public class ADFSLocked : UserWebMgmtError
+    {
+        public ADFSLocked(UserController user) : base(user)
+        {
+            Heading = "ADFS locked";
+            Description = "The user account is ADFS locked, maybe due to too many failed password attempts.";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            return user.UserModel.BasicInfoADFSLocked == true.ToString();
         }
     }
 
