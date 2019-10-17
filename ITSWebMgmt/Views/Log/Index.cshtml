@@ -22,8 +22,7 @@
                     Type: <select name="type">
                         @foreach (var type in Html.GetEnumSelectList<LogEntryType>())
                         {
-                            var names = Enum.GetNames(typeof(LogEntryType));
-                            if (type.Value == @ViewData["TypeFilter"])
+                            if (type.Text == @ViewData["TypeFilter"].ToString())
                             {
                                 <option value="@type.Value" selected="selected">@type.Text</option>
                             }
