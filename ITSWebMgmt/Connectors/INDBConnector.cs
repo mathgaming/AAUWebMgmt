@@ -138,9 +138,6 @@ namespace ITSWebMgmt.Connectors
                         {
                             tableHelper.AddRow(entry.ToArray());
                             count++;
-
-                            string a = ADHelper.AAUIdSearch(id);
-                            Console.WriteLine(a);
                         }
                     }
                 }
