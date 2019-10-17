@@ -93,7 +93,8 @@ namespace ITSWebMgmt.Models
         public string AdmDBExpireDate { get; set; }
         public string BasicInfoDepartmentPDS { get; set; }
         public string BasicInfoOfficePDS { get; set; }
-        public string BasicInfoPasswordExpired { get; set; }
+        public string BasicInfoADFSLocked { get; set; }
+        public string BasicInfoLocked { get; set; }
         public string BasicInfoPasswordExpireDate { get; set; }
         public string BasicInfoTable { get; set; }
         public string BasicInfoRomaing
@@ -111,8 +112,6 @@ namespace ITSWebMgmt.Models
         public string ErrorCountMessage { get; set; }
         public string SCSMUserID { get; set; }
         public string Windows7to10 { get; set; }
-        public bool ShowResultDiv { get; set; } = false;
-        public bool ShowErrorDiv { get; set; } = false;
         public bool ShowFixUserOU { get; set; } = false;
         public bool ShowLoginScript { get; set; } = false;
         public string UsesOnedrive { get; set; } = "False";
@@ -129,8 +128,6 @@ namespace ITSWebMgmt.Models
             {
                 ADcache = new UserADcache(adpath);
                 SCCMcache = new SCCMcache();
-                ShowResultDiv = true;
-                ShowErrorDiv = false;
                 UserFound = true;
                 if (loadDataInbackground)
                 {
@@ -143,8 +140,6 @@ namespace ITSWebMgmt.Models
                 {
                     ResultError = $"User ({username}) Not found";
                 }
-                ShowResultDiv = false;
-                ShowErrorDiv = true;
             }
         }
 
@@ -164,6 +159,17 @@ namespace ITSWebMgmt.Models
         }
 
         #region loading data
+        /*
+         * Remember the disclaimer in the documentation about some guy that wrote the legacy code in the weirdest possible manner?
+         * This is one of those cases where it applies. How anyone thought it would be a good idea to aquire data, trim and prepare it,
+         * as well as actually serving it in the same function is beyond my understanding. Why make clearly defined functions and fields,
+         * when you can make super compact code that is impossible to extend? If anything good is to be said about the following pieces of code,
+         * it would probably be, that it is a prime example of what NOT to do when making a well-typed program.
+         * 
+         * Should any of you brave souls that get the duty of maintaining this abomination feel the need to change this, please do.
+         * It should be wiped off any harddrive that has seen the ugly underbelly of the software business. If you are not up to the task,
+         * I don't blame you. It makes me ill just looking at it too.
+             */
         public void InitBasicInfo()
         {
             //lblbasicInfoOfficePDS
@@ -203,25 +209,22 @@ namespace ITSWebMgmt.Models
             }
 
             //Email
-            string email = "";
-            foreach (string s in ProxyAddresses)
+            List<string> emails = getUserMails();
+            string emailString = "";
+            foreach (string mailAddress in emails)
             {
-                if (s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    var tmp2 = s.ToLower().Replace("smtp:", "");
-                    email += string.Format("<a href=\"mailto:{0}\">{0}</a><br/>", tmp2);
-                }
+                emailString += string.Format("<a href=\"mailto:{0}\">{0}</a><br/>", mailAddress);
             }
-            sb.Append($"<tr><td>E-mails</td><td>{email}</td></tr>");
-
+            sb.Append($"<tr><td>E-mails</td><td>{emailString}</td></tr>");
+            
             const int UF_LOCKOUT = 0x0010;
             int userFlags = UserAccountControlComputed;
 
-            BasicInfoPasswordExpired = "False";
+            BasicInfoLocked = "False";
 
             if ((userFlags & UF_LOCKOUT) == UF_LOCKOUT)
             {
-                BasicInfoPasswordExpired = "True";
+                BasicInfoLocked = "True";
             }
 
             if (UserPasswordExpiryTimeComputed == "")
@@ -252,6 +255,21 @@ namespace ITSWebMgmt.Models
 
             //Make lookup in ADMdb
             AdmDBExpireDate = admdb.loadUserExpiredate(domain, tmp[0], firstName, lastName).Result;*/
+        }
+        public List<string> getUserMails(){
+            List<string> emails = new List<string>();
+            foreach (string s in ProxyAddresses)
+            {
+                if (isAnEmail(s))
+                {
+                    emails.Add(s.ToLower().Replace("smtp:", ""));
+                }
+            }
+            return emails;
+        }
+        private bool isAnEmail(string s)
+        {
+            return s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase);
         }
 
         public string InitCalendarAgenda()
