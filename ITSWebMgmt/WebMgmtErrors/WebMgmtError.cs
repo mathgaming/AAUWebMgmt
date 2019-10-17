@@ -79,9 +79,9 @@ namespace ITSWebMgmt.WebMgmtErrors
     {
         public ManagerAndComputerNotInSameDomain(ComputerController computer) : base(computer)
         {
-            Heading = "The computer and its manager are in different domains";
-            Description = "This may or may not be an error, but it can be somewhat confusing";
-            Severeness = Severity.Info;
+            Heading = "The computer and the user in \"managed by\" are in different domains";
+            Description = "This may or may not be an error, but user cannot have local administrator rights until this is corrected";
+            Severeness = Severity.Warning;
         }
 
         public override bool HaveError()
