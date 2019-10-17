@@ -93,7 +93,8 @@ namespace ITSWebMgmt.Models
         public string AdmDBExpireDate { get; set; }
         public string BasicInfoDepartmentPDS { get; set; }
         public string BasicInfoOfficePDS { get; set; }
-        public string BasicInfoPasswordExpired { get; set; }
+        public string BasicInfoADFSLocked { get; set; }
+        public string BasicInfoLocked { get; set; }
         public string BasicInfoPasswordExpireDate { get; set; }
         public string BasicInfoTable { get; set; }
         public string BasicInfoRomaing
@@ -111,8 +112,6 @@ namespace ITSWebMgmt.Models
         public string ErrorCountMessage { get; set; }
         public string SCSMUserID { get; set; }
         public string Windows7to10 { get; set; }
-        public bool ShowResultDiv { get; set; } = false;
-        public bool ShowErrorDiv { get; set; } = false;
         public bool ShowFixUserOU { get; set; } = false;
         public bool ShowLoginScript { get; set; } = false;
         public string UsesOnedrive { get; set; } = "False";
@@ -129,8 +128,6 @@ namespace ITSWebMgmt.Models
             {
                 ADcache = new UserADcache(adpath);
                 SCCMcache = new SCCMcache();
-                ShowResultDiv = true;
-                ShowErrorDiv = false;
                 UserFound = true;
                 if (loadDataInbackground)
                 {
@@ -143,8 +140,6 @@ namespace ITSWebMgmt.Models
                 {
                     ResultError = $"User ({username}) Not found";
                 }
-                ShowResultDiv = false;
-                ShowErrorDiv = true;
             }
         }
 
@@ -225,11 +220,11 @@ namespace ITSWebMgmt.Models
             const int UF_LOCKOUT = 0x0010;
             int userFlags = UserAccountControlComputed;
 
-            BasicInfoPasswordExpired = "False";
+            BasicInfoLocked = "False";
 
             if ((userFlags & UF_LOCKOUT) == UF_LOCKOUT)
             {
-                BasicInfoPasswordExpired = "True";
+                BasicInfoLocked = "True";
             }
 
             if (UserPasswordExpiryTimeComputed == "")
