@@ -1,23 +1,30 @@
-﻿@model LIMCModel
-@using System.Web;
-<script>
+﻿<script>
     document.documentElement.style.setProperty("--main-width", "1600px");
 </script>
-<h1>LIMC IDM->Mail Converter</h1>
+<h1>CSV Converter</h1>
 <button id="GetMail">Convert to mail</button>
 <br />
 <br />
+<div id="modes">
+    <input type="radio" name="mode" id="idm" checked="checked"> Convert IDM to email <input type="radio" name="mode"> Convert Jamf CSV to email
+</div>
 <div id="rawInput" style="float: left; width: 45%;">
-    @Html.TextArea("RawCSVInput", null, new {rows = "20", style="resize:none; overflow-y:scroll; width: 100%;"})
+    @Html.TextArea("RawCSVInput", null, new { rows = "20", style = "resize:none; overflow-y:scroll; width: 100%;" })
 </div>
 <div id="mailOutput" style="float: left; width: 45%;">
-    @Html.TextArea("MailOutput", null, new {rows = "20", @readonly = "readonly", style="resize:none; overflow-y:scroll; width: 100%;"})
+    @Html.TextArea("MailOutput", null, new { rows = "20", @readonly = "readonly", style = "resize:none; overflow-y:scroll; width: 100%;" })
 </div>
 
 <script>
     $("#GetMail").click(function () {
-        let inputTextElement = document.getElementById('RawCSVInput');
-        sendPostRequest("GetMail", inputTextElement.value);
+        let inputTextElement = document.getElementById('RawCSVInput');        
+        if (document.getElementById("idm").checked) {
+            sendPostRequest("GetMail", inputTextElement.value);
+        }
+        else {
+            sendPostRequest("JamfConvert", inputTextElement.value);
+        }
+        alert("Converting CSV to emails. This might take some time");
     });
 
     //script for sending button presses as POST request to controller
@@ -25,7 +32,7 @@
         data = JSON.stringify(data);
         $.ajax({
             type: "POST",
-            url: 'LIMC/' + Action,
+            url: 'CSV/' + Action,
             data: data,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -33,7 +40,7 @@
                 let mailOutputElement = document.getElementById('MailOutput');
                 mailOutputElement.value = response.message;
             },
-            error: function(response) {
+            error: function (response) {
                 var r = JSON.parse(response.responseText);
                 alert(r.errorMessage);
             }
