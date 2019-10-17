@@ -421,7 +421,8 @@ namespace ITSWebMgmt.Controllers
                 new MissingDataFromSCCM(this),
                 new DriveAlmostFull(this),
                 new NotStandardComputerOU(this),
-                new MissingPCConfig(this)
+                new MissingPCConfig(this),
+                new ManagerAndComputerNotInSameDomain(this)
             };
 
             var errorList = new WebMgmtErrorList(errors);

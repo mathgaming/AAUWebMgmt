@@ -3,6 +3,7 @@ using ITSWebMgmt.Caches;
 using System.Management;
 using System;
 using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Models;
 
 namespace ITSWebMgmt.WebMgmtErrors
 {
@@ -71,6 +72,34 @@ namespace ITSWebMgmt.WebMgmtErrors
             }
 
             return false;
+        }
+    }
+
+    public class ManagerAndComputerNotInSameDomain : ComputerWebMgmtError
+    {
+        public ManagerAndComputerNotInSameDomain(ComputerController computer) : base(computer)
+        {
+            Heading = "The computer and its manager are in different domains";
+            Description = "This may or may not be an error, but it can be somewhat confusing";
+            Severeness = Severity.Info;
+        }
+
+        public override bool HaveError()
+        {
+            ComputerModel compModel = computer.ComputerModel;
+            if (compModel.IsWindows) {
+                WindowsComputerModel winModel = compModel.Windows;
+                string managerDomain = compModel.Windows.ManagedBy.Split('@')[1];
+                //We are only interested in the bit after @, as that is the actual domain.
+                //I am sure there is a prettier way of doing this, but this works too.
+                //In case you don't know what is happening, I am using @ as a delimiter for the mail of the manager,
+                //Which results in two indexes in the resulting array. As the domain is in the second index, we index by 1 to get it.
+                return !winModel.Domain.Equals(managerDomain);
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 
