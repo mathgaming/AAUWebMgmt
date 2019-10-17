@@ -42,9 +42,8 @@
 
         window.appInsights = appInsights;
         appInsights.trackPageView();
-        if (navigator.appName == 'Microsoft Internet Explorer' ||  !!(navigator.userAgent.match(/Trident/) || navigator.userAgent.match(/rv:11/)) || (typeof $.browser !== "undefined" && $.browser.msie == 1))
-        {
-          alert("Internet Explorer is not supported, please use a different browser such as Chrome, Firefox or Edge.");
+        if (navigator.appName == 'Microsoft Internet Explorer' || !!(navigator.userAgent.match(/Trident/) || navigator.userAgent.match(/rv:11/)) || (typeof $.browser !== "undefined" && $.browser.msie == 1)) {
+            alert("Internet Explorer is not supported, please use a different browser such as Chrome, Firefox or Edge.");
         }
     </script>
 </head>
