@@ -62,7 +62,9 @@ namespace ITSWebMgmt.Controllers
                     {
                         try
                         {
-                            string name = new UserModel(email, false).DisplayName;
+                            var model = new UserModel(email, false);
+                            string name = model.DisplayName;
+                            email = model.getUserMails()[0];
                             sb.Append($"{email};{columbs[aauNumberIndex]};{name}\n");
                         }
                         catch (Exception)
