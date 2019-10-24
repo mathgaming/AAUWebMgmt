@@ -45,7 +45,7 @@
             <div class="autocomplete" style="width:300px;">
                 <input name="username" id="username" type="text" class="ui input focus" value=@Html.DisplayFor(model => model.UserName) />
             </div>
-            <input type="submit" value="Search" onclick='$("#loader > div").show("fast");' />
+            <input type="submit" id="submitButton" value="Search" onclick='$("#loader > div").show("fast");' />
         </div>
     </form>
     <br />
@@ -54,9 +54,21 @@
         $(document).ready(function () {
             $('.menu .item').tab({ history: false });
         });
+        let submitButton = document.getElementById("submitButton");
+        let usernameElement = document.getElementById("username");
+        let oldUsernameText = "";
+        usernameElement.addEventListener("keyup", function (event) {
+            if (event.keyCode === 13) {
+                submitButton.click();
+            }
+        });
         window.setInterval(function () {
             if ($(document.activeElement).attr("type") == "text" || $(document.activeElement).attr("type") == "textarea") {
-                updateautocomplete(document.getElementById("username").value);
+                if (oldUsernameText !== usernameElement.value) {
+                    updateautocomplete(document.getElementById("username").value);
+                    oldUsernameText = usernameElement.value;
+                }
+                
             }
         }, 1000);
 
