@@ -50,7 +50,11 @@ namespace ITSWebMgmt.WebMgmtErrors
 
             if (error is MacWebMgmtError)
             {
-                return "Mac warning";
+                //TODO handle these errors special
+                return $"<div class=\"ui {messageType} message\" runat= \"server\">" +
+                    $"<div class=\"header\">{error.Heading}</div>" +
+                    $"<p>{error.Description}</p>" +
+                    $"</div>";
             }
 
             return $"<div class=\"ui {messageType} message\" runat= \"server\">" +

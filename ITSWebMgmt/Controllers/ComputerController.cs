@@ -89,6 +89,7 @@ namespace ITSWebMgmt.Controllers
                         {
                             ComputerModel.IsWindows = false;
                             ComputerModel.SetTabs();
+                            LoadMacWarnings();
                         }
                         else
                         {
@@ -434,16 +435,22 @@ namespace ITSWebMgmt.Controllers
         {
             List<WebMgmtError> warnings = new List<WebMgmtError>
             {
-                new MissingDataFromSCCM(this),
-                new DriveAlmostFull(this),
-                new NotStandardComputerOU(this),
-                new MissingPCConfig(this),
-                new ManagerAndComputerNotInSameDomain(this)
+                new SecurityUpdateAvailable(this),
+                new MissingEmail(this)
             };
 
-            warnings.AddRange(_context.MacErrors.Where(x => x.Active));
+            warnings.AddRange(GetAllMacWarnings());
 
             LoadWarnings(warnings);
+        }
+
+        public IEnumerable<MacWebMgmtError> GetAllMacWarnings()
+        {
+            foreach (var item in _context.MacErrors.Where(x => x.Active))
+            {
+                item.computer = this;
+                yield return item;
+            }
         }
 
         private void LoadWarnings(List<WebMgmtError> warnings)

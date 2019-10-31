@@ -9,7 +9,7 @@ namespace ITSWebMgmt.Models
 {
     public abstract class MacWebMgmtError : WebMgmtError
     {
-        protected ComputerController computer;
+        public ComputerController computer;
    
         public int Id { get; set; }
         public string GroupName { get; set; }
@@ -28,11 +28,12 @@ namespace ITSWebMgmt.Models
             Heading = "This is not an AAU-Mac";
             Description = "The computer is not an AAU-Mac";
             Severeness = Severity.Error;
+            GroupName = "AAU Mac";
         }
 
         public override bool HaveError()
         {
-            return false;
+            return !computer.ComputerModel.Mac.Groups.Contains(GroupName);
         }
     }
 
@@ -51,16 +52,31 @@ namespace ITSWebMgmt.Models
         }
     }
 
+    public class MissingEmail : MacWebMgmtError
+    {
+        public MissingEmail(ComputerController computer) : base(computer)
+        {
+            Heading = "The email is not set";
+            Description = "The email is not set";
+            Severeness = Severity.Warning;
+        }
+
+        public override bool HaveError()
+        {
+            return false;
+        }
+    }
+
     public class MissingGroup : MacWebMgmtError
     {
+        public MissingGroup() : base(null) { }
         public MissingGroup(ComputerController computer) : base(computer)
         {
         }
 
         public override bool HaveError()
         {
-            //If jamf says it is in the group return true
-            return false;
+            return computer.ComputerModel.Mac.Groups.Contains(GroupName);
         }
     }
 }

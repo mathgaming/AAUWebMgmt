@@ -20,6 +20,7 @@ namespace ITSWebMgmt.Models
         public string HTMLForNetwork { get; set; }
         public string HTMLForLocalAccounts { get; set; }
         public string HTMLForDisk { get; set; }
+        public List<string> Groups { get; set; }
         public MacComputerModel(ComputerModel baseModel)
         {
             BaseModel = baseModel;
@@ -141,6 +142,7 @@ namespace ITSWebMgmt.Models
         private void setGroups(JObject jsonVal)
         {
             JArray groups = jsonVal.SelectToken("computer.groups_accounts.computer_group_memberships").ToObject<JArray>();
+            Groups = groups.Select(x => x.ToString()).ToList();
             HTMLForGroups = $"{string.Join("<br />", groups)}";
         }
     }
