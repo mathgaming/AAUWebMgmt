@@ -105,10 +105,11 @@ namespace ITSWebMgmt.Models
             }
         }
         public string CalAgendaStatus { get; set; }
-        public string ServiceManager {
-            get { return ServiceManager; }
-            set { ServiceManager = value; }
+        public string ServiceManagerOld {
+            get { return ServiceManagerOld; }
+            set { ServiceManagerOld = value; }
         }
+        public ServiceManagerModel serviceManager { get; set; }
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
         public string UserName { get; set; } = "mhsv16@its.aau.dk";

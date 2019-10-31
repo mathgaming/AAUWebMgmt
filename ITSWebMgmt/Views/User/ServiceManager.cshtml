@@ -6,7 +6,7 @@
 @{
     SCSMConnector sccm = new SCSMConnector();
 
-    Model.ServiceManager = await sccm.getActiveIncidents(Model.UserPrincipalName);
+    Model.serviceManager = await sccm.getActiveIncidents(Model.UserPrincipalName);
     Model.SCSMUserID = sccm.userID;
 }
 
@@ -18,7 +18,9 @@
     <input type="submit" value="Create new IR/SR" />
 }
 <br>
-
-@Html.Raw(Model.ServiceManager)
+<br />
+<br />
+<a href="https://service.aau.dk/user/UserRelatedInfoById\" + @Model.serviceManager.userID>Service Portal User Info</a>
+<br />
 <br>
 
