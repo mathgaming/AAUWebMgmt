@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Connectors
 {
+    //Before you venture into this file, make sure you have been blessed by a priest first. It has been created in the fires of hell and should just be nuked back to oblivion, but we still need it. So good luck.
     public class SCSMConnector
     {
         string webserviceURL = "https://service.aau.dk";
