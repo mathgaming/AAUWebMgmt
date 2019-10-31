@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ITSWebMgmt.Models;
+using System.Collections.Generic;
 
 namespace ITSWebMgmt.WebMgmtErrors
 {
@@ -20,7 +21,7 @@ namespace ITSWebMgmt.WebMgmtErrors
             {
                 if (error.HaveError())
                 {
-                    ErrorCount[error.Severeness]++;
+                    ErrorCount[(int)error.Severeness]++;
                     ErrorMessages += generateMessage(error);
                 }
             }
@@ -47,6 +48,11 @@ namespace ITSWebMgmt.WebMgmtErrors
                     break;
             }
 
+            if (error is MacWebMgmtError)
+            {
+                return "Mac warning";
+            }
+
             return $"<div class=\"ui {messageType} message\" runat= \"server\">" +
                     $"<div class=\"header\">{error.Heading}</div>" +
                     $"<p>{error.Description}</p>" +
@@ -58,17 +64,17 @@ namespace ITSWebMgmt.WebMgmtErrors
             string messageType = "";
             string heading = "";
 
-            if (ErrorCount[Severity.Error] > 0)
+            if (ErrorCount[(int)Severity.Error] > 0)
             {
                 messageType = "negative";
                 heading = "Errors";
             }
-            else if (ErrorCount[Severity.Warning] > 0)
+            else if (ErrorCount[(int)Severity.Warning] > 0)
             {
                 messageType = "warning";
                 heading = "Warnings";
             }
-            else if (ErrorCount[Severity.Info] > 0)
+            else if (ErrorCount[(int)Severity.Info] > 0)
             {
                 messageType = "info";
                 heading = "Infos";
@@ -76,7 +82,7 @@ namespace ITSWebMgmt.WebMgmtErrors
 
             return messageType == "" ? "" : $"<div class=\"ui {messageType} message\" runat= \"server\">" +
                     $"<div class=\"header\">{heading} found</div>" +
-                    $"<p>Found {ErrorCount[Severity.Error]} errors, {ErrorCount[Severity.Warning]} warnings, and {ErrorCount[Severity.Info]} infos.</p>" +
+                    $"<p>Found {ErrorCount[(int)Severity.Error]} errors, {ErrorCount[(int)Severity.Warning]} warnings, and {ErrorCount[(int)Severity.Info]} infos.</p>" +
                     $"</div>";
         }
     }
