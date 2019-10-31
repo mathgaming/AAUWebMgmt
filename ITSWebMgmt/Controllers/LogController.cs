@@ -29,8 +29,6 @@ namespace ITSWebMgmt.Controllers
             List<string> computerTabNames = new List<string>() { "basicinfo", "groups", "sccmInfo", "sccmInventory", "sccmAV", "sccmHW", "rawdata", "tasks", "warnings" };
             List<string> userTabNames = new List<string>() { "basicinfo", "groups", "servicemanager", "calAgenda", "computerInformation", "win7to10", "fileshares", "exchange", "loginscript", "print", "rawdata", "tasks", "warnings" };
 
-            var loadedComputerTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabComputer);
-
             sb.Append("<h1>General</h1>");
             sb.Append($"Computer lookups: {getCount(LogEntryType.ComputerLookup)}\n");
             sb.Append($"User lookups: {getCount(LogEntryType.UserLookup)}\n");
@@ -51,13 +49,16 @@ namespace ITSWebMgmt.Controllers
 
             sb.Append($"\n(All statistics below is since 2019-08-22)");
             sb.Append($"<h1>Computer tabs</h1>");
+
+            var loadedComputerTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabComputer).ToList();
+
             foreach (var tab in computerTabNames)
             {
                 int count = loadedComputerTabs.Where(x => x.Arguments[0].Value == tab).ToList().Count;
                 sb.Append($"{tab}: {count}\n");
             }
 
-            var loadeduserTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabUser);
+            var loadeduserTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabUser).ToList();
 
             sb.Append($"<h1>User tabs</h1>");
             foreach (var tab in userTabNames)

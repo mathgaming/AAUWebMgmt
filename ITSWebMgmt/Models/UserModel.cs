@@ -281,30 +281,38 @@ namespace ITSWebMgmt.Models
             var sb = new StringBuilder();
             // Display available meeting times.
 
-            var temp = getFreeBusyResultsAsync(this).Result;
-
-            DateTime now = DateTime.Now;
-            foreach (AttendeeAvailability availability in temp.AttendeesAvailability)
+            try
             {
-                foreach (CalendarEvent calendarItem in availability.CalendarEvents)
-                {
-                    if (calendarItem.FreeBusyStatus != LegacyFreeBusyStatus.Free)
-                    {
-                        bool isNow = false;
-                        if (now > calendarItem.StartTime && calendarItem.EndTime > now)
-                        {
-                            sb.Append("<b>");
-                            isNow = true;
-                            CalAgendaStatus = calendarItem.FreeBusyStatus.ToString();
-                        }
-                        sb.Append(string.Format("{0}-{1}: {2}<br/>", calendarItem.StartTime.ToString("HH:mm"), calendarItem.EndTime.ToString("HH:mm"), calendarItem.FreeBusyStatus));
+                var temp = getFreeBusyResultsAsync(this).Result;
 
-                        if (isNow)
+                DateTime now = DateTime.Now;
+                foreach (AttendeeAvailability availability in temp.AttendeesAvailability)
+                {
+                    foreach (CalendarEvent calendarItem in availability.CalendarEvents)
+                    {
+                        if (calendarItem.FreeBusyStatus != LegacyFreeBusyStatus.Free)
                         {
-                            sb.Append("</b>");
+                            bool isNow = false;
+                            if (now > calendarItem.StartTime && calendarItem.EndTime > now)
+                            {
+                                sb.Append("<b>");
+                                isNow = true;
+                                CalAgendaStatus = calendarItem.FreeBusyStatus.ToString();
+                            }
+                            sb.Append(string.Format("{0}-{1}: {2}<br/>", calendarItem.StartTime.ToString("HH:mm"), calendarItem.EndTime.ToString("HH:mm"), calendarItem.FreeBusyStatus));
+
+                            if (isNow)
+                            {
+                                sb.Append("</b>");
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception)
+            {
+                CalAgendaStatus = "Unknown";
+                return "Failed to connect to exchange service";
             }
 
             return sb.ToString();

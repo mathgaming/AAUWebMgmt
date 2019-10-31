@@ -39,20 +39,23 @@ namespace ITSWebMgmt.Controllers
         public ActionResult JamfConvert([FromBody]string inputCSV)
         {
             List<string> lines = inputCSV.Split('\n').ToList();
-            List<string> headers = lines[0].Split(',').ToList();
+            List<string> headers = lines[0].Split('\t').ToList();
 
             int emailIndex = headers.IndexOf("Email Address");
             int secundaryEmailIndex = headers.IndexOf("AAU-1x Username");
             int aauNumberIndex = headers.IndexOf("Asset Tag");
+            int computernameIndex = headers.IndexOf("Computer Name");
+            int snIndex = headers.IndexOf("Serial Number");
+            
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("Email;AAUNumber;Navn\n");
+            sb.Append("Email;AAUNumber;Navn;ComputerNavn;Serial Number\n");
 
             foreach (var line in lines.Skip(1))
             {
                 if (line.Length > 3)
                 {
-                    List<string> columbs = line.Split(',').ToList();
+                    List<string> columbs = line.Split('\t').ToList();
                     string email = columbs[emailIndex];
                     if (email == "" || email == "Unknown")
                     {
@@ -62,8 +65,11 @@ namespace ITSWebMgmt.Controllers
                     {
                         try
                         {
-                            string name = new UserModel(email, false).DisplayName;
-                            sb.Append($"{email};{columbs[aauNumberIndex]};{name}\n");
+                            var user = new UserModel(email, false);
+                            string name = user.DisplayName;
+                            string computerName = columbs[computernameIndex];
+                            string sn = columbs[snIndex];
+                            sb.Append($"{user.getUserMails()[0]};{columbs[aauNumberIndex]};{name};{computerName};{sn}\n");
                         }
                         catch (Exception)
                         {

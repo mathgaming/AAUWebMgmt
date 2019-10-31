@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using System.Net.Mail;
@@ -8,8 +8,6 @@ namespace ITSWebMgmt.Controllers
 {
     public class ErrorController : Controller
     {
-        private string Password = Startup.Configuration["Email-password"];
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
@@ -33,14 +31,13 @@ namespace ITSWebMgmt.Controllers
 
         private void sendEmail(ErrorViewModel model)
         {
-            MailMessage mail = new MailMessage("mhsv16@its.aau.dk", "platform@its.aau.dk");
+            MailMessage mail = new MailMessage("platform@its.aau.dk", "platform@its.aau.dk");
             SmtpClient client = new SmtpClient();
-            client.Port = 587;
-            client.DeliveryMethod = SmtpDeliveryMethod.Network;
-            client.UseDefaultCredentials = false;
+            client.Host = "smtp-internal.aau.dk";
+            client.Port = 25;
+            client.EnableSsl = true;
+            client.UseDefaultCredentials = true;
             client.Timeout = 10000;
-            client.Credentials = new System.Net.NetworkCredential("mhsv16@its.aau.dk", Password);
-            client.Host = "smtp.aau.dk";
             mail.Subject = "WebMgmt error";
             mail.Body = $"Person: {model.AffectedUser}\n" +
                         $"Http status code: {model.HttpStatusCode}\n" +
