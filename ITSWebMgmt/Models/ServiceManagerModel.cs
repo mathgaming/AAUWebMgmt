@@ -10,7 +10,7 @@ namespace ITSWebMgmt.Models
         public string userID;
         public List<Case> userCases;
 
-        public ServiceManagerModel(Dictionary<string, object> userJson)
+        public ServiceManagerModel(string userID, List<Case> userCases)
         {
 
         }
@@ -18,6 +18,16 @@ namespace ITSWebMgmt.Models
     
     public class Case
     {
-
+        public string Id { get; private set; }
+        public string Title { get; private set; }
+        public string Status { get; private set; }
+        public string LastModified { get; private set; }
+        public Case(string Id, string Title, string Status, string LastModified)
+        {
+            this.Id = Id; ;
+            this.Title = Title;
+            this.Status = Status;
+            this.LastModified = Convert.ToDateTime(LastModified).ToString("yyyy-MM-dd HH:mm");
+        }
     }
 }

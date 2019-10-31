@@ -18,7 +18,21 @@ namespace ITSWebMgmt.Connectors
 
         public string userID = "";
 
+        public string userFullName = null;
+
         static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
+
+        string authkey;
+
+        public SCSMConnector()
+        {
+            authkey = getAuthKey().Result;
+        }
+        public SCSMConnector(string userFullName)
+        {
+            this.userFullName = userFullName;
+            authkey = getAuthKey().Result;
+        }
 
         protected async Task<string> getAuthKey()
         {
@@ -53,27 +67,13 @@ namespace ITSWebMgmt.Connectors
             return responseText.Replace("\"", "");
         }
 
-        protected ServiceManagerModel CreateServiceManager(string userjson)
+        protected ServiceManagerModel CreateServiceManager(string userId)
         {
-            if (userjson == null)
+            if (userId == null)
             {
-                return new ServiceManagerModel(null);
+                return new ServiceManagerModel(null, null);
             }
-
-            //if userjson is "no creds for SCSM", it means you lack the password-file.
-            var json = JsonConvert.DeserializeObject<Dictionary<string, object>>(userjson);
-
-            //Open Cases
-            //sb.Append("<h1>Open Requests</h1><br />");
-            //bool isOpenFilter(string status) => !("Closed".Equals(status));
-            //sb.Append(PrintTableOfCases((object)json, isOpenFilter));
-
-            //Closed Cases
-            //sb.Append("<br /><br /><h3>Closed Requests</h3>");
-            //bool isClosedFilter(string status) => "Closed".Equals(status);
-            //sb.Append(PrintTableOfCases((object)json, isClosedFilter));
-
-            return new ServiceManagerModel(json);
+            return new ServiceManagerModel(userId, lookupWorkItemsByUUID(userId).Result);
         }
 
         private static StringBuilder PrintTableOfCases(object jsonO, Func<string, bool> filter)
@@ -120,7 +120,7 @@ namespace ITSWebMgmt.Connectors
 
 
         //returns json string for uuid
-        protected async Task<string> lookupWorkItemsByUUID(string uuid, string authkey)
+        protected async Task<List<Case>> lookupWorkItemsByUUID(string uuid)
         {
 
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/WorkItem/GetGridWorkItemsMyRequests?userid=" + uuid + "&showInactiveItems=false");
@@ -135,19 +135,19 @@ namespace ITSWebMgmt.Connectors
 
             var responseText = streamReader.ReadToEnd();
 
-            dynamic jsonString = JsonConvert.DeserializeObject<dynamic>(responseText);
+            List<Case> caseList = JsonConvert.DeserializeObject<List<Case>>(responseText);
 
-            return jsonString;
+            return caseList;
 
         }
 
         //Takes a upn and retuns the users uuid
-        protected async Task<string> getUserUUIDByUPN(string upn, string authkey)
+        protected async Task<string> getUserUUIDByUPN(string upn)
         {
             //Get username from UPN
 
 
-            WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/User/GetUserList?userFilter=" + upn);
+            WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/User/GetUserList?fetchAll=false&userFilter=" + upn);
             request.Method = "Get";
             request.ContentType = "text/json";
             request.ContentType = "application/json; charset=utf-8";
@@ -164,25 +164,18 @@ namespace ITSWebMgmt.Connectors
 
             dynamic json = JsonConvert.DeserializeObject<dynamic>(responseText);
 
-            StringBuilder sb = new StringBuilder();
-            string userjson = null;
 
             //TODO: Don't await for each item, make all requests and await, then look over data
             foreach (dynamic obj in json)
             {
-                userjson = await lookupWorkItemsByUUID((string)obj["Id"], authkey);
 
-                dynamic jsonString = JsonConvert.DeserializeObject<dynamic>(userjson);
-                userID = (string)obj["Id"];
-
-                if (upn.Equals((string)jsonString["UPN"], StringComparison.CurrentCultureIgnoreCase))
+                if (userFullName.Equals((string)obj["Name"], StringComparison.CurrentCultureIgnoreCase))
                 {
-                    break;
+                    userID = (string)obj["Id"];
+                    return userID;
                 }
             }
-            ;
-            return userjson;
-
+            return null;
         }
 
         public async Task<ServiceManagerModel> getActiveIncidents(string upn)
@@ -194,14 +187,7 @@ namespace ITSWebMgmt.Connectors
 
         public async Task<string> getUUID(string upn)
         {
-            string authkey = await getAuthKey();
-
-            if (authkey == null)
-            {
-                return "No creds for SCSM";
-            }
-
-            return await getUserUUIDByUPN(upn, authkey);
+            return await getUserUUIDByUPN(upn);
         }
     }
 }
