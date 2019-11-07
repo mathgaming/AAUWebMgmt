@@ -37,36 +37,6 @@ namespace ITSWebMgmt.Models
         }
     }
 
-    public class SecurityUpdateAvailable : MacWebMgmtError
-    {
-        public SecurityUpdateAvailable(ComputerController computer) : base(computer)
-        {
-            Heading = "There is security updates available";
-            Description = "There is security updates available";
-            Severeness = Severity.Warning;
-        }
-
-        public override bool HaveError()
-        {
-            return false;
-        }
-    }
-
-    public class MissingEmail : MacWebMgmtError
-    {
-        public MissingEmail(ComputerController computer) : base(computer)
-        {
-            Heading = "The email is not set";
-            Description = "The email is not set";
-            Severeness = Severity.Warning;
-        }
-
-        public override bool HaveError()
-        {
-            return false;
-        }
-    }
-
     public class MissingGroup : MacWebMgmtError
     {
         public MissingGroup() : base(null) { }

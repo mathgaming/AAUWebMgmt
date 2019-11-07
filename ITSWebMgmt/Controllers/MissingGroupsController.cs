@@ -7,27 +7,35 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
+using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.Controllers
 {
-    public class MissingGroupsController : Controller
+    public class MissingGroupsController : WebMgmtController
     {
-        private readonly LogEntryContext _context;
-
-        public MissingGroupsController(LogEntryContext context)
+        public MissingGroupsController(LogEntryContext context) : base(context)
         {
-            _context = context;
         }
 
         // GET: MissingGroups
         public async Task<IActionResult> Index()
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             return View(await _context.MacErrors.ToListAsync());
         }
 
         // GET: MissingGroups/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -46,6 +54,11 @@ namespace ITSWebMgmt.Controllers
         // GET: MissingGroups/Create
         public IActionResult Create()
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             return View();
         }
 
@@ -56,6 +69,11 @@ namespace ITSWebMgmt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,GroupName,CaseLink,Active,Heading,Description,Severeness")] MissingGroup missingGroup)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(missingGroup);
@@ -68,6 +86,11 @@ namespace ITSWebMgmt.Controllers
         // GET: MissingGroups/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -88,6 +111,11 @@ namespace ITSWebMgmt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,GroupName,CaseLink,Active,Heading,Description,Severeness")] MissingGroup missingGroup)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (id != missingGroup.Id)
             {
                 return NotFound();
@@ -119,6 +147,11 @@ namespace ITSWebMgmt.Controllers
         // GET: MissingGroups/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -139,6 +172,11 @@ namespace ITSWebMgmt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             var missingGroup = await _context.MacErrors.FindAsync(id);
             _context.MacErrors.Remove(missingGroup);
             await _context.SaveChangesAsync();

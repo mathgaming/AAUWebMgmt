@@ -435,8 +435,7 @@ namespace ITSWebMgmt.Controllers
         {
             List<WebMgmtError> warnings = new List<WebMgmtError>
             {
-                new SecurityUpdateAvailable(this),
-                new MissingEmail(this)
+                new NotAAUMac(this)
             };
 
             warnings.AddRange(GetAllMacWarnings());
