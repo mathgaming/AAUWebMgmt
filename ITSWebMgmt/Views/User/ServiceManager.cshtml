@@ -5,9 +5,9 @@
 </script>
 @{
     SCSMConnector sccm = new SCSMConnector(Model.DisplayName);
-
-    Model.serviceManager = await sccm.getActiveIncidents(Model.UserPrincipalName);
+    Model.serviceManager = await sccm.getServiceManager(Model.UserPrincipalName);
     Model.SCSMUserID = sccm.userID;
+    List<Case> userCases = Model.serviceManager.userCases;
 }
 
 <h2>SCSM Information</h2>
@@ -21,6 +21,17 @@
 <br />
 <br />
 <a href="https://service.aau.dk/user/UserRelatedInfoById\" + @Model.serviceManager.userID>Service Portal User Info</a>
-<br />
 <br>
+<h1>Open Requests</h1>
+<br>
+<CelledTable Items="userCases" Context="workitem">
+    <TableHeader>
+        <tr>ID</tr>
+        <tr>Title</tr>
+        <tr>Status</tr>
+        <tr>Last Change</tr>
+    </TableHeader>
+    <RowTemplate>
+    </RowTemplate>
+</CelledTable>
 

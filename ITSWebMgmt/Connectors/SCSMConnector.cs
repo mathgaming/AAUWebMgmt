@@ -123,7 +123,7 @@ namespace ITSWebMgmt.Connectors
         protected async Task<List<Case>> lookupWorkItemsByUUID(string uuid)
         {
 
-            WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/WorkItem/GetGridWorkItemsMyRequests?userid=" + uuid + "&showInactiveItems=false");
+            WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/WorkItem/GetGridWorkItemsMyRequests?userid=" + uuid + "&showInactiveItems=true");
             request.Method = "Get";
             request.Headers.Add("Authorization", "Token " + authkey);
             request.ContentType = "application/json; text/json";
@@ -178,7 +178,7 @@ namespace ITSWebMgmt.Connectors
             return null;
         }
 
-        public async Task<ServiceManagerModel> getActiveIncidents(string upn)
+        public async Task<ServiceManagerModel> getServiceManager(string upn)
         {
             string uuid = await getUUID(upn);
             
