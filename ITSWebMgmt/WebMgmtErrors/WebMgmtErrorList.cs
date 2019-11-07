@@ -48,12 +48,14 @@ namespace ITSWebMgmt.WebMgmtErrors
                     break;
             }
 
-            if (error is MacWebMgmtError)
+            if (error is MissingGroup)
             {
+                var macError = error as MissingGroup;
                 //TODO handle these errors special
                 return $"<div class=\"ui {messageType} message\" runat= \"server\">" +
-                    $"<div class=\"header\">{error.Heading}</div>" +
-                    $"<p>{error.Description}</p>" +
+                    $"<div class=\"header\">{macError.Heading}</div>" +
+                    $"<p>{macError.Description}</p><br/>" +
+                    $"<a href=\"{macError.CaseLink}\">Case<a/>" +
                     $"</div>";
             }
 
