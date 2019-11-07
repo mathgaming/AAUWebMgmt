@@ -26,8 +26,40 @@ namespace ITSWebMgmt.Controllers
 
             StringBuilder sb = new StringBuilder();
 
-            List<string> computerTabNames = new List<string>() { "basicinfo", "groups", "sccmInfo", "sccmInventory", "sccmAV", "sccmHW", "rawdata", "tasks", "warnings" };
-            List<string> userTabNames = new List<string>() { "basicinfo", "groups", "servicemanager", "calAgenda", "computerInformation", "win7to10", "fileshares", "exchange", "loginscript", "print", "rawdata", "tasks", "warnings" };
+            List<(string name, string date)> computerTabNames = new List<(string, string)>() {
+                ( "basicinfo", "2019-08-27"),
+                ( "groups", "2019-08-27"),
+                ( "sccmInfo", "2019-08-27"),
+                ( "sccmInventory", "2019-08-27"),
+                ( "sccmAV", "2019-08-27"),
+                ( "sccmHW", "2019-08-27"),
+                ( "rawdata", "2019-08-27"),
+                ( "tasks", "2019-08-27"),
+                ( "warnings", "2019-08-27"),
+                ( "purchase", "2019-09-19"),
+                ( "sccmcollections" ,"2019-08-30"),
+                ( "rawdatasccm", "2019-08-30"),
+                ( "macbasicinfo", "2019-08-30"),
+                ( "macHW", "2019-08-30"),
+                ( "macSW", "2019-08-30"),
+                ( "macgroups", "2019-08-30"),
+                ( "macnetwork", "2019-08-30"),
+                ( "macloaclaccounts", "2019-08-30"),
+                ( "macDisk", "2019-08-30") };
+            List<(string name, string date)> userTabNames = new List<(string, string)>() {
+                ( "basicinfo", "2019-08-27"),
+                ( "groups", "2019-08-27"),
+                ( "servicemanager", "2019-08-27"),
+                ( "calAgenda", "2019-08-27"),
+                ( "computerInformation", "2019-08-27"),
+                ( "win7to10", "2019-08-27"),
+                ( "fileshares", "2019-08-27"),
+                ( "exchange", "2019-08-27"),
+                ( "loginscript", "2019-08-27"),
+                ( "print", "2019-08-27"),
+                ( "rawdata", "2019-08-27"),
+                ( "tasks", "2019-08-27"),
+                ( "warnings", "2019-08-27") };
 
             sb.Append("<h1>General</h1>");
             sb.Append($"Computer lookups: {getCount(LogEntryType.ComputerLookup)}\n");
@@ -36,26 +68,25 @@ namespace ITSWebMgmt.Controllers
             sb.Append("<h1>Tasks</h1>");
             sb.Append($"Get admin password: {getCount(LogEntryType.ComputerAdminPassword)}\n");
             sb.Append($"Bitlocker enabled: {getCount(LogEntryType.Bitlocker)}\n");
-            sb.Append($"Computer deleted from AD (since 2019-08-16): {getCount(LogEntryType.ComputerDeletedFromAD)}\n");
+            sb.Append($"Computer deleted from AD: {getCount(LogEntryType.ComputerDeletedFromAD)} (since 2019-08-16)\n");
             sb.Append($"Responce challence: {getCount(LogEntryType.ResponceChallence)}\n");
             sb.Append($"Moved user OU: {getCount(LogEntryType.UserMoveOU)}\n");
             sb.Append($"unlocked user account: {getCount(LogEntryType.UnlockUserAccount)}\n");
             sb.Append($"Toggled user profile: {getCount(LogEntryType.ToggleUserProfile)}\n");
-            sb.Append($"Onedrive (since 2019-08-13): {getCount(LogEntryType.Onedrive)}\n");
-            sb.Append($"Disabled user from AD (since 2019-08-23): {getCount(LogEntryType.DisabledAdUser)}\n");
-            sb.Append($"Fixed PCConfigs (since 2019-08-23): {getCount(LogEntryType.FixPCConfig)}\n");
-            sb.Append($"Changed ManagedBy (since 2019-08-27): {getCount(LogEntryType.ChangedManagedBy)}\n");
-            sb.Append($"Group lookups (since 2019-08-27): {getCount(LogEntryType.GroupLookup)}\n");
+            sb.Append($"Onedrive: {getCount(LogEntryType.Onedrive)} (since 2019-08-13)\n");
+            sb.Append($"Disabled user from AD: {getCount(LogEntryType.DisabledAdUser)} (since 2019-08-23)\n");
+            sb.Append($"Fixed PCConfigs: {getCount(LogEntryType.FixPCConfig)} (since 2019-08-23)\n");
+            sb.Append($"Changed ManagedBy: {getCount(LogEntryType.ChangedManagedBy)} (since 2019-08-27)\n");
+            sb.Append($"Group lookups: {getCount(LogEntryType.GroupLookup)} (since 2019-08-27)\n");
 
-            sb.Append($"\n(All statistics below is since 2019-08-22)");
             sb.Append($"<h1>Computer tabs</h1>");
 
             var loadedComputerTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabComputer).ToList();
 
             foreach (var tab in computerTabNames)
             {
-                int count = loadedComputerTabs.Where(x => x.Arguments[0].Value == tab).ToList().Count;
-                sb.Append($"{tab}: {count}\n");
+                int count = loadedComputerTabs.Where(x => x.Arguments[0].Value == tab.name).ToList().Count;
+                sb.Append($"{tab.name}: {count} (since {tab.date})\n");
             }
 
             var loadeduserTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabUser).ToList();
@@ -63,8 +94,8 @@ namespace ITSWebMgmt.Controllers
             sb.Append($"<h1>User tabs</h1>");
             foreach (var tab in userTabNames)
             {
-                int count = loadeduserTabs.Where(x => x.Arguments[0].Value == tab).ToList().Count;
-                sb.Append($"{tab}: {count}\n");
+                int count = loadeduserTabs.Where(x => x.Arguments[0].Value == tab.name).ToList().Count;
+                sb.Append($"{tab.name}: {count} (since {tab.date})\n");
             }
 
             return View(new SimpleModel(sb.ToString()));
