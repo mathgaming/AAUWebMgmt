@@ -272,6 +272,11 @@ namespace ITSWebMgmt.Controllers
                 return Error("Fields cannot be empty");
             }
 
+            if (temp[2].Length < 3)
+            {
+                return Error("Case number is on a wrong format");
+            }
+
             string firstTwoLetters = temp[2].Substring(0, 2).ToUpper();
 
             if (firstTwoLetters != "IR" && firstTwoLetters != "SR")

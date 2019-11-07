@@ -43,10 +43,12 @@ namespace ITSWebMgmt.Controllers
 
         private IMemoryCache _cache;
         public ComputerModel ComputerModel;
+        private LogEntryContext _context;
 
-        public ComputerController(LogEntryContext context,IMemoryCache cache) : base(context)
+        public ComputerController(LogEntryContext context, IMemoryCache cache) : base(context)
         {
             _cache = cache;
+            _context = context;
         }
 
         private ComputerModel getComputerModel(string computerName)
@@ -67,7 +69,7 @@ namespace ITSWebMgmt.Controllers
                             ComputerModel.IsWindows = true;
                             ComputerModel.Windows.setConfig();
                             ComputerModel.Windows.InitBasicInfo();
-                            LoadWarnings();
+                            LoadWindowsWarnings();
                             ComputerModel.SetTabs();
                             if (!checkComputerOU(ComputerModel.Windows.adpath))
                             {
@@ -87,6 +89,7 @@ namespace ITSWebMgmt.Controllers
                         {
                             ComputerModel.IsWindows = false;
                             ComputerModel.SetTabs();
+                            LoadMacWarnings();
                         }
                         else
                         {
@@ -414,9 +417,9 @@ namespace ITSWebMgmt.Controllers
             return Success(computername + " have been deleted from AD");
         }
 
-        private void LoadWarnings()
+        private void LoadWindowsWarnings()
         {
-            List<WebMgmtError> errors = new List<WebMgmtError>
+            List<WebMgmtError> warnings = new List<WebMgmtError>
             {
                 new MissingDataFromSCCM(this),
                 new DriveAlmostFull(this),
@@ -425,11 +428,35 @@ namespace ITSWebMgmt.Controllers
                 new ManagerAndComputerNotInSameDomain(this)                
             };
 
-            var errorList = new WebMgmtErrorList(errors);
+            LoadWarnings(warnings);
+        }
+
+        private void LoadMacWarnings()
+        {
+            List<WebMgmtError> warnings = new List<WebMgmtError>
+            {
+                new NotAAUMac(this)
+            };
+
+            warnings.AddRange(GetAllMacWarnings());
+
+            LoadWarnings(warnings);
+        }
+
+        public IEnumerable<MacWebMgmtError> GetAllMacWarnings()
+        {
+            foreach (var item in _context.MacErrors.Where(x => x.Active))
+            {
+                item.computer = this;
+                yield return item;
+            }
+        }
+
+        private void LoadWarnings(List<WebMgmtError> warnings)
+        {
+            var errorList = new WebMgmtErrorList(warnings);
             ComputerModel.ErrorCountMessage = errorList.getErrorCountMessage();
             ComputerModel.ErrorMessages = errorList.ErrorMessages;
-
-            //Password is expired and warning before expire (same timeline as windows displays warning)
         }
 
         public ActionResult AddToOneDrive([FromBody]string data)
