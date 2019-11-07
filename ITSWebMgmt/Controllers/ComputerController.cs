@@ -402,6 +402,7 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult DeleteComputerFromAD([FromBody]string computername)
         {
+            string onedriveMessage = "";
             try
             {
                 ComputerModel = getComputerModel(computername);
@@ -414,7 +415,12 @@ namespace ITSWebMgmt.Controllers
 
             new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, ComputerModel.Windows.adpath);
 
-            return Success(computername + " have been deleted from AD");
+            if (OneDriveHelper.ComputerUsesOneDrive(ComputerModel.Windows.ADcache))
+            {
+                onedriveMessage = "Computer used Onedrive before it was deleted. Remeber to add it to Onedrive, if the computer is added to AD again";
+            }
+
+            return Success(computername + " have been deleted from AD. " + onedriveMessage);
         }
 
         private void LoadWindowsWarnings()
