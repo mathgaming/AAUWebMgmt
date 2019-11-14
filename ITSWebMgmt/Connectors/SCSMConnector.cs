@@ -135,6 +135,8 @@ namespace ITSWebMgmt.Connectors
 
             var responseText = streamReader.ReadToEnd();
 
+            //Make a breakpoint here to see what the response actually is.
+            //This is probably easier than looking at the API documentation tbh.
             List<Case> caseList = JsonConvert.DeserializeObject<List<Case>>(responseText);
 
             return caseList;

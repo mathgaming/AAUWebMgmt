@@ -12,7 +12,8 @@ namespace ITSWebMgmt.Models
 
         public ServiceManagerModel(string userID, List<Case> userCases)
         {
-
+            this.userCases = userCases;
+            this.userID = userID;
         }
     }
     

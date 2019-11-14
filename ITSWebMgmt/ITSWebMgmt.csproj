@@ -66,6 +66,7 @@
 
   <ItemGroup>
     <Folder Include="Views\Computer\Mac\" />
+    <Folder Include="Views\Shared\Components\" />
   </ItemGroup>
 
 </Project>

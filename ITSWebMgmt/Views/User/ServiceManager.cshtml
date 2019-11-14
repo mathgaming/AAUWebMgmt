@@ -24,14 +24,23 @@
 <br>
 <h1>Open Requests</h1>
 <br>
-<CelledTable Items="userCases" Context="workitem">
-    <TableHeader>
-        <tr>ID</tr>
-        <tr>Title</tr>
-        <tr>Status</tr>
-        <tr>Last Change</tr>
-    </TableHeader>
-    <RowTemplate>
-    </RowTemplate>
-</CelledTable>
+<table class="ui celled table">
+    <thead>
+        <tr>
+            <th>ID </th>
+            <th>Title </th>
+            <th>Status</th>
+            <th>Last Modified</th>
+        </tr>
+    </thead>
+       @foreach (var d in Model.serviceManager.userCases)
+    {
+        <tr>
+            <td>@d.Id</td>
+            <td>@d.Title</td>
+            <td>@d.Status</td>
+            <td>@d.LastModified</td>
 
+        </tr>
+    }
+</table>
