@@ -176,6 +176,10 @@ namespace ITSWebMgmt.Controllers
             {
                 return Error(e.Message);
             }
+            catch (Exception e)
+            {
+                return Error(e.Message);
+            }
 
             return Success();
         }
@@ -387,6 +391,8 @@ namespace ITSWebMgmt.Controllers
                 case "rawdata":
                     string rawTable = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
                     return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
+                case "netaaudk":
+                    return PartialView("RawHTMLTab", new RawHTMLModel("Net.aau.dk", UserModel.InitNetaaudk()));
             }
 
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);

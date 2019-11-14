@@ -59,7 +59,7 @@ namespace ITSWebMgmt.Controllers
                 ( "print", "2019-08-27"),
                 ( "rawdata", "2019-08-27"),
                 ( "tasks", "2019-08-27"),
-                ( "warnings", "2019-08-27") };
+                ( "netaaudk", "2019-11-14") };
 
             sb.Append("<h1>General</h1>");
             sb.Append($"Computer lookups: {getCount(LogEntryType.ComputerLookup)}\n");
