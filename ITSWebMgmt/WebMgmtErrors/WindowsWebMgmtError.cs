@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Controllers;
+using ITSWebMgmt.Controllers;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using System;

@@ -210,7 +210,7 @@ namespace ITSWebMgmt.Controllers
         public ActionResult AddToADAAU10([FromBody]string computername)
         {
             ComputerModel = getComputerModel(computername);
-            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath, "LDAP://CN=cm12_config_AAU10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath.Split("dk/")[1], "LDAP://CN=cm12_config_AAU10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
             return Success("Computer added to cm12_config_AAU10");
         }
 
@@ -218,7 +218,7 @@ namespace ITSWebMgmt.Controllers
         public ActionResult AddToADAdministrativ10([FromBody]string computername)
         {
             ComputerModel = getComputerModel(computername);
-            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath, "LDAP://CN=cm12_config_Administrativ10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath.Split("dk/")[1], "LDAP://CN=cm12_config_Administrativ10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
             return Success("Computer added to cm12_config_administrativ10");
         }
 
