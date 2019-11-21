@@ -72,7 +72,7 @@ namespace ITSWebMgmt.Controllers
             {
                 SCSMConnector sccm = new SCSMConnector();
 
-                _ = sccm.getActiveIncidents(model.AffectedUser).Result;
+                _ = sccm.getServiceManager(model.AffectedUser).Result;
 
                 model.UserID = sccm.userID;
             }
