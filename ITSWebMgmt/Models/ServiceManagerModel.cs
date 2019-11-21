@@ -9,7 +9,7 @@ namespace ITSWebMgmt.Models
     {
         public string userID;
         private List<Case> userCases;
-        public List<Case> openCases { get => _getSortedListOfCasesWithCertainStatus("Open"); }
+        public List<Case> openCases { get => _getSortedListOfCasesWithCertainStatus("Open").Concat<Case>(_getSortedListOfCasesWithCertainStatus("Awaiting user response")).ToList(); }
         public List<Case> closedCases { get => _getSortedListOfCasesWithCertainStatus("Closed"); }
         public List<Case> submittedCases { get => _getSortedListOfCasesWithCertainStatus("Submitted"); }
         public List<Case> cancelledCases { get => _getSortedListOfCasesWithCertainStatus("Cancelled"); }
