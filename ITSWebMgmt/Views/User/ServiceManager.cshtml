@@ -44,29 +44,6 @@
     }
 </table>
 <br />
-<h1>Submitted Requests</h1>
-<br>
-<table class="ui celled table">
-    <thead>
-        <tr>
-            <th>ID </th>
-            <th>Title </th>
-            <th>Status</th>
-            <th>Last Modified</th>
-        </tr>
-    </thead>
-    @foreach (var d in Model.serviceManager.submittedCases)
-    {
-        <tr>
-            <td>@d.Id</td>
-            <td>@d.Title</td>
-            <td>@d.Status</td>
-            <td>@d.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
-
-        </tr>
-    }
-</table>
-<br />
 <h1>Closed Requests</h1>
 <br>
 <table class="ui celled table">

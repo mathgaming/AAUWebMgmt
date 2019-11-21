@@ -9,10 +9,8 @@ namespace ITSWebMgmt.Models
     {
         public string userID;
         private List<Case> userCases;
-        public List<Case> openCases { get => _getSortedListOfCasesWithCertainStatus("Open").Concat<Case>(_getSortedListOfCasesWithCertainStatus("Awaiting user response")).ToList(); }
-        public List<Case> closedCases { get => _getSortedListOfCasesWithCertainStatus("Closed"); }
-        public List<Case> submittedCases { get => _getSortedListOfCasesWithCertainStatus("Submitted"); }
-        public List<Case> cancelledCases { get => _getSortedListOfCasesWithCertainStatus("Cancelled"); }
+        public List<Case> openCases { get => _getSortedCasesInStatuses("Active", "Pending", "Pending 3rd party", "Awaiting user response", "Pending Group Approval", "New", "Submitted", "In Progress", "On Hold"); }
+        public List<Case> closedCases { get => userCases.Except(openCases).ToList(); }
 
 
         public ServiceManagerModel(string userID, List<Case> userCases)
@@ -20,9 +18,18 @@ namespace ITSWebMgmt.Models
             this.userCases = userCases;
             this.userID = userID;
         }
-        private List<Case> _getSortedListOfCasesWithCertainStatus(string statusToSortBy)
+        private List<Case> _getListOfCasesWithCertainStatus(string statusToSortBy)
         {
-            return userCases.Where(x => x.Status.Equals(statusToSortBy)).OrderByDescending(x => x.LastModified).ToList();
+            return userCases.Where(x => x.Status.Equals(statusToSortBy)).ToList();
+        }
+        private List<Case> _getSortedCasesInStatuses(params string[] statuses)
+        {
+            List<Case> outputList = new List<Case>();
+            foreach (string s in statuses)
+            {
+                outputList = outputList.Concat<Case>(_getListOfCasesWithCertainStatus(s)).ToList();
+            }
+            return outputList.OrderByDescending(x => x.LastModified).ToList();
         }
     }
     
