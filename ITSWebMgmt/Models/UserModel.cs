@@ -105,10 +105,6 @@ namespace ITSWebMgmt.Models
             }
         }
         public string CalAgendaStatus { get; set; }
-        public string ServiceManagerOld {
-            get { return ServiceManagerOld; }
-            set { ServiceManagerOld = value; }
-        }
         public ServiceManagerModel serviceManager { get; set; }
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }

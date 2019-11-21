@@ -35,7 +35,7 @@ namespace ITSWebMgmt.Models
     
     public class Case
     {
-        static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
+        private static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
         public string Id { get; private set; }
         public string Title { get; private set; }
         public string Status { get; private set; }

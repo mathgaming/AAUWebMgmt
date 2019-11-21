@@ -14,15 +14,15 @@ namespace ITSWebMgmt.Connectors
     //Before you venture into this file, make sure you have been blessed by a priest first. It has been created in the fires of hell and should just be nuked back to oblivion, but we still need it. So good luck.
     public class SCSMConnector
     {
-        string webserviceURL = "https://service.aau.dk";
+        private const string webserviceURL = "https://service.aau.dk";
 
         public string userID = "";
 
         public string userFullName = null;
 
-        static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
+        private static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
 
-        string authkey;
+        private string authkey;
 
         public SCSMConnector()
         {
