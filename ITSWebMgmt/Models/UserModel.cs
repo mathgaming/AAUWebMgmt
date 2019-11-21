@@ -11,6 +11,7 @@ using System.Web;
 using Microsoft.Exchange.WebServices.Data;
 using Microsoft.AspNetCore.Http;
 using ITSWebMgmt.Connectors;
+using static ITSWebMgmt.Connectors.NetaaudkConnector;
 
 namespace ITSWebMgmt.Models
 {
@@ -115,6 +116,7 @@ namespace ITSWebMgmt.Models
         public bool ShowFixUserOU { get; set; } = false;
         public bool ShowLoginScript { get; set; } = false;
         public string UsesOnedrive { get; set; } = "False";
+        public List<NetaaudkModel> Netaaudk { get; set; }
 
         public UserModel(string username, bool loadDataInbackground = true)
         {
@@ -149,6 +151,7 @@ namespace ITSWebMgmt.Models
             Tabs.Add(new TabModel("calAgenda", "Calendar, Currently: " + CalAgendaStatus));
             Tabs.Add(new TabModel("computerInformation", "Computer Information"));
             Tabs.Add(new TabModel("win7to10", "Windows 7 to 10 upgrade", true));
+            Tabs.Add(new TabModel("netaaudk", "Net.aau.dk"));
             Tabs.Add(new TabModel("groups", "Groups"));
             Tabs.Add(new TabModel("fileshares", "Fileshares"));
             Tabs.Add(new TabModel("exchange", "Exchange Resources"));
@@ -524,6 +527,30 @@ namespace ITSWebMgmt.Models
             else
             {
                 Windows7to10 = "User do not have any Windows 7 PCs";
+            }
+        }
+
+        public string InitNetaaudk()
+        {
+            Netaaudk = new NetaaudkConnector().GetData(UserName);
+
+            if (Netaaudk.Count != 0)
+            {
+                var helper = new HTMLTableHelper(new string[] { "Created at", "First use", "last used", "Mac address", "Device name", "Device type"});
+
+                foreach (var item in Netaaudk)
+                {
+                    string created_at = DateTimeConverter.Convert(item.created_at);
+                    string first_used = item.first_use == null ? "Never used" : DateTimeConverter.Convert(item.first_use);
+                    string last_used = item.last_used == null ? "Never used" : DateTimeConverter.Convert(item.last_used);
+                    helper.AddRow(new string[] {created_at, first_used, last_used, item.mac_address, item.name, item.devicetype});
+                }
+
+                return helper.GetTable();
+            }
+            else
+            {
+                return "User have not used Net.aau.dk";
             }
         }
 
