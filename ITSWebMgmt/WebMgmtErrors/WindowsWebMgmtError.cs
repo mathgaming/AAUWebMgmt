@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Controllers;
+using ITSWebMgmt.Controllers;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using System;
@@ -111,8 +111,55 @@ namespace ITSWebMgmt.WebMgmtErrors
 
         public override bool HaveError()
         {
-            DateTime temp = computer.ComputerModel.Windows.WhenCreated;
             return (computer.ComputerModel.Windows.ConfigPC == "Unknown" && computer.ComputerModel.Windows.WhenCreated > DateTime.Parse("2019-01-01"));
+        }
+    }
+
+    public class MissingPCADGroup : ComputerWebMgmtError
+    {
+        public MissingPCADGroup(ComputerController computer) : base(computer)
+        {
+            Heading = "The PC is neither in the ad";
+            Description = @"<p>The computer is neither in the AD group cm12_config_AAU10 or cm12_config_administrativ10</p>
+                            <p>Please add it to one of them</p>
+                            <button id=""AddToADAdministrativ10"">Add computer to Administrativ10 PC</button>
+                            <br />
+                            <br />
+                            <button id=""AddToADAAU10"">Add computer to AAU10 PC</button>
+                            <script>
+                                $(""#AddToADAdministrativ10"").click(function ()
+                                {
+                                    sendPostRequest(""AddToADAdministrativ10"")
+                                });
+
+                                $(""#AddToADAAU10"").click(function ()
+                                {
+                                    sendPostRequest(""AddToADAAU10"")
+                                });
+                            </script>";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            var groups = computer.ComputerModel.Windows.ADcache.getGroups("memberOf");
+            return (!groups.Any(x => x.Contains("cm12_config_AAU10") || x.Contains("cm12_config_administrativ10"))
+                && computer.ComputerModel.Windows.WhenCreated > DateTime.Parse("2019-01-01"));
+        }
+    }
+
+    public class IsWindows7 : ComputerWebMgmtError
+    {
+        public IsWindows7(ComputerController computer) : base(computer)
+        {
+            Heading = "The computer uses Windows 7";
+            Description = "Windows 7 is not longer support. The computer have to be reinstalled with Windows 10";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            return (computer.ComputerModel.Windows.ConfigPC == "AAU7 PC" || computer.ComputerModel.Windows.ConfigPC == "Administrativ7 PC");
         }
     }
 
