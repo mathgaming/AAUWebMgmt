@@ -207,6 +207,22 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
+        public ActionResult AddToADAAU10([FromBody]string computername)
+        {
+            ComputerModel = getComputerModel(computername);
+            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath, "LDAP://CN=cm12_config_AAU10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            return Success("Computer added to cm12_config_AAU10");
+        }
+
+        [HttpPost]
+        public ActionResult AddToADAdministrativ10([FromBody]string computername)
+        {
+            ComputerModel = getComputerModel(computername);
+            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath, "LDAP://CN=cm12_config_Administrativ10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            return Success("Computer added to cm12_config_administrativ10");
+        }
+
+        [HttpPost]
         public ActionResult ResultGetPassword([FromBody]string computername)
         {
             ComputerModel = getComputerModel(computername);
@@ -380,6 +396,7 @@ namespace ITSWebMgmt.Controllers
 
         }
 
+        // Depricated, new version is: private ActionResult addComputerTocollection(string computerName, string collectionId, string collectionName)
         protected bool addComputerToCollection(string resourceID, string collectionID)
         {
             var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
@@ -431,7 +448,9 @@ namespace ITSWebMgmt.Controllers
                 new DriveAlmostFull(this),
                 new NotStandardComputerOU(this),
                 new MissingPCConfig(this),
-                new ManagerAndComputerNotInSameDomain(this)                
+                new MissingPCADGroup(this),
+                new IsWindows7(this),
+                new ManagerAndComputerNotInSameDomain(this)
             };
 
             LoadWarnings(warnings);
