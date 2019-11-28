@@ -119,13 +119,13 @@ namespace ITSWebMgmt.WebMgmtErrors
     {
         public MissingPCADGroup(ComputerController computer) : base(computer)
         {
-            Heading = "The PC is neither in the ad";
-            Description = @"<p>The computer is neither in the AD group cm12_config_AAU10 or cm12_config_administrativ10</p>
+            Heading = "The PC is missing in an ad group";
+            Description = @"<p>The computer is neither in the AD group cm12_config_AAU10 or cm12_config_Administrativ10</p>
                             <p>Please add it to one of them</p>
-                            <button id=""AddToADAdministrativ10"">Add computer to Administrativ10 PC</button>
+                            <button id=""AddToADAdministrativ10"">Add computer to cm12_config_Administrativ10</button>
                             <br />
                             <br />
-                            <button id=""AddToADAAU10"">Add computer to AAU10 PC</button>
+                            <button id=""AddToADAAU10"">Add computer to cm12_config_AAU10</button>
                             <script>
                                 $(""#AddToADAdministrativ10"").click(function ()
                                 {
@@ -143,7 +143,7 @@ namespace ITSWebMgmt.WebMgmtErrors
         public override bool HaveError()
         {
             var groups = computer.ComputerModel.Windows.ADcache.getGroups("memberOf");
-            return (!groups.Any(x => x.Contains("cm12_config_AAU10") || x.Contains("cm12_config_administrativ10"))
+            return (!groups.Any(x => x.Contains("cm12_config_AAU10") || x.Contains("cm12_config_Administrativ10"))
                 && computer.ComputerModel.Windows.WhenCreated > DateTime.Parse("2019-01-01"));
         }
     }

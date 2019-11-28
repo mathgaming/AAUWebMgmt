@@ -219,7 +219,7 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computername);
             ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath.Split("dk/")[1], "LDAP://CN=cm12_config_Administrativ10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
-            return Success("Computer added to cm12_config_administrativ10");
+            return Success("Computer added to cm12_config_Administrativ10");
         }
 
         [HttpPost]
