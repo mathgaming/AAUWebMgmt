@@ -228,7 +228,15 @@ namespace ITSWebMgmt.Helpers
                     var property = o.Properties[p];
                     if (p == "Size" || p == "FreeSpace")
                     {
-                        tableHelper.AddRow(new string[] { p + " (GB)", (int.Parse(o.Properties[p].Value.ToString()) / 1024).ToString() });
+                        var value = o.Properties[p].Value;
+                        if (value != null)
+                        {
+                            tableHelper.AddRow(new string[] { p + " (GB)", (int.Parse(value.ToString()) / 1024).ToString() });
+                        }
+                        else
+                        {
+                            tableHelper.AddRow(new string[] { p + " (GB)", "missing" });
+                        }
                     }
                     else
                     {

@@ -4,7 +4,7 @@
     $("#smloader > div").hide("fast");
 </script>
 @{
-    SCSMConnector sccm = new SCSMConnector(Model.DisplayName);
+    SCSMConnector sccm = new SCSMConnector();
     Model.serviceManager = await sccm.getServiceManager(Model.UserPrincipalName);
     Model.SCSMUserID = sccm.userID;
 }
