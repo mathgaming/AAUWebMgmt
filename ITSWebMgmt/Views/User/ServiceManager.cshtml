@@ -35,7 +35,7 @@
     @foreach (var d in Model.serviceManager.openCases)
     {
         <tr>
-            <td>@d.Id</td>
+            <td><a href="https://webmgmt.aau.dk/AAURedirector/?id=@d.Id" target="_blank">@d.Id</a></td>
             <td>@d.Title</td>
             <td>@d.Status</td>
             <td>@d.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
@@ -58,7 +58,7 @@
     @foreach (var d in Model.serviceManager.closedCases)
     {
         <tr>
-            <td>@d.Id</td>
+            <td><a href="https://webmgmt.aau.dk/AAURedirector/?id=@d.Id" target="_blank">@d.Id</a></td>
             <td>@d.Title</td>
             <td>@d.Status</td>
             <td>@d.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
