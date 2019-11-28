@@ -4,6 +4,7 @@ using System.DirectoryServices;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models.Log;
 using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Models;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -13,7 +14,7 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
-            return View(_context.KnownIssues.Where(x => x.Active));
+            return View(new HomeModel(_context, HttpContext.User.Identity.Name));
         }
 
         [Route("/Home/Search")]
