@@ -18,7 +18,6 @@ namespace ITSWebMgmt.Connectors
 
         public string userID = "";
 
-        public string userFullName = null;
 
         private static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
 
@@ -26,11 +25,6 @@ namespace ITSWebMgmt.Connectors
 
         public SCSMConnector()
         {
-            authkey = getAuthKey().Result;
-        }
-        public SCSMConnector(string userFullName)
-        {
-            this.userFullName = userFullName;
             authkey = getAuthKey().Result;
         }
 
@@ -170,8 +164,7 @@ namespace ITSWebMgmt.Connectors
             //TODO: Don't await for each item, make all requests and await, then look over data
             foreach (dynamic obj in json)
             {
-
-                if (userFullName.Equals((string)obj["Name"], StringComparison.CurrentCultureIgnoreCase))
+                if (upn.Equals((string)obj["Email"], StringComparison.CurrentCultureIgnoreCase))
                 {
                     userID = (string)obj["Id"];
                     return userID;
