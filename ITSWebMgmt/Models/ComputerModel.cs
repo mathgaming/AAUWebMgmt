@@ -55,6 +55,7 @@ namespace ITSWebMgmt.Models
                 Tabs.Add(new TabModel("macnetwork", "Network info"));
                 Tabs.Add(new TabModel("macloaclaccounts", "Local accounts"));
                 Tabs.Add(new TabModel("purchase", "Purchase info (INDB)"));
+                Tabs.Add(new TabModel("warnings", "Warnings"));
             }
         }
     }

@@ -13,6 +13,11 @@ namespace ITSWebMgmt.Controllers
     {
         public IActionResult Index(string id)
         {
+            if (id == null)
+            { 
+                return View(new ChangeModel() { Error = "Type not found" });
+            }
+
             string emailFilter = @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z";
 
             if (Regex.IsMatch(id, emailFilter, RegexOptions.IgnoreCase))

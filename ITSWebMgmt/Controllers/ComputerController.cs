@@ -43,10 +43,12 @@ namespace ITSWebMgmt.Controllers
 
         private IMemoryCache _cache;
         public ComputerModel ComputerModel;
+        private LogEntryContext _context;
 
-        public ComputerController(LogEntryContext context,IMemoryCache cache) : base(context)
+        public ComputerController(LogEntryContext context, IMemoryCache cache) : base(context)
         {
             _cache = cache;
+            _context = context;
         }
 
         private ComputerModel getComputerModel(string computerName)
@@ -67,7 +69,7 @@ namespace ITSWebMgmt.Controllers
                             ComputerModel.IsWindows = true;
                             ComputerModel.Windows.setConfig();
                             ComputerModel.Windows.InitBasicInfo();
-                            LoadWarnings();
+                            LoadWindowsWarnings();
                             ComputerModel.SetTabs();
                             if (!checkComputerOU(ComputerModel.Windows.adpath))
                             {
@@ -87,6 +89,7 @@ namespace ITSWebMgmt.Controllers
                         {
                             ComputerModel.IsWindows = false;
                             ComputerModel.SetTabs();
+                            LoadMacWarnings();
                         }
                         else
                         {
@@ -201,6 +204,22 @@ namespace ITSWebMgmt.Controllers
             }
 
             return Error("Failed to add computer to group");
+        }
+
+        [HttpPost]
+        public ActionResult AddToADAAU10([FromBody]string computername)
+        {
+            ComputerModel = getComputerModel(computername);
+            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath.Split("dk/")[1], "LDAP://CN=cm12_config_AAU10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            return Success("Computer added to cm12_config_AAU10");
+        }
+
+        [HttpPost]
+        public ActionResult AddToADAdministrativ10([FromBody]string computername)
+        {
+            ComputerModel = getComputerModel(computername);
+            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath.Split("dk/")[1], "LDAP://CN=cm12_config_Administrativ10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            return Success("Computer added to cm12_config_administrativ10");
         }
 
         [HttpPost]
@@ -377,6 +396,7 @@ namespace ITSWebMgmt.Controllers
 
         }
 
+        // Depricated, new version is: private ActionResult addComputerTocollection(string computerName, string collectionId, string collectionName)
         protected bool addComputerToCollection(string resourceID, string collectionID)
         {
             var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
@@ -399,6 +419,7 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult DeleteComputerFromAD([FromBody]string computername)
         {
+            string onedriveMessage = "";
             try
             {
                 ComputerModel = getComputerModel(computername);
@@ -411,25 +432,56 @@ namespace ITSWebMgmt.Controllers
 
             new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, ComputerModel.Windows.adpath);
 
-            return Success(computername + " have been deleted from AD");
+            if (OneDriveHelper.ComputerUsesOneDrive(ComputerModel.Windows.ADcache))
+            {
+                onedriveMessage = "Computer used Onedrive before it was deleted. Remeber to add it to Onedrive, if the computer is added to AD again";
+            }
+
+            return Success(computername + " have been deleted from AD. " + onedriveMessage);
         }
 
-        private void LoadWarnings()
+        private void LoadWindowsWarnings()
         {
-            List<WebMgmtError> errors = new List<WebMgmtError>
+            List<WebMgmtError> warnings = new List<WebMgmtError>
             {
                 new MissingDataFromSCCM(this),
                 new DriveAlmostFull(this),
                 new NotStandardComputerOU(this),
                 new MissingPCConfig(this),
-                new ManagerAndComputerNotInSameDomain(this)                
+                new MissingPCADGroup(this),
+                new IsWindows7(this),
+                new ManagerAndComputerNotInSameDomain(this)
             };
 
-            var errorList = new WebMgmtErrorList(errors);
+            LoadWarnings(warnings);
+        }
+
+        private void LoadMacWarnings()
+        {
+            List<WebMgmtError> warnings = new List<WebMgmtError>
+            {
+                new NotAAUMac(this)
+            };
+
+            warnings.AddRange(GetAllMacWarnings());
+
+            LoadWarnings(warnings);
+        }
+
+        public IEnumerable<MacWebMgmtError> GetAllMacWarnings()
+        {
+            foreach (var item in _context.MacErrors.Where(x => x.Active))
+            {
+                item.computer = this;
+                yield return item;
+            }
+        }
+
+        private void LoadWarnings(List<WebMgmtError> warnings)
+        {
+            var errorList = new WebMgmtErrorList(warnings);
             ComputerModel.ErrorCountMessage = errorList.getErrorCountMessage();
             ComputerModel.ErrorMessages = errorList.ErrorMessages;
-
-            //Password is expired and warning before expire (same timeline as windows displays warning)
         }
 
         public ActionResult AddToOneDrive([FromBody]string data)

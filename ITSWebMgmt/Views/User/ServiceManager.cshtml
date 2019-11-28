@@ -4,9 +4,8 @@
     $("#smloader > div").hide("fast");
 </script>
 @{
-    SCSMConnector sccm = new SCSMConnector();
-
-    Model.ServiceManager = await sccm.getActiveIncidents(Model.UserPrincipalName);
+    SCSMConnector sccm = new SCSMConnector(Model.DisplayName);
+    Model.serviceManager = await sccm.getServiceManager(Model.UserPrincipalName);
     Model.SCSMUserID = sccm.userID;
 }
 
@@ -18,7 +17,52 @@
     <input type="submit" value="Create new IR/SR" />
 }
 <br>
-
-@Html.Raw(Model.ServiceManager)
+<br />
+<br />
+<a href="https://service.aau.dk/user/UserRelatedInfoById\" + @Model.serviceManager.userID>Service Portal User Info</a>
 <br>
+<h1>Open Requests</h1>
+<br>
+<table class="ui celled table">
+    <thead>
+        <tr>
+            <th>ID </th>
+            <th>Title </th>
+            <th>Status</th>
+            <th>Last Modified</th>
+        </tr>
+    </thead>
+    @foreach (var d in Model.serviceManager.openCases)
+    {
+        <tr>
+            <td>@d.Id</td>
+            <td>@d.Title</td>
+            <td>@d.Status</td>
+            <td>@d.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
 
+        </tr>
+    }
+</table>
+<br />
+<h1>Closed Requests</h1>
+<br>
+<table class="ui celled table">
+    <thead>
+        <tr>
+            <th>ID </th>
+            <th>Title </th>
+            <th>Status</th>
+            <th>Last Modified</th>
+        </tr>
+    </thead>
+    @foreach (var d in Model.serviceManager.closedCases)
+    {
+        <tr>
+            <td>@d.Id</td>
+            <td>@d.Title</td>
+            <td>@d.Status</td>
+            <td>@d.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
+
+        </tr>
+    }
+</table>
