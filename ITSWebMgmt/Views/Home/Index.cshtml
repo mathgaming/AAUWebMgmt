@@ -47,7 +47,7 @@
                     {
                         string adpath = entry.Arguments[0].Value;
                         int pFrom = adpath.IndexOf("CN=") + "CN=".Length;
-                        int pTo = adpath.LastIndexOf(",OU");
+                        int pTo = adpath.IndexOf(",OU");
 
                         string name = adpath.Substring(pFrom, pTo - pFrom);
                         <a href="@("/Computer?computername=" + name)">@name</a>
