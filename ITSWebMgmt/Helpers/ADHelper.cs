@@ -113,6 +113,9 @@ namespace ITSWebMgmt.Helpers
         public static string GetADPath(string username)
         {
             int val;
+
+            username = NormalizeUsername(username);
+
             if (username.Length == 4 && int.TryParse(username, out val))
             {
                 return doPhoneSearch(username);
@@ -121,6 +124,16 @@ namespace ITSWebMgmt.Helpers
             {
                 return getADPathFromUsername(username);
             }
+        }
+
+        public static string NormalizeUsername(string username)
+        {
+            if (username.Contains('(') && username.Contains(')'))
+            {
+                username = username.Split('(', ')')[1];
+            }
+
+            return username;
         }
 
         private static string globalSearch(string seachString)

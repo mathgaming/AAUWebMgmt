@@ -8,6 +8,13 @@
     <div class="ui segment">
 
         <h1>ITS Web Manager</h1>
+        Global search (only email or AAU number):
+        <form asp-controller="Home" asp-action="Search" method="post">
+            <div class="ui action input">
+                <input name="searchstring" id="searchstring" class="ui input focus" value="" />
+                <input type="submit" value="Search" onclick='$("#loader > div").show("fast");'>
+            </div>
+        </form>
 
         <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a><br />
         <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />

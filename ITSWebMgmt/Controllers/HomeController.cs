@@ -16,6 +16,19 @@ namespace ITSWebMgmt.Controllers
             return View(_context.KnownIssues.Where(x => x.Active));
         }
 
+        [Route("/Home/Search")]
+        public void Search(string searchstring)
+        {
+            if (ADHelper.GetADPath(searchstring) != null)
+            {
+                Response.Redirect("/User?username=" + searchstring);
+            }
+            else
+            {
+                Response.Redirect("/Computer?computername=" + searchstring);
+            }
+        }
+
         public IActionResult ChangeLog()
         {
             return View();
