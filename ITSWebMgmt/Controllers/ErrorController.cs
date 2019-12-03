@@ -3,6 +3,7 @@ using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using System.Net.Mail;
 using System.Threading;
+using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -31,20 +32,12 @@ namespace ITSWebMgmt.Controllers
 
         private void sendEmail(ErrorViewModel model)
         {
-            MailMessage mail = new MailMessage("platform@its.aau.dk", "platform@its.aau.dk");
-            SmtpClient client = new SmtpClient();
-            client.Host = "smtp-internal.aau.dk";
-            client.Port = 25;
-            client.EnableSsl = true;
-            client.UseDefaultCredentials = true;
-            client.Timeout = 10000;
-            mail.Subject = "WebMgmt error";
-            mail.Body = $"Person: {model.AffectedUser}\n" +
+            string body = $"Person: {model.AffectedUser}\n" +
                         $"Http status code: {model.HttpStatusCode}\n" +
                         $"Error: {model.ErrorMessage}\n" +
                         $"Url: {model.Url}\n" +
                         $"Stacktrace:\n{model.Stacktrace}\n";
-            client.Send(mail);
+            EmailHelper.SendEmail("WebMgmt error", body);
         }
     }
 }

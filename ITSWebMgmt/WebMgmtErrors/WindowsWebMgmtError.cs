@@ -186,6 +186,34 @@ namespace ITSWebMgmt.WebMgmtErrors
 
         public override bool HaveError()
         {
+            var time = computer.ComputerModel.Windows.AdminPasswordExpirationTime;
+            if (time != null && time != "")
+            {
+                try
+                {
+                    return DateTime.Parse(time) < DateTime.Now;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+    }
+
+    public class MissingJavaLicense : ComputerWebMgmtError
+    {
+        public MissingJavaLicense(ComputerController computer) : base(computer)
+        {
+            Heading = "Computer missing Java licence";
+            Description = "Computer must be a Administrativ10 PC to have a Java licence";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            // We need to make a better api to access SCCM before this is implemented
             throw new NotImplementedException();
         }
     }

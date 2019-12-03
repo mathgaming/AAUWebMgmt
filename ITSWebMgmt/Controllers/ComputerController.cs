@@ -452,7 +452,8 @@ namespace ITSWebMgmt.Controllers
                 new MissingPCConfig(this),
                 new MissingPCADGroup(this),
                 new IsWindows7(this),
-                new ManagerAndComputerNotInSameDomain(this)
+                new ManagerAndComputerNotInSameDomain(this),
+                new PasswordExpired(this)
             };
 
             LoadWarnings(warnings);
