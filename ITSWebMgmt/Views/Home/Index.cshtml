@@ -46,10 +46,14 @@
                     if (entry.Type == ITSWebMgmt.Models.Log.LogEntryType.ComputerLookup)
                     {
                         string adpath = entry.Arguments[0].Value;
-                        int pFrom = adpath.IndexOf("CN=") + "CN=".Length;
-                        int pTo = adpath.IndexOf(",OU");
+                        int from = adpath.IndexOf("CN=") + "CN=".Length;
+                        int to = adpath.IndexOf(',', from);
+                        string name = adpath;
 
-                        string name = adpath.Substring(pFrom, pTo - pFrom);
+                        if (to > 0 && to - from > 0)
+                        {
+                            name = adpath.Substring(from, to - from);
+                        }
                         <a href="@("/Computer?computername=" + name)">@name</a>
                     }
                     else
