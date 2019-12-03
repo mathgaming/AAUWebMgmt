@@ -45,10 +45,7 @@ namespace ITSWebMgmt.Controllers
         {
             if (username != null)
             {
-                if (username.Contains('(') && username.Contains(')'))
-                {
-                    username = username.Split('(', ')')[1];
-                }
+                username = ADHelper.NormalizeUsername(username);
 
                 if (!_cache.TryGetValue(username, out UserModel))
                 {

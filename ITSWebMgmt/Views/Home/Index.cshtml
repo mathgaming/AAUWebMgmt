@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ITSWebMgmt.Models.KnownIssue>
+﻿@model ITSWebMgmt.Models.HomeModel
 
 @{
     ViewData["Title"] = "WebMgmt";
@@ -6,21 +6,69 @@
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="ui segment">
+        <style>
+            .column {
+                float: left;
+                width: 50%;
+            }
 
+            /* Clear floats after the columns */
+            .container:after {
+                content: "";
+                display: table;
+                clear: both;
+            }
+        </style>
         <h1>ITS Web Manager</h1>
+        <div class="container">
+            <div class="column">
+                Global search (only email or AAU number):
+                <form asp-controller="Home" asp-action="Search" method="post">
+                    <div class="ui action input">
+                        <input name="searchstring" id="searchstring" class="ui input focus" value="" />
+                        <input type="submit" value="Search" onclick='$("#loader > div").show("fast");'>
+                    </div>
+                </form>
 
-        <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a><br />
-        <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />
-        @*<a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a><br />*@
-        <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a><br />
-        <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage known issues (Only for platform)</a><br />
-        <a class="item" asp-area="" asp-controller="MissingGroups" asp-action="Index">Manage Mac error groups (Only for platform)</a><br />
-        <a class="item" asp-area="" asp-controller="CSV" asp-action="Index">CSV to email converter</a><br />
+                <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a><br />
+                <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />
+                @*<a class="item" asp-area="" asp-controller="DefendpointChallengeResponse" asp-action="Index">Defendpoint</a><br />*@
+                <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a><br />
+                <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage known issues (Only for platform)</a><br />
+                <a class="item" asp-area="" asp-controller="MissingGroups" asp-action="Index">Manage Mac error groups (Only for platform)</a><br />
+                <a class="item" asp-area="" asp-controller="CSV" asp-action="Index">CSV to email converter</a><br />
+            </div>
 
+            <div class="column">
+                <h3>Last searches:</h3>
+                @foreach (var entry in Model.LastSearches)
+                {
+                    if (entry.Type == ITSWebMgmt.Models.Log.LogEntryType.ComputerLookup)
+                    {
+                        string adpath = entry.Arguments[0].Value;
+                        int from = adpath.IndexOf("CN=") + "CN=".Length;
+                        int to = adpath.IndexOf(',', from);
+                        string name = adpath;
+
+                        if (to > 0 && to - from > 0)
+                        {
+                            name = adpath.Substring(from, to - from);
+                        }
+                        <a href="@("/Computer?computername=" + name)">@name</a>
+                    }
+                    else
+                    {
+                        string name = entry.Arguments[0].Value;
+                        <a href="@("/User?username=" + name)">@name</a>
+                    }
+                    <br />
+                }
+            </div>
+        </div>
     </div>
     <div class="ui segment">
         <h2>Known issues</h2>
-        @foreach (var item in Model)
+        @foreach (var item in Model.KnownIssues)
         {
             <h3>@item.Title</h3>
             @Html.Raw(item.Description.Replace(System.Environment.NewLine, "<br />"))

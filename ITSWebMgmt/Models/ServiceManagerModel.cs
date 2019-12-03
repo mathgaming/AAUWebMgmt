@@ -16,6 +16,10 @@ namespace ITSWebMgmt.Models
         public ServiceManagerModel(string userID, List<Case> userCases)
         {
             this.userCases = userCases;
+            if (userCases == null)
+            {
+                this.userCases = new List<Case>();
+            }
             this.userID = userID;
         }
         private List<Case> _getListOfCasesWithCertainStatus(string statusToSortBy)
