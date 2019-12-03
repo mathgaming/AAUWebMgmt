@@ -11,31 +11,46 @@ namespace ITSWebMgmt.Controllers
 {
     public class CreateWorkItemController : Controller
     {
-        public IActionResult Index(string userPrincipalName, string userID)
+        public IActionResult Index(string userPrincipalName, string userID, bool isfeedback = false)
         {
             CreateWorkItemModel model = new CreateWorkItemModel();
-            model.AffectedUser = userPrincipalName;
+            model.IsFeedback = isfeedback;
             model.UserID = userID;
+            if (isfeedback)
+            {
+                model.AffectedUser = HttpContext.User.Identity.Name;
+                if (model.AffectedUser == null)
+                {
+                    model.AffectedUser = "mhsv16@its.aau.dk"; //For testing only
+                }
+            }
+            else
+            {
+                model.AffectedUser = userPrincipalName;
+            }
 
-            UserModel userModel = new UserModel(userPrincipalName);
+            UserModel userModel = new UserModel(model.AffectedUser);
             userModel.InitBasicInfo();
 
-            model.Desription = "\n\n\n\n\n" +
-                "\nDo not edit below this line" +
-                "\n(The format is shown correctly on service.aau.dk)" +
-                "\n----------------------------------------------------------" +
-                "\nDepartment:                 " + userModel.BasicInfoDepartmentPDS +
-                "\nOffice(Pure):                  " + userModel.BasicInfoOfficePDS +
-                "\nPassword Expired:        " + userModel.BasicInfoLocked +
-                "\nPassword Expire Date: " + userModel.BasicInfoPasswordExpireDate +
-                "\nAAU-ID:                        " + userModel.AAUAAUID +
-                "\nUserStatus:                   " + userModel.AAUUserStatus +
-                "\nStaffID:                         " + userModel.AAUStaffID +
-                "\nStudentID:                    " + userModel.AAUStudentID +
-                "\nUserClassification:        " + userModel.AAUUserClassification +
-                "\nTelephone:                    " + userModel.TelephoneNumber +
-                "\nUses OneDrive?            " + userModel.UsesOnedrive +
-                "\nRomaing Profile            " + userModel.BasicInfoRomaing;
+            if (!isfeedback)
+            {
+                model.Desription = "\n\n\n\n\n" +
+                    "\nDo not edit below this line" +
+                    "\n(The format is shown correctly on service.aau.dk)" +
+                    "\n----------------------------------------------------------" +
+                    "\nDepartment:                 " + userModel.BasicInfoDepartmentPDS +
+                    "\nOffice(Pure):                  " + userModel.BasicInfoOfficePDS +
+                    "\nPassword Expired:        " + userModel.BasicInfoLocked +
+                    "\nPassword Expire Date: " + userModel.BasicInfoPasswordExpireDate +
+                    "\nAAU-ID:                        " + userModel.AAUAAUID +
+                    "\nUserStatus:                   " + userModel.AAUUserStatus +
+                    "\nStaffID:                         " + userModel.AAUStaffID +
+                    "\nStudentID:                    " + userModel.AAUStudentID +
+                    "\nUserClassification:        " + userModel.AAUUserClassification +
+                    "\nTelephone:                    " + userModel.TelephoneNumber +
+                    "\nUses OneDrive?            " + userModel.UsesOnedrive +
+                    "\nRomaing Profile            " + userModel.BasicInfoRomaing;
+            }
 
             return View(model);
         }
@@ -103,6 +118,17 @@ namespace ITSWebMgmt.Controllers
         }
         [HttpPost]
         public ActionResult CreateSR(CreateWorkItemModel workitem)
+        {
+            return createForm("https://service.aau.dk/ServiceRequest/New/", workitem);
+        }
+
+        [HttpPost]
+        public ActionResult ReportIssue(CreateWorkItemModel workitem)
+        {
+            return createForm("https://service.aau.dk/Incident/New/", workitem);
+        }
+        [HttpPost]
+        public ActionResult RequestNewFeature(CreateWorkItemModel workitem)
         {
             return createForm("https://service.aau.dk/ServiceRequest/New/", workitem);
         }
