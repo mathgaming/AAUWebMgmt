@@ -211,6 +211,7 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computername);
             ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath.Split("dk/")[1], "LDAP://CN=cm12_config_AAU10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            new Logger(_context).Log(LogEntryType.AddedToADGroup, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.adpath, "cm12_config_AAU10" });
             return Success("Computer added to cm12_config_AAU10");
         }
 
@@ -219,6 +220,7 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = getComputerModel(computername);
             ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath.Split("dk/")[1], "LDAP://CN=cm12_config_Administrativ10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            new Logger(_context).Log(LogEntryType.AddedToADGroup, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.adpath, "cm12_config_Administrativ10" });
             return Success("Computer added to cm12_config_Administrativ10");
         }
 

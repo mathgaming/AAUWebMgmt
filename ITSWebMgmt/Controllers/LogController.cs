@@ -78,6 +78,7 @@ namespace ITSWebMgmt.Controllers
             sb.Append($"Fixed PCConfigs: {getCount(LogEntryType.FixPCConfig)} (since 2019-08-23)\n");
             sb.Append($"Changed ManagedBy: {getCount(LogEntryType.ChangedManagedBy)} (since 2019-08-27)\n");
             sb.Append($"Group lookups: {getCount(LogEntryType.GroupLookup)} (since 2019-08-27)\n");
+            sb.Append($"Computer added to AD group: {getCount(LogEntryType.AddedToADGroup)} (since 2019-12-03)\n");
 
             sb.Append($"<h1>Computer tabs</h1>");
 
