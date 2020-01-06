@@ -70,15 +70,15 @@ namespace ITSWebMgmt.Models
         public bool UsesOnedrive { get; set; } = false;
         public bool HasJava()
         {
-            foreach (ManagementObject o in Software) //Has one!
+            foreach (ManagementObject o in Software)
             {
                 string name = SCCM.GetPropertyAsString(o.Properties["ProductName"]).ToLower();
                 if (name.Contains("java") && name.Contains("Update"))
                 {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
         public ComputerModel BaseModel { get; set; }
 
