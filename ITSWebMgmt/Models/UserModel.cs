@@ -117,6 +117,14 @@ namespace ITSWebMgmt.Models
         public bool ShowLoginScript { get; set; } = false;
         public string UsesOnedrive { get; set; } = "False";
         public List<NetaaudkModel> Netaaudk { get; set; }
+        public bool IsDisabled
+        {
+            get
+            {
+                const int ufAccountDisable = 0x0002;
+                return (UserAccountControl & ufAccountDisable) == ufAccountDisable;
+            }
+        }
 
         public UserModel(string username, bool loadDataInbackground = true)
         {

@@ -263,6 +263,23 @@ namespace ITSWebMgmt.Controllers
             return Json(new { success = true, names });
         }
 
+        private bool caseNumberOk(string caseNumber)
+        {
+            if (caseNumber.Length < 3)
+            {
+                return false;
+            }
+
+            string firstTwoLetters = caseNumber.Substring(0, 2).ToUpper();
+
+            if (firstTwoLetters != "IR" && firstTwoLetters != "SR")
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public ActionResult SetupOnedrive([FromBody]string data)
         {
             string[] temp = data.Split('|');
@@ -273,14 +290,7 @@ namespace ITSWebMgmt.Controllers
                 return Error("Fields cannot be empty");
             }
 
-            if (temp[2].Length < 3)
-            {
-                return Error("Case number is on a wrong format");
-            }
-
-            string firstTwoLetters = temp[2].Substring(0, 2).ToUpper();
-
-            if (firstTwoLetters != "IR" && firstTwoLetters != "SR")
+            if(!caseNumberOk(temp[2]))
             {
                 return Error("Case number is on a wrong format");
             }
@@ -317,9 +327,7 @@ namespace ITSWebMgmt.Controllers
                 return Error("Fields cannot be empty");
             }
 
-            string firstTwoLetters = temp[2].Substring(0, 2).ToUpper();
-
-            if (firstTwoLetters != "IR" && firstTwoLetters != "SR")
+            if (!caseNumberOk(temp[2]))
             {
                 return Error("Case number is on a wrong format");
             }
@@ -333,6 +341,38 @@ namespace ITSWebMgmt.Controllers
             else
             {
                 return Error("User could not be disabled");
+            }
+        }
+
+        public ActionResult EnableADUser([FromBody]string data)
+        {
+            string[] temp = data.Split('|');
+            UserModel = getUserModel(temp[0]);
+
+            if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
+            {
+                return Error("Fields cannot be empty");
+            }
+
+            if (!caseNumberOk(temp[2]))
+            {
+                return Error("Case number is on a wrong format");
+            }
+
+            if (temp[1] != "true")
+            {
+                return Error("Do the required actions first");
+            }
+
+            if (ADHelper.EnableUser(UserModel.adpath))
+            {
+                new Logger(_context).Log(LogEntryType.EnabledAdUser, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserPrincipalName, temp[2] });
+
+                return Success("User enabled in AD");
+            }
+            else
+            {
+                return Error("User could not be enabled");
             }
         }
 

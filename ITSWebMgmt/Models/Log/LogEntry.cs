@@ -76,6 +76,8 @@ namespace ITSWebMgmt.Models.Log
                     return $"lookedup group {Arguments[0]}";
                 case LogEntryType.AddedToADGroup:
                     return $"{Arguments[0]} was added to the AD group: {Arguments[1]}";
+                case LogEntryType.EnabledAdUser:
+                    return $"enaabled {Arguments[0]} from AD, case: {Arguments[1]}";
                 default:
                     return "LogEntry type not found";
             }
@@ -87,5 +89,5 @@ namespace ITSWebMgmt.Models.Log
         }
     }
 
-    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive, LoadedTabUser, LoadedTabComputer, DisabledAdUser, FixPCConfig, ChangedManagedBy, GroupLookup, AddedToADGroup, All = 100};
+    public enum LogEntryType { UserLookup, ComputerLookup, ComputerAdminPassword, Bitlocker, ComputerDeletedFromAD, ResponceChallence, UserMoveOU, UnlockUserAccount, ToggleUserProfile, Onedrive, LoadedTabUser, LoadedTabComputer, DisabledAdUser, FixPCConfig, ChangedManagedBy, GroupLookup, AddedToADGroup, EnabledAdUser, All = 100};
 }
