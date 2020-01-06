@@ -11,31 +11,45 @@ namespace ITSWebMgmt.Controllers
 {
     public class CreateWorkItemController : Controller
     {
-        public IActionResult Index(string userPrincipalName, string userID)
+        public IActionResult Index(string userPrincipalName, string userID, bool isfeedback = false)
         {
             CreateWorkItemModel model = new CreateWorkItemModel();
-            model.AffectedUser = userPrincipalName;
+            model.IsFeedback = isfeedback;
             model.UserID = userID;
+            if (isfeedback)
+            {
+                string[] parts = HttpContext.User.Identity.Name.Split('\\');
+                string domain = $"{parts[0].ToLower()}.aau.dk";
+                string user = parts[1];
+                model.AffectedUser = $"{user}@{domain}";
+            }
+            else
+            {
+                model.AffectedUser = userPrincipalName;
+            }
 
-            UserModel userModel = new UserModel(userPrincipalName);
+            UserModel userModel = new UserModel(model.AffectedUser);
             userModel.InitBasicInfo();
 
-            model.Desription = "\n\n\n\n\n" +
-                "\nDo not edit below this line" +
-                "\n(The format is shown correctly on service.aau.dk)" +
-                "\n----------------------------------------------------------" +
-                "\nDepartment:                 " + userModel.BasicInfoDepartmentPDS +
-                "\nOffice(Pure):                  " + userModel.BasicInfoOfficePDS +
-                "\nPassword Expired:        " + userModel.BasicInfoLocked +
-                "\nPassword Expire Date: " + userModel.BasicInfoPasswordExpireDate +
-                "\nAAU-ID:                        " + userModel.AAUAAUID +
-                "\nUserStatus:                   " + userModel.AAUUserStatus +
-                "\nStaffID:                         " + userModel.AAUStaffID +
-                "\nStudentID:                    " + userModel.AAUStudentID +
-                "\nUserClassification:        " + userModel.AAUUserClassification +
-                "\nTelephone:                    " + userModel.TelephoneNumber +
-                "\nUses OneDrive?            " + userModel.UsesOnedrive +
-                "\nRomaing Profile            " + userModel.BasicInfoRomaing;
+            if (!isfeedback)
+            {
+                model.Desription = "\n\n\n\n\n" +
+                    "\nDo not edit below this line" +
+                    "\n(The format is shown correctly on service.aau.dk)" +
+                    "\n----------------------------------------------------------" +
+                    "\nDepartment:                 " + userModel.BasicInfoDepartmentPDS +
+                    "\nOffice(Pure):                  " + userModel.BasicInfoOfficePDS +
+                    "\nPassword Expired:        " + userModel.BasicInfoLocked +
+                    "\nPassword Expire Date: " + userModel.BasicInfoPasswordExpireDate +
+                    "\nAAU-ID:                        " + userModel.AAUAAUID +
+                    "\nUserStatus:                   " + userModel.AAUUserStatus +
+                    "\nStaffID:                         " + userModel.AAUStaffID +
+                    "\nStudentID:                    " + userModel.AAUStudentID +
+                    "\nUserClassification:        " + userModel.AAUUserClassification +
+                    "\nTelephone:                    " + userModel.TelephoneNumber +
+                    "\nUses OneDrive?            " + userModel.UsesOnedrive +
+                    "\nRomaing Profile            " + userModel.BasicInfoRomaing;
+            }
 
             return View(model);
         }
@@ -45,9 +59,18 @@ namespace ITSWebMgmt.Controllers
             return createWindows7UpgradeForm(userPrincipalName, computerName, userID);
         }
 
-        protected string createRedirectCode(string userID, string userPrincipalName, string title, string description, string submiturl)
+        protected string createRedirectCode(CreateWorkItemModel model, string description, string submiturl)
         {
-            string jsondata = "{\"Title\":\"" + title + "\",\"Description\":\"" + description + "\",\"RequestedWorkItem\":{\"BaseId\":\"" + userID + "\",\"DisplayName\":\"" + userPrincipalName + "\",}}";
+            string supportGroup = "";
+            if (model.IsFeedback)
+            {
+                supportGroup = ",\"TierQueue\":{\"Id\":\"41f4f742-129f-1aa1-5e81-636653b38fb9\",\"Name\":\"Client Management: Windows\",\"HierarchyLevel\":0,\"HierarchyPath\":null}" +
+                            ",\"SupportGroup\":{\"Id\":\"bfbd6899-ab71-d508-7f09-4a337763a468\",\"Name\":\"Client Management: Windows\",\"HierarchyLevel\":0,\"HierarchyPath\":null}" +
+                             ",\"Classification\":{\"Id\":\"ab6f9057-874d-36bb-5d4d-d9117b878916\",\"Name\":\"Web og Portalsværktøjer\",\"HierarchyLevel\":0,\"HierarchyPath\":null}" +
+                              ",\"Area\":{ \"Id\":\"5316e1e3-4ad0-bead-c437-68b84a90e725\",\"Name\":\"Andet - Web og Portalsværktøjer\",\"HierarchyLevel\":0,\"HierarchyPath\":null}";
+            }
+
+            string jsondata = "{\"Title\":\"" + model.Title + "\"" + supportGroup + ",\"Description\":\"" + description + "\",\"RequestedWorkItem\":{\"BaseId\":\"" + model.UserID + "\",\"DisplayName\":\"" + model.AffectedUser + "\",}}";
             var sb = new StringBuilder();
 
             sb.Append("<html><head>");
@@ -59,7 +82,7 @@ namespace ITSWebMgmt.Controllers
             sb.Append("<input hidden='true' name='vm' value='" + jsondata + "'/>");
             sb.Append("<input type='submit' value='Recreate IR/SR (if someting whent wrong)' />");
 
-            sb.Append(@"<br /><br /><a href=""#"" onclick=""window.history.go(-2); return false;""> Go back to UserInfo </a>");
+            sb.Append(@"<br /><br /><a href=""#"" onclick=""window.history.go(-2); return false;""> Go back </a>");
 
             sb.Append("</form>");
             sb.Append("</body></html>");
@@ -82,7 +105,7 @@ namespace ITSWebMgmt.Controllers
             {
                 descriptionConverted = model.Desription.Replace("\n", "\\n").Replace("\r", "\\r");
             }
-            return Content(createRedirectCode(model.UserID, model.AffectedUser, model.Title, descriptionConverted, url), "text/html");
+            return Content(createRedirectCode(model, descriptionConverted, url), "text/html");
         }
 
         [HttpPost]
@@ -99,11 +122,26 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult CreateIR(CreateWorkItemModel workitem)
         {
+            workitem.IsFeedback = false;
             return createForm("https://service.aau.dk/Incident/New/", workitem);
         }
         [HttpPost]
         public ActionResult CreateSR(CreateWorkItemModel workitem)
         {
+            workitem.IsFeedback = false;
+            return createForm("https://service.aau.dk/ServiceRequest/New/", workitem);
+        }
+
+        [HttpPost]
+        public ActionResult ReportIssue(CreateWorkItemModel workitem)
+        {
+            workitem.IsFeedback = true;
+            return createForm("https://service.aau.dk/Incident/New/", workitem);
+        }
+        [HttpPost]
+        public ActionResult RequestNewFeature(CreateWorkItemModel workitem)
+        {
+            workitem.IsFeedback = true;
             return createForm("https://service.aau.dk/ServiceRequest/New/", workitem);
         }
     }

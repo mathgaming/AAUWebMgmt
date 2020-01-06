@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ITSWebMgmt.Models
+﻿namespace ITSWebMgmt.Models
 {
     public class CreateWorkItemModel
     {
@@ -11,5 +6,6 @@ namespace ITSWebMgmt.Models
         public string AffectedUser { get; set; }
         public string Title { get; set; }
         public string Desription { get; set; }
+        public bool IsFeedback { get; set; }
     }
 }

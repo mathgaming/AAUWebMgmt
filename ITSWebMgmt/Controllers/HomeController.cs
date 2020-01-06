@@ -30,6 +30,12 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
+        [HttpPost]
+        public void GiveFeedback()
+        {
+            Response.Redirect("/CreateWorkItem?isfeedback=true");
+        }
+
         public IActionResult ChangeLog()
         {
             return View();
