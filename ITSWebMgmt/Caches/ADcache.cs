@@ -133,6 +133,12 @@ namespace ITSWebMgmt.Caches
                 Debug.WriteLine($"Not saved due to wrong type");
         }
 
+        public void clearProperty(string property)
+        {
+            DE.Properties[property].Clear();
+            DE.CommitChanges();
+        }
+
         public void addProperty(string property, Property value)
         {
             properties.Add(property, value);

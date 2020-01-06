@@ -68,7 +68,18 @@ namespace ITSWebMgmt.Models
         public bool ShowResultGetPassword { get; set; } = false;
         public bool ShowMoveComputerOUdiv { get; set; } = false;
         public bool UsesOnedrive { get; set; } = false;
-
+        public bool HasJava()
+        {
+            foreach (ManagementObject o in Software)
+            {
+                string name = SCCM.GetPropertyAsString(o.Properties["ProductName"]).ToLower();
+                if (name.Contains("java") && name.Contains("Update"))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public ComputerModel BaseModel { get; set; }
 
         public WindowsComputerModel(ComputerModel baseModel)

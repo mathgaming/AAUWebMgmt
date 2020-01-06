@@ -31,7 +31,12 @@
                     document.getElementById('editDiv').style.display = "block";
                     document.getElementById('saveDiv').style.display = "none";
                     document.getElementById('managedBy').textContent = email;
-                    alert('Managed by changed succesfully to ' + email)
+                    if (email != "") {
+                        alert('Managed by changed succesfully to ' + email)
+                    }
+                    else {
+                        alert('Managed by succesfully deleted')
+                    }
                 },
                 error: function(response) {
                     var r = JSON.parse(response.responseText)

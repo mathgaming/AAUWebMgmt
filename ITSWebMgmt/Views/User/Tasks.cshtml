@@ -37,20 +37,40 @@ Unlock Account (if locked by wrong password):
 <button id="SetupOneDrive">Setup Onedrive</button>
 <br />
 <br />
-<h3>Form for disabling user in AD</h3>
-<label>Affected User</label>
-<br />
-@Html.TextBoxFor(m => m.UserPrincipalName, new { @readonly = true })
-<br />
-<label>Reason</label>
-<br />
-<input type="text" id="reason" />
-<br />
-<label>Case number</label>
-<br />
-<input type="text" id="casenumber2" />
-<br />
-<button id="DisableADUser">Disable user from AD</button>
+@if(Model.IsDisabled)
+{
+    <h3>Form for enabling user in AD</h3>
+    <label>Affected User</label>
+    <br />
+    @Html.TextBoxFor(m => m.UserPrincipalName, new { @readonly = true })
+    <br />
+    <label>Required actions for enabling the user fulfilled?</label>
+    <br />
+    <input type="checkbox" id="check" />
+    <br />
+    <label>Case number</label>
+    <br />
+    <input type="text" id="casenumber3" />
+    <br />
+    <button id="EnableADUser">Enable user from AD</button>
+}
+else
+{
+    <h3>Form for disabling user in AD</h3>
+    <label>Affected User</label>
+    <br />
+    @Html.TextBoxFor(m => m.UserPrincipalName, new { @readonly = true })
+    <br />
+    <label>Reason</label>
+    <br />
+    <input type="text" id="reason" />
+    <br />
+    <label>Case number</label>
+    <br />
+    <input type="text" id="casenumber2" />
+    <br />
+    <button id="DisableADUser">Disable user from AD</button>
+}
 <br />
 <br />
 
@@ -75,6 +95,11 @@ Unlock Account (if locked by wrong password):
     $("#DisableADUser").click(function () {
         var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))' + '|' + $('#reason').val() + '|' + $('#casenumber2').val();
         sendPostRequest("DisableADUser", JSON.stringify(data));
+    });
+
+    $("#EnableADUser").click(function () {
+        var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))' + '|' + $('#check').prop("checked") + '|' + $('#casenumber3').val();
+        sendPostRequest("EnableADUser", JSON.stringify(data));
     });
         
     //script for sending button presses as POST request to controller

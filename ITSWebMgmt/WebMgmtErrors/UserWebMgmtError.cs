@@ -97,8 +97,7 @@ namespace ITSWebMgmt.WebMgmtErrors
 
         public override bool HaveError()
         {
-            const int ufAccountDisable = 0x0002;
-            return (user.UserModel.UserAccountControl & ufAccountDisable) == ufAccountDisable;
+            return user.UserModel.IsDisabled;
         }
     }
 }

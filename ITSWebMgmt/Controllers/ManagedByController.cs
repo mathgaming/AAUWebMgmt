@@ -35,17 +35,27 @@ namespace ITSWebMgmt.Controllers
         {
             try
             {
-                UserModel model = new UserModel(email);
-                if (model.DistinguishedName.Contains("CN="))
+                if (email == "")
                 {
-                    new GroupADcache(adpath).saveProperty("managedBy", model.DistinguishedName);
-                    new Logger(_context).Log(LogEntryType.ChangedManagedBy, HttpContext.User.Identity.Name, new List<string>() { adpath, model.UserPrincipalName, oldEmail });
+                    new GroupADcache(adpath).clearProperty("managedBy");
+                    new Logger(_context).Log(LogEntryType.ChangedManagedBy, HttpContext.User.Identity.Name, new List<string>() { adpath, "(Nothing)", oldEmail });
                     ErrorMessage = "";
                 }
                 else
-                {
-                    ErrorMessage = "Error in email";
+                { 
+                    UserModel model = new UserModel(email);
+                    if (model.DistinguishedName.Contains("CN="))
+                    {
+                        new GroupADcache(adpath).saveProperty("managedBy", model.DistinguishedName);
+                        new Logger(_context).Log(LogEntryType.ChangedManagedBy, HttpContext.User.Identity.Name, new List<string>() { adpath, model.UserPrincipalName, oldEmail });
+                        ErrorMessage = "";
+                    }
+                    else
+                    {
+                        ErrorMessage = "Error in email";
+                    }
                 }
+                
             }
             catch (Exception e)
             {
