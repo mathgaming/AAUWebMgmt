@@ -10,7 +10,7 @@ namespace ITSWebMgmt.Helpers
     {
         public static void SendEmail(string subject, string body)
         {
-            MailMessage mail = new MailMessage("platform@its.aau.dk", "platform@its.aau.dk");
+            MailMessage mail = new MailMessage("platform@its.aau.dk", "mhsv16@its.aau.dk");
             SmtpClient client = new SmtpClient();
             client.Host = "smtp-internal.aau.dk";
             client.Port = 25;
