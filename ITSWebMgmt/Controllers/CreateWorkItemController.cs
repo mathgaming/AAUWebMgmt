@@ -19,10 +19,6 @@ namespace ITSWebMgmt.Controllers
             if (isfeedback)
             {
                 model.AffectedUser = HttpContext.User.Identity.Name;
-                if (model.AffectedUser == null)
-                {
-                    model.AffectedUser = "mhsv16@its.aau.dk"; //For testing only
-                }
             }
             else
             {
@@ -60,9 +56,18 @@ namespace ITSWebMgmt.Controllers
             return createWindows7UpgradeForm(userPrincipalName, computerName, userID);
         }
 
-        protected string createRedirectCode(string userID, string userPrincipalName, string title, string description, string submiturl)
+        protected string createRedirectCode(CreateWorkItemModel model, string description, string submiturl)
         {
-            string jsondata = "{\"Title\":\"" + title + "\",\"Description\":\"" + description + "\",\"RequestedWorkItem\":{\"BaseId\":\"" + userID + "\",\"DisplayName\":\"" + userPrincipalName + "\",}}";
+            string supportGroup = "";
+            if (model.IsFeedback)
+            {
+                supportGroup = ",\"TierQueue\":{\"Id\":\"41f4f742-129f-1aa1-5e81-636653b38fb9\",\"Name\":\"Client Management: Windows\",\"HierarchyLevel\":0,\"HierarchyPath\":null}" +
+                            ",\"SupportGroup\":{\"Id\":\"bfbd6899-ab71-d508-7f09-4a337763a468\",\"Name\":\"Client Management: Windows\",\"HierarchyLevel\":0,\"HierarchyPath\":null}" +
+                             ",\"Classification\":{\"Id\":\"ab6f9057-874d-36bb-5d4d-d9117b878916\",\"Name\":\"Web og Portalsværktøjer\",\"HierarchyLevel\":0,\"HierarchyPath\":null}" +
+                              ",\"Area\":{ \"Id\":\"5316e1e3-4ad0-bead-c437-68b84a90e725\",\"Name\":\"Andet - Web og Portalsværktøjer\",\"HierarchyLevel\":0,\"HierarchyPath\":null}";
+            }
+
+            string jsondata = "{\"Title\":\"" + model.Title + "\"" + supportGroup + ",\"Description\":\"" + description + "\",\"RequestedWorkItem\":{\"BaseId\":\"" + model.UserID + "\",\"DisplayName\":\"" + model.AffectedUser + "\",}}";
             var sb = new StringBuilder();
 
             sb.Append("<html><head>");
@@ -74,7 +79,7 @@ namespace ITSWebMgmt.Controllers
             sb.Append("<input hidden='true' name='vm' value='" + jsondata + "'/>");
             sb.Append("<input type='submit' value='Recreate IR/SR (if someting whent wrong)' />");
 
-            sb.Append(@"<br /><br /><a href=""#"" onclick=""window.history.go(-2); return false;""> Go back to UserInfo </a>");
+            sb.Append(@"<br /><br /><a href=""#"" onclick=""window.history.go(-2); return false;""> Go back </a>");
 
             sb.Append("</form>");
             sb.Append("</body></html>");
@@ -97,7 +102,7 @@ namespace ITSWebMgmt.Controllers
             {
                 descriptionConverted = model.Desription.Replace("\n", "\\n").Replace("\r", "\\r");
             }
-            return Content(createRedirectCode(model.UserID, model.AffectedUser, model.Title, descriptionConverted, url), "text/html");
+            return Content(createRedirectCode(model, descriptionConverted, url), "text/html");
         }
 
         [HttpPost]
@@ -114,22 +119,26 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult CreateIR(CreateWorkItemModel workitem)
         {
+            workitem.IsFeedback = false;
             return createForm("https://service.aau.dk/Incident/New/", workitem);
         }
         [HttpPost]
         public ActionResult CreateSR(CreateWorkItemModel workitem)
         {
+            workitem.IsFeedback = false;
             return createForm("https://service.aau.dk/ServiceRequest/New/", workitem);
         }
 
         [HttpPost]
         public ActionResult ReportIssue(CreateWorkItemModel workitem)
         {
+            workitem.IsFeedback = true;
             return createForm("https://service.aau.dk/Incident/New/", workitem);
         }
         [HttpPost]
         public ActionResult RequestNewFeature(CreateWorkItemModel workitem)
         {
+            workitem.IsFeedback = true;
             return createForm("https://service.aau.dk/ServiceRequest/New/", workitem);
         }
     }
