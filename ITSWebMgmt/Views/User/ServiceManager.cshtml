@@ -10,59 +10,66 @@
 }
 
 <h2>SCSM Information</h2>
-@using (Html.BeginForm("CreateNewIRSR", "User", FormMethod.Post))
+@if (Model.SCSMUserID == "")
 {
-    @Html.HiddenFor(m => m.UserPrincipalName)
-    @Html.HiddenFor(m => m.SCSMUserID)
-    <input type="submit" value="Create new IR/SR" />
+    <p>User not found in Service Manager</p>
 }
-<br>
-<br />
-<br />
-<a href="https://service.aau.dk/user/UserRelatedInfoById\" + @Model.serviceManager.userID>Service Portal User Info</a>
-<br>
-<h1>Open Requests</h1>
-<br>
-<table class="ui celled table">
-    <thead>
-        <tr>
-            <th>ID </th>
-            <th>Title </th>
-            <th>Status</th>
-            <th>Last Modified</th>
-        </tr>
-    </thead>
-    @foreach (var d in Model.serviceManager.openCases)
+else
+{
+    @using (Html.BeginForm("CreateNewIRSR", "User", FormMethod.Post))
     {
-        <tr>
-            <td><a href="https://webmgmt.aau.dk/AAURedirector/?id=@d.Id" target="_blank">@d.Id</a></td>
-            <td>@d.Title</td>
-            <td>@d.Status</td>
-            <td>@d.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
-
-        </tr>
+        @Html.HiddenFor(m => m.UserPrincipalName)
+        @Html.HiddenFor(m => m.SCSMUserID)
+        <input type="submit" value="Create new IR/SR" />
     }
-</table>
-<br />
-<h1>Closed Requests</h1>
-<br>
-<table class="ui celled table">
-    <thead>
-        <tr>
-            <th>ID </th>
-            <th>Title </th>
-            <th>Status</th>
-            <th>Last Modified</th>
-        </tr>
-    </thead>
-    @foreach (var d in Model.serviceManager.closedCases)
-    {
-        <tr>
-            <td><a href="https://webmgmt.aau.dk/AAURedirector/?id=@d.Id" target="_blank">@d.Id</a></td>
-            <td>@d.Title</td>
-            <td>@d.Status</td>
-            <td>@d.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
+    <br>
+    <br />
+    <br />
+    <a href="https://service.aau.dk/user/UserRelatedInfoById/" + @Model.SCSMUserID>Service Portal User Info</a>
+    <br>
+    <h1>Open Requests</h1>
+    <br>
+    <table class="ui celled table">
+        <thead>
+            <tr>
+                <th>ID </th>
+                <th>Title </th>
+                <th>Status</th>
+                <th>Last Modified</th>
+            </tr>
+        </thead>
+        @foreach (var d in Model.serviceManager.openCases)
+        {
+            <tr>
+                <td><a href="https://webmgmt.aau.dk/AAURedirector/?id=@d.Id" target="_blank">@d.Id</a></td>
+                <td>@d.Title</td>
+                <td>@d.Status</td>
+                <td>@d.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
 
-        </tr>
-    }
-</table>
+            </tr>
+        }
+    </table>
+    <br />
+    <h1>Closed Requests</h1>
+    <br>
+    <table class="ui celled table">
+        <thead>
+            <tr>
+                <th>ID </th>
+                <th>Title </th>
+                <th>Status</th>
+                <th>Last Modified</th>
+            </tr>
+        </thead>
+        @foreach (var d in Model.serviceManager.closedCases)
+        {
+            <tr>
+                <td><a href="https://webmgmt.aau.dk/AAURedirector/?id=@d.Id" target="_blank">@d.Id</a></td>
+                <td>@d.Title</td>
+                <td>@d.Status</td>
+                <td>@d.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
+
+            </tr>
+        }
+    </table>
+}
