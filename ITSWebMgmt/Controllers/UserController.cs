@@ -60,7 +60,7 @@ namespace ITSWebMgmt.Controllers
                         }
                         catch (Exception e)
                         {
-                            UserModel.BasicInfoADFSLocked = "Data not found";
+                            UserModel.BasicInfoADFSLocked = "Error: Could not connect to Splunk";
                             HandleError(e);
                         }
                         UserModel.InitBasicInfo();
