@@ -18,7 +18,10 @@ namespace ITSWebMgmt.Controllers
             model.UserID = userID;
             if (isfeedback)
             {
-                model.AffectedUser = HttpContext.User.Identity.Name;
+                string[] parts = HttpContext.User.Identity.Name.Split('\\');
+                string domain = $"{parts[0].ToLower()}.aau.dk";
+                string user = parts[1];
+                model.AffectedUser = $"{user}@{domain}";
             }
             else
             {
