@@ -453,7 +453,8 @@ namespace ITSWebMgmt.Controllers
                 new MissingPCADGroup(this),
                 new IsWindows7(this),
                 new ManagerAndComputerNotInSameDomain(this),
-                new PasswordExpired(this)
+                new PasswordExpired(this),
+                new MissingJavaLicense(this)
             };
 
             LoadWarnings(warnings);

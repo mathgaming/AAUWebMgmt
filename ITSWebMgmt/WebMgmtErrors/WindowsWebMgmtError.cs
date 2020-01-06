@@ -213,8 +213,7 @@ namespace ITSWebMgmt.WebMgmtErrors
 
         public override bool HaveError()
         {
-            // We need to make a better api to access SCCM before this is implemented
-            throw new NotImplementedException();
+            return computer.ComputerModel.Windows.ConfigPC != "Administrativ10 PC" && computer.ComputerModel.Windows.HasJava();
         }
     }
 }
