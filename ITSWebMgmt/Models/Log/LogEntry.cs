@@ -57,7 +57,7 @@ namespace ITSWebMgmt.Models.Log
                 case LogEntryType.UserMoveOU:
                     return $"changed OU on user to: {Arguments[0]} from {Arguments[1]}.";
                 case LogEntryType.UnlockUserAccount:
-                    return $"unlocked useraccont {Arguments[0]}";
+                    return $"unlocked useraccount {Arguments[0]}";
                 case LogEntryType.ToggleUserProfile:
                     return $"toggled romaing profile for user {Arguments[0]}";
                 case LogEntryType.Onedrive:

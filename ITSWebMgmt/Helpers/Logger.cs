@@ -223,6 +223,7 @@ namespace ITSWebMgmt.Helpers
                         arguments.Add(parts[parts.Length - 1]);
                     }
 
+                    // Spelling mistake in log
                     else if (line.Contains("unlocked useraccont"))
                     {
                         type = LogEntryType.UnlockUserAccount;
