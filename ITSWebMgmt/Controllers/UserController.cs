@@ -409,19 +409,19 @@ namespace ITSWebMgmt.Controllers
                     return PartialView("RawHTMLTab", new RawHTMLModel("Warnings", UserModel.ErrorMessages));
                 case "fileshares":
                     model = UserModel.InitFileshares();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Fileshares", model.Data));
+                    return PartialView("ExchangeFileshare", model);
                 case "calAgenda":
                     string calAgenda = UserModel.InitCalendarAgenda();
                     return PartialView("RawHTMLTab", new RawHTMLModel("Calendar Agenda(today)", calAgenda));
                 case "exchange":
                     model = UserModel.InitExchange();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Exchange", model.Data));
+                    return PartialView("ExchangeFileshare", model);
                 case "servicemanager":
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
                     UserModel.InitComputerInformation();
-                    return PartialView("TableView", UserModel);
+                    return PartialView("ComputerInfo", UserModel);
                 case "win7to10":
                     viewName = "Win7to10";
                     UserModel.InitWin7to10();

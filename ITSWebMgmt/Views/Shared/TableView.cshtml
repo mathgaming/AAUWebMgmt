@@ -3,7 +3,8 @@
 {
     <h2>@Html.Raw(Model.ViewHeading)</h2>
 }
-<table class="ui celled table">
+@if (Model.Rows != null)
+{<table class="ui celled table">
     <thead>
         <tr>
             @foreach (string h in Model.Headings)
@@ -22,3 +23,8 @@
         </tr>
     }
 </table>
+}
+else
+{
+    <p>@Model.ErrorMessage</p>
+}

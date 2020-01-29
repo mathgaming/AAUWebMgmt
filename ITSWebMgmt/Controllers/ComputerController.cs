@@ -132,7 +132,8 @@ namespace ITSWebMgmt.Controllers
                     viewName = "Groups";
                     return PartialView(viewName, new PartialGroupModel(ComputerModel.Windows.ADcache, "memberOf"));
                 case "tasks":
-                    return PartialView("Windows/Tasks", ComputerModel.Windows);
+                    viewName = "Windows/Tasks";
+                    break;
                 case "warnings":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Warnings", ComputerModel.ErrorMessages));
                 case "sccminfo":
@@ -155,7 +156,8 @@ namespace ITSWebMgmt.Controllers
                 case "rawdata":
                     return PartialView("RawTable", ComputerModel.Windows.ADcache.getAllProperties());
                 case "rawdatasccm":
-                    return PartialView("SCCMRaw", ComputerModel.Windows);
+                    viewName = "Windows/SCCMRaw";
+                    break;
                 case "macbasicinfo":
                     return PartialView("TableView", ComputerModel.Mac.HTMLForBasicInfo);
                 case "macHW":

@@ -6,36 +6,33 @@
         <tbody>
             @foreach (PropertyValueCollection a in Model)
             {
-                <!--Don't display admin password in raw data-->
-                @if (a != null && a.Count > 0 && a.PropertyName != "ms-Mcs-AdmPwd")
-                {
-                <td rowspan="@a.Count">@a.PropertyName</td>
-
-                    string v = ADHelper.ConvertToStringWithCorrectFormatIfDate(a[0]);
-
-                    if (a.Count == 1)
+                <tr>
+                    <!--Don't display admin password in raw data-->
+                    @if (a != null && a.Count > 0 && a.PropertyName != "ms-Mcs-AdmPwd")
                     {
-                    <tr>
-                        <td>@v</td>
-                    </tr>
+                        <td rowspan="@a.Count">@a.PropertyName</td>
+                        string v = ADHelper.ConvertToStringWithCorrectFormatIfDate(a[0]);
+
+                        if (a.Count == 1)
+                        {
+                            <td>@v</td>
+                        }
+                        else
+                        {
+                            <td>@v</td>
+                            @for (int i = 1; i < a.Count; i++)
+                            {
+                                v = ADHelper.ConvertToStringWithCorrectFormatIfDate(a[i]);
+                                <tr><td>@v</td></tr>
+                            }
+
+                        }
                     }
                     else
                     {
-                    <tr>
-                        <td>@v</td>
-                        @for (int i = 1; i < a.Count; i++)
-                        {
-                            v = ADHelper.ConvertToStringWithCorrectFormatIfDate(a[i]);
-                            <tr><td>@v</td></tr>
-                        }
-                    </tr>
-                    }
-                }
-                else
-                {
                     <tr><td></td></tr>
-                }
-
+                    }
+                </tr>
             }
         </tbody>
     </table>

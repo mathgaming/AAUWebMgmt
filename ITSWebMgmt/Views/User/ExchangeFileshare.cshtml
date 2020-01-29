@@ -1,0 +1,10 @@
+﻿@model ITSWebMgmt.Models.PartialGroupModel
+
+@if (Model.GroupAllList.Count == 0)
+{
+    <h3>The list only shoes direct members, could not find the full list for the Controller or domain</h3>
+}
+else
+{
+    @Html.Partial("TableView", Model.FilteredTable)
+}

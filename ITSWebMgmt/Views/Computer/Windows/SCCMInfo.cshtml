@@ -2,7 +2,6 @@
 
 <h2>SCCM Info</h2>
 <h3>Computer Details</h3>
-@Html.Raw(Model.SCCMInfoComputer)
-
+@Html.Partial("TableView", Model.SCCMInfoComputer)
 <h3>System info</h3>
-@Html.Raw(Model.SCCMInfoSystem)
+@Html.Partial("TableView", Model.SCCMInfoSystem)

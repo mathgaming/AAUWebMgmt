@@ -1,4 +1,4 @@
-﻿@model RawSCCMModel
+﻿@model ITSWebMgmt.Models.RawSCCMModel
 @using ITSWebMgmt.Helpers
 @using System.Management
 
@@ -21,7 +21,9 @@
                     if (value is string[])
                     {
                         <tr>
-                            @arry = (string[])value;
+                            @{
+                                arry = (string[])value;
+                            }
                             @if (arry.Length > 0)
                             {
                                 <td rowspan="@arry.Length">@key</td>
@@ -35,6 +37,7 @@
                     else
                     {
                         <td>none-string value</td>
+                        arry = new string[] { "none-string value" }; //XXX get the byte value
                     }
                     if (arry.Length > 0)
                     {

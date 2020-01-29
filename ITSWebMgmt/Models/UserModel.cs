@@ -437,13 +437,11 @@ namespace ITSWebMgmt.Models
         public PartialGroupModel InitExchange()
         {
             PartialGroupModel model = new PartialGroupModel(ADcache, "memberOf");
-            string transitiv = "";
 
-            var members = model.getGroupsTransitive(model.AttributeName);
+            var members = model.GroupAllList;
             if (members.Count == 0)
             {
-                transitiv = "<h3>The list only shoes direct members, could not find the full list for the Controller or domain</h3>";
-                members = model.getGroups(model.AttributeName);
+                members = model.GroupList;
             }
 
             List<string[]> rows = new List<string[]>();
@@ -460,7 +458,7 @@ namespace ITSWebMgmt.Models
                 rows.Add(new string[] { type, domain, nameFormated, access });
             }
 
-            model.Data = transitiv + new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows);
+            model.FilteredTable = new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows);
 
             return model;
         }
@@ -468,13 +466,11 @@ namespace ITSWebMgmt.Models
         public PartialGroupModel InitFileshares()
         {
             PartialGroupModel model = new PartialGroupModel(ADcache, "memberOf");
-            string transitiv = "";
-            var members = model.getGroupsTransitive(model.AttributeName);
+            var members = model.GroupAllList;
 
             if (members.Count == 0)
             {
-                transitiv = "<h3>The list only shoes direct members, could not find the full list for the Controller or domain</h3>";
-                members = model.getGroups(model.AttributeName);
+                members = model.GroupList;
             }
             List<string[]> rows = new List<string[]>();
 
@@ -490,7 +486,7 @@ namespace ITSWebMgmt.Models
                 rows.Add(new string[] { f.Type, f.Domain, nameWithLink, f.Access });
             }
 
-            model.Data = transitiv + new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows);
+            model.FilteredTable = new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows);
 
             return model;
         }
@@ -543,11 +539,11 @@ namespace ITSWebMgmt.Models
                     rows.Add(new string[] {created_at, first_used, last_used, item.mac_address, item.name, item.devicetype});
                 }
 
-                return new TableModel(new string[] { "Created at", "First use", "last used", "Mac address", "Device name", "Device type" }, rows);
+                return new TableModel(new string[] { "Created at", "First use", "last used", "Mac address", "Device name", "Device type" }, rows, "Net.aau.dk");
             }
             else
             {
-                return new TableModel("User have not used Net.aau.dk");
+                return new TableModel("User have not used Net.aau.dk", "Net.aau.dk");
             }
         }
 

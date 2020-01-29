@@ -13,7 +13,7 @@ namespace ITSWebMgmt.Models
         public List<string> GroupAllList { get; set; }
         public TableModel GroupTable { get; set; }
         public TableModel GroupAllTable { get; set; }
-        public string Data { get; set; }
+        public TableModel FilteredTable { get; set; }
         public string AttributeName { get; set; }
         public string Title { get; set; }
         public string AccessName { get; set; }
