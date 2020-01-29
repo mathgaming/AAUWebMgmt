@@ -1,0 +1,65 @@
+﻿@model ITSWebMgmt.Models.RawSCCMModel
+@using ITSWebMgmt.Helpers
+@using System.Management
+
+@if (SCCM.HasValues(Model.Mo))
+{
+    <table class="ui celled structured table">
+        <thead><tr><th>Key</th><th>Value</th></tr></thead>
+        <tbody>
+
+        @foreach (ManagementObject o in Model.Mo)
+        {
+            foreach (var property in o.Properties)
+            {
+                string key = property.Name;
+                object value = property.Value;
+                string[] arry = null;
+
+                if (value != null && value.GetType().IsArray)
+                {
+                    if (value is string[])
+                    {
+                        <tr>
+                            @{
+                                arry = (string[])value;
+                            }
+                            @if (arry.Length > 0)
+                            {
+                                <td rowspan="@arry.Length">@key</td>
+                            }
+                            else
+                            {
+                                <td rowspan="1">@key</td>
+                            }
+                        </tr>
+                    }
+                    else
+                    {
+                        <td>none-string value</td>
+                        arry = new string[] { "none-string value" }; //XXX get the byte value
+                    }
+                    if (arry.Length > 0)
+                    {
+                        foreach (string f in arry.Skip(1))
+                        {
+                            <tr><td>@f</td></tr>
+                        }
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td rowspan="1">@key</td>
+                        <td>@value</td>
+                    </tr>
+                }
+            }
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>@Model.ErrorMessage</p>
+}

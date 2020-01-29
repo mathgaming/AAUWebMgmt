@@ -210,5 +210,23 @@ namespace ITSWebMgmt.Helpers
                 return null;
             }
         }
+
+        public static string ConvertToStringWithCorrectFormatIfDate(dynamic v)
+        {
+            if (v.GetType().Equals(typeof(DateTime)))
+            {
+                return DateTimeConverter.Convert((DateTime)v);
+            }
+            else if (v.GetType().ToString() == "System.__ComObject")
+            {
+                try
+                {
+                    int test = (Int32)v.GetType().InvokeMember("HighPart", System.Reflection.BindingFlags.GetProperty, null, v, null);
+                    return DateTimeConverter.Convert(v);
+                }
+                catch (Exception) { }
+            }
+            return v.ToString();
+        }
     }
 }

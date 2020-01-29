@@ -107,7 +107,7 @@
                 }
                 else
                 {
-                    <div id="macbasicinfo" class="ui active tab segment" data-tab="macbasicinfo">@Html.Partial("RawHTMLTab", new RawHTMLModel("Basic info", Model.Mac.HTMLForBasicInfo))</div>
+                    <div id="macbasicinfo" class="ui active tab segment" data-tab="macbasicinfo">@Html.Partial("TableView", Model.Mac.HTMLForBasicInfo)</div>
                 }
                 @foreach (var tab in Model.Tabs)
                 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management;
 using ITSWebMgmt.Caches;
 using ITSWebMgmt.Helpers;
@@ -53,18 +54,17 @@ namespace ITSWebMgmt.Models
         public string IPAddresses { get; set; }
         public string MACAddresses { get; set; }
         public string Build { get; set; }
-        public string SCCMAV { get; set; }
-        public string SCCMRaw { get; set; }
-        public string SCCMInfoComputer { get; set; }
-        public string SCCMInfoSystem { get; set; }
-        public string SCCMSoftware { get; set; }
-        public string SCCMCollections { get; set; }
-        public string SCCMLD { get; set; }
+        public TableModel SCCMInfoComputer { get; set; }
+        public TableModel SCCMInfoSystem { get; set; }
+        public TableModel SCCMSoftware { get; set; }
+        public TableModel SCCMCollections { get; set; }
+        public TableModel SCCMLD { get; set; }
         public string SCCMRAM { get; set; }
-        public string SCCMBIOS { get; set; }
-        public string SCCMVC { get; set; }
-        public string SCCMProcessor { get; set; }
-        public string SCCMDisk { get; set; }
+        public TableModel SCCMBIOS { get; set; }
+        public TableModel SCCMVC { get; set; }
+        public TableModel SCCMProcessor { get; set; }
+        public TableModel SCCMDisk { get; set; }
+        public TableModel SCCMAV { get; set; }
         public bool ShowResultGetPassword { get; set; } = false;
         public bool ShowMoveComputerOUdiv { get; set; } = false;
         public bool UsesOnedrive { get; set; } = false;
@@ -207,7 +207,7 @@ namespace ITSWebMgmt.Models
 
         public void InitSCCMHW()
         {
-            SCCMLD = TableGenerator.CreateVerticalTableFromDatabase(LogicalDisk,
+            SCCMLD = CreateVerticalTableFromDatabase(LogicalDisk,
                 new List<string>() { "DeviceID", "FileSystem", "Size", "FreeSpace" },
                 "Disk information not found");
 
@@ -229,63 +229,122 @@ namespace ITSWebMgmt.Models
                 SCCMRAM = "RAM information not found";
             }
 
-            SCCMBIOS = TableGenerator.CreateVerticalTableFromDatabase(BIOS,
+            SCCMBIOS = CreateVerticalTableFromDatabase(BIOS,
                 new List<string>() { "BIOSVersion", "Description", "Manufacturer", "Name", "SMBIOSBIOSVersion" },
                 "BIOS information not found");
 
-            SCCMVC = TableGenerator.CreateVerticalTableFromDatabase(VideoController,
+            SCCMVC = CreateVerticalTableFromDatabase(VideoController,
                 new List<string>() { "AdapterRAM", "CurrentHorizontalResolution", "CurrentVerticalResolution", "DriverDate", "DriverVersion", "Name" },
                 "Video controller information not found");
 
-            SCCMProcessor = TableGenerator.CreateVerticalTableFromDatabase(Processor,
+            SCCMProcessor = CreateVerticalTableFromDatabase(Processor,
                 new List<string>() { "Is64Bit", "IsMobile", "IsVitualizationCapable", "Manufacturer", "MaxClockSpeed", "Name", "NumberOfCores", "NumberOfLogicalProcessors" },
                 "Processor information not found");
 
-            SCCMDisk = TableGenerator.CreateVerticalTableFromDatabase(Disk,
+            SCCMDisk = CreateVerticalTableFromDatabase(Disk,
                 new List<string>() { "Caption", "Model", "Partitions", "Size", "Name" },
                 "Video controller information not found");
         }
 
+        public TableModel CreateVerticalTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage)
+        {
+            List<string[]> rows = new List<string[]>();
+
+            if (SCCM.HasValues(results))
+            {
+                var o = results.OfType<ManagementObject>().FirstOrDefault();
+
+                foreach (var p in keys)
+                {
+                    var property = o.Properties[p];
+                    if (p == "Size" || p == "FreeSpace")
+                    {
+                        var value = o.Properties[p].Value;
+                        if (value != null)
+                        {
+                            rows.Add(new string[] { p + " (GB)", (int.Parse(value.ToString()) / 1024).ToString() });
+                        }
+                        else
+                        {
+                            rows.Add(new string[] { p + " (GB)", "missing" });
+                        }
+                    }
+                    else
+                    {
+                        rows.Add(new string[] { p, SCCM.GetPropertyAsString(property) });
+                    }
+                }
+
+                return new TableModel(new string[] { "Property", "Value" }, rows);
+            }
+            else
+            {
+                return new TableModel(errorMessage);
+            }
+        }
+
         public void InitSCCMCollections()
         {
-            string error = "";
-            HTMLTableHelper groupTableHelper = new HTMLTableHelper(new string[] { "Collection Name" });
+            List<string[]> rows = new List<string[]>();
             var names = setConfig();
 
             if (names != null)
             {
                 foreach (var name in names)
                 {
-                    groupTableHelper.AddRow(new string[] { name });
+                    rows.Add(new string[] { name });
                 }
+                SCCMCollections = new TableModel(new string[] { "Collection Name" }, rows, "SCCM collections");
             }
             else
             {
-                error = "Computer not found i SCCM";
+                SCCMCollections = new TableModel("Computer not found i SCCM", "SCCM collections");
             }
+        }
 
-            SCCMCollections = error + groupTableHelper.GetTable();
+        public void InitSCCMAV()
+        {
+            SCCMAV = CreateTableFromDatabase(Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found", "Antivirus infomation");
+        }
+
+        public TableModel CreateTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage, string title) => CreateTableFromDatabase(results, keys, keys, errorMessage, title);
+
+        public TableModel CreateTableFromDatabase(ManagementObjectCollection results, List<string> keys, List<string> names, string errorMessage, string title)
+        {
+            if (SCCM.HasValues(results))
+            {
+                List<string[]> rows = new List<string[]>();
+
+                foreach (ManagementObject o in results) //Has one!
+                {
+                    List<string> properties = new List<string>();
+                    foreach (var p in keys)
+                    {
+                        properties.Add(SCCM.GetPropertyAsString(o.Properties[p]));
+                    }
+                    rows.Add(properties.ToArray());
+                }
+
+                return new TableModel(names.ToArray(), rows, title);
+            }
+            else
+            {
+                return new TableModel(errorMessage, title);
+            }
         }
 
         public void InitSCCMSoftware()
         {
-            SCCMSoftware = TableGenerator.CreateTableFromDatabase(Software,
+            SCCMSoftware = CreateTableFromDatabase(Software,
                 new List<string>() { "SoftwareCode", "ProductName", "ProductVersion", "TimeStamp" },
                 new List<string>() { "Product ID", "Name", "Version", "Install date" },
-                "Software information not found");            
-        }
-
-        public void InitRawSCCM()
-        {
-            string computerSCCM = TableGenerator.CreateRawFromDatabase(Computer, "Computer information not found");
-            string systemSCCM = TableGenerator.CreateRawFromDatabase(System, "Computer not found i SCCM");
-            SCCMRaw = $"<h3>Computer (Inventory)</h3>{computerSCCM}<h3>System (SCCM Info)</h3>{systemSCCM}";
+                "Software information not found", "Software infomation");    
         }
 
         public void InitSCCMInfo()
         {
-            SCCMInfoSystem = TableGenerator.CreateVerticalTableFromDatabase(System, new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build" }, "Computer not found in SCCM");
-            SCCMInfoComputer = TableGenerator.CreateVerticalTableFromDatabase(Computer, new List<string>() { "Manufacturer", "Model", "SystemType", "Roles" }, "Computer information not found");
+            SCCMInfoSystem = CreateVerticalTableFromDatabase(System, new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build" }, "Computer not found in SCCM");
+            SCCMInfoComputer = CreateVerticalTableFromDatabase(Computer, new List<string>() { "Manufacturer", "Model", "SystemType", "Roles" }, "Computer information not found");
         }
         #endregion loding data
     }

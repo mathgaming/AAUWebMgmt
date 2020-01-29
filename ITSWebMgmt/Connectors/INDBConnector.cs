@@ -1,4 +1,5 @@
 ﻿using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Models;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
@@ -11,11 +12,11 @@ namespace ITSWebMgmt.Connectors
 {
     public class INDBConnector
     {
-        public static string getInfo(string computerName)
+        public static List<TableModel> getInfo(string computerName)
         {
             var connection = tryConnect();
             if (connection.conn == null)
-                return connection.error;
+                return new List<TableModel>{ new TableModel(connection.error)};
 
             var conn = connection.conn;
 
@@ -29,15 +30,14 @@ namespace ITSWebMgmt.Connectors
                 $"SLUTBRUGER" +
                 $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName.Substring(3)}";
 
-            HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] { "Property", "Value" });
-            List<string> tables = new List<string>();
+            List<string[]> rows = new List<string[]>();
+            List<TableModel> tables = new List<TableModel>();
             int results = 0;
             using (IDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
                     results++;
-                    tableHelper = new HTMLTableHelper(new string[] { "Property", "Value" });
                     for (int i = 0; i < 6; i++)
                     {
                         if (reader.GetName(i) == "BESTILLINGS_DATO" || reader.GetName(i) == "MODTAGELSESDATO")
@@ -45,35 +45,32 @@ namespace ITSWebMgmt.Connectors
                             string value = reader.GetValue(i).ToString();
                             if (value == "")
                             {
-                                tableHelper.AddRow(new string[] { reader.GetName(i), "Date not found" });
+                                rows.Add(new string[] { reader.GetName(i), "Date not found" });
                             }
                             else
                             {
-                                tableHelper.AddRow(new string[] { reader.GetName(i), DateTime.Parse(value).ToString("yyyy-MM-dd") });
+                                rows.Add(new string[] { reader.GetName(i), DateTime.Parse(value).ToString("yyyy-MM-dd") });
                             }
                         }
                         else
                         {
-                            tableHelper.AddRow(new string[] { reader.GetName(i), reader.GetValue(i).ToString() });
+                            rows.Add(new string[] { reader.GetName(i), reader.GetValue(i).ToString() });
                         }
                     }
-                    tables.Add(tableHelper.GetTable());
+                    tables.Add(new TableModel(new string[] { "Property", "Value" }, rows));
+                    rows = new List<string[]>();
                 }
             }
 
             conn.Close();
 
-            if (results == 0)
+            if (tables.Count == 0)
             {
-                return "AAU number not found in purchase database";
-            }
-            else if (results > 1)
-            {
-                return "<h2>Multiple results found! All are listed below</h2>" + string.Join("<br/>", tables);
+                return new List<TableModel> { new TableModel("AAU number not found in purchase database") };
             }
             else
             {
-                return tableHelper.GetTable();
+                return tables;
             }
         }
 
@@ -125,47 +122,6 @@ namespace ITSWebMgmt.Connectors
                 return $"Computer has not been registrered in AD or Jamf, but was found in INDB. The manufacturer is {manifacturer} and the model is {model}";
             }
         }
-
-        //Only used for test
-        public static string getFullInfo(IDbConnection conn, string computerName)
-        {
-            IDbCommand command = conn.CreateCommand();
-            command.CommandText = $"SELECT * FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName.Substring(3)}";
-
-            HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] { "Property", "Value" });
-            List<string> tables = new List<string>();
-            
-            int results = 0;
-            using (IDataReader reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    results++;
-                    tableHelper = new HTMLTableHelper(new string[] { "Property", "Value" });
-                    for (int i = 0; i < 31; i++)
-                    {
-                        tableHelper.AddRow(new string[] { reader.GetName(i), reader.GetValue(i).ToString() });
-                    }
-                    tables.Add(tableHelper.GetTable());
-                }
-            }
-
-            conn.Close();
-
-            if (results == 0)
-            {
-                return "AAU number not found in purchase database";
-            }
-            else if (results > 1)
-            {
-                return "<h2>Multiple results found! All are listed below</h2>" + string.Join("<br/>", tables);
-            }
-            else
-            {
-                return tableHelper.GetTable();
-            }
-        }
-
 
         private static (IDbConnection conn, string error) tryConnect()
         {

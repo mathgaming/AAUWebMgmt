@@ -112,7 +112,9 @@ namespace ITSWebMgmt.Models
         public string UserName { get; set; } = "mhsv16@its.aau.dk";
         public string ErrorCountMessage { get; set; }
         public string SCSMUserID { get; set; }
-        public string Windows7to10 { get; set; }
+        public TableModel Windows7to10 { get; set; }
+        public TableModel WindowsComputerTable { get; set; }
+        public TableModel MacComputerTable { get; set; }
         public bool ShowFixUserOU { get; set; } = false;
         public bool ShowLoginScript { get; set; } = false;
         public string UsesOnedrive { get; set; } = "False";
@@ -368,16 +370,15 @@ namespace ITSWebMgmt.Models
             return await service.GetUserAvailability(attendees, window, AvailabilityData.FreeBusy, myOptions);
         }
 
-        public string InitComputerInformation()
+        public void InitComputerInformation()
         {
             try
             {
-                string windows = "<h3>Windows computers</h3>";
                 var windowsComputers = getManagedWindowsComputers();
 
                 if (windowsComputers.Count != 0)
                 {
-                    var helper = new HTMLTableHelper(new string[] { "Computer name", "AAU Fjernsupport" });
+                    List<string[]> rows = new List<string[]>();
 
                     foreach (WindowsComputerModel m in windowsComputers)
                     {
@@ -396,58 +397,54 @@ namespace ITSWebMgmt.Models
 
                         var name = "<a href=\"/Computer?computername=" + m.ComputerName + "\">" + m.ComputerName + "</a>" + OnedriveWarning + "<br />";
                         var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
-                        helper.AddRow(new string[] { name, fjernsupport });
+                        rows.Add(new string[] { name, fjernsupport });
                     }
 
-                    windows += helper.GetTable();
+                    WindowsComputerTable = new TableModel(new string[] { "Computer name", "AAU Fjernsupport" }, rows, "Windows computers");
                 }
                 else
                 {
-                    windows += "User do not have any Windows computer";
+                    WindowsComputerTable = new TableModel("User do not have any Windows computer", "Windows computers");
                 }
 
-                string mac = "<h3>Mac computers</h3>";
                 JamfConnector jamf = new JamfConnector();
                 var macComputers = jamf.getComputerNamesForUser(UserPrincipalName);
 
                 if (macComputers.Count != 0)
                 {
-                    var macHelper = new HTMLTableHelper(new string[] { "Computer name" });
+                    List<string[]> rows = new List<string[]>();
 
                     foreach (string computername in macComputers)
                     {
                         var name = "<a href=\"/Computer?computername=" + computername + "\">" + computername + "</a>" + "<br />";
-                        macHelper.AddRow(new string[] { name });
+                        rows.Add(new string[] { name });
                     }
 
-                    mac += macHelper.GetTable();
+                    MacComputerTable = new TableModel(new string[] { "Computer name" }, rows, "Mac computers");
                 }
                 else
                 {
-                    mac += "User do not have any Mac computer";
+                    MacComputerTable = new TableModel("User do not have any Mac computer", "Mac computers");
                 }
-
-                return $"<h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>{windows}{mac}";
             }
             catch (UnauthorizedAccessException)
             {
-                return "Service user does not have SCCM access.";
+                WindowsComputerTable = null;
+                MacComputerTable = null;
             }
         }
 
         public PartialGroupModel InitExchange()
         {
             PartialGroupModel model = new PartialGroupModel(ADcache, "memberOf");
-            string transitiv = "";
 
-            var members = model.getGroupsTransitive(model.AttributeName);
+            var members = model.GroupAllList;
             if (members.Count == 0)
             {
-                transitiv = "<h3>The list only shoes direct members, could not find the full list for the Controller or domain</h3>";
-                members = model.getGroups(model.AttributeName);
+                members = model.GroupList;
             }
 
-            var helper = new HTMLTableHelper(new string[] { "Type", "Domain", "Name", "Access" });
+            List<string[]> rows = new List<string[]>();
 
             //Select Exchange groups and convert to list of ExchangeMailboxGroup
             var exchangeMailboxGroupList = members.Where<string>(group => (group.StartsWith("CN=MBX_"))).Select(x => new ExchangeMailboxGroupModel(x));
@@ -458,10 +455,10 @@ namespace ITSWebMgmt.Models
                 var domain = e.Domain;
                 var nameFormated = string.Format("<a href=\"/Group?grouppath={0}\">{1}</a><br/>", HttpUtility.UrlEncode("LDAP://" + e.RawValue), e.Name);
                 var access = e.Access;
-                helper.AddRow(new string[] { type, domain, nameFormated, access });
+                rows.Add(new string[] { type, domain, nameFormated, access });
             }
 
-            model.Data = transitiv + helper.GetTable();
+            model.FilteredTable = new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows);
 
             return model;
         }
@@ -469,16 +466,13 @@ namespace ITSWebMgmt.Models
         public PartialGroupModel InitFileshares()
         {
             PartialGroupModel model = new PartialGroupModel(ADcache, "memberOf");
-            string transitiv = "";
-            var members = model.getGroupsTransitive(model.AttributeName);
+            var members = model.GroupAllList;
 
             if (members.Count == 0)
             {
-                transitiv = "<h3>The list only shoes direct members, could not find the full list for the Controller or domain</h3>";
-                members = model.getGroups(model.AttributeName);
+                members = model.GroupList;
             }
-
-            var helper = new HTMLTableHelper(new string[] { "Type", "Domain", "Name", "Access" });
+            List<string[]> rows = new List<string[]>();
 
             //Filter fileshare groups and convert to Fileshare Objects
             var fileshareList = members.Where((string value) =>
@@ -489,35 +483,18 @@ namespace ITSWebMgmt.Models
             foreach (FileshareModel f in fileshareList)
             {
                 var nameWithLink = string.Format("<a href=\"/Group?grouppath={0}\">{1}</a><br/>", HttpUtility.UrlEncode("LDAP://" + f.Fileshareraw), f.Name);
-                helper.AddRow(new string[] { f.Type, f.Domain, nameWithLink, f.Access });
+                rows.Add(new string[] { f.Type, f.Domain, nameWithLink, f.Access });
             }
 
-            model.Data = transitiv + helper.GetTable();
+            model.FilteredTable = new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows);
 
             return model;
-        }
-
-        public string InitLoginScript()
-        {
-            ShowLoginScript = false;
-
-            var loginscripthelper = new Loginscript();
-
-            var script = loginscripthelper.getLoginScript(ScriptPath, ADcache.Path);
-
-            if (script != null)
-            {
-                ShowLoginScript = true;
-                return loginscripthelper.parseAndDisplayLoginScript(script);
-            }
-
-            return null;
         }
 
         public void InitWin7to10()
         {
             bool haveWindows7 = false;
-            var helper = new HTMLTableHelper(new string[] { "Computername", "Windows 7 to 10 upgrade" });
+            List<string[]> rows = new List<string[]>();
 
             foreach (WindowsComputerModel m in getManagedWindowsComputers())
             {
@@ -527,7 +504,7 @@ namespace ITSWebMgmt.Models
                 {
                     var name = "<a href=\"/Computer?computername=" + m.ComputerName + "\">" + m.ComputerName + "</a><br/>";
                     upgradeButton = "<input type=\"button\" value=\"Create Win7 to 10 SR\" onclick=\"submitform('" + m.ComputerName + "');\"/>";
-                    helper.AddRow(new string[] { name, upgradeButton });
+                    rows.Add(new string[] { name, upgradeButton });
                     haveWindows7 = true;
                 }
             }
@@ -538,35 +515,35 @@ namespace ITSWebMgmt.Models
                 _ = scsm.getUUID(UserPrincipalName).Result;
                 SCSMUserID = scsm.userID;
 
-                Windows7to10 = helper.GetTable();
+                Windows7to10 = new TableModel(new string[] { "Computername", "Windows 7 to 10 upgrade" }, rows);
             }
             else
             {
-                Windows7to10 = "User do not have any Windows 7 PCs";
+                Windows7to10 = new TableModel("User do not have any Windows 7 PCs");
             }
         }
 
-        public string InitNetaaudk()
+        public TableModel InitNetaaudk()
         {
             Netaaudk = new NetaaudkConnector().GetData(UserName);
 
             if (Netaaudk.Count != 0)
             {
-                var helper = new HTMLTableHelper(new string[] { "Created at", "First use", "last used", "Mac address", "Device name", "Device type"});
+                List<string[]> rows = new List<string[]>();
 
                 foreach (var item in Netaaudk)
                 {
                     string created_at = DateTimeConverter.Convert(item.created_at);
                     string first_used = item.first_use == null ? "Never used" : DateTimeConverter.Convert(item.first_use);
                     string last_used = item.last_used == null ? "Never used" : DateTimeConverter.Convert(item.last_used);
-                    helper.AddRow(new string[] {created_at, first_used, last_used, item.mac_address, item.name, item.devicetype});
+                    rows.Add(new string[] {created_at, first_used, last_used, item.mac_address, item.name, item.devicetype});
                 }
 
-                return helper.GetTable();
+                return new TableModel(new string[] { "Created at", "First use", "last used", "Mac address", "Device name", "Device type" }, rows, "Net.aau.dk");
             }
             else
             {
-                return "User have not used Net.aau.dk";
+                return new TableModel("User have not used Net.aau.dk", "Net.aau.dk");
             }
         }
 

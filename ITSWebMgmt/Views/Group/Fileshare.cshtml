@@ -21,7 +21,7 @@
 </script>
 
 <div runat="server" id="ResultDiv">
-    @Html.Raw(string.Format("<a href=\"/Group?grouppath={0}&forceviewgroup=true\">{1}</a><br />", HttpUtility.UrlEncode(Model.adpath), "View fileshare as group"))
+    <a href="/Group?grouppath=@HttpUtility.UrlEncode(Model.adpath)&forceviewgroup=true">View fileshare as group</a><br />
     <div class="ui grid">
         <div class="four wide column">
             <div class="ui vertical fluid tabular menu">
@@ -44,10 +44,10 @@
                     <a data-tab="groups-all" class="item">Recursive groups</a>
                 </div>
                 <div class="ui active tab segment" data-tab="groups-direct">
-                    @Html.Raw(Model.GroupSegment)
+                    @Html.Partial("TableView", Model.GroupTable)
                 </div>
                 <div class="ui tab segment" data-tab="groups-all">
-                    @Html.Raw(Model.GroupsAllSegment)
+                    @Html.Partial("TableView", Model.GroupAllTable)
                 </div>
             </div>
             <div class="ui tab segment" data-tab="memberOf">
@@ -57,10 +57,10 @@
                     <a data-tab="groups-all" class="item">Recursive groups</a>
                 </div>
                 <div class="ui active tab segment" data-tab="groups-direct">
-                    @Html.Raw(Model.GroupOfSegment)
+                    @Html.Partial("TableView", Model.GroupOfTable)
                 </div>
                 <div class="ui tab segment" data-tab="groups-all">
-                    @Html.Raw(Model.GroupsOfAllSegment)
+                    @Html.Partial("TableView", Model.GroupOfAllTable)
                 </div>
             </div>
         </div>

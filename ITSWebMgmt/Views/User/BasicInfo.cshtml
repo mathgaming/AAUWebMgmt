@@ -45,7 +45,17 @@
         @Html.Raw(Model.BasicInfoTable)
         <tr>
             <td>Primary leader (AD)</td>
-            <td>@Html.Raw(TableGenerator.getPersonLinkFromADPath(Model.Manager))</td>
+            <td>@if (Model.Manager == "")
+            {
+                <p>Not found</p>
+            }
+            else { 
+                var split = Model.Manager.Split(',');
+                var name = split[0].Replace("CN=", "");
+                var domain = split.Where<string>(s => s.StartsWith("DC=")).ToArray<string>()[0].Replace("DC=", "");
+
+                @Html.Raw(string.Format("<a href=\"/User?username={0}%40{1}.aau.dk\">{0}@{1}.aau.dk</a><br/>", name, domain));
+            }</td>
         </tr>
         <tr>
             <td>Romaing Profile</td>

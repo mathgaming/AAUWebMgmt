@@ -66,7 +66,6 @@ namespace ITSWebMgmt.Controllers
                         UserModel.InitBasicInfo();
                         LoadWarnings();
                         UserModel.InitCalendarAgenda();
-                        UserModel.InitLoginScript();
                         UserModel.SetTabs();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
@@ -410,34 +409,30 @@ namespace ITSWebMgmt.Controllers
                     return PartialView("RawHTMLTab", new RawHTMLModel("Warnings", UserModel.ErrorMessages));
                 case "fileshares":
                     model = UserModel.InitFileshares();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Fileshares", model.Data));
+                    return PartialView("ExchangeFileshare", model);
                 case "calAgenda":
                     string calAgenda = UserModel.InitCalendarAgenda();
                     return PartialView("RawHTMLTab", new RawHTMLModel("Calendar Agenda(today)", calAgenda));
                 case "exchange":
                     model = UserModel.InitExchange();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Exchange", model.Data));
+                    return PartialView("ExchangeFileshare", model);
                 case "servicemanager":
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
-                    string computerTable = UserModel.InitComputerInformation();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Computer information", computerTable));
+                    UserModel.InitComputerInformation();
+                    return PartialView("ComputerInfo", UserModel);
                 case "win7to10":
                     viewName = "Win7to10";
                     UserModel.InitWin7to10();
                     break;
-                case "loginscript":
-                    string loginHtml = UserModel.InitLoginScript();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Loginscript", loginHtml));
                 case "print":
                     string printHtml = new PrintConnector(UserModel.Guid.ToString()).doStuff();
                     return PartialView("RawHTMLTab", new RawHTMLModel("Print", printHtml));
                 case "rawdata":
-                    string rawTable = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
+                    return PartialView("Rawtable", UserModel.ADcache.getAllProperties());
                 case "netaaudk":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Net.aau.dk", UserModel.InitNetaaudk()));
+                    return PartialView("TableView", UserModel.InitNetaaudk());
             }
 
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);
