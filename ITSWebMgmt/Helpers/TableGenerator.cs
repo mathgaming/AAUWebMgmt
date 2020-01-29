@@ -1,3 +1,4 @@
+using ITSWebMgmt.Models;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -95,44 +96,6 @@ namespace ITSWebMgmt.Helpers
             return v.ToString();
         }
 
-        public static string CreateVerticalTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage)
-        {
-            HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] {"Property", "Value" });
-            var sb = new StringBuilder();
-
-            if (SCCM.HasValues(results))
-            {
-                var o = results.OfType<ManagementObject>().FirstOrDefault();
-
-                foreach (var p in keys)
-                {
-                    var property = o.Properties[p];
-                    if (p == "Size" || p == "FreeSpace")
-                    {
-                        var value = o.Properties[p].Value;
-                        if (value != null)
-                        {
-                            tableHelper.AddRow(new string[] { p + " (GB)", (int.Parse(value.ToString()) / 1024).ToString() });
-                        }
-                        else
-                        {
-                            tableHelper.AddRow(new string[] { p + " (GB)", "missing" });
-                        }
-                    }
-                    else
-                    {
-                        tableHelper.AddRow(new string[] { p, SCCM.GetPropertyAsString(property) });
-                    }
-                }
-            }
-            else
-            {
-                return errorMessage;
-            }
-
-            return tableHelper.GetTable();
-        }
-
         public static string CreateRawFromDatabase(ManagementObjectCollection results, string errorMessage)
         {
             var builder = new StringBuilder();
@@ -194,69 +157,6 @@ namespace ITSWebMgmt.Helpers
             builder.Append("</tbody></table>");
 
             return builder.ToString();
-        }
-
-
-        public static string CreateTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage) => CreateTableFromDatabase(results, keys, keys, errorMessage);
-
-        public static string CreateTableFromDatabase(ManagementObjectCollection results, List<string> keys, List<string> names, string errorMessage)
-        {
-            if (SCCM.HasValues(results))
-            {
-                HTMLTableHelper tableHelper = new HTMLTableHelper(names.ToArray());
-
-                foreach (ManagementObject o in results) //Has one!
-                {
-                    List<string> properties = new List<string>();
-                    foreach (var p in keys)
-                    {
-                        properties.Add(SCCM.GetPropertyAsString(o.Properties[p]));
-                    }
-                    tableHelper.AddRow(properties.ToArray());
-                }
-
-                return tableHelper.GetTable();
-            }
-            else
-            {
-                return errorMessage;
-            }
-        }
-
-        public static string CreateRawTableFromJamf(JObject jsonVal, string tokenName, List<string> names, bool skipNames = false)
-        {
-            dynamic token = jsonVal.SelectToken(tokenName);
-
-            HTMLTableHelper tableHelper = new HTMLTableHelper(new string[] {"Property name", "Value" });
-
-            foreach (dynamic info in token)
-            {
-                if (names.Contains(info.Name) != skipNames)
-                {
-                    tableHelper.AddRow(new string[] { info.Name.Replace('_', ' '), info.Value.Value.ToString() });
-                }
-            }
-            
-            return tableHelper.GetTable();
-        }
-
-        public static string CreateTableFromJamf(JObject jsonVal, string tokenName, List<string> attributeNames, string[] headings)
-        {
-            dynamic token = jsonVal.SelectToken(tokenName);
-
-            HTMLTableHelper tableHelper = new HTMLTableHelper(headings);
-
-            foreach (dynamic info in token)
-            {
-                List<string> rowEntries = new List<string>();
-                foreach (var name in attributeNames)
-                {
-                    rowEntries.Add(info.SelectToken(name).Value.ToString());
-                }
-                tableHelper.AddRow(rowEntries.ToArray());
-            }
-
-            return tableHelper.GetTable();
         }
     }
 }

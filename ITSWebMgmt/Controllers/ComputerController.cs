@@ -143,13 +143,13 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "sccmcollections":
                     ComputerModel.Windows.InitSCCMCollections();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("SCCM collections", ComputerModel.Windows.SCCMCollections));
+                    return PartialView("TableView", ComputerModel.Windows.SCCMCollections);
                 case "sccmInventory":
                     ComputerModel.Windows.InitSCCMSoftware();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Software infomation", ComputerModel.Windows.SCCMSoftware));
+                    return PartialView("TableView", ComputerModel.Windows.SCCMSoftware);
                 case "sccmAV":
-                    string AVTable = TableGenerator.CreateTableFromDatabase(ComputerModel.Windows.Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found");
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Antivirus infomation", AVTable));
+                    ComputerModel.Windows.InitSCCMAV();
+                    return PartialView("TableView", ComputerModel.Windows.SCCMAV);
                 case "sccmHW":
                     viewName = "Windows/SCCMHW";
                     ComputerModel.Windows.InitSCCMHW();
@@ -161,19 +161,19 @@ namespace ITSWebMgmt.Controllers
                     ComputerModel.Windows.InitRawSCCM();
                     return PartialView("RawHTMLTab", new RawHTMLModel("Raw (SCCM)", ComputerModel.Windows.SCCMRaw));
                 case "macbasicinfo":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Basic info", ComputerModel.Mac.HTMLForBasicInfo));
+                    return PartialView("TableView", ComputerModel.Mac.HTMLForBasicInfo);
                 case "macHW":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Hardware info", ComputerModel.Mac.HTMLForHardware));
+                    return PartialView("TableView", ComputerModel.Mac.HTMLForHardware);
                 case "macSW":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Software info", ComputerModel.Mac.HTMLForSoftware));
+                    return PartialView("Software", ComputerModel.Mac);
                 case "macgroups":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Groups", ComputerModel.Mac.HTMLForGroups));
                 case "macnetwork":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Network info", ComputerModel.Mac.HTMLForNetwork));
+                    return PartialView("TableView", ComputerModel.Mac.HTMLForNetwork);
                 case "macloaclaccounts":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Local accounts", ComputerModel.Mac.HTMLForLocalAccounts));
+                    return PartialView("TableView", ComputerModel.Mac.HTMLForLocalAccounts);
                 case "macDisk":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Disk info", ComputerModel.Mac.HTMLForDisk));
+                    return PartialView("TableView", ComputerModel.Mac.HTMLForDisk);
                 case "purchase":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Purchase info", INDBConnector.getInfo(ComputerModel.ComputerName)));
             }

@@ -63,9 +63,4 @@
     </Reference>
   </ItemGroup>
 
-
-  <ItemGroup>
-    <Folder Include="Views\Computer\Mac\" />
-  </ItemGroup>
-
 </Project>

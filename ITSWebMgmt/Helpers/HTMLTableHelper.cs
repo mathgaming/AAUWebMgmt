@@ -3,7 +3,7 @@ using System.Text;
 
 namespace ITSWebMgmt
 {
-    public class HTMLTableHelper
+    /*public class HTMLTableHelper
     {
         private StringBuilder table = new StringBuilder();
         private bool tableEnded = false;
@@ -60,5 +60,5 @@ namespace ITSWebMgmt
                 EndTable();
             return table.ToString();    
         }
-    }
+    }*/
 }
