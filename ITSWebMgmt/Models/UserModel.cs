@@ -188,9 +188,17 @@ namespace ITSWebMgmt.Models
             {
                 string empID = AAUStaffID;
 
-                var pds = new PureConnector(empID);
-                BasicInfoDepartmentPDS = pds.Department;
-                BasicInfoOfficePDS = pds.OfficeAddress;
+                try
+                {
+                    var pds = new PureConnector(empID);
+                    BasicInfoDepartmentPDS = pds.Department;
+                    BasicInfoOfficePDS = pds.OfficeAddress;
+                }
+                catch (Exception)
+                {
+                    BasicInfoDepartmentPDS = "Error: Failed to connect to Pure";
+                    BasicInfoOfficePDS = "Error: Failed to connect to Pure";
+                }
             }
 
             //Other fileds

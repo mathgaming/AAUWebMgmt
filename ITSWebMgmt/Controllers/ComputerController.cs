@@ -93,7 +93,15 @@ namespace ITSWebMgmt.Controllers
                         }
                         else
                         {
-                            ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                            try
+                            {
+                                ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                            }
+                            catch (Exception e)
+                            {
+                                HandleError(e);
+                                ComputerModel.ResultError = "Computer not found";
+                            }
                         }
                     }
 
