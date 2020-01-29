@@ -155,8 +155,7 @@ namespace ITSWebMgmt.Controllers
                 case "rawdata":
                     return PartialView("RawTable", ComputerModel.Windows.ADcache.getAllProperties());
                 case "rawdatasccm":
-                    ComputerModel.Windows.InitRawSCCM();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Raw (SCCM)", ComputerModel.Windows.SCCMRaw));
+                    return PartialView("SCCMRaw", ComputerModel.Windows);
                 case "macbasicinfo":
                     return PartialView("TableView", ComputerModel.Mac.HTMLForBasicInfo);
                 case "macHW":

@@ -54,7 +54,6 @@ namespace ITSWebMgmt.Models
         public string IPAddresses { get; set; }
         public string MACAddresses { get; set; }
         public string Build { get; set; }
-        public string SCCMRaw { get; set; }
         public TableModel SCCMInfoComputer { get; set; }
         public TableModel SCCMInfoSystem { get; set; }
         public TableModel SCCMSoftware { get; set; }
@@ -340,13 +339,6 @@ namespace ITSWebMgmt.Models
                 new List<string>() { "SoftwareCode", "ProductName", "ProductVersion", "TimeStamp" },
                 new List<string>() { "Product ID", "Name", "Version", "Install date" },
                 "Software information not found", "Software infomation");    
-        }
-
-        public void InitRawSCCM()
-        {
-            string computerSCCM = TableGenerator.CreateRawFromDatabase(Computer, "Computer information not found");
-            string systemSCCM = TableGenerator.CreateRawFromDatabase(System, "Computer not found i SCCM");
-            SCCMRaw = $"<h3>Computer (Inventory)</h3>{computerSCCM}<h3>System (SCCM Info)</h3>{systemSCCM}";
         }
 
         public void InitSCCMInfo()
