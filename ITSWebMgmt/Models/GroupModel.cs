@@ -22,10 +22,10 @@ namespace ITSWebMgmt.Models
         public string ManagedBy { get; set; }
         public string SecurityGroup { get; set; }
         public string GroupScope { get; set; }
-        public string GroupSegment { get; set; }
-        public string GroupsAllSegment { get; set; }
-        public string GroupOfSegment { get; set; }
-        public string GroupsOfAllSegment { get; set; }
+        public TableModel GroupTable { get; set; }
+        public TableModel GroupAllTable { get; set; }
+        public TableModel GroupOfTable { get; set; }
+        public TableModel GroupOfAllTable { get; set; }
         public bool IsFileShare { get; set; } = false;
 
         public GroupModel(string adpath)

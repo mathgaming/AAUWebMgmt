@@ -1,0 +1,20 @@
+﻿@model ITSWebMgmt.Models.TableModel
+<table class="ui celled table">
+    <thead>
+        <tr>
+            @foreach (string h in Model.Headings)
+            {
+                <th>@h</th>
+            }
+        </tr>
+    </thead>
+    @foreach (string[] r in Model.Rows)
+    {
+        <tr>
+            @foreach (string s in r)
+            {
+                <td>@Html.Raw(s)</td>
+            }
+        </tr>
+    }
+</table>

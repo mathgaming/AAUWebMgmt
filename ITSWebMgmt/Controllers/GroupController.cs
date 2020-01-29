@@ -20,11 +20,8 @@ namespace ITSWebMgmt.Controllers
 
             if (forceviewgroup == false && isFileShare(GroupModel.DistinguishedName))
             {
-                string[] tables = GetFileshareTables();
-                GroupModel.GroupSegment = tables[0];
-                GroupModel.GroupsAllSegment = tables[1];
-                GroupModel.GroupOfSegment = tables[2];
-                GroupModel.GroupsOfAllSegment = tables[3];
+                InitFileshareTables();
+                
                 GroupModel.IsFileShare = true;
 
                 return View("FileShare", GroupModel);
@@ -51,44 +48,46 @@ namespace ITSWebMgmt.Controllers
             return ((count == 3 && oupath[count - 1].Equals("OU=Groups") && oupath[count - 2].Equals("OU=Resource Access")));
         }
 
-        public string[] GetFileshareTables()
+        public void InitFileshareTables()
         {
+            bool first = true;
             //TODO Things to show in basic info: Type fileshare/department and Domain plan/its/adm
-
-            HTMLTableHelper[] groupTableHelper = new HTMLTableHelper[4];
-            for (int i = 0; i < 4; i++)
-            {
-                groupTableHelper[i] = new HTMLTableHelper(new string[] { "Name", "Type", "Access" });
-            }
 
             List<string> accessNames = new List<string> { "Full", "Modify", "Read", "Edit", "Contribute" };
             foreach (string accessName in accessNames)
             {
                 string temp = Regex.Replace(GroupModel.adpath, @"_[a-zA-Z]*,OU", $"_{accessName},OU");
-                ADcache group = null;
+                ADcache groupCache = null;
                 try
                 {
-                    group = new GroupADcache(temp);
+                    groupCache = new GroupADcache(temp);
                 }
                 catch (Exception)
                 {
                 }
 
-                if (group != null)
+                if (groupCache != null)
                 {
-                    List<string>[] adpaths = new List<string>[] { group.getGroups("member"), group.getGroupsTransitive("member"), group.getGroups("memberOf"), group.getGroupsTransitive("memberOf") };
-                    for (int i = 0; i < 4; i++)
+                    var member = new PartialGroupModel(groupCache, "member", "Fileshares", accessName);
+                    var memberOf = new PartialGroupModel(groupCache, "memberOf", "Fileshares", accessName);
+
+                    if (first)
                     {
-                        TableGenerator.createGroupTableRows(adpaths[i], groupTableHelper[i], accessName);
+                        GroupModel.GroupTable = member.GroupTable;
+                        GroupModel.GroupAllTable = member.GroupAllTable;
+                        GroupModel.GroupOfTable = memberOf.GroupTable;
+                        GroupModel.GroupOfAllTable = memberOf.GroupAllTable;
+                        first = false;
+                    }
+                    else
+                    {
+                        GroupModel.GroupTable.Rows.AddRange(member.GroupTable.Rows);
+                        GroupModel.GroupAllTable.Rows.AddRange(member.GroupAllTable.Rows);
+                        GroupModel.GroupOfTable.Rows.AddRange(memberOf.GroupTable.Rows);
+                        GroupModel.GroupOfAllTable.Rows.AddRange(memberOf.GroupAllTable.Rows);
                     }
                 }
             }
-
-            return new string[] {
-            groupTableHelper[0].GetTable(),
-            groupTableHelper[1].GetTable(),
-            groupTableHelper[2].GetTable(),
-            groupTableHelper[3].GetTable()};
         }
     }
 }
