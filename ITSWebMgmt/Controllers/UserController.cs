@@ -421,8 +421,8 @@ namespace ITSWebMgmt.Controllers
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
-                    string computerTable = UserModel.InitComputerInformation();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Computer information", computerTable));
+                    UserModel.InitComputerInformation();
+                    return PartialView("TableView", UserModel);
                 case "win7to10":
                     viewName = "Win7to10";
                     UserModel.InitWin7to10();
@@ -437,7 +437,7 @@ namespace ITSWebMgmt.Controllers
                     string rawTable = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
                     return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
                 case "netaaudk":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Net.aau.dk", UserModel.InitNetaaudk()));
+                    return PartialView("TableView", UserModel.InitNetaaudk());
             }
 
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);

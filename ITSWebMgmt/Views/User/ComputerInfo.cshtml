@@ -1,0 +1,13 @@
+﻿@model ITSWebMgmt.Models.UserModel
+
+<h2>Computer information</h2>
+@if (Model.WindowsComputerTable != null)
+{
+    <h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>
+    @Html.Partial("TableView", Model.WindowsComputerTable)
+    @Html.Partial("TableView", Model.MacComputerTable)
+}
+else
+{
+    <h3>Service user does not have SCCM access.</h3>
+}
