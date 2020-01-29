@@ -1,0 +1,41 @@
+﻿@using System.DirectoryServices
+@using ITSWebMgmt.Helpers
+@model List<PropertyValueCollection>
+    <table class="ui celled structured table">
+        <thead><tr><th>Key</th><th>Value</th></tr></thead>
+        <tbody>
+            @foreach (PropertyValueCollection a in Model)
+            {
+                <!--Don't display admin password in raw data-->
+                @if (a != null && a.Count > 0 && a.PropertyName != "ms-Mcs-AdmPwd")
+                {
+                <td rowspan="@a.Count">@a.PropertyName</td>
+
+                    string v = ADHelper.ConvertToStringWithCorrectFormatIfDate(a[0]);
+
+                    if (a.Count == 1)
+                    {
+                    <tr>
+                        <td>@v</td>
+                    </tr>
+                    }
+                    else
+                    {
+                    <tr>
+                        <td>@v</td>
+                        @for (int i = 1; i < a.Count; i++)
+                        {
+                            v = ADHelper.ConvertToStringWithCorrectFormatIfDate(a[i]);
+                            <tr><td>@v</td></tr>
+                        }
+                    </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td></td></tr>
+                }
+
+            }
+        </tbody>
+    </table>

@@ -59,7 +59,7 @@
             </div>
             <div class="ui tab segment" data-tab="rawData">
                 <h2>Raw Data</h2>
-                @Html.Raw(TableGenerator.buildRawTable(Model.getAllProperties()))
+                @Html.Partial("RawTable", Model.getAllProperties())
             </div>
         </div>
     </div>

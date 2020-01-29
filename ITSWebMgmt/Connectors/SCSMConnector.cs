@@ -70,49 +70,6 @@ namespace ITSWebMgmt.Connectors
             return new ServiceManagerModel(userId, lookupWorkItemsByUUID(userId).Result);
         }
 
-        private static StringBuilder PrintTableOfCases(object jsonO, Func<string, bool> filter)
-        {
-            dynamic json = jsonO;
-            var helper = new HTMLTableHelper(new string[] { "ID", "Title", "Status", "Last Change" });
-
-
-            for (int i = 0; i < json["MyRequest"].Count; i++)
-            {
-                var temp = json["MyRequest"][i];
-                var name = json["MyRequest"][i]["Status"]["Name"];
-                if (filter(json["MyRequest"][i]["Status"]["Name"].Value))
-                {
-                    string id = json["MyRequest"][i]["Id"].Value;
-                    string link;
-                    if (id.StartsWith("IR"))
-                    {
-                        link = "https://service.aau.dk/Incident/Edit/" + id;
-
-                        //Filter away if its closed as converted to SR
-                        if ((idForConvertedToSR.Equals(json["MyRequest"][i]["ResolutionCategory"]["Id"].Value)))
-                        {
-                            continue;
-                        }
-                    }
-                    else
-                    {
-                        link = "https://service.aau.dk/ServiceRequest/Edit/" + id;
-                    }
-                    string sID = "<a href=\"" + link + "\" target=\"_blank\">" + json["MyRequest"][i]["Id"].Value + "</a><br/>";
-                    string sTitle = json["MyRequest"][i]["Title"].Value;
-                    string sStatus = json["MyRequest"][i]["Status"]["Name"].Value;
-                    DateTime tmp = json["MyRequest"][i]["LastModified"].Value;
-                    string sLastChange = Convert.ToDateTime(tmp).ToString("yyyy-MM-dd HH:mm");
-
-                    helper.AddRow(new String[] { sID, sTitle, sStatus, sLastChange });
-                }
-            }
-
-
-            return new StringBuilder(helper.GetTable());
-        }
-
-
         //returns json string for uuid
         protected async Task<List<Case>> lookupWorkItemsByUUID(string uuid)
         {

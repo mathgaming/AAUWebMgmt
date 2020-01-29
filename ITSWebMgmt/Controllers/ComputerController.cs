@@ -43,12 +43,10 @@ namespace ITSWebMgmt.Controllers
 
         private IMemoryCache _cache;
         public ComputerModel ComputerModel;
-        private LogEntryContext _context;
 
         public ComputerController(LogEntryContext context, IMemoryCache cache) : base(context)
         {
             _cache = cache;
-            _context = context;
         }
 
         private ComputerModel getComputerModel(string computerName)
@@ -155,8 +153,7 @@ namespace ITSWebMgmt.Controllers
                     ComputerModel.Windows.InitSCCMHW();
                     break;
                 case "rawdata":
-                    string rawTable = TableGenerator.buildRawTable(ComputerModel.Windows.ADcache.getAllProperties());
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
+                    return PartialView("RawTable", ComputerModel.Windows.ADcache.getAllProperties());
                 case "rawdatasccm":
                     ComputerModel.Windows.InitRawSCCM();
                     return PartialView("RawHTMLTab", new RawHTMLModel("Raw (SCCM)", ComputerModel.Windows.SCCMRaw));
