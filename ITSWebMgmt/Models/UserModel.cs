@@ -495,23 +495,6 @@ namespace ITSWebMgmt.Models
             return model;
         }
 
-        public string InitLoginScript()
-        {
-            ShowLoginScript = false;
-
-            var loginscripthelper = new Loginscript();
-
-            var script = loginscripthelper.getLoginScript(ScriptPath, ADcache.Path);
-
-            if (script != null)
-            {
-                ShowLoginScript = true;
-                return loginscripthelper.parseAndDisplayLoginScript(script);
-            }
-
-            return null;
-        }
-
         public void InitWin7to10()
         {
             bool haveWindows7 = false;

@@ -66,7 +66,6 @@ namespace ITSWebMgmt.Controllers
                         UserModel.InitBasicInfo();
                         LoadWarnings();
                         UserModel.InitCalendarAgenda();
-                        UserModel.InitLoginScript();
                         UserModel.SetTabs();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
@@ -427,15 +426,11 @@ namespace ITSWebMgmt.Controllers
                     viewName = "Win7to10";
                     UserModel.InitWin7to10();
                     break;
-                case "loginscript":
-                    string loginHtml = UserModel.InitLoginScript();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Loginscript", loginHtml));
                 case "print":
                     string printHtml = new PrintConnector(UserModel.Guid.ToString()).doStuff();
                     return PartialView("RawHTMLTab", new RawHTMLModel("Print", printHtml));
                 case "rawdata":
-                    string rawTable = TableGenerator.buildRawTable(UserModel.ADcache.getAllProperties());
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Raw", rawTable));
+                    return PartialView("Rawtable", UserModel.ADcache.getAllProperties());
                 case "netaaudk":
                     return PartialView("TableView", UserModel.InitNetaaudk());
             }
