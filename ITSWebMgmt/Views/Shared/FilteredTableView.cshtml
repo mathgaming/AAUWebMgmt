@@ -1,0 +1,73 @@
+﻿@model ITSWebMgmt.Models.TableModel
+@using Newtonsoft.Json
+<input type="text" id="filter" placeholder="Search for name..">
+<button onclick="filterTable()" id="filterBtn">Filter</button>
+<button onclick="resetFilter()" id="filterBtn">Reset</button>
+<table class="ui celled structured table" id="table"></table>
+
+<script>
+    var input = document.getElementById("filter");
+    input.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            document.getElementById("filterBtn").click();
+        }
+    });
+
+    filterTable();
+
+    function resetFilter() {
+        document.getElementById("filter").value = "";
+        filterTable();
+    }
+
+    function filterTable() {
+        var element = document.getElementById("table");
+        element.innerHTML = "";
+        var filterText = document.getElementById("filter").value;
+        element.appendChild(makeTable(filterText));
+    }
+
+    function filter(array, column, filterText) {
+        var result = [];
+        for (var i = 0; i < array.length; i++)
+        {
+            if (filter == "" || array[i][column].toLowerCase().includes(filterText.toLowerCase()))
+            {
+                result.push(array[i]);
+            }
+        }
+
+        return result;
+    }
+
+    function makeTable(filterText) {
+        var table = document.getElementById('table');
+
+        // Headings
+        var headings = @Html.Raw(JsonConvert.SerializeObject(Model.Headings));
+        var head = document.createElement('thead');
+        var row = document.createElement('tr');
+        for (var i = 0; i < headings.length; i++) {
+            var cell = document.createElement('th');
+            cell.textContent = headings[i];
+            row.appendChild(cell);
+        }
+        head.append(row)
+        table.appendChild(head);
+
+        // Rows
+        var rows = @Html.Raw(JsonConvert.SerializeObject(Model.Rows));
+        rows = filter(rows, 1, filterText);
+        for (var i = 0; i < rows.length; i++) {
+            var row = document.createElement('tr');
+            for (var j = 0; j < rows[i].length; j++) {
+                var cell = document.createElement('td');
+                cell.textContent = rows[i][j];
+                row.appendChild(cell);
+            }
+            table.appendChild(row);
+        }
+        return table;
+    }
+</script>
