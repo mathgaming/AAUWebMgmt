@@ -14,6 +14,7 @@ namespace ITSWebMgmt.Caches
             new Property("proxyAddresses", typeof(object[])),
             new Property("givenName", typeof(string)),
             new Property("sn", typeof(string)),
+            new Property("badPwdCount", typeof(int)),
             new Property("profilepath", typeof(string)), //Check this
             new Property("aauStaffID", typeof(int)),
             new Property("aauStudentID", typeof(int)), //Check this

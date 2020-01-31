@@ -41,6 +41,7 @@ namespace ITSWebMgmt.Models
         public string AAUUserStatus { get => ADcache.getProperty("aauUserStatus").ToString(); }
         public string ScriptPath { get => ADcache.getProperty("scriptPath"); }
         public bool IsAccountLocked { get => ADcache.getProperty("IsAccountLocked"); }
+        public int BadPwdCount { get => ADcache.getProperty("badPwdCount"); }
         public string AAUAAUID { get => ADcache.getProperty("aauAAUID"); }
         public string AAUUUID { get => ADcache.getProperty("aauUUID"); }
         public string TelephoneNumber { get => ADcache.getProperty("telephoneNumber"); set => ADcache.saveProperty("telephoneNumber", value); }
@@ -79,6 +80,8 @@ namespace ITSWebMgmt.Models
         {
             return new string[]
             {
+                BasicInfoPasswordExpired,
+                BadPwdCount.ToString(),
                 UserPrincipalName,
                 AAUAAUID,
                 AAUUUID,
@@ -97,6 +100,7 @@ namespace ITSWebMgmt.Models
         public string BasicInfoADFSLocked { get; set; }
         public string BasicInfoLocked { get; set; }
         public string BasicInfoPasswordExpireDate { get; set; }
+        public string BasicInfoPasswordExpired { get; set; }
         public string BasicInfoTable { get; set; }
         public string BasicInfoRomaing
         {
@@ -203,8 +207,27 @@ namespace ITSWebMgmt.Models
                 }
             }
 
+            //Password info
+            BasicInfoLocked = "False";
+            const int UF_LOCKOUT = 0x0010;
+            if ((UserAccountControlComputed & UF_LOCKOUT) == UF_LOCKOUT)
+            {
+                BasicInfoLocked = "True";
+            }
+
+            if (UserPasswordExpiryTimeComputed == "")
+            {
+                BasicInfoPasswordExpireDate = "Never";
+                BasicInfoPasswordExpired = "False";
+            }
+            else
+            {
+                BasicInfoPasswordExpireDate = UserPasswordExpiryTimeComputed;
+                BasicInfoPasswordExpired = DateTime.Parse(UserPasswordExpiryTimeComputed) > DateTime.Now ? "False" : "True";
+            }
+
             //Other fileds
-            var attrDisplayName = "UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
+            var attrDisplayName = "Password expired, Bad password count, UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
             var attrArry = getUserInfo();
             var dispArry = attrDisplayName.Split(',');
             string[] dateFields = { "lastLogon", "badPasswordTime" };
@@ -237,25 +260,6 @@ namespace ITSWebMgmt.Models
                 emailString += string.Format("<a href=\"mailto:{0}\">{0}</a><br/>", mailAddress);
             }
             sb.Append($"<tr><td>E-mails</td><td>{emailString}</td></tr>");
-            
-            const int UF_LOCKOUT = 0x0010;
-            int userFlags = UserAccountControlComputed;
-
-            BasicInfoLocked = "False";
-
-            if ((userFlags & UF_LOCKOUT) == UF_LOCKOUT)
-            {
-                BasicInfoLocked = "True";
-            }
-
-            if (UserPasswordExpiryTimeComputed == "")
-            {
-                BasicInfoPasswordExpireDate = "Never";
-            }
-            else
-            {
-                BasicInfoPasswordExpireDate = UserPasswordExpiryTimeComputed;
-            }
 
             UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(this);
 
