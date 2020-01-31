@@ -145,7 +145,7 @@ namespace ITSWebMgmt.Controllers
                     return PartialView("TableView", ComputerModel.Windows.SCCMCollections);
                 case "sccmInventory":
                     ComputerModel.Windows.InitSCCMSoftware();
-                    return PartialView("TableView", ComputerModel.Windows.SCCMSoftware);
+                    return PartialView("FilteredTableView", ComputerModel.Windows.SCCMSoftware);
                 case "sccmAV":
                     ComputerModel.Windows.InitSCCMAV();
                     return PartialView("TableView", ComputerModel.Windows.SCCMAV);
