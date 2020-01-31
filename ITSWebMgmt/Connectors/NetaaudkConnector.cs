@@ -29,10 +29,6 @@ namespace ITSWebMgmt.Connectors
 
             using (var request = new HttpRequestMessage(new HttpMethod("PUT"), url))
             {
-                //request.Headers.TryAddWithoutValidation("Authorization", Auth);
-                //request.Headers.TryAddWithoutValidation("Content-type", "application/json");
-
-                request.Content = new StringContent($"search={Uri.EscapeDataString(@"|loadjob savedsearch=SVC_SplunkREPORTS@srv.aau.dk:aau:aau_adfs_locked_out_d-1d")}", Encoding.UTF8, "application/x-www-form-urlencoded");
                 request.Content = new StringContent("{\"user\": \"" + username + "\"}");
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 

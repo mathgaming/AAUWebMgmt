@@ -223,7 +223,10 @@ namespace ITSWebMgmt.Models
             else
             {
                 BasicInfoPasswordExpireDate = UserPasswordExpiryTimeComputed;
-                BasicInfoPasswordExpired = DateTime.Parse(UserPasswordExpiryTimeComputed) > DateTime.Now ? "False" : "True";
+                if (UserPasswordExpiryTimeComputed != null)
+                {
+                    BasicInfoPasswordExpired = DateTime.Parse(UserPasswordExpiryTimeComputed) > DateTime.Now ? "False" : "True";
+                }
             }
 
             //Other fileds
