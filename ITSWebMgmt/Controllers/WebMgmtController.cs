@@ -36,30 +36,7 @@ namespace ITSWebMgmt.Controllers
 
         protected ErrorViewModel HandleError(Exception e)
         {
-            var model = new ErrorViewModel();
-
-            model.QueryString = HttpContext.Request.QueryString.Value;
-            model.Path = HttpContext.Request.Path;
-            model.Error = e;
-            model.AffectedUser = HttpContext.User.Identity.Name;
-            model.HttpStatusCode = HttpContext.Response.StatusCode;
-
-            ThreadPool.QueueUserWorkItem(_ =>
-            {
-                sendEmail(model);
-            }, null);
-
-            return model;
-        }
-
-        private void sendEmail(ErrorViewModel model)
-        {
-            string body = $"Person: {model.AffectedUser}\n" +
-                        $"Http status code: {model.HttpStatusCode}\n" +
-                        $"Error: {model.ErrorMessage}\n" +
-                        $"Url: {model.Url}\n" +
-                        $"Stacktrace:\n{model.Stacktrace}\n";
-            EmailHelper.SendEmail("WebMgmt error", body);
+            return new ErrorViewModel(e, HttpContext);
         }
     }
 }

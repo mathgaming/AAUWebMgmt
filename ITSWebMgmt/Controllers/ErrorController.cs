@@ -9,9 +9,9 @@ using ITSWebMgmt.Models.Log;
 
 namespace ITSWebMgmt.Controllers
 {
-    public class ErrorController : WebMgmtController
+    public class ErrorController : Controller
     {
-        public ErrorController(LogEntryContext context) : base(context)
+        public ErrorController()
         {
         }
 
@@ -20,7 +20,7 @@ namespace ITSWebMgmt.Controllers
         {
             var e = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            return View("Error", HandleError(e.Error));
+            return View("Error", new ErrorViewModel(e.Error, HttpContext));
         }
     }
 }
