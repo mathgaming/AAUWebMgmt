@@ -13,14 +13,14 @@ namespace ITSWebMgmt.Models
         public ComputerModel BaseModel { get; set; }
         public JamfConnector Jamf { get; set; } = new JamfConnector();
         public bool ComputerFound { get; set; } = false;
-        public TableModel HTMLForBasicInfo { get; set; }
+        public TableModel BasicInfoTable { get; set; }
         public string HTMLForGroups { get; set; }
         public TableModel Applications { get; set; }
         public TableModel Plugins { get; set; }
-        public TableModel HTMLForHardware { get; set; }
-        public TableModel HTMLForNetwork { get; set; }
-        public TableModel HTMLForLocalAccounts { get; set; }
-        public TableModel HTMLForDisk { get; set; }
+        public TableModel HardwareTable { get; set; }
+        public TableModel NetworkTable { get; set; }
+        public TableModel LocalAccountsTable { get; set; }
+        public TableModel DiskTable { get; set; }
         public List<string> Groups { get; set; }
         public MacComputerModel(ComputerModel baseModel)
         {
@@ -53,7 +53,7 @@ namespace ITSWebMgmt.Models
 
         private void setHardware(JObject jsonVal)
         {
-            HTMLForHardware = CreateRawTableFromJamf(jsonVal, "computer.hardware", new List<string>() { "filevault2_users", "storage", "mapped_printers" }, "Hardware info", true);
+            HardwareTable = CreateRawTableFromJamf(jsonVal, "computer.hardware", new List<string>() { "filevault2_users", "storage", "mapped_printers" }, "Hardware info", true);
             //TODO Add disk info til hardware info
             //TODO consider printers
         }
@@ -66,7 +66,7 @@ namespace ITSWebMgmt.Models
 
         private void setNetwork(JObject jsonVal)
         {
-            HTMLForNetwork = CreateRawTableFromJamf(jsonVal, "computer.general", new List<string>() { "mac_address", "alt_mac_address", "ip_address", "last_reported_ip" }, "Network info");
+            NetworkTable = CreateRawTableFromJamf(jsonVal, "computer.general", new List<string>() { "mac_address", "alt_mac_address", "ip_address", "last_reported_ip" }, "Network info");
         }
 
         private void setDisk(JObject jsonVal)
@@ -93,7 +93,7 @@ namespace ITSWebMgmt.Models
                 rows.Add(rowEntries.ToArray());
             }
 
-            HTMLForDisk = new TableModel(new string[] { "Disk", "Model", "Revision", "Name", "Size (MB)", "Percentage full", "Filevault status" }, rows, "Disk info");
+            DiskTable = new TableModel(new string[] { "Disk", "Model", "Revision", "Name", "Size (MB)", "Percentage full", "Filevault status" }, rows, "Disk info");
         }
 
         private void setBasic(JObject jsonVal)
@@ -130,12 +130,12 @@ namespace ITSWebMgmt.Models
             dynamic jamfVersion = jsonVal.SelectToken("computer.general.jamf_version");
             rows.Add(new string[] { "Jamf version", jamfVersion.Value });
 
-            HTMLForBasicInfo = new TableModel(new string[] { "Property name", "Value" }, rows, "Basic info");
+            BasicInfoTable = new TableModel(new string[] { "Property name", "Value" }, rows, "Basic info");
         }
 
         private void setLocalAccounts(JObject jsonVal)
         {
-            HTMLForLocalAccounts = CreateTableFromJamf(jsonVal, "computer.groups_accounts.local_accounts", new List<string>() { "name", "realname", "uid", "home", "home_size", "administrator", "filevault_enabled" }, new string[] { "Name", "Real name", "uid", "Home directory", "Home size", "Administrator", "Filevault enabled" }, "Local accounts");
+            LocalAccountsTable = CreateTableFromJamf(jsonVal, "computer.groups_accounts.local_accounts", new List<string>() { "name", "realname", "uid", "home", "home_size", "administrator", "filevault_enabled" }, new string[] { "Name", "Real name", "uid", "Home directory", "Home size", "Administrator", "Filevault enabled" }, "Local accounts");
         }
 
         private void setGroups(JObject jsonVal)

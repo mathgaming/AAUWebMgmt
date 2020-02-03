@@ -159,19 +159,19 @@ namespace ITSWebMgmt.Controllers
                     viewName = "Windows/SCCMRaw";
                     break;
                 case "macbasicinfo":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForBasicInfo);
+                    return PartialView("TableView", ComputerModel.Mac.BasicInfoTable);
                 case "macHW":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForHardware);
+                    return PartialView("TableView", ComputerModel.Mac.HardwareTable);
                 case "macSW":
-                    return PartialView("Software", ComputerModel.Mac);
+                    return PartialView("Mac/Software", ComputerModel.Mac);
                 case "macgroups":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Groups", ComputerModel.Mac.HTMLForGroups));
                 case "macnetwork":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForNetwork);
+                    return PartialView("TableView", ComputerModel.Mac.NetworkTable);
                 case "macloaclaccounts":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForLocalAccounts);
+                    return PartialView("TableView", ComputerModel.Mac.LocalAccountsTable);
                 case "macDisk":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForDisk);
+                    return PartialView("TableView", ComputerModel.Mac.DiskTable);
                 case "purchase":
                     return PartialView("INDB", INDBConnector.getInfo(ComputerModel.ComputerName));
             }
