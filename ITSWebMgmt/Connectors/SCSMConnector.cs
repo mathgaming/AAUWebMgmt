@@ -15,12 +15,8 @@ namespace ITSWebMgmt.Connectors
     public class SCSMConnector
     {
         private const string webserviceURL = "https://service.aau.dk";
-
         public string userID = "";
-
-
         private static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
-
         private string authkey;
 
         public SCSMConnector()
@@ -30,7 +26,6 @@ namespace ITSWebMgmt.Connectors
 
         protected async Task<string> getAuthKey()
         {
-
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/Authorization/GetToken");
             request.Method = "POST";
             request.ContentType = "text/json";
@@ -73,7 +68,6 @@ namespace ITSWebMgmt.Connectors
         //returns json string for uuid
         protected async Task<List<Case>> lookupWorkItemsByUUID(string uuid)
         {
-
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/WorkItem/GetGridWorkItemsMyRequests?userid=" + uuid + "&showInactiveItems=true");
             request.Method = "Get";
             request.Headers.Add("Authorization", "Token " + authkey);
@@ -81,9 +75,7 @@ namespace ITSWebMgmt.Connectors
 
             var response = await request.GetResponseAsync();
             var responseSteam = response.GetResponseStream();
-
             var streamReader = new StreamReader(responseSteam);
-
             var responseText = streamReader.ReadToEnd();
 
             //Make a breakpoint here to see what the response actually is.
@@ -91,32 +83,23 @@ namespace ITSWebMgmt.Connectors
             List<Case> caseList = JsonConvert.DeserializeObject<List<Case>>(responseText);
 
             return caseList;
-
         }
 
         //Takes a upn and retuns the users uuid
         protected async Task<string> getUserUUIDByUPN(string upn)
         {
             //Get username from UPN
-
-
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/User/GetUserList?fetchAll=false&userFilter=" + upn);
             request.Method = "Get";
             request.ContentType = "text/json";
             request.ContentType = "application/json; charset=utf-8";
-
-
             request.Headers.Add("Authorization", "Token " + authkey);
 
             var response = await request.GetResponseAsync();
             var responseSteam = response.GetResponseStream();
-
             var streamReader = new StreamReader(responseSteam);
-
             var responseText = streamReader.ReadToEnd();
-
             dynamic json = JsonConvert.DeserializeObject<dynamic>(responseText);
-
 
             //TODO: Don't await for each item, make all requests and await, then look over data
             foreach (dynamic obj in json)

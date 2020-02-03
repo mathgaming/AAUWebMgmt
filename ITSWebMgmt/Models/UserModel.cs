@@ -94,7 +94,6 @@ namespace ITSWebMgmt.Models
             };
         }
 
-        public string AdmDBExpireDate { get; set; }
         public string BasicInfoDepartmentPDS { get; set; }
         public string BasicInfoOfficePDS { get; set; }
         public string BasicInfoADFSLocked { get; set; }
@@ -270,19 +269,6 @@ namespace ITSWebMgmt.Models
             sb.Append($"<tr><td>Uses OneDrive?</td><td>{UsesOnedrive}</td></tr>");
 
             BasicInfoTable = sb.ToString();
-
-            /*var admdb = new ADMdbConnector();
-
-            string upn = UserPrincipalName;
-
-            string firstName = GivenName;
-            string lastName = SN;
-
-            var tmp = upn.Split('@');
-            var domain = tmp[1].Split('.')[0];
-
-            //Make lookup in ADMdb
-            AdmDBExpireDate = admdb.loadUserExpiredate(domain, tmp[0], firstName, lastName).Result;*/
         }
         public List<string> getUserMails(){
             List<string> emails = new List<string>();
@@ -347,8 +333,6 @@ namespace ITSWebMgmt.Models
         {
             ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
             service.UseDefaultCredentials = true; // Use domain account for connecting 
-            //service.Credentials = new WebCredentials("user1@contoso.com", "password"); // used if we need to enter a password, but for now we are using domain credentials
-            //service.AutodiscoverUrl("kyrke@its.aau.dk");  //XXX we should use the service user for webmgmt!
             service.Url = new Uri("https://mail.aau.dk/EWS/exchange.asmx");
 
             List<AttendeeInfo> attendees = new List<AttendeeInfo>();

@@ -12,7 +12,6 @@ namespace ITSWebMgmt.Models
         public List<Case> openCases { get => _getSortedCasesInStatuses("Active", "Pending", "Pending 3rd party", "Awaiting user response", "Pending Group Approval", "New", "Submitted", "In Progress", "On Hold"); }
         public List<Case> closedCases { get => userCases.Except(openCases).ToList(); }
 
-
         public ServiceManagerModel(string userID, List<Case> userCases)
         {
             this.userCases = userCases;
@@ -39,7 +38,6 @@ namespace ITSWebMgmt.Models
     
     public class Case
     {
-        private static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
         public string Id { get; private set; }
         public string Title { get; private set; }
         public string Status { get; private set; }

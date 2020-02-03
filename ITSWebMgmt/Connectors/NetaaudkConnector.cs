@@ -15,7 +15,7 @@ namespace ITSWebMgmt.Connectors
         public string Auth { get; }
         public NetaaudkConnector()
         {
-            Auth = "Bearer " + "c78c59a6b58779ec83a431a65ec1b2945601fa1d"; //Startup.Configuration["cred:netaaudk:token"];
+            Auth = "Bearer " + Startup.Configuration["cred:netaaudk:token"];
         }
 
         public List<NetaaudkModel> GetData(string username)

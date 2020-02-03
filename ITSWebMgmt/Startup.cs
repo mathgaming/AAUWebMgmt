@@ -68,7 +68,6 @@ namespace ITSWebMgmt
                 endpoints.MapControllerRoute("computer", "{controller=Computer}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("user", "{controller=User}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("log", "{controller=Log}/{action=Index}/{id?}");
-                endpoints.MapControllerRoute("defendpointchallengeresponse", "{controller=DefendpointChallengeResponse}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("createworkitem", "{controller=CreateWorkItem}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("aauredirector", "{controller=AAURedirector}/{action=Index}/{id?}");
             });

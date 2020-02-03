@@ -256,7 +256,7 @@ namespace ITSWebMgmt.Controllers
             UserModel.ErrorCountMessage = errorList.getErrorCountMessage();
             UserModel.ErrorMessages = errorList.ErrorMessages;
 
-            if (this.userIsInRightOU())
+            if (userIsInRightOU())
             {
                 UserModel.ShowFixUserOU = false;
             }

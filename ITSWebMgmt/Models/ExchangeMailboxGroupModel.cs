@@ -39,7 +39,7 @@ namespace ITSWebMgmt.Models
                     var len = nameSplit.Length;
                     Type = nameSplit[2];
                     Domain = nameSplit[1];
-                    Name = String.Join("_", nameSplit.Skip(3).Reverse().Skip(1).Reverse());
+                    Name = string.Join("_", nameSplit.Skip(3).Reverse().Skip(1).Reverse());
                     Access = nameSplit[len - 1];
                 }
                 else

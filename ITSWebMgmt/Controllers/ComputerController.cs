@@ -159,19 +159,19 @@ namespace ITSWebMgmt.Controllers
                     viewName = "Windows/SCCMRaw";
                     break;
                 case "macbasicinfo":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForBasicInfo);
+                    return PartialView("TableView", ComputerModel.Mac.BasicInfoTable);
                 case "macHW":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForHardware);
+                    return PartialView("TableView", ComputerModel.Mac.HardwareTable);
                 case "macSW":
-                    return PartialView("Software", ComputerModel.Mac);
+                    return PartialView("Mac/Software", ComputerModel.Mac);
                 case "macgroups":
                     return PartialView("RawHTMLTab", new RawHTMLModel("Groups", ComputerModel.Mac.HTMLForGroups));
                 case "macnetwork":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForNetwork);
+                    return PartialView("TableView", ComputerModel.Mac.NetworkTable);
                 case "macloaclaccounts":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForLocalAccounts);
+                    return PartialView("TableView", ComputerModel.Mac.LocalAccountsTable);
                 case "macDisk":
-                    return PartialView("TableView", ComputerModel.Mac.HTMLForDisk);
+                    return PartialView("TableView", ComputerModel.Mac.DiskTable);
                 case "purchase":
                     return PartialView("INDB", INDBConnector.getInfo(ComputerModel.ComputerName));
             }
@@ -311,24 +311,6 @@ namespace ITSWebMgmt.Controllers
             {
                 return null;
             }
-
-
-            //DirectorySearcher search = new DirectorySearcher(de);
-            //search.PropertiesToLoad.Add("ms-Mcs-AdmPwd");
-            //SearchResult r = search.FindOne();
-
-            //if (r != null && r.Properties.Contains("ms-Mcs-AdmPwd"))
-            //{
-            //    return r.Properties["ms-Mcs-AdmPwd"][0].ToString();
-
-            //DirectoryEntry  = r.GetDirectoryEntry();
-            //de
-
-
-            //}
-            //else { 
-            //    return null;
-            //}
         }
 
         public void moveOU(string user, string adpath)
@@ -399,29 +381,6 @@ namespace ITSWebMgmt.Controllers
                     return true;
                 }
             }
-
-            //return true;
-
-        }
-
-        // Depricated, new version is: private ActionResult addComputerTocollection(string computerName, string collectionId, string collectionName)
-        protected bool addComputerToCollection(string resourceID, string collectionID)
-        {
-            var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
-            ManagementPath path = new ManagementPath(pathString);
-            ManagementObject obj = new ManagementObject(path);
-            obj.Scope = new ManagementScope(pathString, SCCM.GetConnectionOptions());
-
-            ManagementClass ruleClass = new ManagementClass("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_CollectionRuleDirect");
-
-            ManagementObject rule = ruleClass.CreateInstance();
-
-            rule["RuleName"] = "Static-" + resourceID;
-            rule["ResourceClassName"] = "SMS_R_System";
-            rule["ResourceID"] = resourceID;
-            obj.InvokeMethod("AddMembershipRule", new object[] { rule });
-
-            return true;
         }
 
         [HttpPost]

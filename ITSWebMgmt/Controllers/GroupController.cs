@@ -12,7 +12,6 @@ namespace ITSWebMgmt.Controllers
 {
     public class GroupController : WebMgmtController
     {
-        //https://localhost:44322/group/index?grouppath=LDAP:%2f%2fCN%3dcm12_config_AAU10%2cOU%3dConfigMgr%2cOU%3dGroups%2cDC%3dsrv%2cDC%3daau%2cDC%3ddk
         public IActionResult Index(string grouppath, bool forceviewgroup = false)
         {
             GroupModel = new GroupModel(grouppath);

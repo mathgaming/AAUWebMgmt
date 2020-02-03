@@ -2,10 +2,8 @@
 {
     public class HTMLEncodingHelper
     {
-
         public static string convertUTF8encodingToWindows1252(string s)
         {
-
             string toReturn = s;
             string[][] table = new string[][] {
                 //Table from  http://www.w3schools.com/tags/ref_urlencode.asp 
@@ -137,16 +135,13 @@
             };
 
 
-        foreach(var replace in table){
-            toReturn = toReturn.Replace(replace[1], replace[0]);
-            toReturn = toReturn.Replace(replace[1].ToLower(), replace[0].ToLower());
+            foreach(var replace in table)
+            {
+                toReturn = toReturn.Replace(replace[1], replace[0]);
+                toReturn = toReturn.Replace(replace[1].ToLower(), replace[0].ToLower());
+            }
+
+            return toReturn;
         }
-
-        return toReturn;
-
-        }
-
-
-
     }
 }

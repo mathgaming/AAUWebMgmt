@@ -31,8 +31,6 @@ namespace ITSWebMgmt.Helpers
                 {
                     user.Properties["userAccountControl"].Value = val | 0x2;
                 }
-                
-                //ADS_UF_ACCOUNTDISABLE;
 
                 user.CommitChanges();
                 user.Close();
@@ -190,7 +188,6 @@ namespace ITSWebMgmt.Helpers
             } // else format is ok
 
             DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry("GC://aau.dk");
-            //string filter = string.Format("(&(objectCategory=person)(telephoneNumber={0}))", number);
             string filter = string.Format("(&(objectCategory=person)(objectClass=user)(telephoneNumber={0}))", number);
 
             DirectorySearcher search = new DirectorySearcher(de, filter);
@@ -221,7 +218,7 @@ namespace ITSWebMgmt.Helpers
             {
                 try
                 {
-                    int test = (Int32)v.GetType().InvokeMember("HighPart", System.Reflection.BindingFlags.GetProperty, null, v, null);
+                    int test = (int)v.GetType().InvokeMember("HighPart", System.Reflection.BindingFlags.GetProperty, null, v, null);
                     return DateTimeConverter.Convert(v);
                 }
                 catch (Exception) { }
