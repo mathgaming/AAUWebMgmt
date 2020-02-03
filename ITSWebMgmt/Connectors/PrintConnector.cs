@@ -12,18 +12,15 @@ namespace ITSWebMgmt.Connectors
 {
     public class PrintConnector
     {
-
         string userGuid = "";
 
         public PrintConnector(string guid)
         {
-            this.userGuid = guid;
+            userGuid = guid;
         }
-
 
         public string doStuff()
         {
-
             StringBuilder sb = new StringBuilder();
 
             string domain = Startup.Configuration["cred:equitrac:domain"];
@@ -102,7 +99,7 @@ namespace ITSWebMgmt.Connectors
                                 sb.Append("Error! Users is disabled in Equitrac<br/>");
                                 cardok = false;
                             }
-                            if (String.IsNullOrWhiteSpace(AAUCardKonica))
+                            if (string.IsNullOrWhiteSpace(AAUCardKonica))
                             {
                                 sb.Append("Error! Users is missing AAUCard information in Konica format <br/>");
                                 cardok = false;
@@ -112,7 +109,7 @@ namespace ITSWebMgmt.Connectors
                                 sb.Append("AAUCard Konica: " + AAUCardKonica + "<br/>");
                             }
 
-                            if (String.IsNullOrWhiteSpace(AAUCardXerox))
+                            if (string.IsNullOrWhiteSpace(AAUCardXerox))
                             {
                                 sb.Append("Error! Users is missing AAUCard information in Xerox format <br/>");
                                 cardok = false;
@@ -127,7 +124,7 @@ namespace ITSWebMgmt.Connectors
                                 sb.Append("AAU Card OK <br/>");
                             }
 
-                            if (String.IsNullOrEmpty(departmentThing))
+                            if (string.IsNullOrEmpty(departmentThing))
                             {
 
                                 sb.Append("<br/>");
@@ -161,7 +158,7 @@ namespace ITSWebMgmt.Connectors
             foreach (var item in GetAllTables(connection))
             {
                 string[] restrictions = new string[4] { null, null, item, null };
-                var columnList = connection.GetSchema("Columns", restrictions).AsEnumerable().Select(s => s.Field<String>("Column_Name")).ToList();
+                var columnList = connection.GetSchema("Columns", restrictions).AsEnumerable().Select(s => s.Field<string>("Column_Name")).ToList();
                 tables.Add(item, columnList);
             }
 

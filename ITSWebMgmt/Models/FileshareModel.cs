@@ -13,7 +13,7 @@ namespace ITSWebMgmt.Models
 
         public FileshareModel(string value)
         {
-            this.Fileshareraw = value;
+            Fileshareraw = value;
 
             var split = value.Split(',');
             var oupath = split.Where<string>(s => s.StartsWith("OU=")).ToArray<string>();
@@ -52,10 +52,10 @@ namespace ITSWebMgmt.Models
 
                 var access = groupNameSplit[groupNameSplit.Length - 1];
 
-                this.Name = nameString;
-                this.Domain = domain;
-                this.Type = type;
-                this.Access = access;
+                Name = nameString;
+                Domain = domain;
+                Type = type;
+                Access = access;
 
             }
             else

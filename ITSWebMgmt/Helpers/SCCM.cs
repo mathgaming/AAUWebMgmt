@@ -64,17 +64,10 @@ namespace ITSWebMgmt.Helpers
             psi.RedirectStandardError = true;
 
             psi.Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;" + script + ";cd C:";
-            //It is not possible to run a process as a diffent user. Therefore is the user set in IIS for the application pool for WebMGmt.
-            /*foreach (char c in Password)
-            {
-                password.AppendChar(c);
-            }
-            psi.Password = password;
-            psi.UserName = Username;*/
+            //It is not possible to run a process as a diffent user. Therefore is the user set in IIS for the application pool for WebMgmt.
 
             Process p = Process.Start(psi);
             p.WaitForExit();
-            string strOutput = p.StandardOutput.ReadToEnd();
             string errOutput = p.StandardError.ReadToEnd();
 
             return errOutput.Length == 0;
