@@ -1,30 +1,29 @@
 ﻿@model ITSWebMgmt.Models.CreateWorkItemModel
-@using (Html.BeginForm(FormMethod.Post))
-{
-    <div class="ui form">
-        @Html.HiddenFor(m => m.UserID)
-        <div class="field">
-            <label>Affected User</label>
-            @Html.TextBoxFor(m => m.AffectedUser, new { @readonly = true })
-        </div>
-        <div class="field">
-            <label>Title</label>
-            @Html.TextBoxFor(m => m.Title)
-        </div>
-        <div class="field">
-            <label>Desription</label>
-            @Html.TextAreaFor(m => m.Desription, 10, 55, null)
-        </div>
+    <form target="_blank" method="POST">
+        <div class="ui form">
+            @Html.HiddenFor(m => m.UserID)
+            <div class="field">
+                <label>Affected User</label>
+                @Html.TextBoxFor(m => m.AffectedUser, new { @readonly = true })
+            </div>
+            <div class="field">
+                <label>Title</label>
+                @Html.TextBoxFor(m => m.Title)
+            </div>
+            <div class="field">
+                <label>Desription</label>
+                @Html.TextAreaFor(m => m.Desription, 10, 55, null)
+            </div>
 
-        @if (Model.IsFeedback)
-        {
-            <input type="submit" value="Request new feature" formaction="CreateWorkItem/RequestNewFeature" class="btn btn-primary" />
-            <input type="submit" value="Report issue" formaction="CreateWorkItem/ReportIssue" class="btn btn-primary" />
-        }
-        else
-        {
-            <input type="submit" value="Create SR" formaction="CreateWorkItem/CreateSR" class="btn btn-primary" />
-            <input type="submit" value="Create IR" formaction="CreateWorkItem/CreateIR" class="btn btn-primary" />
-        }
-    </div>
-}
+            @if (Model.IsFeedback)
+            {
+                <input type="submit" value="Request new feature" formaction="CreateWorkItem/RequestNewFeature" class="btn btn-primary" />
+                <input type="submit" value="Report issue" formaction="CreateWorkItem/ReportIssue" class="btn btn-primary" />
+            }
+            else
+            {
+                <input type="submit" value="Create SR" formaction="CreateWorkItem/CreateSR" class="btn btn-primary" />
+                <input type="submit" value="Create IR" formaction="CreateWorkItem/CreateIR" class="btn btn-primary" />
+            }
+        </div>
+    </form>

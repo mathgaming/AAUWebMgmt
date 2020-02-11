@@ -1,16 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace ITSWebMgmt.Controllers
 {
     public class CreateWorkItemController : Controller
     {
+        private static readonly HttpClient HttpClient;
+
+        static CreateWorkItemController()
+        {
+            HttpClient = new HttpClient();
+        }
         public IActionResult Index(string userPrincipalName, string userID, bool isfeedback = false)
         {
             CreateWorkItemModel model = new CreateWorkItemModel();
@@ -60,6 +69,10 @@ namespace ITSWebMgmt.Controllers
         }
 
         protected string createRedirectCode(CreateWorkItemModel model, string description, string submiturl)
+        /**Legacy function, do not use.
+         * Only left in until the function CreateItemInServiceManagerAsync has been tested with the Service Manager
+         * I would've done it myself, but I do not have permission to access it.
+         * Oh the joy of development.**/
         {
             string supportGroup = "";
             if (model.IsFeedback)
@@ -89,7 +102,20 @@ namespace ITSWebMgmt.Controllers
             return sb.ToString();
         }
 
-        protected ActionResult createForm(string url, CreateWorkItemModel model)
+        private string InitFeedbackGroup(CreateWorkItemModel model)
+        {
+            string feedbackGroup = "";
+            if (model.IsFeedback)
+            {
+                feedbackGroup = ",\"TierQueue\":{\"Id\":\"41f4f742-129f-1aa1-5e81-636653b38fb9\",\"Name\":\"Client Management: Windows\",\"HierarchyLevel\":0,\"HierarchyPath\":null}" +
+                            ",\"SupportGroup\":{\"Id\":\"bfbd6899-ab71-d508-7f09-4a337763a468\",\"Name\":\"Client Management: Windows\",\"HierarchyLevel\":0,\"HierarchyPath\":null}" +
+                             ",\"Classification\":{\"Id\":\"ab6f9057-874d-36bb-5d4d-d9117b878916\",\"Name\":\"Web og Portalsværktøjer\",\"HierarchyLevel\":0,\"HierarchyPath\":null}" +
+                              ",\"Area\":{ \"Id\":\"5316e1e3-4ad0-bead-c437-68b84a90e725\",\"Name\":\"Andet - Web og Portalsværktøjer\",\"HierarchyLevel\":0,\"HierarchyPath\":null}";
+            }
+            return JsonConvert.SerializeObject(feedbackGroup, Formatting.None);
+        }
+
+        protected string FormatWorkItemToJson(CreateWorkItemModel model)
         {
             if (model.UserID == null)
             {
@@ -100,12 +126,13 @@ namespace ITSWebMgmt.Controllers
                 model.UserID = sccm.userID;
             }
 
-            string descriptionConverted = "";
             if (model.Desription != null)
             {
-                descriptionConverted = model.Desription.Replace("\n", "\\n").Replace("\r", "\\r");
+                model.Desription = model.Desription.Replace("\n", "\\n").Replace("\r", "\\r");
             }
-            return Content(createRedirectCode(model, descriptionConverted, url), "text/html");
+
+            string feedbackGroup = InitFeedbackGroup(model);
+            return JsonConvert.SerializeObject(model, Formatting.None);
         }
 
         [HttpPost]
@@ -119,30 +146,51 @@ namespace ITSWebMgmt.Controllers
             return CreateSR(newUpgradeForm);
         }
 
+        private async Task<ActionResult> CreateItemInServiceManagerAsync(string url, CreateWorkItemModel model)
+        {
+            string modelAsJson = FormatWorkItemToJson(model);
+            StringContent content = new StringContent(modelAsJson);
+            try
+            {
+                HttpResponseMessage response = await HttpClient.PostAsync(url, content);
+                response.EnsureSuccessStatusCode();
+                return new RedirectResult(url);
+            }
+            catch (HttpRequestException e)
+            {
+                return new StatusCodeResult(502); //Bad Gateway
+            }
+        }
+        
+        private ActionResult CreateItemInServiceManager(string url, CreateWorkItemModel model)
+        {
+            return CreateItemInServiceManagerAsync(url, model).Result;
+        }
+
         [HttpPost]
         public ActionResult CreateIR(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = false;
-            return createForm("https://service.aau.dk/Incident/New/", workitem);
+            return CreateItemInServiceManager("https://service.aau.dk/Incident/New/", workitem);
         }
         [HttpPost]
         public ActionResult CreateSR(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = false;
-            return createForm("https://service.aau.dk/ServiceRequest/New/", workitem);
+            return CreateItemInServiceManager("https://service.aau.dk/ServiceRequest/New/", workitem);
         }
 
         [HttpPost]
         public ActionResult ReportIssue(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = true;
-            return createForm("https://service.aau.dk/Incident/New/", workitem);
+            return CreateItemInServiceManager("https://service.aau.dk/Incident/New/", workitem);
         }
         [HttpPost]
         public ActionResult RequestNewFeature(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = true;
-            return createForm("https://service.aau.dk/ServiceRequest/New/", workitem);
+            return CreateItemInServiceManager("https://service.aau.dk/ServiceRequest/New/", workitem);
         }
     }
 }
