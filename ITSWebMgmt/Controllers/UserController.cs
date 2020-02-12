@@ -265,7 +265,14 @@ namespace ITSWebMgmt.Controllers
 
         public ActionResult GetUsersByName([FromBody]string name)
         {
-            List<string> names = new PureConnector().GetUsersByName(name);
+            List<string> names = new List<string>();
+            try
+            {
+                names = new PureConnector().GetUsersByName(name);
+            }
+            catch (Exception)
+            {
+            }
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, names });
         }

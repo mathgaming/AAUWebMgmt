@@ -20,7 +20,7 @@ namespace ITSWebMgmt.Controllers
         {
             var e = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            return View("Error", new ErrorViewModel(e.Error, HttpContext));
+            return View("Error", new ErrorViewModel(e.Error, HttpContext, e.Path));
         }
     }
 }
