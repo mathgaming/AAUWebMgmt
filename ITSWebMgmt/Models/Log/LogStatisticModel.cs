@@ -62,7 +62,6 @@ namespace ITSWebMgmt.Models.Log
 
             var loadeduserTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabUser).ToList();
 
-            sb.Append($"<h1>User tabs</h1>");
             foreach (var tab in userTabNames)
             {
                 int count = loadeduserTabs.Where(x => x.Arguments[0].Value == tab.name).ToList().Count;
