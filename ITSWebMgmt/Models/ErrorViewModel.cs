@@ -17,10 +17,17 @@ namespace ITSWebMgmt.Models
         public string ErrorMessage { get => Error.Message; }
         public string Stacktrace { get => Error.StackTrace; }
 
-        public ErrorViewModel(Exception e, HttpContext HttpContext)
+        public ErrorViewModel(Exception e, HttpContext HttpContext, string path = null)
         {
             QueryString = HttpContext.Request.QueryString.Value;
-            Path = HttpContext.Request.Path;
+            if (path != null)
+            {
+                Path = path;
+            }
+            else
+            {
+                Path = HttpContext.Request.Path;
+            }
             Error = e;
             AffectedUser = HttpContext.User.Identity.Name;
             HttpStatusCode = HttpContext.Response.StatusCode;

@@ -23,6 +23,7 @@ namespace ITSWebMgmt.Controllers
         {
             if (searchstring != null)
             {
+                searchstring = searchstring.Replace("\t","");
                 if (ADHelper.GetADPath(searchstring) != null)
                 {
                     Response.Redirect("/User?username=" + searchstring);
