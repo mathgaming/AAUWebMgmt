@@ -1,0 +1,34 @@
+﻿@model ITSWebMgmt.Models.PrintModel
+@if (Model.CredentialError != null)
+{
+    @Model.ConectionError
+}
+else if (Model.ConectionError != null)
+{
+    @Model.ConectionError
+}
+else
+{
+    @if(Model.EquitracDisabled != null)
+    {
+        <p>@Model.EquitracDisabled</p>
+    }
+    @Model.AAUCardKonica<br/>
+    @Model.AAUCardXerox<br /><br />
+    @if (!(Model.EquitracDisabled.StartsWith("Error!") || Model.AAUCardKonica.StartsWith("Error!") || Model.AAUCardXerox.StartsWith("Error!")))
+    {
+        <p>AAU Card OK</p>
+    }
+    @if (Model.DepartmentThing == null)
+    {
+        <p>
+            Free Credits: @Model.Free<br />
+            Paid Credits: @Model.paid<br />
+            Remaning Credits: @Model.Balance
+        </p>
+    }
+    else
+    {
+        <p>Department: @Model.DepartmentName<br />User has "free print"</p>
+    }
+}

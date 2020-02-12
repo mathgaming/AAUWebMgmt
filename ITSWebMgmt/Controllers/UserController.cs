@@ -434,8 +434,7 @@ namespace ITSWebMgmt.Controllers
                     UserModel.InitWin7to10();
                     break;
                 case "print":
-                    string printHtml = new PrintConnector(UserModel.Guid.ToString()).doStuff();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Print", printHtml));
+                    return PartialView("Print", new PrintConnector(UserModel.Guid.ToString()).GetData());
                 case "rawdata":
                     return PartialView("Rawtable", UserModel.ADcache.getAllProperties());
                 case "netaaudk":
