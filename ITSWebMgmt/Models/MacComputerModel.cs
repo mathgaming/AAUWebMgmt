@@ -14,13 +14,13 @@ namespace ITSWebMgmt.Models
         public JamfConnector Jamf { get; set; } = new JamfConnector();
         public bool ComputerFound { get; set; } = false;
         public TableModel BasicInfoTable { get; set; }
-        public string HTMLForGroups { get; set; }
         public TableModel Applications { get; set; }
         public TableModel Plugins { get; set; }
         public TableModel HardwareTable { get; set; }
         public TableModel NetworkTable { get; set; }
         public TableModel LocalAccountsTable { get; set; }
         public TableModel DiskTable { get; set; }
+        public TableModel GroupsTable { get; set; }
         public List<string> Groups { get; set; }
         public MacComputerModel(ComputerModel baseModel)
         {
@@ -142,7 +142,7 @@ namespace ITSWebMgmt.Models
         {
             JArray groups = jsonVal.SelectToken("computer.groups_accounts.computer_group_memberships").ToObject<JArray>();
             Groups = groups.Select(x => x.ToString()).ToList();
-            HTMLForGroups = $"{string.Join("<br />", groups)}";
+            GroupsTable = new TableModel(new string[] {"Groups"}, groups.Select(x => new string[] { x.ToString() }).ToList());
         }
 
         public TableModel CreateRawTableFromJamf(JObject jsonVal, string tokenName, List<string> names, string title, bool skipNames = false)

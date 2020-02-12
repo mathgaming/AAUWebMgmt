@@ -165,7 +165,7 @@ namespace ITSWebMgmt.Controllers
                 case "macSW":
                     return PartialView("Mac/Software", ComputerModel.Mac);
                 case "macgroups":
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Groups", ComputerModel.Mac.HTMLForGroups));
+                    return PartialView("TableView", ComputerModel.Mac.GroupsTable);
                 case "macnetwork":
                     return PartialView("TableView", ComputerModel.Mac.NetworkTable);
                 case "macloaclaccounts":
