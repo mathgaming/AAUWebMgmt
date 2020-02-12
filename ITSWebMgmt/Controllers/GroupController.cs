@@ -84,6 +84,10 @@ namespace ITSWebMgmt.Controllers
                         GroupModel.GroupAllTable.Rows.AddRange(member.GroupAllTable.Rows);
                         GroupModel.GroupOfTable.Rows.AddRange(memberOf.GroupTable.Rows);
                         GroupModel.GroupOfAllTable.Rows.AddRange(memberOf.GroupAllTable.Rows);
+                        GroupModel.GroupTable.LinkRows.AddRange(member.GroupTable.LinkRows);
+                        GroupModel.GroupAllTable.LinkRows.AddRange(member.GroupAllTable.LinkRows);
+                        GroupModel.GroupOfTable.LinkRows.AddRange(memberOf.GroupTable.LinkRows);
+                        GroupModel.GroupOfAllTable.LinkRows.AddRange(memberOf.GroupAllTable.LinkRows);
                     }
                 }
             }

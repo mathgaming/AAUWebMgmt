@@ -13,14 +13,42 @@
             }
         </tr>
     </thead>
-    @foreach (string[] r in Model.Rows)
+    @if (Model.LinkColumns == null)
     {
-        <tr>
+        @foreach (string[] r in Model.Rows)
+        {
+            <tr>
             @foreach (string s in r)
             {
                 <td>@Html.Raw(s)</td>
             }
-        </tr>
+            </tr>
+        }
+    }
+    else
+    {
+        int row = 0;
+        @foreach (string[] r in Model.Rows)
+        {
+            int column = 0;
+            int linkColumnIndex = 0;
+            <tr>
+                @foreach (string s in r)
+                {
+                    if (Model.LinkColumns.Contains(column))
+                    {
+                        <td><a href="@Model.LinkRows[row][linkColumnIndex]">@s</a></td>
+                        linkColumnIndex++;
+                    }
+                    else
+                    {
+                        <td>@Html.Raw(s)</td>
+                    }
+                    column++;
+                }
+            </tr>
+            row++;
+        }
     }
 </table>
 }

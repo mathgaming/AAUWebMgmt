@@ -484,6 +484,7 @@ namespace ITSWebMgmt.Models
 
         public void InitWin7to10()
         {
+            // Should be deleted after Windows 7 is gone
             bool haveWindows7 = false;
             List<string[]> rows = new List<string[]>();
 

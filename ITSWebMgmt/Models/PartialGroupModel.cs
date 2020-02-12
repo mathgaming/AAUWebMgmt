@@ -56,12 +56,22 @@ namespace ITSWebMgmt.Models
 
         public void AddRowsTotable(TableModel groupTable, List<string> groups, string accessName = null)
         {
+            if (accessName == null) //Is not fileshare
+            {
+                groupTable.LinkColumns = new int[] { 1 };
+            }
+            else
+            {
+                groupTable.LinkColumns = new int[] { 0 };
+            }
+
             foreach (string adpath in groups)
             {
                 var split = adpath.Split(',');
                 var name = split[0].Replace("CN=", "");
-                var domain = split.Where<string>(s => s.StartsWith("DC=")).ToArray<string>()[0].Replace("DC=", "");
-                var link = name;
+                var domain = split.Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
+                var link = "";
+                var linkText = name;
                 var type = "unknown";
                 if (!adpath.Contains("OU"))
                 {
@@ -69,12 +79,12 @@ namespace ITSWebMgmt.Models
                 }
                 else if (adpath.Contains("OU=Groups"))
                 {
-                    link = getGroupLink(adpath, name);
+                    link = getGroupLink(adpath);
                     type = "Group";
                 }
                 else if (adpath.Contains("OU=Admin Groups"))
                 {
-                    link = getGroupLink(adpath, name);
+                    link = getGroupLink(adpath);
                     type = "Admin group";
                 }
                 else if (adpath.Contains("OU=People"))
@@ -97,35 +107,36 @@ namespace ITSWebMgmt.Models
                 }
                 else if (adpath.Contains("OU=Microsoft Exchange Security Groups"))
                 {
-                    link = getGroupLink(adpath, name);
+                    link = getGroupLink(adpath);
                     type = "Microsoft Exchange Security Groups";
                 }
                 else
                 {
                     type = "Special, find it in adpath";
-                    Console.WriteLine();
                 }
 
                 if (accessName == null) //Is not fileshare
                 {
-                    groupTable.Rows.Add(new string[] { domain, link });
+                    groupTable.Rows.Add(new string[] { domain, linkText });
+                    groupTable.LinkRows.Add(new string[] { link });
                 }
                 else
                 {
-                    groupTable.Rows.Add(new string[] { link, type, accessName });
+                    groupTable.Rows.Add(new string[] { linkText, type, accessName });
+                    groupTable.LinkRows.Add(new string[] { link });
                 }
             }
         }
 
         // TODO: do not write HTML in backend
-        private static string getGroupLink(string adpath, string name)
+        private static string getGroupLink(string adpath)
         {
-            return string.Format("<a href=\"/Group?grouppath={0}\">{1}</a><br/>", HttpUtility.UrlEncode("LDAP://" + adpath), name);
+            return string.Format("/Group?grouppath={0}", HttpUtility.UrlEncode("LDAP://" + adpath));
         }
 
         private static string getPersonLink(string domain, string name)
         {
-            return string.Format("<a href=\"/User?username={0}%40{1}.aau.dk\">{0}</a><br/>", name, domain);
+            return string.Format("/User?username={0}%40{1}.aau.dk", name, domain);
         }
 
         private List<string> SortGroupMembers(List<string> groupMembers)
