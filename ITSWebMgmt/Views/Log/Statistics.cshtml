@@ -1,3 +1,36 @@
-﻿@model ITSWebMgmt.Models.SimpleModel
+﻿@model ITSWebMgmt.Models.Log.LogStatisticModel
+<style>
+    p { margin:0 }
+</style>
 
-@Html.Raw(Model.Text.Replace("\n", "<br />"))
+<h1>General</h1>
+@foreach (var item in Model.LookupCounts)
+{
+    <p>@item.Name: @item.Count</p>
+}
+
+<h1>Tasks</h1>
+@foreach (var item in Model.TasksCounts)
+{
+    if (item.FromDate != null)
+    {
+        <p>@item.Name: @item.Count (since @item.FromDate)</p>
+    }
+    else
+    {
+        <p>@item.Name: @item.Count</p>
+    }
+}
+
+<h1>Computer tabs</h1>
+@foreach (var item in Model.ComputerTabs)
+{
+    <p>@item.Name: @item.Count (since @item.FromDate)</p>
+}
+
+<h1>User tabs</h1>
+
+@foreach (var item in Model.UserTabs)
+{
+    <p>@item.Name: @item.Count (since @item.FromDate)</p>
+}
