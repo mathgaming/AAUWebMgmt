@@ -5,22 +5,18 @@
     <tbody>
         <tr>
             <td>Name:</td>
-            <td>
-                @Html.DisplayFor(model => model.Name)
-            </td>
+            <td>@Html.DisplayFor(model => model.Name)</td>
         </tr>
         <tr>
             <td>Domain:</td>
-            <td>
-                @Html.DisplayFor(model => model.Domain)
-            </td>
+            <td>@Html.DisplayFor(model => model.Domain)</td>
         </tr>
         <tr>
             @if (Model.IsFileShare)
             {
                 <td>Managed By:</td>
                 <td>
-                    @Html.Raw(Model.ManagedBy)
+                    @Html.Raw(Model.ManagedByADPath)
                 </td>
             }
             else
