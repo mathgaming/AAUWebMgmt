@@ -18,7 +18,7 @@ namespace ITSWebMgmt.Models
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName").ToString(); }
         public string Title { get; set; }
         public string Domain { get; set; }
-        public string ManagedByADPath { get; set; }
+        public string ManagedByADPath { get; private set; }
         public string ManagedByDomainAndName { get; private set; }
         public string SecurityGroup { get; set; }
         public string GroupScope { get; set; }
