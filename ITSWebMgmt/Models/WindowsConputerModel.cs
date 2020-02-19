@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
+using System.Web;
 using ITSWebMgmt.Caches;
 using ITSWebMgmt.Helpers;
 
@@ -49,7 +50,7 @@ namespace ITSWebMgmt.Models
         }
         public string ConfigPC { get; set; } = "Unknown";
         public string ConfigExtra { get; set; } = "False";
-        public string ManagedBy { get; set; }
+        public ManagedByModel ManagedBy { get; set; }
         public string LastLogonUserName { get; set; }
         public string IPAddresses { get; set; }
         public string MACAddresses { get; set; }
@@ -184,17 +185,14 @@ namespace ITSWebMgmt.Models
         public void InitBasicInfo()
         {
             //Managed By
-            ManagedBy = "none";
-
-            if (ManagedByAD != null)
+            if (!string.IsNullOrWhiteSpace(ManagedByAD))
             {
-                string managerVal = ManagedByAD;
-
-                if (!string.IsNullOrWhiteSpace(managerVal))
-                {
-                    string email = ADHelper.DistinguishedNameToUPN(managerVal);
-                    ManagedBy = email;
-                }
+                string email = ADHelper.DistinguishedNameToUPN(ManagedByAD);
+                ManagedBy = new ManagedByModel(adpath, HttpUtility.HtmlEncode("LDAP://" + ManagedByAD), email);
+            }
+            else
+            {
+                ManagedBy = new ManagedByModel(adpath, "", "");
             }
 
             UsesOnedrive = OneDriveHelper.ComputerUsesOneDrive(ADcache);

@@ -1,5 +1,5 @@
 ﻿@using System.Web;
-@model ITSWebMgmt.Models.GroupModel
+@model ITSWebMgmt.Models.ManagedByModel
 
 <td>Managed By:</td>
 <td>
@@ -36,7 +36,7 @@
         });
         $("#btnSave").click(function () {
             var email = $('#inputText').val();
-            var data = email + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.adpath))' + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ManagedByADPath))';
+            var data = email + '|' + '@HttpUtility.JavaScriptStringEncode(Model.adpath)' + '|' + '@HttpUtility.JavaScriptStringEncode(Model.ManagedByADPath)';
 
             $.ajax({
                 type: "POST",

@@ -18,8 +18,6 @@ namespace ITSWebMgmt.Models
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName").ToString(); }
         public string Title { get; set; }
         public string Domain { get; set; }
-        public string ManagedByADPath { get; private set; }
-        public string ManagedByDomainAndName { get; private set; }
         public string SecurityGroup { get; set; }
         public string GroupScope { get; set; }
         public TableModel GroupTable { get; set; }
@@ -27,35 +25,33 @@ namespace ITSWebMgmt.Models
         public TableModel GroupOfTable { get; set; }
         public TableModel GroupOfAllTable { get; set; }
         public bool IsFileShare { get; set; } = false;
+        public ManagedByModel ManagedBy {get;set;}
         private string ADManagedBy { get => ADcache.getProperty("managedBy"); }
 
         public GroupModel(string adpath)
         {
             ADcache = new GroupADcache(adpath);
-            var sb = new StringBuilder();
 
+            //ManamgedBy
             var dom = Path.Split(',').Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
             Domain = dom;
 
-            string managedByPath = "";
-            string managedByName = "";
             if (ADManagedBy != "")
             {
-                var manager = ADManagedBy;
-
-                var ldapSplit = manager.Split(',');
+                var ldapSplit = ADManagedBy.Split(',');
                 var name = ldapSplit[0].Replace("CN=", "");
                 var domain = ldapSplit.Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
 
-                managedByPath = HttpUtility.HtmlEncode("LDAP://" + manager);
-                managedByName = (domain + "\\" + name);
+                string managedByPath = HttpUtility.HtmlEncode("LDAP://" + ADManagedBy);
+                string managedByName = domain + "\\" + name;
+                ManagedBy = new ManagedByModel(adpath, managedByPath, managedByName);
             }
-            ManagedByADPath = managedByPath;
-            ManagedByDomainAndName = managedByName;
+            else
+            {
+                ManagedBy = new ManagedByModel(adpath, "", "");
+            }
 
             //IsDistributionGroup?
-            //ManamgedBy
-
             var isDistgrp = false;
             string groupType = ""; //domain Local, Global, Universal
 

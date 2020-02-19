@@ -16,12 +16,12 @@
             {
                 <td>Managed By:</td>
                 <td>
-                    @Html.Raw(Model.ManagedByADPath)
+                    @Model.ManagedBy.ManagedByADPath
                 </td>
             }
             else
             {
-                @Html.Partial("ManagedBy", Model)
+                @Html.Partial("ManagedBy", Model.ManagedBy)
             }
         </tr>
         <tr>
