@@ -1,4 +1,4 @@
-﻿@model ITSWebMgmt.Models.TableModel
+@model ITSWebMgmt.Models.TableModel
 @if (Model.LinkColumns == null)
 {
     @foreach (string[] r in Model.Rows)
@@ -6,7 +6,7 @@
         <tr>
             @foreach (string s in r)
             {
-                <td>@Html.Raw(s)</td>
+                <td>@Html.Raw(s)</td><!--TODO remove raw when refactoring is done-->
             }
         </tr>
     }
@@ -35,7 +35,7 @@ else
                 }
                 else
                 {
-                    <td>@Html.Raw(s)</td>
+                    <td>@Html.Raw(s)</td><!--TODO remove raw when refactoring is done-->
                 }
                 column++;
             }

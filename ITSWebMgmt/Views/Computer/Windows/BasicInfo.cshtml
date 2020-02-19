@@ -33,7 +33,7 @@
         <tr>
             <td>Using OneDrive:</td>
             <td>
-                @Html.Raw(Model.UsesOnedrive)
+                @Model.UsesOnedrive
             </td>
         </tr>
     </tbody>
@@ -53,7 +53,7 @@
     });
     function getPassword(buttonNumber)
     {
-        var computername = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName))';
+        var computername = '@HttpUtility.JavaScriptStringEncode(Model.ComputerName)';
         $.ajax({
             type: "POST",
             url: '@Url.Action("ResultGetPassword", "Computer")',

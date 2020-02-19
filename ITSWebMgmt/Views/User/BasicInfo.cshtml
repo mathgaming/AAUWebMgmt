@@ -1,5 +1,6 @@
 ﻿@model ITSWebMgmt.Models.UserModel
 @using ITSWebMgmt.Helpers
+@using System.Web
 <partial>
 <table class="ui definition table">
     <tbody>
@@ -24,23 +25,27 @@
             <td>
                 @foreach (string mailAddress in Model.getUserMails())
                 {
-                    <a href="mailto:{@mailAddress}">@mailAddress</a><br />
+                    <a href="mailto:@mailAddress">@mailAddress</a><br />
                 }
             </td>
         </tr>
         <tr>
             <td>Primary leader (AD)</td>
-            <td>@if (Model.Manager == "")
-            {
-                <p>Not found</p>
-            }
-            else { 
-                var split = Model.Manager.Split(',');
-                var name = split[0].Replace("CN=", "");
-                var domain = split.Where<string>(s => s.StartsWith("DC=")).ToArray<string>()[0].Replace("DC=", "");
+            <td>
+                @if (Model.Manager == "")
+                {
+                    <p>Not found</p>
+                }
+                else
+                { 
+                    var split = Model.Manager.Split(',');
+                    var name = split[0].Replace("CN=", "");
+                    var domain = split.Where<string>(s => s.StartsWith("DC=")).ToArray<string>()[0].Replace("DC=", "");
 
-                @Html.Raw(string.Format("<a href=\"/User?username={0}%40{1}.aau.dk\">{0}@{1}.aau.dk</a><br/>", name, domain));
-            }</td>
+                    var email = $"{name}@{domain}.aau.dk";
+                    <a href="/User?username=@HttpUtility.HtmlEncode(email)">@email</a><br/>
+                }
+            </td>
         </tr>
         <tr>
             <td>Romaing Profile</td>

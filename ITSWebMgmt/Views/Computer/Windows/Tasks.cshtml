@@ -47,13 +47,13 @@
     });
 
     $("#AddToOneDrive").click(function () {
-        var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName))' + '|' + $('#username').val();
+        var data = '@HttpUtility.JavaScriptStringEncode(Model.ComputerName)' + '|' + $('#username').val();
         sendPostRequest("AddToOneDrive", JSON.stringify(data));
     });
 
     $("#DeleteComputerFromAD").click(function ()
     {
-        if (confirm('Are you sure you want to delete @Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName)) from AD?')) {
+        if (confirm('Are you sure you want to delete @HttpUtility.JavaScriptStringEncode(Model.ComputerName) from AD?')) {
             sendPostRequest("DeleteComputerFromAD")
         } else {
             // Do nothing!
