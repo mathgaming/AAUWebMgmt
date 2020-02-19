@@ -379,7 +379,7 @@ namespace ITSWebMgmt.Models
                         {
                             if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
                             {
-                                OnedriveWarning = "<font color=\"red\"> (Not using Onedrive!)</font>";
+                                OnedriveWarning = " (NOT USING ONEDRIVE!)";
                             }
                         }
                         catch (System.Runtime.InteropServices.COMException e)
