@@ -13,7 +13,7 @@ else if (!Model.Found)
 }
 else
 {
-    @if (Model.EquitracDisabled != null)
+    @if (Model.EquitracDisabled != "")
     {
         <p>@Model.EquitracDisabled</p>
     }
