@@ -7,14 +7,21 @@ else if (Model.ConectionError != null)
 {
     @Model.ConectionError
 }
+else if (!Model.Found)
+{
+    <p>Not found!</p>
+}
 else
 {
-    @if(Model.EquitracDisabled != null)
+    @if (Model.EquitracDisabled != null)
     {
         <p>@Model.EquitracDisabled</p>
     }
-    @Model.AAUCardKonica<br/>
-    @Model.AAUCardXerox<br /><br />
+    @Model.AAUCardKonica
+    <br />
+    @Model.AAUCardXerox
+    <br />
+    <br />
     @if (!(Model.EquitracDisabled.StartsWith("Error!") || Model.AAUCardKonica.StartsWith("Error!") || Model.AAUCardXerox.StartsWith("Error!")))
     {
         <p>AAU Card OK</p>

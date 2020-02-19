@@ -66,11 +66,11 @@ namespace ITSWebMgmt.WebMgmtErrors
             if (compModel.IsWindows)
             {
                 WindowsComputerModel winModel = compModel.Windows;
-                if (!compModel.Windows.ManagedBy.Contains('@'))
+                if (!compModel.Windows.ManagedBy.ManagedByDomainAndName.Contains('@'))
                 {
                     return false;
                 }
-                string managerDomain = compModel.Windows.ManagedBy.Split('@')[1];
+                string managerDomain = compModel.Windows.ManagedBy.ManagedByDomainAndName.Split('@')[1];
                 //We are only interested in the bit after @, as that is the actual domain.
                 //I am sure there is a prettier way of doing this, but this works too.
                 //In case you don't know what is happening, I am using @ as a delimiter for the mail of the manager,

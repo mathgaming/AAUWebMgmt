@@ -1,0 +1,16 @@
+﻿@model ITSWebMgmt.Models.WorkItemRedirectModel
+<html>
+<head></head>
+    <body onload='document.forms["form"].submit()'>
+        Created in new tab
+        <form name='form' target='_blank' method='post' action='@Model.Url'>
+            <input hidden="hidden" name='vm' value='@Model.Data' />
+            <input type='submit' value='Recreate IR/SR (if someting whent wrong)' />
+                <script>
+                setTimeout(function (){
+                    window.history.go(-2);
+                }, 10000);
+            </script>
+        </form>            
+    </body>
+</html>
