@@ -81,6 +81,7 @@ namespace ITSWebMgmt.Connectors
                     {
                         if (reader.Read())
                         {
+                            model.Found = true;
                             string AAUCardXerox = reader["AAUCardXerox"] as string;
                             string AAUCardKonica = reader["AAUCardKonica"] as string;
                             model.DepartmentThing = reader["departmentThing"] as string;
@@ -111,6 +112,10 @@ namespace ITSWebMgmt.Connectors
 
                             model.Free = reader.GetDecimal(reader.GetOrdinal("freemoney"));
                             model.Balance = reader.GetDecimal(reader.GetOrdinal("balance"));
+                        }
+                        else
+                        {
+                            model.Found = false;
                         }
                     }
 
