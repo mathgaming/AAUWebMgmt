@@ -7,7 +7,7 @@ Unlock Account (if locked by wrong password):
 <button id="unlockUserAccountButton">Unlock Account</button>
 <br />
 <br />
- Roaming Profile (Currently enabled: @Html.Raw(Model.BasicInfoRomaing)):
+ Roaming Profile (Currently enabled: @Model.BasicInfoRomaing):
 <button id="ToggleRoaming">ToggleRoaming</button>
 <br />
 (The status might not be correct, because it takes some time to update AD with the new value)
@@ -88,23 +88,23 @@ else
     });
 
     $("#SetupOneDrive").click(function () {
-        var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))' + '|' + $('#computername').val() + '|' + $('#casenumber').val();
+        var data = '@HttpUtility.JavaScriptStringEncode(Model.UserName)' + '|' + $('#computername').val() + '|' + $('#casenumber').val();
         sendPostRequest("SetupOneDrive", JSON.stringify(data));
     });
 
     $("#DisableADUser").click(function () {
-        var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))' + '|' + $('#reason').val() + '|' + $('#casenumber2').val();
+        var data = '@HttpUtility.JavaScriptStringEncode(Model.UserName)' + '|' + $('#reason').val() + '|' + $('#casenumber2').val();
         sendPostRequest("DisableADUser", JSON.stringify(data));
     });
 
     $("#EnableADUser").click(function () {
-        var data = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))' + '|' + $('#check').prop("checked") + '|' + $('#casenumber3').val();
+        var data = '@HttpUtility.JavaScriptStringEncode(Model.UserName)' + '|' + $('#check').prop("checked") + '|' + $('#casenumber3').val();
         sendPostRequest("EnableADUser", JSON.stringify(data));
     });
         
     //script for sending button presses as POST request to controller
     function sendPostRequest(Action, data) {
-        var username = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.UserName))';
+        var username = '@HttpUtility.JavaScriptStringEncode(Model.UserName)';
         if (arguments.length === 1) {
             data = JSON.stringify(username);
         }

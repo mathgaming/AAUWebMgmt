@@ -1,0 +1,33 @@
+﻿@model ITSWebMgmt.Models.UserModel
+@using Microsoft.Exchange.WebServices.Data;
+@{DateTime now = DateTime.Now; }
+@if (Model.CalAgendaStatus == "Unknown")
+{
+    <p>Failed to connect to exchange service</p>
+}
+else if (!Model.CalInfo.AttendeesAvailability[0].CalendarEvents.Any(x => x.FreeBusyStatus != LegacyFreeBusyStatus.Free))
+{
+    <p>Nothing in calender</p>
+}
+else
+{
+    @foreach (AttendeeAvailability availability in Model.CalInfo.AttendeesAvailability)
+    {
+        foreach (CalendarEvent calendarItem in availability.CalendarEvents)
+        {
+            if (calendarItem.FreeBusyStatus != LegacyFreeBusyStatus.Free)
+            {
+                string line = string.Format("{0}-{1}: {2}", calendarItem.StartTime.ToString("HH:mm"), calendarItem.EndTime.ToString("HH:mm"), calendarItem.FreeBusyStatus);
+                if (now > calendarItem.StartTime && calendarItem.EndTime > now)
+                {
+                    <b>@line</b>
+                }
+                else
+                {
+                    @line
+                }
+                <br />
+            }
+        }
+    }
+}

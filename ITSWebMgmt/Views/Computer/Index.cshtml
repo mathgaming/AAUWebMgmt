@@ -51,7 +51,7 @@
     <script>
         //script for sending button presses as POST request to controller
     function sendPostRequest(Action, data) {
-        var computername = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ComputerName))';
+        var computername = '@HttpUtility.JavaScriptStringEncode(Model.ComputerName)';
         if (arguments.length === 1) {
             data = JSON.stringify(computername);
         }

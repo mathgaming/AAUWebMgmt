@@ -1,63 +1,28 @@
 ﻿@model ITSWebMgmt.Models.TableModel
 @if (Model.ViewHeading != null)
 {
-    <h2>@Html.Raw(Model.ViewHeading)</h2>
+    <h2>@Model.ViewHeading</h2>
 }
 @if (Model.Rows != null)
-{<table class="ui celled table">
-    <thead>
-        <tr>
-            @foreach (string h in Model.Headings)
-            {
-                <th>@h</th>
-            }
-        </tr>
-    </thead>
-    @if (Model.LinkColumns == null)
+{
+    @if (Model.Headings != null)
     {
-        @foreach (string[] r in Model.Rows)
-        {
-            <tr>
-            @foreach (string s in r)
-            {
-                <td>@Html.Raw(s)</td>
-            }
-            </tr>
-        }
+        <table class="ui celled table">
+            <thead>
+                <tr>
+                    @foreach (string h in Model.Headings)
+                    {
+                        <th>@h</th>
+                    }
+                </tr>
+            </thead>
+            @Html.Partial("TableBodyView", Model)
+        </table>
     }
     else
     {
-        int row = 0;
-        @foreach (string[] r in Model.Rows)
-        {
-            int column = 0;
-            int linkColumnIndex = 0;
-            <tr>
-                @foreach (string s in r)
-                {
-                    if (Model.LinkColumns.Contains(column))
-                    {
-                        @if (@Model.LinkRows[row][linkColumnIndex] != "")
-                        {
-                            <td><a href="@Model.LinkRows[row][linkColumnIndex]">@s</a></td>
-                        }
-                        else
-                        {
-                            <td>@s</td>
-                        }
-                        linkColumnIndex++;
-                    }
-                    else
-                    {
-                        <td>@Html.Raw(s)</td>
-                    }
-                    column++;
-                }
-            </tr>
-            row++;
-        }
+        @Html.Partial("TableBodyView", Model)
     }
-</table>
 }
 else
 {

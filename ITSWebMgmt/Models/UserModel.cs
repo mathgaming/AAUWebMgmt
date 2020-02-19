@@ -80,6 +80,11 @@ namespace ITSWebMgmt.Models
         {
             return new string[]
             {
+                BasicInfoDepartmentPDS,
+                BasicInfoOfficePDS,
+                BasicInfoADFSLocked,
+                BasicInfoLocked,
+                BasicInfoPasswordExpireDate,
                 BasicInfoPasswordExpired,
                 BadPwdCount.ToString(),
                 UserPrincipalName,
@@ -100,7 +105,7 @@ namespace ITSWebMgmt.Models
         public string BasicInfoLocked { get; set; }
         public string BasicInfoPasswordExpireDate { get; set; }
         public string BasicInfoPasswordExpired { get; set; }
-        public string BasicInfoTable { get; set; }
+        public TableModel BasicInfoTable { get; set; }
         public string BasicInfoRomaing
         {
             get
@@ -108,6 +113,7 @@ namespace ITSWebMgmt.Models
                 return (Profilepath != null).ToString();
             }
         }
+        public GetUserAvailabilityResults CalInfo { get; set; }
         public string CalAgendaStatus { get; set; }
         public ServiceManagerModel serviceManager { get; set; }
         public string ErrorMessages { get; set; }
@@ -229,46 +235,25 @@ namespace ITSWebMgmt.Models
             }
 
             //Other fileds
-            var attrDisplayName = "Password expired, Bad password count, UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
+            var attrDisplayName = "Department (Pure), Office (Pure), ADFS locked, Account locked, Password Expire Date, Password expired, Bad password count, UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
             var attrArry = getUserInfo();
             var dispArry = attrDisplayName.Split(',');
-            string[] dateFields = { "lastLogon", "badPasswordTime" };
 
-            var sb = new StringBuilder();
+            List<string[]> rows = new List<string[]>();
+
             for (int i = 0; i < attrArry.Length; i++)
             {
-                string k = attrArry[i];
-                sb.Append("<tr>");
+                string name = dispArry[i].Trim();
+                string val = attrArry[i];
 
-                sb.Append(string.Format("<td>{0}</td>", dispArry[i].Trim()));
-
-                if (k != null)
-                {
-                    sb.Append(string.Format("<td>{0}</td>", k));
-                }
-                else
-                {
-                    sb.Append("<td></td>");
-                }
-
-                sb.Append("</tr>");
+                rows.Add(new string[] { name, val });
             }
-
-            //Email
-            List<string> emails = getUserMails();
-            string emailString = "";
-            foreach (string mailAddress in emails)
-            {
-                emailString += string.Format("<a href=\"mailto:{0}\">{0}</a><br/>", mailAddress);
-            }
-            sb.Append($"<tr><td>E-mails</td><td>{emailString}</td></tr>");
-
-            UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(this);
 
             //OneDrive
-            sb.Append($"<tr><td>Uses OneDrive?</td><td>{UsesOnedrive}</td></tr>");
+            UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(this);
+            rows.Add(new string[] { "Uses OneDrive?", UsesOnedrive });
 
-            BasicInfoTable = sb.ToString();
+            BasicInfoTable = new TableModel(null, rows);
         }
         public List<string> getUserMails(){
             List<string> emails = new List<string>();
@@ -286,35 +271,24 @@ namespace ITSWebMgmt.Models
             return s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase);
         }
 
-        public string InitCalendarAgenda()
+        public void InitCalendarAgenda()
         {
             CalAgendaStatus = "Free";
-            var sb = new StringBuilder();
-            // Display available meeting times.
 
             try
             {
-                var temp = getFreeBusyResultsAsync(this).Result;
+                CalInfo = getFreeBusyResultsAsync(this).Result;
 
                 DateTime now = DateTime.Now;
-                foreach (AttendeeAvailability availability in temp.AttendeesAvailability)
+                foreach (AttendeeAvailability availability in CalInfo.AttendeesAvailability)
                 {
                     foreach (CalendarEvent calendarItem in availability.CalendarEvents)
                     {
                         if (calendarItem.FreeBusyStatus != LegacyFreeBusyStatus.Free)
                         {
-                            bool isNow = false;
                             if (now > calendarItem.StartTime && calendarItem.EndTime > now)
                             {
-                                sb.Append("<b>");
-                                isNow = true;
                                 CalAgendaStatus = calendarItem.FreeBusyStatus.ToString();
-                            }
-                            sb.Append(string.Format("{0}-{1}: {2}<br/>", calendarItem.StartTime.ToString("HH:mm"), calendarItem.EndTime.ToString("HH:mm"), calendarItem.FreeBusyStatus));
-
-                            if (isNow)
-                            {
-                                sb.Append("</b>");
                             }
                         }
                     }
@@ -323,10 +297,7 @@ namespace ITSWebMgmt.Models
             catch (Exception)
             {
                 CalAgendaStatus = "Unknown";
-                return "Failed to connect to exchange service";
             }
-
-            return sb.ToString();
         }
 
         public static async Task<GetUserAvailabilityResults> getFreeBusyResultsAsync(UserModel UserModel)
