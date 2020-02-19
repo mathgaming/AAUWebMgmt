@@ -79,6 +79,8 @@ namespace ITSWebMgmt.Helpers
             return $"{cn}@{domain}";
         }
 
+        public static string ComputerNameFromADPath(string adpath) => adpath.Split(',')[0].ToLower().Replace("cn=", "");
+
         private static string getADPathFromUsername(string username)
         {
             if (username.Contains("\\"))

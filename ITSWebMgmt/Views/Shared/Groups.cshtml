@@ -3,8 +3,8 @@
 <h2>@Html.Raw(Model.Title)</h2>
 <div id="group">
     <div class="ui two item menu">
-        <a data-tab="groups-direct" class="item">Direct Groups</a>
-        <a data-tab="groups-all" class="item">Recursive groups</a>
+        <a data-tab="groups-direct" class="item">Direct</a>
+        <a data-tab="groups-all" class="item">Recursive</a>
     </div>
     <div class="ui active tab segment" data-tab="groups-direct">
         @Html.Partial("TableView", Model.GroupTable)

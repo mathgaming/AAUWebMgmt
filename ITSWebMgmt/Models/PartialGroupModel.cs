@@ -1,4 +1,5 @@
 ﻿using ITSWebMgmt.Caches;
+using ITSWebMgmt.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,6 +106,11 @@ namespace ITSWebMgmt.Models
                 {
                     type = "Server";
                 }
+                else if (adpath.Contains("OU=Client"))
+                {
+                    link = getComputerLink(adpath);
+                    type = "Client";
+                }
                 else if (adpath.Contains("OU=Microsoft Exchange Security Groups"))
                 {
                     link = getGroupLink(adpath);
@@ -128,16 +134,11 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        // TODO: do not write HTML in backend
-        private static string getGroupLink(string adpath)
-        {
-            return string.Format("/Group?grouppath={0}", HttpUtility.UrlEncode("LDAP://" + adpath));
-        }
+        private static string getComputerLink(string adpath) => string.Format("/Computer?computername={0}", ADHelper.ComputerNameFromADPath(adpath));
 
-        private static string getPersonLink(string domain, string name)
-        {
-            return string.Format("/User?username={0}%40{1}.aau.dk", name, domain);
-        }
+        private static string getGroupLink(string adpath) =>  string.Format("/Group?grouppath={0}", HttpUtility.UrlEncode("LDAP://" + adpath));
+
+        private static string getPersonLink(string domain, string name) => string.Format("/User?username={0}%40{1}.aau.dk", name, domain);
 
         private List<string> SortGroupMembers(List<string> groupMembers)
         {
