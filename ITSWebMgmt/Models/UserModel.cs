@@ -113,6 +113,7 @@ namespace ITSWebMgmt.Models
                 return (Profilepath != null).ToString();
             }
         }
+        public GetUserAvailabilityResults CalInfo { get; set; }
         public string CalAgendaStatus { get; set; }
         public ServiceManagerModel serviceManager { get; set; }
         public string ErrorMessages { get; set; }
@@ -270,35 +271,24 @@ namespace ITSWebMgmt.Models
             return s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase);
         }
 
-        public string InitCalendarAgenda()
+        public void InitCalendarAgenda()
         {
             CalAgendaStatus = "Free";
-            var sb = new StringBuilder();
-            // Display available meeting times.
 
             try
             {
-                var temp = getFreeBusyResultsAsync(this).Result;
+                CalInfo = getFreeBusyResultsAsync(this).Result;
 
                 DateTime now = DateTime.Now;
-                foreach (AttendeeAvailability availability in temp.AttendeesAvailability)
+                foreach (AttendeeAvailability availability in CalInfo.AttendeesAvailability)
                 {
                     foreach (CalendarEvent calendarItem in availability.CalendarEvents)
                     {
                         if (calendarItem.FreeBusyStatus != LegacyFreeBusyStatus.Free)
                         {
-                            bool isNow = false;
                             if (now > calendarItem.StartTime && calendarItem.EndTime > now)
                             {
-                                sb.Append("<b>");
-                                isNow = true;
                                 CalAgendaStatus = calendarItem.FreeBusyStatus.ToString();
-                            }
-                            sb.Append(string.Format("{0}-{1}: {2}<br/>", calendarItem.StartTime.ToString("HH:mm"), calendarItem.EndTime.ToString("HH:mm"), calendarItem.FreeBusyStatus));
-
-                            if (isNow)
-                            {
-                                sb.Append("</b>");
                             }
                         }
                     }
@@ -307,10 +297,7 @@ namespace ITSWebMgmt.Models
             catch (Exception)
             {
                 CalAgendaStatus = "Unknown";
-                return "Failed to connect to exchange service";
             }
-
-            return sb.ToString();
         }
 
         public static async Task<GetUserAvailabilityResults> getFreeBusyResultsAsync(UserModel UserModel)

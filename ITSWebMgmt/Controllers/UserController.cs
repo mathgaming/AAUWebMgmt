@@ -418,8 +418,8 @@ namespace ITSWebMgmt.Controllers
                     model = UserModel.InitFileshares();
                     return PartialView("ExchangeFileshare", model);
                 case "calAgenda":
-                    string calAgenda = UserModel.InitCalendarAgenda();
-                    return PartialView("RawHTMLTab", new RawHTMLModel("Calendar Agenda(today)", calAgenda));
+                    UserModel.InitCalendarAgenda();
+                    return PartialView("Calendar", UserModel);
                 case "exchange":
                     model = UserModel.InitExchange();
                     return PartialView("ExchangeFileshare", model);
