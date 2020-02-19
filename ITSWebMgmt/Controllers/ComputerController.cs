@@ -236,30 +236,15 @@ namespace ITSWebMgmt.Controllers
             ComputerModel = getComputerModel(computername);
             new Logger(_context).Log(LogEntryType.ComputerAdminPassword, HttpContext.User.Identity.Name, ComputerModel.Windows.adpath, true);
 
-            var passwordRetuned = getLocalAdminPassword(ComputerModel.Windows.adpath);
+            var passwordReturned = getLocalAdminPassword(ComputerModel.Windows.adpath);
 
-            if (string.IsNullOrEmpty(passwordRetuned))
+            if (string.IsNullOrEmpty(passwordReturned))
             {
                 return Error("Not found");
             }
             else
             {
-                Func<string, string, string> appendColor = (string x, string color) => { return "<font color=\"" + color + "\">" + x + "</font>"; };
-
-                string passwordWithColor = "";
-                foreach (char c in passwordRetuned)
-                {
-                    var color = "green";
-                    if (char.IsNumber(c))
-                    {
-                        color = "blue";
-                    }
-
-                    passwordWithColor += appendColor(c.ToString(), color);
-
-                }
-
-                return Success("<code>" + passwordWithColor + "</code><br /> Password will expire in 8 hours");
+                return Success(passwordReturned);
             }
         }
         
