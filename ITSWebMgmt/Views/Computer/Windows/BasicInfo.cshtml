@@ -39,10 +39,7 @@
     </tbody>
 </table>
 <br />
-<div id="password">
-    <code id="passwordResponseDiv"></code>
-    <p style="display:none" id="passwordExpirationNotice"><br />Password will expire in 8 hours.</p>
-</div>
+<div id="password"></div>
 <div id="passworddiv">
     @if (Model.ShowResultGetPassword)
     {
@@ -65,13 +62,13 @@
             dataType: "json",
             success: function (response) {
                 document.getElementById('passworddiv' + buttonNumber).style.display = "none";
-                document.getElementById('passwordResponseDiv' + buttonNumber).innerHTML = response.message;
+                document.getElementById('password' + buttonNumber).innerHTML = "<code>"+response.message+"</code><p><br />Password will expire in 8 hours.</p>";
                 document.getElementById('passwordExpirationNotice' + buttonNumber).style.display = "inline";
             },
             error: function (response) {
                 var r = JSON.parse(response.responseText);
                 document.getElementById('passworddiv' + buttonNumber).style.display = "none";
-                document.getElementById('passwordResponseDiv' + buttonNumber).innerHTML = r.errorMessage;
+                document.getElementById('password' + buttonNumber).innerHTML = r.errorMessage;
             }
         });
     }
