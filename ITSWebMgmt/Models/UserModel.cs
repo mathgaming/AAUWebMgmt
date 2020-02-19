@@ -370,6 +370,7 @@ namespace ITSWebMgmt.Models
                 if (windowsComputers.Count != 0)
                 {
                     List<string[]> rows = new List<string[]>();
+                    List<string[]> linkRows = new List<string[]>();
 
                     foreach (WindowsComputerModel m in windowsComputers)
                     {
@@ -378,7 +379,7 @@ namespace ITSWebMgmt.Models
                         {
                             if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
                             {
-                                OnedriveWarning = "<font color=\"red\"> (Not using Onedrive!)</font>";
+                                OnedriveWarning = " (NOT USING ONEDRIVE!)";
                             }
                         }
                         catch (System.Runtime.InteropServices.COMException e)
@@ -386,12 +387,12 @@ namespace ITSWebMgmt.Models
                             // Does get an unknown error (0x80005000) when computer is found in SCCM, but not in AD
                         }
 
-                        var name = "<a href=\"/Computer?computername=" + m.ComputerName + "\">" + m.ComputerName + "</a>" + OnedriveWarning + "<br />";
-                        var fjernsupport = "<a href=\"https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName + "\">Start</a>";
-                        rows.Add(new string[] { name, fjernsupport });
+                        var fjernsupportLink = "https://support.its.aau.dk/api/client_script?type=rep&operation=generate&action=start_pinned_client_session&client.hostname=" + m.ComputerName;
+                        rows.Add(new string[] { m.ComputerName + OnedriveWarning, "Start" });
+                        linkRows.Add(new string[] { "/Computer?computername=" + m.ComputerName, fjernsupportLink });
                     }
 
-                    WindowsComputerTable = new TableModel(new string[] { "Computer name", "AAU Fjernsupport" }, rows, "Windows computers");
+                    WindowsComputerTable = new TableModel(new string[] { "Computer name", "AAU Fjernsupport" }, rows, new int[] { 0, 1 }, linkRows, "Windows computers");
                 }
                 else
                 {
@@ -404,14 +405,15 @@ namespace ITSWebMgmt.Models
                 if (macComputers.Count != 0)
                 {
                     List<string[]> rows = new List<string[]>();
+                    List<string[]> linkRows = new List<string[]>();
 
                     foreach (string computername in macComputers)
                     {
-                        var name = "<a href=\"/Computer?computername=" + computername + "\">" + computername + "</a>" + "<br />";
-                        rows.Add(new string[] { name });
+                        rows.Add(new string[] { computername });
+                        linkRows.Add(new string[] { "/Computer?computername=" + computername });
                     }
 
-                    MacComputerTable = new TableModel(new string[] { "Computer name" }, rows, "Mac computers");
+                    MacComputerTable = new TableModel(new string[] { "Computer name" }, rows, new int[] { 0 }, linkRows, "Mac computers");
                 }
                 else
                 {
@@ -436,6 +438,7 @@ namespace ITSWebMgmt.Models
             }
 
             List<string[]> rows = new List<string[]>();
+            List<string[]> linkRows = new List<string[]>();
 
             //Select Exchange groups and convert to list of ExchangeMailboxGroup
             var exchangeMailboxGroupList = members.Where<string>(group => (group.StartsWith("CN=MBX_"))).Select(x => new ExchangeMailboxGroupModel(x));
@@ -444,12 +447,13 @@ namespace ITSWebMgmt.Models
             {
                 var type = e.Type;
                 var domain = e.Domain;
-                var nameFormated = string.Format("<a href=\"/Group?grouppath={0}\">{1}</a><br/>", HttpUtility.UrlEncode("LDAP://" + e.RawValue), e.Name);
+                var link = string.Format("/Group?grouppath={0}", HttpUtility.UrlEncode("LDAP://" + e.RawValue));
                 var access = e.Access;
-                rows.Add(new string[] { type, domain, nameFormated, access });
+                rows.Add(new string[] { type, domain, e.Name, access });
+                linkRows.Add(new string[] { link });
             }
 
-            model.FilteredTable = new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows);
+            model.FilteredTable = new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows, new int[] { 2 }, linkRows);
 
             return model;
         }
@@ -464,6 +468,7 @@ namespace ITSWebMgmt.Models
                 members = model.GroupList;
             }
             List<string[]> rows = new List<string[]>();
+            List<string[]> linkRows = new List<string[]>();
 
             //Filter fileshare groups and convert to Fileshare Objects
             var fileshareList = members.Where((string value) =>
@@ -473,11 +478,12 @@ namespace ITSWebMgmt.Models
 
             foreach (FileshareModel f in fileshareList)
             {
-                var nameWithLink = string.Format("<a href=\"/Group?grouppath={0}\">{1}</a><br/>", HttpUtility.UrlEncode("LDAP://" + f.Fileshareraw), f.Name);
-                rows.Add(new string[] { f.Type, f.Domain, nameWithLink, f.Access });
+                var nameWithLink = string.Format("/Group?grouppath={0}", HttpUtility.UrlEncode("LDAP://" + f.Fileshareraw));
+                rows.Add(new string[] { f.Type, f.Domain, f.Name, f.Access });
+                linkRows.Add(new string[] { nameWithLink});
             }
 
-            model.FilteredTable = new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows);
+            model.FilteredTable = new TableModel(new string[] { "Type", "Domain", "Name", "Access" }, rows, new int[] { 2 }, linkRows);
 
             return model;
         }
@@ -485,6 +491,7 @@ namespace ITSWebMgmt.Models
         public void InitWin7to10()
         {
             // Should be deleted after Windows 7 is gone
+            // No reason to refactor
             bool haveWindows7 = false;
             List<string[]> rows = new List<string[]>();
 

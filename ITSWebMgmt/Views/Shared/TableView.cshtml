@@ -37,7 +37,14 @@
                 {
                     if (Model.LinkColumns.Contains(column))
                     {
-                        <td><a href="@Model.LinkRows[row][linkColumnIndex]">@s</a></td>
+                        @if (@Model.LinkRows[row][linkColumnIndex] != "")
+                        {
+                            <td><a href="@Model.LinkRows[row][linkColumnIndex]">@s</a></td>
+                        }
+                        else
+                        {
+                            <td>@s</td>
+                        }
                         linkColumnIndex++;
                     }
                     else
