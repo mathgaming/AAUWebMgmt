@@ -14,12 +14,12 @@ namespace ITSWebMgmt.Models
         public string Description { get => ADcache.getProperty("description"); }
         public string Info { get => ADcache.getProperty("info"); }
         public string Name { get => ADcache.getProperty("name"); }
-        public string ADManagedBy { get => ADcache.getProperty("managedBy"); }
         public string GroupType { get => ADcache.getProperty("groupType").ToString(); }
         public string DistinguishedName { get => ADcache.getProperty("distinguishedName").ToString(); }
         public string Title { get; set; }
         public string Domain { get; set; }
-        public string ManagedBy { get; set; }
+        public string ManagedByADPath { get; private set; }
+        public string ManagedByDomainAndName { get; private set; }
         public string SecurityGroup { get; set; }
         public string GroupScope { get; set; }
         public TableModel GroupTable { get; set; }
@@ -27,6 +27,7 @@ namespace ITSWebMgmt.Models
         public TableModel GroupOfTable { get; set; }
         public TableModel GroupOfAllTable { get; set; }
         public bool IsFileShare { get; set; } = false;
+        private string ADManagedBy { get => ADcache.getProperty("managedBy"); }
 
         public GroupModel(string adpath)
         {
@@ -36,7 +37,8 @@ namespace ITSWebMgmt.Models
             var dom = Path.Split(',').Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
             Domain = dom;
 
-            string managedByString = "none";
+            string managedByPath = "";
+            string managedByName = "";
             if (ADManagedBy != "")
             {
                 var manager = ADManagedBy;
@@ -45,9 +47,11 @@ namespace ITSWebMgmt.Models
                 var name = ldapSplit[0].Replace("CN=", "");
                 var domain = ldapSplit.Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
 
-                managedByString = string.Format("<a href=\"/Home/Redirector?adpath={0}\">{1}</a>", HttpUtility.HtmlEncode("LDAP://" + manager), domain + "\\" + name);
+                managedByPath = HttpUtility.HtmlEncode("LDAP://" + manager);
+                managedByName = (domain + "\\" + name);
             }
-            ManagedBy = managedByString;
+            ManagedByADPath = managedByPath;
+            ManagedByDomainAndName = managedByName;
 
             //IsDistributionGroup?
             //ManamgedBy

@@ -1,9 +1,19 @@
 ﻿@using System.Web;
+@model ITSWebMgmt.Models.GroupModel
 
 <td>Managed By:</td>
 <td>
     <div id="editDiv">
-        <label id="managedBy">@Html.Raw(Model.ManagedBy)</label>
+        <label id="managedBy">
+            @if (Model.ManagedByADPath.Length != 0)
+            {
+                <a href="/Home/Redirector?adpath=@Model.ManagedByADPath">@Model.ManagedByDomainAndName</a>
+            }
+            else
+            {
+                <text>None</text>
+            }
+        </label>
         <button id="btnEdit" style="float:right">Edit</button>
     </div>
     <div id="saveDiv" style="display:none;">
@@ -12,14 +22,21 @@
     </div>
 
     <script>
+        let noneToken = "None";
         $("#btnEdit").click(function () {
             document.getElementById('editDiv').style.display = "none";
             document.getElementById('saveDiv').style.display = "block";
-            document.getElementById('inputText').value = document.getElementById('managedBy').textContent;
+            let managedByName = document.getElementById('managedBy').textContent.trim();
+            if (managedByName != noneToken) {
+                document.getElementById('inputText').value = managedByName;
+            }
+            else {
+                document.getElementById('inputText').value = "";
+            }
         });
         $("#btnSave").click(function () {
             var email = $('#inputText').val();
-            var data = email + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.adpath))' + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ManagedBy))';
+            var data = email + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.adpath))' + '|' + '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ManagedByADPath))';
 
             $.ajax({
                 type: "POST",
@@ -36,6 +53,7 @@
                     }
                     else {
                         alert('Managed by succesfully deleted')
+                        document.getElementById('managedBy').textContent = noneToken;
                     }
                 },
                 error: function(response) {
