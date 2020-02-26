@@ -13,11 +13,11 @@ namespace ITSWebMgmt.Helpers
 {
     public class FindComputersForAllStaff
     {
-        private string filename = @"C:\webmgmtlog\testlist\computer-list.txt";
+        private string filename = @"C:\webmgmtlog\computer-list.txt";
 
         public FindComputersForAllStaff()
         {
-            CombineLists();
+            MakeList();
         }
 
         public void CombineLists()
@@ -91,6 +91,9 @@ namespace ITSWebMgmt.Helpers
                         count++;
                     }
                 }
+
+                file.WriteLine(String.Join(";", batch));
+                batches.Add(batch);
             }
 
             count = 0;

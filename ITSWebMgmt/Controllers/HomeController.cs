@@ -15,6 +15,7 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
+            new FindComputersForAllStaff();
             return View(new HomeModel(_context, HttpContext.User.Identity.Name));
         }
 
