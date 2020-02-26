@@ -137,6 +137,11 @@ namespace ITSWebMgmt.Models
             }
         }
 
+        public UserModel(string adpath, string test)
+        {
+            Init("LDAP://" + adpath, false);
+        }
+
         public UserModel(string username, bool loadDataInbackground = true)
         {
             string adpath = null;
@@ -147,13 +152,7 @@ namespace ITSWebMgmt.Models
             }
             if (adpath != null)
             {
-                ADcache = new UserADcache(adpath);
-                SCCMcache = new SCCMcache();
-                UserFound = true;
-                if (loadDataInbackground)
-                {
-                    LoadDataInbackground();
-                }
+                Init(adpath, loadDataInbackground);
             }
             else
             {
@@ -161,6 +160,17 @@ namespace ITSWebMgmt.Models
                 {
                     ResultError = $"User ({username}) Not found";
                 }
+            }
+        }
+
+        public void Init(string adpath, bool loadDataInbackground = true)
+        {
+            ADcache = new UserADcache(adpath);
+            SCCMcache = new SCCMcache();
+            UserFound = true;
+            if (loadDataInbackground)
+            {
+                LoadDataInbackground();
             }
         }
 
