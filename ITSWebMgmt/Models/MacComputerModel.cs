@@ -85,9 +85,16 @@ namespace ITSWebMgmt.Models
                     rowEntries.Add(info.SelectToken(name).Value.ToString());
                 }
                 dynamic partition = info.SelectToken("partition");
-                foreach (var name in partitionAttributeNames)
+                if (partition != null)
                 {
-                    rowEntries.Add(partition.SelectToken(name).Value.ToString());
+                    foreach (var name in partitionAttributeNames)
+                    {
+                        rowEntries.Add(partition.SelectToken(name).Value.ToString());
+                    }
+                }
+                else
+                {
+                    rowEntries.Add("Partion info not found");
                 }
 
                 rows.Add(rowEntries.ToArray());
