@@ -13,7 +13,8 @@ namespace ITSWebMgmt.Helpers
 {
     public class FindComputersForAllStaff
     {
-        private string filename = @"C:\webmgmtlog\computer-list.txt";
+        private static string path = @"C:\webmgmtlog\testlist\";
+        private readonly string filename = path + "computer-list.txt";
 
         public FindComputersForAllStaff()
         {
@@ -25,12 +26,12 @@ namespace ITSWebMgmt.Helpers
         {
             int batchId = 0;
             List<List<string>> batches = Readbatches();
-            string outFilename = @"C:\webmgmtlog\testlist\computer-list-full.txt";
+            string outFilename = path + "computer-list-full.txt";
             using StreamWriter outFile = new StreamWriter(outFilename);
 
             foreach (var batch in batches)
             {
-                string batchFilename = @"C:\webmgmtlog\testlist\computer-list-" + batchId + ".txt";
+                string batchFilename = $"{path}computer-list-{batchId}.txt";
                 StreamReader file = new StreamReader(batchFilename);
                 string line;
                 int count = 0;
@@ -108,7 +109,7 @@ namespace ITSWebMgmt.Helpers
 
         public void RunBatch(List<string> adpaths, int batch)
         {
-            string batchFilename = @"C:\webmgmtlog\testlist\computer-list-" + batch + ".txt";
+            string batchFilename = $"{path}computer-list-{batch}.txt";
             try
             {
                 if (!File.Exists(batchFilename))
