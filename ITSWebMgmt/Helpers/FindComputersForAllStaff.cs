@@ -84,7 +84,7 @@ namespace ITSWebMgmt.Helpers
                     {
                         if (count == 100)
                         {
-                            file.WriteLine(String.Join(";", batch));
+                            file.WriteLine(string.Join(";", batch));
                             batches.Add(batch);
                             batch = new List<string>();
                             count = 0;
@@ -94,7 +94,7 @@ namespace ITSWebMgmt.Helpers
                     }
                 }
 
-                file.WriteLine(String.Join(";", batch));
+                file.WriteLine(string.Join(";", batch));
                 batches.Add(batch);
             }
 
@@ -117,37 +117,46 @@ namespace ITSWebMgmt.Helpers
                     using StreamWriter file = new StreamWriter(batchFilename);
                     foreach (var adpath in adpaths)
                     {
-                        var split = adpath.Split(',');
-                        var name = split[0].Replace("CN=", "");
-                        var domain = split.Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
-                        var upn = $"{name}@{domain}.aau.dk";
-
-                        UserModel model = new UserModel(adpath, "");
-                        List<string> windowsNames = new List<string>();
-                        string formattedName = string.Format("{0}\\\\{1}", domain, name);
-
-                        foreach (ManagementObject o in model.getUserMachineRelationshipFromUserName(formattedName))
+                        string upn = "";
+                        try
                         {
-                            windowsNames.Add(o.Properties["ResourceName"].Value.ToString());
-                        }
+                            var split = adpath.Split(',');
+                            var name = split[0].Replace("CN=", "");
+                            var domain = split.Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
+                            upn = $"{name}@{domain}.aau.dk";
 
-                        JamfConnector jamf = new JamfConnector();
-                        List<string> macComputers = new List<string>();
-                        foreach (var email in new UserModel(upn, false).getUserMails())
+                            UserModel model = new UserModel(adpath, "");
+                            List<string> windowsNames = new List<string>();
+                            string formattedName = string.Format("{0}\\\\{1}", domain, name);
+
+                            foreach (ManagementObject o in model.getUserMachineRelationshipFromUserName(formattedName))
+                            {
+                                windowsNames.Add(o.Properties["ResourceName"].Value.ToString());
+                            }
+
+                            JamfConnector jamf = new JamfConnector();
+                            List<string> macComputers = new List<string>();
+                            foreach (var email in new UserModel(upn, false).getUserMails())
+                            {
+                                macComputers.AddRange(jamf.getComputerNamesForUser(email));
+                            }
+
+                            string line = $"{upn};{string.Join(",", windowsNames)};{string.Join(",", macComputers)}";
+                            file.WriteLine(line);
+                        }
+                        catch (Exception e)
                         {
-                            macComputers.AddRange(jamf.getComputerNamesForUser(email));
+                            Console.WriteLine($"Error in batch {batch} for {adpath}");
+                            file.WriteLine($"{upn};;;Error finding {adpath}");
                         }
-
-                        string line = $"{upn};{string.Join(",", windowsNames)};{string.Join(",", macComputers)}";
-                        file.WriteLine(line);
-
                         Thread.Sleep(1000);
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine("Error");
+                Console.WriteLine($"Error in batch {batch}");
+                Console.WriteLine(e.Message);
             }
         }
     }
