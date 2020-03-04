@@ -61,8 +61,32 @@
             data: JSON.stringify(computername),
             dataType: "json",
             success: function (response) {
+                let colouredResponse = "";
+                for (let a = 0; a < response.message.length; a++) {
+                    let letter = response.message.charAt(a);
+                    let colour = "";
+
+                    if (!isNaN(letter * 1)) {
+                        //if letter is a number
+                        colour = "red";
+                    }
+                    else if (letter == letter.toUpperCase()) {
+                        //if letter is uppercase
+                        colour = "green";
+                    }
+                    else if (letter == letter.toLowerCase()) {
+                        //if letter is lowercase
+                        colour = "blue";
+                    }
+                    else {
+                        //to handle edgecases
+                        colour = "orange";
+                    }
+
+                    colouredResponse += "<span style=\"color: " + colour + "\">" + letter + "</span>"
+                }
                 document.getElementById('passworddiv' + buttonNumber).style.display = "none";
-                document.getElementById('password' + buttonNumber).innerHTML = "<code>"+response.message+"</code><p><br />Password will expire in 8 hours.</p>";
+                document.getElementById('password' + buttonNumber).innerHTML = "<code>" + colouredResponse + "</code><p><br />Password will expire in 8 hours.</p>";
                 document.getElementById('passwordExpirationNotice' + buttonNumber).style.display = "inline";
             },
             error: function (response) {
