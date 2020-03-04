@@ -381,7 +381,11 @@ namespace ITSWebMgmt.Models
                 }
 
                 JamfConnector jamf = new JamfConnector();
-                var macComputers = jamf.getComputerNamesForUser(UserPrincipalName);
+                List<string> macComputers = new List<string>();
+                foreach (var email in getUserMails())
+                {
+                    macComputers.AddRange(jamf.getComputerNamesForUser(email));
+                }
 
                 if (macComputers.Count != 0)
                 {

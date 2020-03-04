@@ -18,6 +18,7 @@ namespace ITSWebMgmt.Helpers
         public FindComputersForAllStaff()
         {
             MakeList();
+            CombineLists();
         }
 
         public void CombineLists()
@@ -130,9 +131,13 @@ namespace ITSWebMgmt.Helpers
                         }
 
                         JamfConnector jamf = new JamfConnector();
-                        List<string> macComputers = jamf.getComputerNamesForUser(upn);
+                        List<string> macComputers = new List<string>();
+                        foreach (var email in new UserModel(upn, false).getUserMails())
+                        {
+                            macComputers.AddRange(jamf.getComputerNamesForUser(email));
+                        }
 
-                        string line = $"{upn};{String.Join(",", windowsNames)};{String.Join(",", macComputers)}";
+                        string line = $"{upn};{string.Join(",", windowsNames)};{string.Join(",", macComputers)}";
                         file.WriteLine(line);
 
                         Thread.Sleep(1000);
@@ -141,8 +146,7 @@ namespace ITSWebMgmt.Helpers
             }
             catch (Exception)
             {
-
-                throw;
+                Console.WriteLine("Error");
             }
         }
     }
