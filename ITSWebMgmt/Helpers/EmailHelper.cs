@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Net.Mime;
 using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Helpers
@@ -17,6 +18,22 @@ namespace ITSWebMgmt.Helpers
             client.EnableSsl = true;
             client.UseDefaultCredentials = true;
             client.Timeout = 10000;
+            mail.Subject = subject;
+            mail.Body = body;
+            client.Send(mail);
+        }
+
+        public static void SendEmailWithAttachment(string subject, string body, string reviever, string file)
+        {
+            MailMessage mail = new MailMessage("platform@its.aau.dk", reviever);
+            SmtpClient client = new SmtpClient();
+            client.Host = "smtp-internal.aau.dk";
+            client.Port = 25;
+            client.EnableSsl = true;
+            client.UseDefaultCredentials = true;
+            client.Timeout = 10000;
+            Attachment data = new Attachment(file, MediaTypeNames.Application.Octet);
+            mail.Attachments.Add(data);
             mail.Subject = subject;
             mail.Body = body;
             client.Send(mail);
