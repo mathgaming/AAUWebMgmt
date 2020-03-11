@@ -67,7 +67,18 @@ namespace ITSWebMgmt.Helpers
         {
             string group = "LDAP://CN=Aau-staff,OU=Email,OU=Groups,DC=aau,DC=dk";
             GroupADcache ad = new GroupADcache(group);
-            var membersADPath = ad.getGroupsTransitive("member");
+            var members = ad.getGroups("member");
+            List<string> allMembers = new List<string>();
+
+            foreach (var member in members)
+            {
+                ad = new GroupADcache("LDAP://" + member);
+                var temp = ad.getGroupsTransitive("member");
+                allMembers.AddRange(temp);
+            }
+
+            var membersADPath = allMembers.Distinct().ToList();
+
             List<List<string>> batches = new List<List<string>>();
             int count = 0;
             List<string> batch = new List<string>();
