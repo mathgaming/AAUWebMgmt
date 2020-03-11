@@ -16,6 +16,7 @@ namespace ITSWebMgmt.Helpers
         private static string path = Path.Combine(Directory.GetCurrentDirectory(), "computer-list/");
         private static readonly string filename = path + "computer-list.txt";
         private static List<string> emails = new List<string>();
+        private static readonly string mailbody = "Computer list is attached.\n";
         public static bool Running { private set; get; } = false;
 
         public ComputerListModel()
@@ -27,7 +28,7 @@ namespace ITSWebMgmt.Helpers
                 CombineLists();
                 foreach (var e in emails)
                 {
-                    EmailHelper.SendEmailWithAttachment("Computer list started", "Computer list", e, path + "computer-list-full.txt");
+                    EmailHelper.SendEmailWithAttachment("Computer list", mailbody, e, path + "computer-list-full.txt");
                 }
                 CleanUp();
                 emails.Clear();
@@ -54,7 +55,10 @@ namespace ITSWebMgmt.Helpers
 
             foreach (FileInfo file in di.GetFiles())
             {
-                file.Delete();
+                if (file.Name != "computer-list-full.txt")
+                {
+                    file.Delete();
+                }
             }
             foreach (DirectoryInfo dir in di.GetDirectories())
             {
@@ -73,22 +77,20 @@ namespace ITSWebMgmt.Helpers
             foreach (var batch in batches)
             {
                 string batchFilename = $"{path}computer-list-{batchId}.txt";
-                StreamReader file = new StreamReader(batchFilename);
-                string line;
-                int count = 0;
-                while ((line = file.ReadLine()) != null)
+                if (File.Exists(batchFilename))
                 {
-                    outFile.WriteLine(line);
-                    count++;
+                    StreamReader file = new StreamReader(batchFilename);
+                    string line;
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        outFile.WriteLine(line);
+                    }
+                    file.Close();
                 }
-
-                if (count != batch.Count)
-                {
-                    Console.WriteLine($"Error in batch {batchId}");
-                }
-
                 batchId++;
             }
+
+            outFile.Close();
         }
 
         private List<List<string>> Readbatches()
@@ -100,6 +102,7 @@ namespace ITSWebMgmt.Helpers
             {
                 batches.Add(line.Split(";").ToList());
             }
+            file.Close();
 
             return batches;
         }
@@ -148,6 +151,7 @@ namespace ITSWebMgmt.Helpers
 
                 file.WriteLine(string.Join(";", batch));
                 batches.Add(batch);
+                file.Close();
             }
 
             count = 0;
@@ -156,7 +160,6 @@ namespace ITSWebMgmt.Helpers
             {
                 RunBatch(b, count);
                 count++;
-                return;
             }
         }
 
@@ -169,8 +172,6 @@ namespace ITSWebMgmt.Helpers
                 var computerName = o.Properties["ResourceName"].Value.ToString();
                 var computerModel = new WindowsComputerModel(computerName);
                 var onedrive = computerModel.UsesOnedrive;
-                string time = "";
-
                 var @virtual = "unknown";
                 if (computerName.StartsWith("AAU"))
                 {
@@ -188,14 +189,14 @@ namespace ITSWebMgmt.Helpers
                         var disk = computerModel.LogicalDisk.OfType<ManagementObject>().FirstOrDefault();
                         diskspace = disk.Properties["FreeSpace"].Value != null ? (int.Parse(disk.Properties["FreeSpace"].Value.ToString()) / 1024) : -1;
                     }
-                    time = computerModel.System.GetProperty("LastLogonTimestamp");
+                    string time = computerModel.System.GetProperty("LastLogonTimestamp");
                     var date = time != null ? DateTimeConverter.Convert(time) : "";
                     var lastLoginUser = computerModel.System.GetProperty("LastLogonUserDomain") + "\\" + computerModel.System.GetProperty("LastLogonUserName");
                     computerInfo.Add($"{computerName};windows;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser}");
                 }
                 catch (Exception e )
                 {
-                    computerInfo.Add($";windows;{onedrive};;;{@virtual};;Failed to get data for {computerName}");
+                    computerInfo.Add($"{computerName};windows;{onedrive};;{@virtual};;;Failed to get data for {computerName}");
                 }
             }
 
@@ -260,14 +261,21 @@ namespace ITSWebMgmt.Helpers
                         {
                             file.WriteLine($"{upn};{lastLogon};{usesOnedrive};{computer}");
                         }
+
+                        if (computerInfo.Count == 0)
+                        {
+                            file.WriteLine($"{upn};{lastLogon};{usesOnedrive};;;;;;;;No computer found for user");
+                        }
                     }
                     catch (Exception e)
                     {
-                        file.WriteLine($"{upn};;;;;;Error finding {adpath}");
+                        file.WriteLine($"{upn};;;;;;;;;;Error finding {adpath}");
                         Console.WriteLine(e.Message);
                     }
                     Thread.Sleep(1000);
                 }
+
+                file.Close();
             }
         }
     }
