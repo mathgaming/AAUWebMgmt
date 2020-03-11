@@ -506,10 +506,10 @@ namespace ITSWebMgmt.Models
                     string created_at = DateTimeConverter.Convert(item.created_at);
                     string first_used = item.first_use == null ? "Never used" : DateTimeConverter.Convert(item.first_use);
                     string last_used = item.last_used == null ? "Never used" : DateTimeConverter.Convert(item.last_used);
-                    rows.Add(new string[] {created_at, first_used, last_used, item.mac_address, item.name, item.devicetype});
+                    rows.Add(new string[] {created_at, first_used, last_used, item.mac_address, item.name, item.devicetype, item.id});
                 }
 
-                return new TableModel(new string[] { "Created at", "First use", "last used", "Mac address", "Device name", "Device type" }, rows, "Net.aau.dk");
+                return new TableModel(new string[] { "Created at", "First use", "last used", "Mac address", "Device name", "Device type", "ID" }, rows, "Net.aau.dk");
             }
             else
             {

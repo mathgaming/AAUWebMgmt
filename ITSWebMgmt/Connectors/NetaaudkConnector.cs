@@ -43,12 +43,14 @@ namespace ITSWebMgmt.Connectors
 
         public class NetaaudkModel
         {
+            public string username { get; set; }
             public DateTime? created_at { get; set; }
             public DateTime? first_use { get; set; }
             public DateTime? last_used { get; set; }
             public string mac_address { get; set; }
             public string name { get; set; }
             public string devicetype { get; set; }
+            public string id => username.Split('@')[0];
         }
     }
 }
