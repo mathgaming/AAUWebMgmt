@@ -51,10 +51,6 @@ namespace ITSWebMgmt.Models
         public string ConfigPC { get; set; } = "Unknown";
         public string ConfigExtra { get; set; } = "False";
         public ManagedByModel ManagedBy { get; set; }
-        public string LastLogonUserName { get; set; }
-        public string IPAddresses { get; set; }
-        public string MACAddresses { get; set; }
-        public string Build { get; set; }
         public TableModel SCCMInfoComputer { get; set; }
         public TableModel SCCMInfoSystem { get; set; }
         public TableModel SCCMSoftware { get; set; }
