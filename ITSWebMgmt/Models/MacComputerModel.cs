@@ -22,6 +22,7 @@ namespace ITSWebMgmt.Models
         public TableModel DiskTable { get; set; }
         public TableModel GroupsTable { get; set; }
         public List<string> Groups { get; set; }
+        public int FreeSpace { get; set; }
         public MacComputerModel(ComputerModel baseModel)
         {
             BaseModel = baseModel;
@@ -35,6 +36,16 @@ namespace ITSWebMgmt.Models
             }
 
             BaseModel.ComputerFound = ComputerFound;
+        }
+
+        public MacComputerModel(string computerName)
+        {
+            int id = Jamf.GetComputerIdByName(computerName);
+
+            if (id != -1) //Computer found
+            {
+                InitViews(id);
+            }
         }
 
         public void InitViews(int id)
@@ -76,31 +87,45 @@ namespace ITSWebMgmt.Models
 
             List<string> attributeNames = new List<string>() { "disk", "model", "revision" };
             List<string> partitionAttributeNames = new List<string>() { "name", "size", "percentage_full", "filevault_status" };
+            List<string> diskInfo = new List<string>();
 
             foreach (dynamic info in token)
             {
                 List<string> rowEntries = new List<string>();
                 foreach (var name in attributeNames)
                 {
-                    rowEntries.Add(info.SelectToken(name).Value.ToString());
+                    diskInfo.Add(info.SelectToken(name).Value.ToString());
                 }
-                dynamic partition = info.SelectToken("partition");
-                if (partition != null)
+                dynamic partitions = info.SelectToken("partitions");
+                if (partitions != null)
                 {
-                    foreach (var name in partitionAttributeNames)
+                    foreach (var partition in partitions)
                     {
-                        rowEntries.Add(partition.SelectToken(name).Value.ToString());
+                        foreach (var name in partitionAttributeNames)
+                        {
+                            rowEntries.Add(partition.SelectToken(name).Value.ToString());
+                        }
+
+                        if (rowEntries[0] == "Macintosh HD (Boot Partition)")
+                        {
+                            FreeSpace = (int.Parse(rowEntries[1]) * (100 - int.Parse(rowEntries[2]))) / 102400;
+                        }
+
+                        var list = new List<string>(diskInfo);
+                        list.AddRange(rowEntries);
+                        rows.Add(list.ToArray());
+                        rowEntries.Clear();
                     }
                 }
                 else
                 {
-                    rowEntries.Add("Partion info not found");
+                    var list = new List<string>(diskInfo);
+                    list.Add("Partion info not found");
+                    rows.Add(list.ToArray());
                 }
-
-                rows.Add(rowEntries.ToArray());
             }
 
-            DiskTable = new TableModel(new string[] { "Disk", "Model", "Revision", "Name", "Size (MB)", "Percentage full", "Filevault status" }, rows, "Disk info");
+            DiskTable = new TableModel(new string[] { "Disk", "Model", "Revision", "Partition name", "Size (MB)", "Percentage full", "Filevault status" }, rows, "Disk info");
         }
 
         private void setBasic(JObject jsonVal)
