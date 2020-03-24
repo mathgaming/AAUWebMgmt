@@ -175,11 +175,11 @@ namespace ITSWebMgmt.Helpers
                 var @virtual = "unknown";
                 if (computerName.StartsWith("AAU"))
                 {
-                    @virtual = "false";
+                    @virtual = "False";
                 }
                 else if (computerName.StartsWith("SRV"))
                 {
-                    @virtual = "true";
+                    @virtual = "True";
                 }
                 try
                 {
@@ -256,7 +256,7 @@ namespace ITSWebMgmt.Helpers
                         computerInfo.AddRange(getMacInformation(upn));
 
                         var lastLogon = model.LastLogon;
-                        var usesOnedrive = model.UsesOnedrive;
+                        var usesOnedrive = OneDriveHelper.doesUserHaveDeniedFolderRedirect(model);
                         foreach (var computer in computerInfo)
                         {
                             file.WriteLine($"{upn};{lastLogon};{usesOnedrive};{computer}");
