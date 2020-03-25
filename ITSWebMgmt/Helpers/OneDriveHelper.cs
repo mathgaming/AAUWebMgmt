@@ -51,7 +51,7 @@ namespace ITSWebMgmt.Helpers
             
             return false;
         }
-        private static bool doesUserHaveDeniedFolderRedirect(UserModel user)
+        public static bool doesUserHaveDeniedFolderRedirect(UserModel user)
         {
             List<string> memberGroups = user.ADcache.getGroupsTransitive("memberOf");
             return memberGroups.Exists(x => x.Contains(USER_USES_1DRIVE_FLAG));

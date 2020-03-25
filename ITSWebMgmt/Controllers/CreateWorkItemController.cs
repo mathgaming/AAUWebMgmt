@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -129,13 +130,22 @@ namespace ITSWebMgmt.Controllers
         public ActionResult ReportIssue(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = true;
+            sendEmail(workitem, "isssue reported");
             return CreateItemInServiceManager("https://service.aau.dk/Incident/New/", workitem);
         }
         [HttpPost]
         public ActionResult RequestNewFeature(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = true;
+            sendEmail(workitem, "feature requested");
             return CreateItemInServiceManager("https://service.aau.dk/ServiceRequest/New/", workitem);
+        }
+
+        private void sendEmail(CreateWorkItemModel workitem, string type)
+        {
+            string title = $"WebMgmt: New {type}: {workitem.Title}";
+            string description = $"Title: {workitem.Title}\nUser: {workitem.AffectedUser}\nDescription: {workitem.Description}";
+            EmailHelper.SendEmail(title, description, "mhsv16@its.aau.dk");
         }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using ITSWebMgmt.Models.Log;
+using System.Threading;
 
 namespace ITSWebMgmt
 {
@@ -71,6 +72,12 @@ namespace ITSWebMgmt
                 endpoints.MapControllerRoute("createworkitem", "{controller=CreateWorkItem}/{action=Index}/{id?}");
                 endpoints.MapControllerRoute("aauredirector", "{controller=AAURedirector}/{action=Index}/{id?}");
             });
+
+            // Continue on list if stopped when new version is published
+            ThreadPool.QueueUserWorkItem(_ =>
+            {
+                ComputerListModel.ContinueIfStopped();
+            }, null);
         }
     }
 }
