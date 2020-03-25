@@ -173,11 +173,16 @@ namespace ITSWebMgmt.Helpers
                 var computerModel = new WindowsComputerModel(computerName);
                 var onedrive = OneDriveHelper.ComputerUsesOneDrive(computerModel.ADcache);
                 var @virtual = "unknown";
-                if (computerName.StartsWith("AAU"))
+                var computerNameUC = computerName.ToUpper();
+                if (computerNameUC.StartsWith("AAU"))
                 {
                     @virtual = "False";
                 }
-                else if (computerName.StartsWith("SRV"))
+                else if (computerNameUC.StartsWith("SRV"))
+                {
+                    @virtual = "True";
+                }
+                else if (computerNameUC.StartsWith("CLI"))
                 {
                     @virtual = "True";
                 }
@@ -221,7 +226,7 @@ namespace ITSWebMgmt.Helpers
                     {
                         @virtual = "false";
                     }
-                    else if (computerName.StartsWith("AAUVM"))
+                    if (computerName.StartsWith("AAUVM"))
                     {
                         @virtual = "true";
                     }
