@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -15,6 +14,7 @@ namespace ITSWebMgmt.Helpers
     {
         private static string path = Path.Combine(Directory.GetCurrentDirectory(), "computer-list/");
         private static readonly string filename = path + "computer-list.txt";
+        private static readonly string emailFilename = path + "computer-list-emails.txt";
         private static List<string> emails = new List<string>();
         private static readonly string mailbody = "Computer list is attached.\n";
         public static bool Running { private set; get; } = false;
@@ -36,11 +36,43 @@ namespace ITSWebMgmt.Helpers
             }
         }
 
+        public static void ContinueIfStopped()
+        {
+            if (File.Exists(emailFilename))
+            {
+                int batchId = 0;
+                while (true)
+                {
+                    string batchFilename = $"{path}computer-list-{batchId}.txt";
+                    if (!File.Exists(batchFilename))
+                    {
+                        break;
+                    }
+                    batchId++;
+                }
+                File.Delete($"{path}computer-list-{batchId - 1}.txt");
+
+                StreamReader file = new StreamReader(emailFilename);
+                string line;
+                while ((line = file.ReadLine()) != null)
+                {
+                    emails.Add(line);
+                }
+                file.Close();
+
+                new ComputerListModel();
+            }
+        }
+
         public static void AddEmail(string email)
         {
             if (!emails.Contains(email))
             {
                 emails.Add(email);
+                string outFilename = emailFilename;
+                using StreamWriter outFile = File.AppendText(outFilename);
+                outFile.WriteLine(email);
+                outFile.Close();
             }
         }
 
@@ -72,7 +104,7 @@ namespace ITSWebMgmt.Helpers
             List<List<string>> batches = Readbatches();
             string outFilename = path + "computer-list-full.txt";
             using StreamWriter outFile = new StreamWriter(outFilename);
-            outFile.WriteLine("upn;last logon for user;user uses onedrive;computername;os;uses onedrive;free disk space (GB);virtual?;last login date;last login user");
+            outFile.WriteLine("upn;last logon for user;user uses onedrive;staff;computername;os;uses onedrive;free disk space (GB);virtual?;last login date;last login user");
 
             foreach (var batch in batches)
             {
@@ -109,29 +141,31 @@ namespace ITSWebMgmt.Helpers
 
         public void MakeList()
         {
-            string group = "LDAP://CN=Aau-staff,OU=Email,OU=Groups,DC=aau,DC=dk";
-            GroupADcache ad = new GroupADcache(group);
-            var members = ad.getGroups("member");
-            List<string> allMembers = new List<string>();
-
-            foreach (var member in members)
-            {
-                ad = new GroupADcache("LDAP://" + member);
-                var temp = ad.getGroupsTransitive("member");
-                allMembers.AddRange(temp);
-            }
-
-            var membersADPath = allMembers.Distinct().ToList();
-
             List<List<string>> batches = new List<List<string>>();
-            int count = 0;
-            List<string> batch = new List<string>();
+
             if (File.Exists(filename))
             {
                 batches = Readbatches();
             }
             else
             {
+                string group = "LDAP://CN=Aau-staff,OU=Email,OU=Groups,DC=aau,DC=dk";
+                GroupADcache ad = new GroupADcache(group);
+                var members = ad.getGroups("member");
+                List<string> allMembers = new List<string>();
+
+                foreach (var member in members)
+                {
+                    ad = new GroupADcache("LDAP://" + member);
+                    var temp = ad.getGroupsTransitive("member");
+                    allMembers.AddRange(temp);
+                }
+
+                var membersADPath = allMembers.Distinct().ToList();
+
+                int count = 0;
+                List<string> batch = new List<string>();
+
                 using StreamWriter file = new StreamWriter(filename);
                 foreach (var adpath in membersADPath)
                 {
@@ -154,12 +188,13 @@ namespace ITSWebMgmt.Helpers
                 file.Close();
             }
 
-            count = 0;
+            int batchNumber = 0;
 
             foreach (var b in batches)
             {
-                RunBatch(b, count);
-                count++;
+                RunBatch(b, batchNumber);
+                batchNumber++;
+                Thread.Sleep(1000);
             }
         }
 
@@ -172,17 +207,13 @@ namespace ITSWebMgmt.Helpers
                 var computerName = o.Properties["ResourceName"].Value.ToString();
                 var computerModel = new WindowsComputerModel(computerName);
                 var onedrive = OneDriveHelper.ComputerUsesOneDrive(computerModel.ADcache);
-                var @virtual = "unknown";
+                var @virtual = "Unknown";
                 var computerNameUC = computerName.ToUpper();
                 if (computerNameUC.StartsWith("AAU"))
                 {
                     @virtual = "False";
                 }
                 else if (computerNameUC.StartsWith("SRV"))
-                {
-                    @virtual = "True";
-                }
-                else if (computerNameUC.StartsWith("CLI"))
                 {
                     @virtual = "True";
                 }
@@ -199,7 +230,7 @@ namespace ITSWebMgmt.Helpers
                     var lastLoginUser = computerModel.System.GetProperty("LastLogonUserDomain") + "\\" + computerModel.System.GetProperty("LastLogonUserName");
                     computerInfo.Add($"{computerName};windows;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser}");
                 }
-                catch (Exception e )
+                catch (Exception e)
                 {
                     computerInfo.Add($"{computerName};windows;{onedrive};;{@virtual};;;Failed to get data for {computerName}");
                 }
@@ -216,7 +247,7 @@ namespace ITSWebMgmt.Helpers
             {
                 foreach (var computerName in jamf.getComputerNamesForUser(email))
                 {
-                    var @virtual = "unknown";
+                    var @virtual = "Unknown";
                     var onedrive = "";
                     var date = "";
                     var lastLoginUser = "";
@@ -224,11 +255,11 @@ namespace ITSWebMgmt.Helpers
                     var diskspace = macComputer.FreeSpace;
                     if (computerName.StartsWith("AAU"))
                     {
-                        @virtual = "false";
+                        @virtual = "False";
                     }
                     if (computerName.StartsWith("AAUVM"))
                     {
-                        @virtual = "true";
+                        @virtual = "True";
                     }
                     computerInfo.Add($"{computerName};mac;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser}");
                 }
