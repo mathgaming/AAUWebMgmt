@@ -116,6 +116,7 @@ namespace ITSWebMgmt.Models
                         rows.Add(list.ToArray());
                         rowEntries.Clear();
                     }
+                    diskInfo.Clear();
                 }
                 else
                 {
