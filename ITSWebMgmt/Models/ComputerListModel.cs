@@ -171,7 +171,7 @@ namespace ITSWebMgmt.Helpers
             {
                 var computerName = o.Properties["ResourceName"].Value.ToString();
                 var computerModel = new WindowsComputerModel(computerName);
-                var onedrive = computerModel.UsesOnedrive;
+                var onedrive = OneDriveHelper.ComputerUsesOneDrive(computerModel.ADcache);
                 var @virtual = "unknown";
                 if (computerName.StartsWith("AAU"))
                 {
@@ -255,24 +255,32 @@ namespace ITSWebMgmt.Helpers
                         computerInfo.AddRange(getWindowsInformation(model, formattedName));
                         computerInfo.AddRange(getMacInformation(upn));
 
+                        string staff = "Other";
+                        if (adpath.Contains("Staff"))
+                        {
+                            staff = "Staff";
+                        }
+                        else if (adpath.Contains("Guests"))
+                        {
+                            staff = "Guests";
+                        }
                         var lastLogon = model.LastLogon;
                         var usesOnedrive = OneDriveHelper.doesUserHaveDeniedFolderRedirect(model);
                         foreach (var computer in computerInfo)
                         {
-                            file.WriteLine($"{upn};{lastLogon};{usesOnedrive};{computer}");
+                            file.WriteLine($"{upn};{lastLogon};{usesOnedrive};{staff};{computer}");
                         }
 
                         if (computerInfo.Count == 0)
                         {
-                            file.WriteLine($"{upn};{lastLogon};{usesOnedrive};;;;;;;;No computer found for user");
+                            file.WriteLine($"{upn};{lastLogon};{usesOnedrive};{staff};;;;;;;;No computer found for user");
                         }
                     }
                     catch (Exception e)
                     {
-                        file.WriteLine($"{upn};;;;;;;;;;Error finding {adpath}");
+                        file.WriteLine($"{upn};;;;;;;;;;;Error finding {adpath}");
                         Console.WriteLine(e.Message);
                     }
-                    Thread.Sleep(1000);
                 }
 
                 file.Close();
