@@ -3,6 +3,9 @@ using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Models;
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices;
+using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -149,16 +152,24 @@ namespace ITSWebMgmt.Helpers
             }
             else
             {
-                string group = "LDAP://CN=Aau-staff,OU=Email,OU=Groups,DC=aau,DC=dk";
-                GroupADcache ad = new GroupADcache(group);
-                var members = ad.getGroups("member");
                 List<string> allMembers = new List<string>();
 
-                foreach (var member in members)
+                var domains = Forest.GetCurrentForest().ApplicationPartitions;
+
+                foreach (ApplicationPartition domain in domains)
                 {
-                    ad = new GroupADcache("LDAP://" + member);
-                    var temp = ad.getGroupsTransitive("member");
-                    allMembers.AddRange(temp);
+                    string ou = "LDAP://OU=Staff,OU=People," + domain.SecurityReferenceDomain;
+                    var myOU = DirectoryEntryCreator.CreateNewDirectoryEntry(ou);
+                    DirectorySearcher userSearcher = new DirectorySearcher(myOU);
+                    userSearcher.SearchScope = SearchScope.Subtree; // don't recurse down
+                    userSearcher.Filter = "(objectClass=user)";
+
+                    var res = userSearcher.FindAll();
+
+                    foreach (SearchResult user in res)
+                    {
+                        allMembers.Add(user.Path);
+                    }
                 }
 
                 var membersADPath = allMembers.Distinct().ToList();
@@ -169,18 +180,15 @@ namespace ITSWebMgmt.Helpers
                 using StreamWriter file = new StreamWriter(filename);
                 foreach (var adpath in membersADPath)
                 {
-                    if (adpath.Contains("OU=People") || adpath.Contains("OU=Admin Identities"))
+                    if (count == 100)
                     {
-                        if (count == 100)
-                        {
-                            file.WriteLine(string.Join(";", batch));
-                            batches.Add(batch);
-                            batch = new List<string>();
-                            count = 0;
-                        }
-                        batch.Add(adpath);
-                        count++;
+                        file.WriteLine(string.Join(";", batch));
+                        batches.Add(batch);
+                        batch = new List<string>();
+                        count = 0;
                     }
+                    batch.Add(adpath);
+                    count++;
                 }
 
                 file.WriteLine(string.Join(";", batch));
