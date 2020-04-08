@@ -139,7 +139,7 @@ namespace ITSWebMgmt.Models
 
         public UserModel(string adpath, string test)
         {
-            Init("LDAP://" + adpath, false);
+            Init(adpath, false);
         }
 
         public UserModel(string username, bool loadDataInbackground = true)
