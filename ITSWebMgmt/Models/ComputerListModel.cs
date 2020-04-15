@@ -42,7 +42,7 @@ namespace ITSWebMgmt.Helpers
 
         public string GetStats()
         {
-            int staff = 0;
+            int staff = 0; //Regex to test (^([^;]*;)).*\n(?!\1)
             int onedrive = 0;
             int windows = 0;
             int mac = 0;
@@ -54,7 +54,7 @@ namespace ITSWebMgmt.Helpers
             bool hasMac = false;
             bool hasWindows = false;
             bool haveComputerWithOnedrive = false;
-            bool userHaveOnedrive = false;
+            bool userHaveOnedrive = false; //Regex to test (^([^;]*;){2}True).*\n(?!\1)
             string line;
             string prevPerson = "";
 
@@ -81,6 +81,36 @@ namespace ITSWebMgmt.Helpers
                     string[] parts = line.Split(";");
                     person = parts[0];
 
+                    if (person != prevPerson)
+                    {
+                        if (userHaveOnedrive)
+                        {
+                            onedrive++;
+                        }
+                        if (haveComputerWithOnedrive && !userHaveOnedrive)
+                        {
+                            missingOnedrive++;
+                        }
+                        if (hasMac && hasWindows)
+                        {
+                            both++;
+                        }
+                        if (hasWindows)
+                        {
+                            windows++;
+                        }
+                        if (hasMac)
+                        {
+                            mac++;
+                        }
+                        staff++;
+                        hasWindows = false;
+                        hasMac = false;
+                        userHaveOnedrive = false;
+                        haveComputerWithOnedrive = false;
+                        prevPerson = person;
+                    }
+
                     string os = parts[5];
                     if (os == "mac")
                     {
@@ -102,12 +132,7 @@ namespace ITSWebMgmt.Helpers
                         userHaveOnedrive = true;
                     }
                 }
-                else
-                {
-                    person = "";
-                }
-
-                if (person != prevPerson)
+                else // Count for last person
                 {
                     if (userHaveOnedrive)
                     {
@@ -130,13 +155,8 @@ namespace ITSWebMgmt.Helpers
                         mac++;
                     }
                     staff++;
-                    hasWindows = false;
-                    hasMac = false;
-                    userHaveOnedrive = false;
-                    haveComputerWithOnedrive = false;
                 }
 
-                prevPerson = person;
                 if (line == null)
                 {
                     break;
@@ -149,9 +169,9 @@ namespace ITSWebMgmt.Helpers
             $"På OneDrive: {onedrive}\n" +
             $"Ikke på OneDrive: {staff - onedrive}\n" +
             $"\n" +
-            $"Fejl:" +
+            $"Fejl:\n" +
             $"Fejlede for brugere: {errorCount}\n" +
-            $"Kunne ikke finde informaion om computer: {failedCount}" +
+            $"Kunne ikke finde information om computere: {failedCount}\n" +
             $"\n" +
             $"Platforme:\n" +
             $"Brugere med Windows: {windows}\n" +
@@ -229,7 +249,7 @@ namespace ITSWebMgmt.Helpers
             List<List<string>> batches = Readbatches();
             string outFilename = path + "computer-list-full.txt";
             using StreamWriter outFile = new StreamWriter(outFilename);
-            outFile.WriteLine("upn;last logon for user;user uses onedrive;staff;computername;os;uses onedrive;free disk space (GB);virtual?;last login date;last login user");
+            outFile.WriteLine("upn;last logon for user;user uses onedrive;staff;computername;os;uses onedrive;free disk space (GB);virtual?;last login date;last login user;timestamp;error message");
 
             foreach (var batch in batches)
             {
@@ -363,11 +383,11 @@ namespace ITSWebMgmt.Helpers
                     string time = computerModel.System.GetProperty("LastLogonTimestamp");
                     var date = time != null ? DateTimeConverter.Convert(time) : "";
                     var lastLoginUser = computerModel.System.GetProperty("LastLogonUserDomain") + "\\\\" + computerModel.System.GetProperty("LastLogonUserName");
-                    computerInfo.Add($"{computerName};windows;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser}");
+                    computerInfo.Add($"{computerName};windows;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser};{DateTimeConverter.Convert(DateTime.Now)};");
                 }
                 catch (Exception e)
                 {
-                    computerInfo.Add($"{computerName};windows;{onedrive};;{@virtual};;;Failed to get data for {computerName}");
+                    computerInfo.Add($"{computerName};windows;{onedrive};;{@virtual};;;{DateTimeConverter.Convert(DateTime.Now)};Failed to get data for {computerName}");
                 }
             }
 
@@ -396,7 +416,7 @@ namespace ITSWebMgmt.Helpers
                     {
                         @virtual = "True";
                     }
-                    computerInfo.Add($"{computerName};mac;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser}");
+                    computerInfo.Add($"{computerName};mac;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser};{DateTimeConverter.Convert(DateTime.Now)};");
                 }
             }
 
@@ -406,20 +426,17 @@ namespace ITSWebMgmt.Helpers
         public List<string> lookupUser(string adpath)
         {
             List<string> lines = new List<string>();
-            string upn = "";
             try
             {
-                adpath = adpath.Replace("GC://aau.dk/", "");
-                var split = adpath.Split(',');
-                var name = split[0].Replace("CN=", "");
-                var domain = split.Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
-                upn = $"{name}@{domain}.aau.dk";
-                adpath = "LDAP://" + adpath;
+                adpath = "LDAP://" + adpath.Replace("GC://aau.dk/", "");
 
                 UserModel model = new UserModel(adpath, "");
                 if (!model.IsDisabled)
                 {
-                    string formattedName = string.Format("{0}\\\\{1}", domain, name);
+                    string upn = model.UserPrincipalName;
+                    string[] upnsplit = upn.Split('@');
+                    string formattedName = string.Format("{0}\\\\{1}", upnsplit[1].Split('.')[0], upnsplit[0]);
+
                     List<string> computerInfo = new List<string>();
 
                     computerInfo.AddRange(getWindowsInformation(model, formattedName));
@@ -443,13 +460,14 @@ namespace ITSWebMgmt.Helpers
 
                     if (computerInfo.Count == 0)
                     {
-                        lines.Add($"{upn};{lastLogon};{usesOnedrive};{staff};;;;;;;;No computer found for user");
+                        string timeStamp = DateTimeConverter.Convert(DateTime.Now);
+                        lines.Add($"{upn};{lastLogon};{usesOnedrive};{staff};;;;;;;;{DateTimeConverter.Convert(DateTime.Now)};No computer found for user");
                     }
                 }
             }
             catch (Exception e)
             {
-                lines.Add($"{upn};;;;;;;;;;;Error finding {adpath}");
+                lines.Add($";;;;;;;;;;;{DateTimeConverter.Convert(DateTime.Now)};Error finding {adpath}");
                 Console.WriteLine(e.Message);
             }
 
