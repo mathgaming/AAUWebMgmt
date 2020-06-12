@@ -76,12 +76,6 @@ namespace ITSWebMgmt.Connectors
 
         public static string LookupComputer(string computerName)
         {
-            var connection = tryConnect();
-            if (connection.conn == null)
-                return connection.error;
-
-            var conn = connection.conn;
-
             if (!computerName.StartsWith("AAU"))
             {
                 return "Computer not found";
@@ -93,6 +87,12 @@ namespace ITSWebMgmt.Connectors
             {
                 return "Computer not found";
             }
+
+            var connection = tryConnect();
+            if (connection.conn == null)
+                return connection.error;
+
+            var conn = connection.conn;
 
             IDbCommand command = conn.CreateCommand();
             command.CommandText = $"SELECT " +

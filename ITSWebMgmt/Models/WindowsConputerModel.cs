@@ -87,8 +87,7 @@ namespace ITSWebMgmt.Models
                 ADcache = new ComputerADcache(ComputerName);
                 if (ADcache.ComputerFound)
                 {
-                    SCCMcache = new SCCMcache();
-                    SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
+                    SCCMcache = new SCCMcache(ComputerNameAD);
                     BaseModel.ComputerName = ADcache.ComputerName;
                     BaseModel.ComputerFound = ADcache.ComputerFound;
                     LoadDataInbackground();
@@ -97,25 +96,6 @@ namespace ITSWebMgmt.Models
         }
 
         public WindowsComputerModel(string computerName) : this(new ComputerModel(computerName)) { }
-
-        public string getSCCMResourceIDFromComputerName(string computername)
-        {
-            string resourceID = "";
-            //XXX use ad path to get right object in sccm, also dont get obsolite
-            foreach (ManagementObject o in SCCMcache.getResourceIDFromComputerName(computername))
-            {
-                var tempCache = new SCCMcache();
-                tempCache.ResourceID = o.Properties["ResourceID"].Value.ToString();
-
-                if (tempCache.System.GetProperty("Obsolete") != 1)
-                {
-                    resourceID = tempCache.ResourceID;
-                    break;
-                }
-            }
-
-            return resourceID;
-        }
 
         public List<string> setConfig()
         {

@@ -12,6 +12,20 @@ namespace ITSWebMgmt.Caches
 
         public SCCMcache()
         {
+
+        }
+
+        public SCCMcache(string computerName)
+        {
+            foreach (ManagementObject o in getResourceIDFromComputerName(computerName))
+            {
+                ResourceID = o.Properties["ResourceID"].Value.ToString();
+
+                if (System.GetProperty("Obsolete") != 1)
+                {
+                    break;
+                }
+            }
         }
 
         private ManagementObjectCollection[] _cache = new ManagementObjectCollection[13];

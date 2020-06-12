@@ -1,4 +1,5 @@
 ﻿using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,8 @@ namespace ITSWebMgmt.Controllers
 
         public void Index()
         {
-            throw new NotImplementedException();
+            new Windows7Hunter();
+            //throw new NotImplementedException();
         }
     }
 }

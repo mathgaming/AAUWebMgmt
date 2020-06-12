@@ -49,6 +49,11 @@ namespace ITSWebMgmt.Helpers
             return con;
         }
 
+        public static void CreateWindows7List()
+        {
+            runScript($"get-cmdevice | where DeviceOSBuild -like \"6.* \" | select name, MACAddress, DeviceOS, DeviceOSBuild, Domain, LastLogonUser, UserDomainName, UserName, LastActiveTime | export-csv C:\\webmgmtlog\\Windows7.csv");
+        }
+
         public static bool AddComputerToCollection(string resourceID, string collectionId)
         {
             return runScript($"Add-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
