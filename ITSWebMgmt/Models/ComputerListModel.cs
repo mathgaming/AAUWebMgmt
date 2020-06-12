@@ -26,17 +26,41 @@ namespace ITSWebMgmt.Helpers
         {
             if (!Running)
             {
-                Running = true;
-                MakeList();
-                CombineLists();
-                string stats = GetStats();
-                foreach (var e in emails)
+                try
                 {
-                    EmailHelper.SendEmailWithAttachment("Computer list", mailbody + stats, e, path + "computer-list-full.txt");
+                    Running = true;
+                    MakeList();
+                    CombineLists();
+                    string stats = GetStats();
+                    foreach (var e in emails)
+                    {
+                        EmailHelper.SendEmailWithAttachment("Computer list", mailbody + stats, e, path + "computer-list-full.txt");
+                    }
+                    CleanUp();
+                    emails.Clear();
+                    Running = false;
                 }
-                CleanUp();
-                emails.Clear();
-                Running = false;
+                catch (Exception e)
+                {
+                    string errorPath = path + "error.txt";
+                    if (!File.Exists(errorPath))
+                    {
+                        using (StreamWriter sw = File.CreateText(errorPath))
+                        {
+                            sw.WriteLine(e.Message);
+                            sw.WriteLine(e.StackTrace);
+                            sw.WriteLine(e.InnerException);
+                            sw.WriteLine(e.ToString());
+                        }
+                    }
+                    using (StreamWriter sw = File.AppendText(errorPath))
+                    {
+                        sw.WriteLine(e.Message);
+                        sw.WriteLine(e.StackTrace);
+                        sw.WriteLine(e.InnerException);
+                        sw.WriteLine(e.ToString());
+                    }
+                }
             }
         }
 
@@ -382,7 +406,13 @@ namespace ITSWebMgmt.Helpers
                     }
                     string time = computerModel.System.GetProperty("LastLogonTimestamp");
                     var date = time != null ? DateTimeConverter.Convert(time) : "";
-                    var lastLoginUser = computerModel.System.GetProperty("LastLogonUserDomain") + "\\\\" + computerModel.System.GetProperty("LastLogonUserName");
+                    var domain = computerModel.System.GetProperty("LastLogonUserDomain");
+                    var lastLoginUser = "";
+                    if (domain != null)
+                    {
+                        lastLoginUser = domain + "\\\\" + computerModel.System.GetProperty("LastLogonUserName");
+                    }
+
                     computerInfo.Add($"{computerName};windows;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser};{DateTimeConverter.Convert(DateTime.Now)};");
                 }
                 catch (Exception e)
