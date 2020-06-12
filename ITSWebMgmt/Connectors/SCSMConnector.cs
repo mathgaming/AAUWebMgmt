@@ -86,7 +86,7 @@ namespace ITSWebMgmt.Connectors
         }
 
         //Takes a upn and retuns the users uuid
-        protected async Task<string> getUserUUIDByUPN(string upn)
+        protected async Task<string> getUserUUIDByUPN(string upn, List<string> emails)
         {
             //Get username from UPN
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/User/GetUserList?fetchAll=false&userFilter=" + upn);
@@ -104,7 +104,7 @@ namespace ITSWebMgmt.Connectors
             //TODO: Don't await for each item, make all requests and await, then look over data
             foreach (dynamic obj in json)
             {
-                if (upn.Equals((string)obj["Email"], StringComparison.CurrentCultureIgnoreCase))
+                if (emails.Contains((string)obj["Email"]))
                 {
                     userID = (string)obj["Id"];
                     return userID;
@@ -113,16 +113,16 @@ namespace ITSWebMgmt.Connectors
             return null;
         }
 
-        public async Task<ServiceManagerModel> getServiceManager(string upn)
+        public async Task<ServiceManagerModel> getServiceManager(string upn, List<string> emails)
         {
-            string uuid = await getUUID(upn);
+            string uuid = await getUUID(upn, emails);
             
             return CreateServiceManager(uuid);
         }
 
-        public async Task<string> getUUID(string upn)
+        public async Task<string> getUUID(string upn, List<string> emails)
         {
-            return await getUserUUIDByUPN(upn);
+            return await getUserUUIDByUPN(upn, emails);
         }
     }
 }

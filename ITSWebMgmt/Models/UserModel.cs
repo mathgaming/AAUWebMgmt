@@ -496,7 +496,7 @@ namespace ITSWebMgmt.Models
             if (haveWindows7)
             {
                 var scsm = new SCSMConnector();
-                _ = scsm.getUUID(UserPrincipalName).Result;
+                _ = scsm.getUUID(UserPrincipalName, getUserMails()).Result;
                 SCSMUserID = scsm.userID;
 
                 Windows7to10 = new TableModel(new string[] { "Computername", "Windows 7 to 10 upgrade" }, rows);

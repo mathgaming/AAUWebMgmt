@@ -5,7 +5,7 @@
 </script>
 @{
     SCSMConnector sccm = new SCSMConnector();
-    Model.serviceManager = await sccm.getServiceManager(Model.UserPrincipalName);
+    Model.serviceManager = await sccm.getServiceManager(Model.UserPrincipalName, Model.getUserMails());
     Model.SCSMUserID = sccm.userID;
 }
 
