@@ -168,7 +168,7 @@ namespace ITSWebMgmt.WebMgmtErrors
         public NotStandardComputerOU(ComputerController computer) : base(computer)
         {
             Heading = "Computer is in a wrong OU";
-            Description = "The computer is getting wroung GPO settings. Fix by using task \"Move computer to OU Clients.\" ";
+            Description = "The computer is getting wrong GPO settings. Fix by using task \"Move computer to OU Clients.\" ";
             Severeness = Severity.Error;
         }
 
