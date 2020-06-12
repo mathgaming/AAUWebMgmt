@@ -509,7 +509,7 @@ namespace ITSWebMgmt.Models
 
         public TableModel InitNetaaudk()
         {
-            Netaaudk = new NetaaudkConnector().GetData(UserName);
+            Netaaudk = new NetaaudkConnector().GetData(UserPrincipalName);
 
             if (Netaaudk.Count != 0)
             {
