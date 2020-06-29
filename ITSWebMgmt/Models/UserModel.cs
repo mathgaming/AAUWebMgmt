@@ -384,7 +384,7 @@ namespace ITSWebMgmt.Models
                 List<string> macComputers = new List<string>();
                 foreach (var email in getUserMails())
                 {
-                    macComputers.AddRange(jamf.getComputerNamesForUser(email));
+                    macComputers.AddRange(jamf.GetComputerNamesForUserWith1X(email));
                 }
 
                 if (macComputers.Count != 0)

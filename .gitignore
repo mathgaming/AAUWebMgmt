@@ -195,3 +195,5 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 ITSWebMgmt/computer-list/
+
+ITSWebMgmt/jamf-aau1x.bin

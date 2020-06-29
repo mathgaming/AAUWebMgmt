@@ -20,6 +20,7 @@ namespace ITSWebMgmt.Helpers
         private static readonly string emailFilename = path + "computer-list-emails.txt";
         private static List<string> emails = new List<string>();
         private static readonly string mailbody = "Computer list is attached.\n";
+        private static Dictionary<string, List<int>> jamfDictionary;
         public static bool Running { private set; get; } = false;
 
         public ComputerListModel()
@@ -29,6 +30,7 @@ namespace ITSWebMgmt.Helpers
                 try
                 {
                     Running = true;
+                    jamfDictionary = new JamfConnector().GetJamfDictionary();
                     MakeList();
                     CombineLists();
                     string stats = GetStats();
@@ -430,27 +432,44 @@ namespace ITSWebMgmt.Helpers
             JamfConnector jamf = new JamfConnector();
             foreach (var email in new UserModel(upn, false).getUserMails())
             {
-                foreach (var computerName in jamf.getComputerNamesForUser(email))
+                List<int> ids = new List<int>();
+                foreach (var computerName in jamf.GetComputerNamesForUser(email))
                 {
-                    var @virtual = "Unknown";
-                    var onedrive = "";
-                    var date = "";
-                    var lastLoginUser = "";
                     MacComputerModel macComputer = new MacComputerModel(computerName);
-                    var diskspace = macComputer.FreeSpace;
-                    if (computerName.StartsWith("AAU"))
+                    computerInfo.Add(GetMacLine(macComputer));
+                    ids.Add(macComputer.Id);
+                }
+
+                if (jamfDictionary.ContainsKey(email))
+                {
+                    foreach (var id in jamfDictionary[email].Except(ids))
                     {
-                        @virtual = "False";
+                        MacComputerModel macComputer = new MacComputerModel(id);
+                        computerInfo.Add(GetMacLine(macComputer));
                     }
-                    if (computerName.StartsWith("AAUVM"))
-                    {
-                        @virtual = "True";
-                    }
-                    computerInfo.Add($"{computerName};mac;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser};{DateTimeConverter.Convert(DateTime.Now)};");
                 }
             }
 
             return computerInfo;
+        }
+
+        private string GetMacLine( MacComputerModel macComputer)
+        {
+            var @virtual = "Unknown";
+            var onedrive = "";
+            var date = "";
+            var lastLoginUser = "";
+            var diskspace = macComputer.FreeSpace;
+            var computerName = macComputer.ComputerName;
+            if (computerName.StartsWith("AAU"))
+            {
+                @virtual = "False";
+            }
+            if (computerName.StartsWith("AAUVM"))
+            {
+                @virtual = "True";
+            }
+            return $"{computerName};mac;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser};{DateTimeConverter.Convert(DateTime.Now)};";
         }
 
         public List<string> lookupUser(string adpath)
