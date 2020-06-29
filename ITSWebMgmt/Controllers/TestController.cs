@@ -25,11 +25,12 @@ namespace ITSWebMgmt.Controllers
 
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(@"C:\webmgmtlog\mac-office.csv"))
             {
+                System.IO.StreamWriter falsefile = new System.IO.StreamWriter(@"C:\webmgmtlog\mac-office-false.csv");
                 file.WriteLine(lines[0]+";Have Office");
 
                 foreach (string line in lines.Skip(1))
                 {
-                    string haveOffice = "FALSE";
+                    string haveOffice = "False";
 
                     var parts = line.Split(';');
                     var e = parts[e1];
@@ -53,10 +54,16 @@ namespace ITSWebMgmt.Controllers
                         {
                             haveOffice = "user not found";
                         }
+
+                        if (haveOffice == "False")
+                        {
+                            falsefile.WriteLine(model.UserPrincipalName);
+                        }
                     }
 
                     file.WriteLine(line + ";" + haveOffice);
                 }
+                falsefile.Close();
             }
 
             //throw new NotImplementedException();
