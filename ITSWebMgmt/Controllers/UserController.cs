@@ -256,9 +256,9 @@ namespace ITSWebMgmt.Controllers
             UserModel.ErrorCountMessage = errorList.getErrorCountMessage();
             UserModel.ErrorMessages = errorList.ErrorMessages;
 
-            if (userIsInRightOU())
+            if (!userIsInRightOU())
             {
-                UserModel.ShowFixUserOU = false;
+                UserModel.ShowFixUserOU = true;
             }
             //Password is expired and warning before expire (same timeline as windows displays warning)
         }

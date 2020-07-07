@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Microsoft.PowerShell.Commands;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -12,6 +14,7 @@ namespace ITSWebMgmt.Connectors
     public class JamfConnector
     {
         public static string Auth { private get; set; }
+        public static Dictionary<string, List<int>> JamfDictionary;
 
         public JamfConnector()
         {
@@ -41,7 +44,7 @@ namespace ITSWebMgmt.Connectors
             return sendGetReuest("computers/id/" + id, "?fiels=computer.general").Content.ReadAsStringAsync().Result;
         }
 
-        public List<string> getComputerNamesForUser(string user)
+        public List<string> GetComputerNamesForUser(string user)
         {
             HttpResponseMessage response = sendGetReuest("computers/match/" + user, "");
             List<string> computerNames = new List<string>();
@@ -57,6 +60,32 @@ namespace ITSWebMgmt.Connectors
             }
 
             return computerNames;
+        }
+
+        public List<string> GetComputerNamesForUserWith1X(string user)
+        {
+            List<string> computerNames = GetComputerNamesForUser(user);
+            if (JamfDictionary == null)
+            {
+                GetJamfDictionary();
+            }
+
+            if (JamfDictionary.ContainsKey(user))
+            {
+                foreach (var id in JamfDictionary[user])
+                {
+                    HttpResponseMessage response = sendGetReuest($"computers/id/{id}/subset/General", "");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        response.Content.Headers.ContentType.MediaType = "application/json";
+                        var result = response.Content.ReadAsAsync<JObject>().Result;
+                        computerNames.Add(result.SelectToken("computer.general.name").ToString());
+                    }
+                }
+            }
+
+            return computerNames.Distinct().ToList();
         }
 
         public int GetComputerIdByName(string name)
@@ -76,6 +105,59 @@ namespace ITSWebMgmt.Connectors
             return -1;
         }
 
+        public List<Computer> GetAllComputers()
+        {
+            HttpResponseMessage response = sendGetReuest("computers", "");
+
+            if (response.IsSuccessStatusCode)
+            {
+                response.Content.Headers.ContentType.MediaType = "application/json";
+                return response.Content.ReadAsAsync<Computers>().Result.computers;
+            }
+
+            return null;
+        }
+
+        public Dictionary<string, List<int>> Get1xDictionaty()
+        {
+            var d = new Dictionary<string, List<int>>();
+
+            foreach (var computer in GetAllComputers())
+            {
+                HttpResponseMessage response = sendGetReuest($"computers/id/{computer.id}/subset/ExtensionAttributes", "");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    response.Content.Headers.ContentType.MediaType = "application/json";
+                    var result = response.Content.ReadAsAsync<JObject>().Result.First.First.First.First;
+
+                    string aau1x = "";
+
+                    foreach (var att in result.Children())
+                    {
+                        if (att["id"].ToObject<int>() == 9)
+                        {
+                            aau1x = att["value"].ToString();
+                        }
+                    }
+
+                    if (aau1x != "" && aau1x != "Unknown")
+                    {
+                        if (d.ContainsKey(aau1x))
+                        {
+                            d[aau1x].Add(computer.id);
+                        }
+                        else
+                        {
+                            d.Add(aau1x, new List<int> { computer.id });
+                        }
+                    }
+                }
+            }
+
+            return d;
+        }
+
         public class Computers
         {
             public List<Computer> computers { get; set; }
@@ -86,6 +168,45 @@ namespace ITSWebMgmt.Connectors
             public int id { get; set; }
             public string name { get; set; }
             public string asset_tag { get; set; }
+        }
+
+        public Dictionary<string, List<int>> GetJamfDictionary(bool updateCache = false)
+        {
+            string filename = @"jamf-aau1x.bin";
+            if (updateCache && File.Exists(filename) && File.GetLastWriteTime(filename) > DateTime.Now.AddDays(-7))
+            {
+                JamfDictionary = readDictionary(filename);
+            }
+            else
+            {
+                JamfDictionary = Get1xDictionaty();
+                saveDictionary(JamfDictionary, filename);
+            }
+
+            return JamfDictionary;
+        }
+
+        private void saveDictionary(Dictionary<string, List<int>> d, string path)
+        {
+            var fi = new FileInfo(path);
+            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+
+            using (var binaryFile = fi.Create())
+            {
+                binaryFormatter.Serialize(binaryFile, d);
+                binaryFile.Flush();
+            }
+        }
+
+        private Dictionary<string, List<int>> readDictionary(string path)
+        {
+            var fi = new FileInfo(path);
+            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+
+            using (var binaryFile = fi.OpenRead())
+            {
+                return (Dictionary<string, List<int>>)binaryFormatter.Deserialize(binaryFile);
+            }
         }
 
         #region Samples from new Jamf API

@@ -23,6 +23,9 @@ namespace ITSWebMgmt.Models
         public TableModel GroupsTable { get; set; }
         public List<string> Groups { get; set; }
         public int FreeSpace { get; set; }
+        public string ComputerName { get; set; }
+        public int Id { get; set; }
+
         public MacComputerModel(ComputerModel baseModel)
         {
             BaseModel = baseModel;
@@ -47,11 +50,17 @@ namespace ITSWebMgmt.Models
                 InitViews(id);
             }
         }
+        public MacComputerModel(int id)
+        {
+            InitViews(id);
+        }
 
         public void InitViews(int id)
         {
+            Id = id;
             var jsonString = Jamf.GetAllComputerInformationAsJSONString(id);
             JObject jsonVal = JObject.Parse(jsonString) as JObject;
+            ComputerName = jsonVal.SelectToken("computer.general.name").ToString();
 
             setHardware(jsonVal);
             setSoftware(jsonVal);

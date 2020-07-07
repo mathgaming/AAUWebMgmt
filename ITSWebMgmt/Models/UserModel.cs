@@ -139,7 +139,7 @@ namespace ITSWebMgmt.Models
 
         public UserModel(string adpath, string test)
         {
-            Init("LDAP://" + adpath, false);
+            Init(adpath, false);
         }
 
         public UserModel(string username, bool loadDataInbackground = true)
@@ -384,7 +384,7 @@ namespace ITSWebMgmt.Models
                 List<string> macComputers = new List<string>();
                 foreach (var email in getUserMails())
                 {
-                    macComputers.AddRange(jamf.getComputerNamesForUser(email));
+                    macComputers.AddRange(jamf.GetComputerNamesForUserWith1X(email));
                 }
 
                 if (macComputers.Count != 0)
@@ -496,7 +496,7 @@ namespace ITSWebMgmt.Models
             if (haveWindows7)
             {
                 var scsm = new SCSMConnector();
-                _ = scsm.getUUID(UserPrincipalName).Result;
+                _ = scsm.getUUID(UserPrincipalName, getUserMails()).Result;
                 SCSMUserID = scsm.userID;
 
                 Windows7to10 = new TableModel(new string[] { "Computername", "Windows 7 to 10 upgrade" }, rows);
@@ -509,7 +509,7 @@ namespace ITSWebMgmt.Models
 
         public TableModel InitNetaaudk()
         {
-            Netaaudk = new NetaaudkConnector().GetData(UserName);
+            Netaaudk = new NetaaudkConnector().GetData(UserPrincipalName);
 
             if (Netaaudk.Count != 0)
             {

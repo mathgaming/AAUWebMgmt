@@ -38,7 +38,7 @@ namespace ITSWebMgmt.Connectors
 
             if (name != null && name != "")
             {
-                PureDataObject dataObject = getRequest($"?q={name}&size=30&fields=staffOrganisationAssociations.person.names.value&fields=staffOrganisationAssociations.emails.value");
+                PureDataObject dataObject = getRequest($"?q={name}&size=30&fields=staffOrganisationAssociations.person.name.text.value&fields=staffOrganisationAssociations.emails.value.value");
 
                 if (dataObject != null)
                 {
@@ -47,9 +47,9 @@ namespace ITSWebMgmt.Connectors
                         if (item.staffOrganisationAssociations != null)
                         {
                             var user = item.staffOrganisationAssociations[0];
-                            if (user?.emails != null && user?.person?.names != null)
+                            if (user?.emails != null && user?.person?.name != null)
                             {
-                                emails.Add(user.person.names[0].value + " (" + user.emails[0].value + ")");
+                                emails.Add(user.person.name.text[0].value + " (" + user.emails[0].value.value + ")");
                             }
                         }
                     }
@@ -61,7 +61,7 @@ namespace ITSWebMgmt.Connectors
 
         private PureDataObject getRequest(string urlParameters, string subSite = "")
         {
-            string url = "https://vbn.aau.dk/ws/api/514/persons" + subSite;
+            string url = "https://vbn.aau.dk/ws/api/518/persons" + subSite;
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(url);
             client.DefaultRequestHeaders.Add("api-key", APIkey);
@@ -87,13 +87,13 @@ namespace ITSWebMgmt.Connectors
 
         public PureConnector(string empID)
         {
-            PureDataObject dataObject = getRequest("?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.names.value&locale=en_GB", "/" + empID);
+            PureDataObject dataObject = getRequest("?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.name.text.value&locale=en_GB", "/" + empID);
 
             if (dataObject != null)
             {
                 if (dataObject.staffOrganisationAssociations[0].organisationalUnit != null)
                 {
-                    Department = dataObject.staffOrganisationAssociations[0].organisationalUnit.names[0].value;
+                    Department = dataObject.staffOrganisationAssociations[0].organisationalUnit.name.text[0].value;
                 }
                 if (dataObject.staffOrganisationAssociations[0].addresses != null)
                 {
@@ -125,19 +125,28 @@ namespace ITSWebMgmt.Connectors
 
     public class Person
     {
-        public List<Name> names { get; set; }
+        public Name name { get; set; }
     }
 
     public class OrganisationalUnit
     {
-        public List<Name> names { get; set; }
+        public Name name { get; set; }
     }
     public class EMail
+    {
+        public Value value { get; set; }
+    }
+    public class Value
     {
         public string value { get; set; }
     }
 
     public class Name
+    {
+        public List<Text> text { get; set; }
+    }
+
+    public class Text
     {
         public string value { get; set; }
     }

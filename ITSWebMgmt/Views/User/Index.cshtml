@@ -24,8 +24,8 @@
             <div class="ui negative button">
                 No
             </div>
-            <div runat="server" class="ui positive right labeled icon button" onclick="$('#MainContent_btnPostbackfixUserOUButton').click()">
-                Yes <i class="checkmark icon"></i>
+            <div runat="server" class="ui positive right labeled icon button" onclick="$('#fixUserOU').click()">
+                Yes
             </div>
         </div>
     </div>
@@ -40,13 +40,14 @@
 <h1>User Info</h1>
 <div>
     <form method="get" autocomplete="off">
-        Username
         <div class="ui action input">
-            <div class="autocomplete" style="width:300px;">
+            <div class="autocomplete" style="width:600px;">
                 <input name="username" id="username" type="text" class="ui input focus" value=@Html.DisplayFor(model => model.UserName) />
             </div>
             <input type="submit" id="submitButton" value="Search" onclick='$("#loader > div").show("fast");' />
         </div>
+        <br />
+        <p>Users can be found using email, last 4 digits of phone numer, or AAU-ID</p>
     </form>
     <br />
     <br />

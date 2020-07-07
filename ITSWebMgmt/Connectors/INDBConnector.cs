@@ -14,6 +14,11 @@ namespace ITSWebMgmt.Connectors
     {
         public static List<TableModel> getInfo(string computerName)
         {
+            if (LookupComputer(computerName) == "Computer not found")
+            {
+                return new List<TableModel> { new TableModel("Not found in purchase database") };
+            }
+
             var connection = tryConnect();
             if (connection.conn == null)
                 return new List<TableModel>{ new TableModel(connection.error)};
