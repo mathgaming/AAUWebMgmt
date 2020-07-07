@@ -1,5 +1,4 @@
 using ITSWebMgmt.Helpers;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading;
@@ -34,11 +33,11 @@ namespace ITSWebMgmt.Models
 
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                sendEmail();
+                SendEmail();
             }, null);
         }
 
-        private void sendEmail()
+        private void SendEmail()
         {
             string body = $"Person: {AffectedUser}\n" +
                         $"Http status code: {HttpStatusCode}\n" +

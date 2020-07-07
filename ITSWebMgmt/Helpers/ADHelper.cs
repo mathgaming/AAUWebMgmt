@@ -1,5 +1,4 @@
-﻿using ITSWebMgmt.Helpers;
-using System;
+﻿using System;
 using System.DirectoryServices;
 using System.Linq;
 
@@ -7,21 +6,21 @@ namespace ITSWebMgmt.Helpers
 {
     public class ADHelper
     {
-        public static bool DisableUser(string adpath)
+        public static bool DisableUser(string ADPath)
         {
-            return setUserDisableState(adpath, false);
+            return SetUserDisableState(ADPath, false);
         }
 
-        public static bool EnableUser(string adpath)
+        public static bool EnableUser(string ADPath)
         {
-            return setUserDisableState(adpath, true);
+            return SetUserDisableState(ADPath, true);
         }
 
-        private static bool setUserDisableState(string adpath, bool enable)
+        private static bool SetUserDisableState(string ADPath, bool enable)
         {
             try
             {
-                DirectoryEntry user = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
+                DirectoryEntry user = DirectoryEntryCreator.CreateNewDirectoryEntry(ADPath);
                 int val = (int)user.Properties["userAccountControl"].Value;
                 if (enable)
                 {
@@ -43,12 +42,12 @@ namespace ITSWebMgmt.Helpers
             }
         }
 
-        public static void AddMemberToGroup(string userADpath, string groupADPath)
+        public static void AddMemberToGroup(string userADPath, string groupADPath)
         {
             try
             {
                 DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry(groupADPath);
-                dirEntry.Properties["member"].Add(userADpath);
+                dirEntry.Properties["member"].Add(userADPath);
                 dirEntry.CommitChanges();
                 dirEntry.Close();
             }
@@ -59,10 +58,10 @@ namespace ITSWebMgmt.Helpers
             
         }
 
-        public static void RemoteMemberFromGroup(string userADpath, string groupADPath)
+        public static void RemoteMemberFromGroup(string userADPath, string groupADPath)
         {
             DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry(groupADPath);
-            dirEntry.Properties["member"].Remove(userADpath);
+            dirEntry.Properties["member"].Remove(userADPath);
             dirEntry.CommitChanges();
             dirEntry.Close();
         }
@@ -79,9 +78,9 @@ namespace ITSWebMgmt.Helpers
             return $"{cn}@{domain}";
         }
 
-        public static string ComputerNameFromADPath(string adpath) => adpath.Split(',')[0].ToLower().Replace("cn=", "");
+        public static string ComputerNameFromADPath(string ADPath) => ADPath.Split(',')[0].ToLower().Replace("cn=", "");
 
-        private static string getADPathFromUsername(string username)
+        private static string GetADPathFromUsername(string username)
         {
             if (username.Contains("\\"))
             {
@@ -97,32 +96,30 @@ namespace ITSWebMgmt.Helpers
                 }
             }
 
-            var adpath = globalSearch(username);
-            if (adpath == null)
+            var ADPath = GlobalSearch(username);
+            if (ADPath == null)
             {
                 //Show user not found
                 return null;
             }
             else
             {
-                //We got ADPATH lets build the GUI
-                return adpath;
+                //We got ADPath lets build the GUI
+                return ADPath;
             }
         }
 
         public static string GetADPath(string username)
         {
-            int val;
-
             username = NormalizeUsername(username);
 
-            if (username.Length == 4 && int.TryParse(username, out val))
+            if (username.Length == 4 && int.TryParse(username, out _))
             {
-                return doPhoneSearch(username);
+                return DoPhoneSearch(username);
             }
             else
             {
-                return getADPathFromUsername(username);
+                return GetADPathFromUsername(username);
             }
         }
 
@@ -136,7 +133,7 @@ namespace ITSWebMgmt.Helpers
             return username;
         }
 
-        private static string globalSearch(string seachString)
+        private static string GlobalSearch(string seachString)
         {
             DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry("GC://aau.dk");
             string filter;
@@ -155,8 +152,8 @@ namespace ITSWebMgmt.Helpers
             if (r != null)
             {
                 //return r.Properties["userPrincipalName"][0].ToString(); //XXX handle if result is 0 (null exception)
-                string adpath = r.Properties["ADsPath"][0].ToString();
-                return adpath.Replace("aau.dk/", "").Replace("GC:", "LDAP:");
+                string ADPath = r.Properties["ADsPath"][0].ToString();
+                return ADPath.Replace("aau.dk/", "").Replace("GC:", "LDAP:");
             }
             else
             {
@@ -165,7 +162,7 @@ namespace ITSWebMgmt.Helpers
         }
 
         //Searhces on a phone numer (internal or external), and returns a upn (later ADsPath) to a use or null if not found
-        private static string doPhoneSearch(string numberIn)
+        private static string DoPhoneSearch(string numberIn)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             string number = numberIn;

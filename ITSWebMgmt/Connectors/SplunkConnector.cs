@@ -1,18 +1,16 @@
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Connectors
 {
     public class SplunkConnector
     {
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         public static string Auth { private get; set; }
         public SplunkConnector(IMemoryCache cache)
         {
@@ -26,10 +24,9 @@ namespace ITSWebMgmt.Connectors
 
         public string IsAccountADFSLocked(string upn)
         {
-            List<string> lockedAccounts;
-            if (!_cache.TryGetValue("ADFSLockedAccounts", out lockedAccounts))
+            if (!_cache.TryGetValue("ADFSLockedAccounts", out List<string> lockedAccounts))
             {
-                lockedAccounts = getLockedAccounts();
+                lockedAccounts = GetLockedAccounts();
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(2));
                 _cache.Set("ADFSLockedAccounts", lockedAccounts, cacheEntryOptions);
             }
@@ -42,13 +39,13 @@ namespace ITSWebMgmt.Connectors
             return lockedAccounts.Contains(upn).ToString();
         }
 
-        private List<string> getLockedAccounts()
+        private List<string> GetLockedAccounts()
         {
             try
             {
-                var temp = getData().Content.ReadAsStringAsync().Result; // This is done with a regex, becuase i could not find a NDJSON parser
+                var temp = GetData().Content.ReadAsStringAsync().Result; // This is done with a regex, becuase i could not find a NDJSON parser
                 Regex regex = new Regex(@"sec_id"":""(?<email>[^ ]*) "".*""nBad_Password_Count"":""(?<count>[^ ]*) ");
-                var entries = temp.Substring(0, temp.Length - 2).Split('\n');
+                var entries = temp[0..^2].Split('\n');
                 List<string> lockedAccouts = new List<string>();
                 foreach (var entry in entries)
                 {
@@ -71,11 +68,13 @@ namespace ITSWebMgmt.Connectors
             }
         }
 
-        private HttpResponseMessage getData()
+        private HttpResponseMessage GetData()
         {
             string url = "https://splunk.aau.dk:8089/services/search/jobs/export?output_mode=json";
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(url);
+            HttpClient client = new HttpClient
+            {
+                BaseAddress = new Uri(url)
+            };
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response;
 

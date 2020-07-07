@@ -1,12 +1,8 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using ITSWebMgmt.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Connectors
 {
@@ -21,8 +17,10 @@ namespace ITSWebMgmt.Connectors
         public List<NetaaudkModel> GetData(string username)
         {
             string url = "https://net.aau.dk/api/owned-by";
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(url);
+            HttpClient client = new HttpClient
+            {
+                BaseAddress = new Uri(url)
+            };
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Add("Authorization", Auth);
             HttpResponseMessage response;
@@ -41,6 +39,7 @@ namespace ITSWebMgmt.Connectors
             return response.Content.ReadAsAsync<List<NetaaudkModel>>().Result;
         }
 
+#pragma warning disable IDE1006 // Naming Styles
         public class NetaaudkModel
         {
             public string username { get; set; }
@@ -52,5 +51,6 @@ namespace ITSWebMgmt.Connectors
             public string devicetype { get; set; }
             public string id => username.Split('@')[0];
         }
+#pragma warning restore IDE1006 // Naming Styles
     }
 }

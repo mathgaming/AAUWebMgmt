@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Models
 {
     public class ServiceManagerModel
     {
         public string userID;
-        private List<Case> userCases;
-        public List<Case> openCases { get => _getSortedCasesInStatuses("Active", "Pending", "Pending 3rd party", "Awaiting user response", "Pending Group Approval", "New", "Submitted", "In Progress", "On Hold"); }
-        public List<Case> closedCases { get => userCases.Except(openCases).ToList(); }
+        private readonly List<Case> userCases;
+        public List<Case> OpenCases { get => GetSortedCasesInStatuses("Active", "Pending", "Pending 3rd party", "Awaiting user response", "Pending Group Approval", "New", "Submitted", "In Progress", "On Hold"); }
+        public List<Case> ClosedCases { get => userCases.Except(OpenCases).ToList(); }
 
         public ServiceManagerModel(string userID, List<Case> userCases)
         {
@@ -21,16 +20,16 @@ namespace ITSWebMgmt.Models
             }
             this.userID = userID;
         }
-        private List<Case> _getListOfCasesWithCertainStatus(string statusToSortBy)
+        private List<Case> GetListOfCasesWithCertainStatus(string statusToSortBy)
         {
             return userCases.Where(x => x.Status.Equals(statusToSortBy)).ToList();
         }
-        private List<Case> _getSortedCasesInStatuses(params string[] statuses)
+        private List<Case> GetSortedCasesInStatuses(params string[] statuses)
         {
             List<Case> outputList = new List<Case>();
             foreach (string s in statuses)
             {
-                outputList = outputList.Concat<Case>(_getListOfCasesWithCertainStatus(s)).ToList();
+                outputList = outputList.Concat<Case>(GetListOfCasesWithCertainStatus(s)).ToList();
             }
             return outputList.OrderByDescending(x => x.LastModified).ToList();
         }

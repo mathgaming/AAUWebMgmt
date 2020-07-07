@@ -2,9 +2,7 @@ using ITSWebMgmt.Controllers;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.WebMgmtErrors
 {
@@ -142,7 +140,7 @@ namespace ITSWebMgmt.WebMgmtErrors
 
         public override bool HaveError()
         {
-            var groups = computer.ComputerModel.Windows.ADcache.getGroups("memberOf");
+            var groups = computer.ComputerModel.Windows.ADCache.GetGroups("memberOf");
             return (!groups.Any(x => x.Contains("cm12_config_AAU10") || x.Contains("cm12_config_Administrativ10"))
                 && computer.ComputerModel.Windows.WhenCreated > DateTime.Parse("2019-01-01"));
         }
@@ -172,7 +170,7 @@ namespace ITSWebMgmt.WebMgmtErrors
             Severeness = Severity.Error;
         }
 
-        public override bool HaveError() => !computer.computerIsInRightOU(computer.ComputerModel.Windows.DistinguishedName);
+        public override bool HaveError() => !computer.ComputerIsInRightOU(computer.ComputerModel.Windows.DistinguishedName);
     }
 
     public class PasswordExpired : ComputerWebMgmtError

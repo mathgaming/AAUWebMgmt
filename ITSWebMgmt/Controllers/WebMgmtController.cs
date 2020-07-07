@@ -1,10 +1,8 @@
-﻿using ITSWebMgmt.Helpers;
-using ITSWebMgmt.Models;
+﻿using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
-using System.Threading;
 
 namespace ITSWebMgmt.Controllers
 {

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +21,6 @@ namespace ITSWebMgmt.Controllers
         {
             string outputString = "";
             List<string> usernameList = inputCSV.Split(",").ToList();
-            List<string> emailList = new List<string>();
             foreach (string username in usernameList)
             {
                 if (!outputString.Length.Equals(0))
@@ -30,7 +28,7 @@ namespace ITSWebMgmt.Controllers
                     outputString += ',';
                 }
                 UserModel userModel = new UserModel(username, false);
-                List<string> emails = userModel.getUserMails();
+                List<string> emails = userModel.GetUserMails();
                 outputString += string.Join(",", emails);
             }
             return Success(outputString);
@@ -69,7 +67,7 @@ namespace ITSWebMgmt.Controllers
                             string name = user.DisplayName;
                             string computerName = columbs[computernameIndex];
                             string sn = columbs[snIndex];
-                            sb.Append($"{user.getUserMails()[0]};{columbs[aauNumberIndex]};{name};{computerName};{sn}\n");
+                            sb.Append($"{user.GetUserMails()[0]};{columbs[aauNumberIndex]};{name};{computerName};{sn}\n");
                         }
                         catch (Exception)
                         {

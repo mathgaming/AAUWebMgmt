@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using System.DirectoryServices;
-using System.Management;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Microsoft.Extensions.Caching.Memory;
@@ -17,7 +16,7 @@ namespace ITSWebMgmt.Controllers
     {
         public IActionResult Index(string computername)
         {
-            ComputerModel = getComputerModel(computername);
+            ComputerModel = GetComputerModel(computername);
 
             if (computername != null)
             {
@@ -25,7 +24,7 @@ namespace ITSWebMgmt.Controllers
                 {
                     if (ComputerModel.IsWindows)
                     {
-                        new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.Windows.adpath, true);
+                        new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, ComputerModel.Windows.ADPath, true);
                     }
                     else
                     {
@@ -41,7 +40,7 @@ namespace ITSWebMgmt.Controllers
             return View(ComputerModel);
         }
 
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         public ComputerModel ComputerModel;
 
         public ComputerController(LogEntryContext context, IMemoryCache cache) : base(context)
@@ -49,7 +48,7 @@ namespace ITSWebMgmt.Controllers
             _cache = cache;
         }
 
-        private ComputerModel getComputerModel(string computerName)
+        private ComputerModel GetComputerModel(string computerName)
         {
             if (computerName != null)
             {
@@ -65,11 +64,11 @@ namespace ITSWebMgmt.Controllers
                         try
                         {
                             ComputerModel.IsWindows = true;
-                            ComputerModel.Windows.setConfig();
+                            ComputerModel.Windows.SetConfig();
                             ComputerModel.Windows.InitBasicInfo();
                             LoadWindowsWarnings();
                             ComputerModel.SetTabs();
-                            if (!checkComputerOU(ComputerModel.Windows.adpath))
+                            if (!CheckComputerOU(ComputerModel.Windows.ADPath))
                             {
                                 ComputerModel.Windows.ShowMoveComputerOUdiv = true;
                             }
@@ -117,9 +116,9 @@ namespace ITSWebMgmt.Controllers
 
         public override ActionResult LoadTab(string tabName, string name)
         {
-            ComputerModel = getComputerModel(name);
+            ComputerModel = GetComputerModel(name);
 
-            new Logger(_context).Log(LogEntryType.LoadedTabComputer, HttpContext.User.Identity.Name, new List<string>() { tabName, ComputerModel.Windows.adpath }, true);
+            new Logger(_context).Log(LogEntryType.LoadedTabComputer, HttpContext.User.Identity.Name, new List<string>() { tabName, ComputerModel.Windows.ADPath }, true);
 
             string viewName = tabName;
             switch (tabName)
@@ -130,7 +129,7 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "groups":
                     viewName = "Groups";
-                    return PartialView(viewName, new PartialGroupModel(ComputerModel.Windows.ADcache, "memberOf"));
+                    return PartialView(viewName, new PartialGroupModel(ComputerModel.Windows.ADCache, "memberOf"));
                 case "tasks":
                     viewName = "Windows/Tasks";
                     break;
@@ -154,7 +153,7 @@ namespace ITSWebMgmt.Controllers
                     ComputerModel.Windows.InitSCCMHW();
                     break;
                 case "rawdata":
-                    return PartialView("RawTable", ComputerModel.Windows.ADcache.getAllProperties());
+                    return PartialView("RawTable", ComputerModel.Windows.ADCache.GetAllProperties());
                 case "rawdatasccm":
                     viewName = "Windows/SCCMRaw";
                     break;
@@ -173,7 +172,7 @@ namespace ITSWebMgmt.Controllers
                 case "macDisk":
                     return PartialView("TableView", ComputerModel.Mac.DiskTable);
                 case "purchase":
-                    return PartialView("INDB", INDBConnector.getInfo(ComputerModel.ComputerName));
+                    return PartialView("INDB", INDBConnector.GetInfo(ComputerModel.ComputerName));
             }
 
             return PartialView(viewName, ComputerModel.Windows);
@@ -182,30 +181,30 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
-            ComputerModel = getComputerModel(computername);
-            moveOU(HttpContext.User.Identity.Name, ComputerModel.Windows.adpath);
+            ComputerModel = GetComputerModel(computername);
+            MoveOU(HttpContext.User.Identity.Name, ComputerModel.Windows.ADPath);
             return Success("OU moved for" + computername);
         }
 
         [HttpPost]
         public ActionResult AddToAAU10([FromBody]string computername)
         {
-            return addComputerTocollection(computername, "AA1000BC", "AAU10 PC");
+            return AddComputerTocollection(computername, "AA1000BC", "AAU10 PC");
         }
 
         [HttpPost]
         public ActionResult AddToAdministrativ10([FromBody]string computername)
         {
-            return addComputerTocollection(computername, "AA1001BD", "Administrativ10 PC");
+            return AddComputerTocollection(computername, "AA1001BD", "Administrativ10 PC");
         }
 
-        private ActionResult addComputerTocollection(string computerName, string collectionId, string collectionName)
+        private ActionResult AddComputerTocollection(string computerName, string collectionId, string collectionName)
         {
-            ComputerModel = getComputerModel(computerName);
+            ComputerModel = GetComputerModel(computerName);
 
-            if (SCCM.AddComputerToCollection(ComputerModel.Windows.SCCMcache.ResourceID, collectionId))
+            if (SCCM.AddComputerToCollection(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
             {
-                new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.adpath, collectionName });
+                new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, collectionName });
                 return Success("Computer added to " + collectionName);
             }
 
@@ -215,28 +214,28 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult AddToADAAU10([FromBody]string computername)
         {
-            ComputerModel = getComputerModel(computername);
-            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath.Split("dk/")[1], "LDAP://CN=cm12_config_AAU10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
-            new Logger(_context).Log(LogEntryType.AddedToADGroup, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.adpath, "cm12_config_AAU10" });
+            ComputerModel = GetComputerModel(computername);
+            ADHelper.AddMemberToGroup(ComputerModel.Windows.ADPath.Split("dk/")[1], "LDAP://CN=cm12_config_AAU10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            new Logger(_context).Log(LogEntryType.AddedToADGroup, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, "cm12_config_AAU10" });
             return Success("Computer added to cm12_config_AAU10");
         }
 
         [HttpPost]
         public ActionResult AddToADAdministrativ10([FromBody]string computername)
         {
-            ComputerModel = getComputerModel(computername);
-            ADHelper.AddMemberToGroup(ComputerModel.Windows.adpath.Split("dk/")[1], "LDAP://CN=cm12_config_Administrativ10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
-            new Logger(_context).Log(LogEntryType.AddedToADGroup, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.adpath, "cm12_config_Administrativ10" });
+            ComputerModel = GetComputerModel(computername);
+            ADHelper.AddMemberToGroup(ComputerModel.Windows.ADPath.Split("dk/")[1], "LDAP://CN=cm12_config_Administrativ10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
+            new Logger(_context).Log(LogEntryType.AddedToADGroup, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, "cm12_config_Administrativ10" });
             return Success("Computer added to cm12_config_Administrativ10");
         }
 
         [HttpPost]
         public ActionResult ResultGetPassword([FromBody]string computername)
         {
-            ComputerModel = getComputerModel(computername);
-            new Logger(_context).Log(LogEntryType.ComputerAdminPassword, HttpContext.User.Identity.Name, ComputerModel.Windows.adpath, true);
+            ComputerModel = GetComputerModel(computername);
+            new Logger(_context).Log(LogEntryType.ComputerAdminPassword, HttpContext.User.Identity.Name, ComputerModel.Windows.ADPath, true);
 
-            var passwordReturned = getLocalAdminPassword(ComputerModel.Windows.adpath);
+            var passwordReturned = GetLocalAdminPassword(ComputerModel.Windows.ADPath);
 
             if (string.IsNullOrEmpty(passwordReturned))
             {
@@ -249,7 +248,7 @@ namespace ITSWebMgmt.Controllers
         }
         
         
-        internal bool computerIsInRightOU(string dn)
+        internal bool ComputerIsInRightOU(string dn)
         {
             string[] dnarray = dn.Split(',');
 
@@ -267,14 +266,14 @@ namespace ITSWebMgmt.Controllers
             return false;
         }
 
-        public static string getLocalAdminPassword(string adpath)
+        public static string GetLocalAdminPassword(string ADPath)
         {
-            if (string.IsNullOrEmpty(adpath))
+            if (string.IsNullOrEmpty(ADPath))
             { //Error no session
                 return null;
             }
 
-            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath); // srv\svc_webmgmt is used by the old one
+            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(ADPath); // srv\svc_webmgmt is used by the old one
 
             Console.WriteLine(de.Username);
 
@@ -298,41 +297,41 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
-        public void moveOU(string user, string adpath)
+        public void MoveOU(string user, string ADPath)
         {
-            if (!checkComputerOU(adpath))
+            if (!CheckComputerOU(ADPath))
             {
                 //OU is wrong lets calulate the right one
-                string[] adpathsplit = adpath.ToLower().Replace("ldap://", "").Split('/');
+                string[] ADPathsplit = ADPath.ToLower().Replace("ldap://", "").Split('/');
                 string protocol = "LDAP://";
-                string Domain = adpathsplit[0];
-                string[] dcpath = (adpathsplit[1].Split(',')).Where<string>(s => s.StartsWith("DC=", StringComparison.CurrentCultureIgnoreCase)).ToArray<string>();
+                string Domain = ADPathsplit[0];
+                string[] dcpath = (ADPathsplit[1].Split(',')).Where<string>(s => s.StartsWith("DC=", StringComparison.CurrentCultureIgnoreCase)).ToArray<string>();
 
                 string newOU = string.Format("OU=Clients");
                 string newPath = string.Format("{0}{1}/{2},{3}", protocol, Domain, newOU, string.Join(",", dcpath));
 
-                new Logger(_context).Log(LogEntryType.UserMoveOU, user, new List<string>() { newPath, adpath });
-                moveComputerToOU(adpath, newPath);
+                new Logger(_context).Log(LogEntryType.UserMoveOU, user, new List<string>() { newPath, ADPath });
+                MoveComputerToOU(ADPath, newPath);
             }
         }
 
-        protected void moveComputerToOU(string adpath, string newOUpath)
+        protected void MoveComputerToOU(string ADPath, string newOUpath)
         {
             //Important that LDAP:// is in upper case ! 
-            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
+            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(ADPath);
             var newLocaltion = DirectoryEntryCreator.CreateNewDirectoryEntry(newOUpath);
             de.MoveTo(newLocaltion);
             de.Close();
             newLocaltion.Close();
         }
 
-        public bool checkComputerOU(string adpath)
+        public bool CheckComputerOU(string ADPath)
         {
             //Check OU and fix it if wrong (only for clients sub folders or new clients)
             //Return true if in right ou (or we think its the right ou, or dont know)
             //Return false if we need to move the ou.
 
-            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
+            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(ADPath);
 
             string dn = (string)de.Properties["distinguishedName"][0];
             string[] dnarray = dn.Split(',');
@@ -374,17 +373,17 @@ namespace ITSWebMgmt.Controllers
             string onedriveMessage = "";
             try
             {
-                ComputerModel = getComputerModel(computername);
-                ComputerModel.Windows.ADcache.DeleteComputer();
+                ComputerModel = GetComputerModel(computername);
+                ComputerModel.Windows.ADCache.DeleteComputer();
             }
             catch (Exception e)
             {
                 return Error(e.Message);
             }
 
-            new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, ComputerModel.Windows.adpath);
+            new Logger(_context).Log(LogEntryType.ComputerDeletedFromAD, HttpContext.User.Identity.Name, ComputerModel.Windows.ADPath);
 
-            if (OneDriveHelper.ComputerUsesOneDrive(ComputerModel.Windows.ADcache))
+            if (OneDriveHelper.ComputerUsesOneDrive(ComputerModel.Windows.ADCache))
             {
                 onedriveMessage = "Computer used Onedrive before it was deleted. Remeber to add it to Onedrive, if the computer is added to AD again";
             }
@@ -435,14 +434,14 @@ namespace ITSWebMgmt.Controllers
         private void LoadWarnings(List<WebMgmtError> warnings)
         {
             var errorList = new WebMgmtErrorList(warnings);
-            ComputerModel.ErrorCountMessage = errorList.getErrorCountMessage();
+            ComputerModel.ErrorCountMessage = errorList.GetErrorCountMessage();
             ComputerModel.ErrorMessages = errorList.ErrorMessages;
         }
 
         public ActionResult AddToOneDrive([FromBody]string data)
         {
             string[] temp = data.Split('|');
-            ComputerModel = getComputerModel(temp[0]);
+            ComputerModel = GetComputerModel(temp[0]);
 
             if (temp[1].Length == 0)
             {
@@ -453,7 +452,7 @@ namespace ITSWebMgmt.Controllers
 
             if (userModel.UserFound)
             {
-                if (OneDriveHelper.doesUserUseOneDrive(userModel).Contains("True"))
+                if (OneDriveHelper.DoesUserUseOneDrive(userModel).Contains("True"))
                 {
                     ADHelper.AddMemberToGroup(ComputerModel.Windows.DistinguishedName, "LDAP://CN=GPO_Computer_UseOnedriveStorage,OU=Group Policies,OU=Groups,DC=aau,DC=dk");
 

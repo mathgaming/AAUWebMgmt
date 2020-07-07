@@ -4,9 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using ITSWebMgmt.Models.Log;
 using System.Linq;
 using ITSWebMgmt.Helpers;
-using ITSWebMgmt.Models;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -88,28 +85,15 @@ namespace ITSWebMgmt.Controllers
                 logEntries = logEntries.Where(s => s.Type == type);
             }
 
-            switch (sortOrder)
+            logEntries = sortOrder switch
             {
-                case "name":
-                    logEntries = logEntries.OrderBy(s => s.UserName);
-                    break;
-                case "name_desc":
-                    logEntries = logEntries.OrderByDescending(s => s.UserName);
-                    break;
-                case "type":
-                    logEntries = logEntries.OrderBy(s => s.Type);
-                    break;
-                case "type_desc":
-                    logEntries = logEntries.OrderByDescending(s => s.Type);
-                    break;
-                case "date":
-                    logEntries = logEntries.OrderBy(s => s.TimeStamp);
-                    break;
-                default:
-                    logEntries = logEntries.OrderByDescending(s => s.TimeStamp);
-                    break;
-            }
-
+                "name" => logEntries.OrderBy(s => s.UserName),
+                "name_desc" => logEntries.OrderByDescending(s => s.UserName),
+                "type" => logEntries.OrderBy(s => s.Type),
+                "type_desc" => logEntries.OrderByDescending(s => s.Type),
+                "date" => logEntries.OrderBy(s => s.TimeStamp),
+                _ => logEntries.OrderByDescending(s => s.TimeStamp),
+            };
             int pageSize = 20;
             return View(await PaginatedList<LogEntry>.CreateAsync(logEntries.AsNoTracking(), pageNumber ?? 1, pageSize));
         }

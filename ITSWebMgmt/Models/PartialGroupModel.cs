@@ -1,14 +1,12 @@
 ﻿using ITSWebMgmt.Caches;
 using ITSWebMgmt.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace ITSWebMgmt.Models
 {
-    public class PartialGroupModel : WebMgmtModel<ADcache>
+    public class PartialGroupModel : WebMgmtModel<ADCache>
     {
         public List<string> GroupList { get; set; }
         public List<string> GroupAllList { get; set; }
@@ -19,12 +17,12 @@ namespace ITSWebMgmt.Models
         public string Title { get; set; }
         public string AccessName { get; set; }
 
-        public List<string> getGroups(string name) => ADcache.getGroups(name);
-        public List<string> getGroupsTransitive(string name) => ADcache.getGroupsTransitive(name);
+        public List<string> GetGroups(string name) => ADCache.GetGroups(name);
+        public List<string> GetGroupsTransitive(string name) => ADCache.GetGroupsTransitive(name);
 
-        public PartialGroupModel(ADcache aDcache, string attributeName, string title = "Groups", string accessName = null)
+        public PartialGroupModel(ADCache cache, string attributeName, string title = "Groups", string accessName = null)
         {
-            ADcache = aDcache;
+            ADCache = cache;
             AttributeName = attributeName;
             Title = title;
             AccessName = accessName;
@@ -34,8 +32,8 @@ namespace ITSWebMgmt.Models
 
         private void Init()
         {
-            GroupList = SortGroupMembers(ADcache.getGroups(AttributeName));
-            GroupAllList = SortGroupMembers(ADcache.getGroupsTransitive(AttributeName));
+            GroupList = SortGroupMembers(ADCache.GetGroups(AttributeName));
+            GroupAllList = SortGroupMembers(ADCache.GetGroupsTransitive(AttributeName));
 
             if (AccessName != null)
             {
@@ -66,59 +64,59 @@ namespace ITSWebMgmt.Models
                 groupTable.LinkColumns = new int[] { 0 };
             }
 
-            foreach (string adpath in groups)
+            foreach (string ADPath in groups)
             {
-                var split = adpath.Split(',');
+                var split = ADPath.Split(',');
                 var name = split[0].Replace("CN=", "");
                 var domain = split.Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
                 var link = "";
                 var linkText = name;
                 var type = "unknown";
-                if (!adpath.Contains("OU"))
+                if (!ADPath.Contains("OU"))
                 {
                     type = "unknown";
                 }
-                else if (adpath.Contains("OU=Groups"))
+                else if (ADPath.Contains("OU=Groups"))
                 {
-                    link = getGroupLink(adpath);
+                    link = GetGroupLink(ADPath);
                     type = "Group";
                 }
-                else if (adpath.Contains("OU=Admin Groups"))
+                else if (ADPath.Contains("OU=Admin Groups"))
                 {
-                    link = getGroupLink(adpath);
+                    link = GetGroupLink(ADPath);
                     type = "Admin group";
                 }
-                else if (adpath.Contains("OU=People"))
+                else if (ADPath.Contains("OU=People"))
                 {
-                    link = getPersonLink(domain, name);
+                    link = GetPersonLink(domain, name);
                     type = "Person";
                 }
-                else if (adpath.Contains("OU=Admin Identities"))
+                else if (ADPath.Contains("OU=Admin Identities"))
                 {
-                    link = getPersonLink(domain, name);
+                    link = GetPersonLink(domain, name);
                     type = "Admin identity";
                 }
-                else if (adpath.Contains("OU=Admin"))
+                else if (ADPath.Contains("OU=Admin"))
                 {
                     type = "Admin (Server?)";
                 }
-                else if (adpath.Contains("OU=Server"))
+                else if (ADPath.Contains("OU=Server"))
                 {
                     type = "Server";
                 }
-                else if (adpath.Contains("OU=Client"))
+                else if (ADPath.Contains("OU=Client"))
                 {
-                    link = getComputerLink(adpath);
+                    link = GetComputerLink(ADPath);
                     type = "Client";
                 }
-                else if (adpath.Contains("OU=Microsoft Exchange Security Groups"))
+                else if (ADPath.Contains("OU=Microsoft Exchange Security Groups"))
                 {
-                    link = getGroupLink(adpath);
+                    link = GetGroupLink(ADPath);
                     type = "Microsoft Exchange Security Groups";
                 }
                 else
                 {
-                    type = "Special, find it in adpath";
+                    type = "Special, find it in ADPath";
                 }
 
                 if (accessName == null) //Is not fileshare
@@ -134,15 +132,15 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        private static string getComputerLink(string adpath) => string.Format("/Computer?computername={0}", ADHelper.ComputerNameFromADPath(adpath));
+        private static string GetComputerLink(string ADPath) => string.Format("/Computer?computername={0}", ADHelper.ComputerNameFromADPath(ADPath));
 
-        private static string getGroupLink(string adpath) =>  string.Format("/Group?grouppath={0}", HttpUtility.UrlEncode("LDAP://" + adpath));
+        private static string GetGroupLink(string ADPath) =>  string.Format("/Group?grouppath={0}", HttpUtility.UrlEncode("LDAP://" + ADPath));
 
-        private static string getPersonLink(string domain, string name) => string.Format("/User?username={0}%40{1}.aau.dk", name, domain);
+        private static string GetPersonLink(string domain, string name) => string.Format("/User?username={0}%40{1}.aau.dk", name, domain);
 
         private List<string> SortGroupMembers(List<string> groupMembers)
         {
-            bool StartsWith(string[] prefix, string value) => prefix.Any(value.StartsWith);
+            static bool StartsWith(string[] prefix, string value) => prefix.Any(value.StartsWith);
             string[] prefixMBX_ACL = { "CN=MBX_", "CN=ACL_" };
             bool startsWithMBXorACL(string value) => StartsWith(prefixMBX_ACL, value);
 

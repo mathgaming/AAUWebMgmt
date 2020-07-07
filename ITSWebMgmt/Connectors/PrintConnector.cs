@@ -1,19 +1,15 @@
 using ITSWebMgmt.Models;
 using SimpleImpersonation;
-using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace ITSWebMgmt.Connectors
 {
     public class PrintConnector
     {
-        string userGuid = "";
+        readonly string userGuid = "";
 
         public PrintConnector(string guid)
         {

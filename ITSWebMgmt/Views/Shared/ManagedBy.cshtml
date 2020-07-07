@@ -7,7 +7,7 @@
         <label id="managedBy">
             @if (Model.ManagedByADPath.Length != 0)
             {
-                <a href="/Home/Redirector?adpath=@Model.ManagedByADPath">@Model.ManagedByDomainAndName</a>
+                <a href="/Home/Redirector?ADPath=@Model.ManagedByADPath">@Model.ManagedByDomainAndName</a>
             }
             else
             {
@@ -36,7 +36,7 @@
         });
         $("#btnSave").click(function () {
             var email = $('#inputText').val();
-            var data = email + '|' + '@HttpUtility.JavaScriptStringEncode(Model.adpath)' + '|' + '@HttpUtility.JavaScriptStringEncode(Model.ManagedByADPath)';
+            var data = email + '|' + '@HttpUtility.JavaScriptStringEncode(Model.ADPath)' + '|' + '@HttpUtility.JavaScriptStringEncode(Model.ManagedByADPath)';
 
             $.ajax({
                 type: "POST",

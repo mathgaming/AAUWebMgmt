@@ -5,28 +5,28 @@ using System.Threading;
 
 namespace ITSWebMgmt.Models
 {
-    public abstract class WebMgmtModel<T> where T : ADcache
+    public abstract class WebMgmtModel<T> where T : ADCache
     {
-        public T ADcache;
-        public SCCMcache SCCMcache;
-        public string Path { get => ADcache.Path; }
-        public virtual string adpath { get => ADcache.adpath; set { ADcache.adpath = value; } }
-        public List<PropertyValueCollection> getAllProperties() => ADcache.getAllProperties();
+        public T ADCache;
+        public SCCMCache SCCMCache;
+        public string Path { get => ADCache.Path; }
+        public virtual string ADPath { get => ADCache.ADPath; set { ADCache.ADPath = value; } }
+        public List<PropertyValueCollection> GetAllProperties() => ADCache.GetAllProperties();
 
         protected void LoadDataInbackground()
         {
-            //Load data into ADcache in the background
+            //Load data into ADCache in the background
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                ADcache.getGroups("memberOf");
-                ADcache.getGroupsTransitive("memberOf");
-                ADcache.getAllProperties();
+                ADCache.GetGroups("memberOf");
+                ADCache.GetGroupsTransitive("memberOf");
+                ADCache.GetAllProperties();
             }, null);
 
-            //Load data into SCCMcache in the background
+            //Load data into SCCMCache in the background
             ThreadPool.QueueUserWorkItem(_ =>
             {
-                SCCMcache.LoadAllIntoCache();
+                SCCMCache.LoadAllIntoCache();
             }, null);
         }
     }

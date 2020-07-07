@@ -17,7 +17,7 @@ namespace ITSWebMgmt.Controllers
             GroupModel = new GroupModel(grouppath);
             new Logger(_context).Log(LogEntryType.GroupLookup, HttpContext.User.Identity.Name, grouppath, true);
 
-            if (forceviewgroup == false && isFileShare(GroupModel.DistinguishedName))
+            if (forceviewgroup == false && IsFileShare(GroupModel.DistinguishedName))
             {
                 InitFileshareTables();
                 
@@ -32,13 +32,13 @@ namespace ITSWebMgmt.Controllers
 
         public GroupController(LogEntryContext context) : base(context) {}
 
-        public bool isGroup()
+        public bool IsGroup()
         {
             ///XXX we expect a group check its a group
-            return GroupModel.ADcache.DE.SchemaEntry.Name.Equals("group", StringComparison.CurrentCultureIgnoreCase);
+            return GroupModel.ADCache.DE.SchemaEntry.Name.Equals("group", StringComparison.CurrentCultureIgnoreCase);
         }
 
-        public static bool isFileShare(string value)
+        public static bool IsFileShare(string value)
         {
             var split = value.Split(',');
             var oupath = split.Where(s => s.StartsWith("OU=")).ToArray();
@@ -55,11 +55,11 @@ namespace ITSWebMgmt.Controllers
             List<string> accessNames = new List<string> { "Full", "Modify", "Read", "Edit", "Contribute" };
             foreach (string accessName in accessNames)
             {
-                string temp = Regex.Replace(GroupModel.adpath, @"_[a-zA-Z]*,OU", $"_{accessName},OU");
-                ADcache groupCache = null;
+                string temp = Regex.Replace(GroupModel.ADPath, @"_[a-zA-Z]*,OU", $"_{accessName},OU");
+                ADCache groupCache = null;
                 try
                 {
-                    groupCache = new GroupADcache(temp);
+                    groupCache = new GroupADCache(temp);
                 }
                 catch (Exception)
                 {

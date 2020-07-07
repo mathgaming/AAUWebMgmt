@@ -1,9 +1,6 @@
 using ITSWebMgmt.Models;
-using Microsoft.AspNetCore.Http;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -14,7 +11,7 @@ namespace ITSWebMgmt.Helpers
             if (user != null)
             {
                 UserModel userModel = new UserModel(user, false);
-                var temp = userModel.ADcache.getGroups("memberOf");
+                var temp = userModel.ADCache.GetGroups("memberOf");
 
                 if (temp.Any(x => x.Contains("CN=platform")))
                 {

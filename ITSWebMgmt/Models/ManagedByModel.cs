@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ITSWebMgmt.Models
+﻿namespace ITSWebMgmt.Models
 {
     public class ManagedByModel
     {
-        public string adpath { get; set; }
+        public string ADPath { get; set; }
         public string ManagedByADPath { get; set; }
         public string ManagedByDomainAndName { get; set; }
-        public ManagedByModel(string adpath, string managedByPath, string managedByName)
+        public ManagedByModel(string ADPath, string managedByPath, string managedByName)
         {
-            this.adpath = adpath;
+            this.ADPath = ADPath;
             ManagedByADPath = managedByPath;
             ManagedByDomainAndName = managedByName;
         }

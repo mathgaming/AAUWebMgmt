@@ -16,7 +16,7 @@ namespace ITSWebMgmt.Controllers
     {
         public IActionResult Index(string username)
         {
-            UserModel = getUserModel(username);
+            UserModel = GetUserModel(username);
 
             if (username != null)
             {
@@ -33,7 +33,7 @@ namespace ITSWebMgmt.Controllers
             return View(UserModel);
         }
 
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         public UserModel UserModel;
 
         public UserController(LogEntryContext context, IMemoryCache cache) : base(context)
@@ -41,7 +41,7 @@ namespace ITSWebMgmt.Controllers
             _cache = cache;
         }
 
-        private UserModel getUserModel(string username)
+        private UserModel GetUserModel(string username)
         {
             if (username != null)
             {
@@ -80,7 +80,7 @@ namespace ITSWebMgmt.Controllers
             return UserModel;
         }
 
-        public bool userIsInRightOU()
+        public bool UserIsInRightOU()
         {
             string dn = UserModel.DistinguishedName;
             string[] dnarray = dn.Split(',');
@@ -113,8 +113,8 @@ namespace ITSWebMgmt.Controllers
 
         public ActionResult FixUserOu([FromBody]string username)
         {
-            UserModel = getUserModel(username);
-            if (userIsInRightOU()) { return Error(); }
+            UserModel = GetUserModel(username);
+            if (UserIsInRightOU()) { return Error(); }
 
             //See if it can be fixed!
             string dn = UserModel.DistinguishedName;
@@ -146,35 +146,35 @@ namespace ITSWebMgmt.Controllers
                 //Format ldap://DOMAIN/pathtoOU
                 //return false; //XX Return false here?
 
-                string[] adpathsplit = UserModel.adpath.ToLower().Replace("ldap://", "").Split('/');
+                string[] ADPathsplit = UserModel.ADPath.ToLower().Replace("ldap://", "").Split('/');
                 string protocol = "LDAP://";
-                string domain = adpathsplit[0];
-                string[] dcpath = (adpathsplit[0].Split(',')).Where<string>(s => s.StartsWith("dc=", StringComparison.CurrentCultureIgnoreCase)).ToArray<string>();
+                string domain = ADPathsplit[0];
+                string[] dcpath = (ADPathsplit[0].Split(',')).Where<string>(s => s.StartsWith("dc=", StringComparison.CurrentCultureIgnoreCase)).ToArray<string>();
 
                 string newOU = string.Format("{0},{1}", ou[count - 2], ou[count - 1]);
                 string newPath = string.Format("{0}{1}/{2},{3}", protocol, string.Join(".", dcpath).Replace("dc=", ""), newOU, string.Join(",", dcpath));
 
-                new Logger(_context).Log(LogEntryType.UserMoveOU, HttpContext.User.Identity.Name, new List<string>() {newPath, UserModel.adpath });
+                new Logger(_context).Log(LogEntryType.UserMoveOU, HttpContext.User.Identity.Name, new List<string>() {newPath, UserModel.ADPath });
 
                 var newLocaltion = DirectoryEntryCreator.CreateNewDirectoryEntry(newPath);
-                UserModel.ADcache.DE.MoveTo(newLocaltion);
+                UserModel.ADCache.DE.MoveTo(newLocaltion);
 
                 return Success();
             }
             //We don't need to do anything, user is placed in the right ou! (we think, can still be in wrong ou fx a guest changed to staff, we cant check that here) 
-            return Success($"no need to change user {UserModel.adpath} out, all is good");
+            return Success($"no need to change user {UserModel.ADPath} out, all is good");
         }
 
         public ActionResult UnlockUserAccount([FromBody]string username)
         {
-            UserModel = getUserModel(username);
-            new Logger(_context).Log(LogEntryType.UnlockUserAccount, HttpContext.User.Identity.Name, UserModel.adpath);
+            UserModel = GetUserModel(username);
+            new Logger(_context).Log(LogEntryType.UnlockUserAccount, HttpContext.User.Identity.Name, UserModel.ADPath);
 
             try
             {
-                UserModel.ADcache.DE.Properties["LockOutTime"].Value = 0; //unlock account
-                UserModel.ADcache.DE.CommitChanges(); //may not be needed but adding it anyways
-                UserModel.ADcache.DE.Close();
+                UserModel.ADCache.DE.Properties["LockOutTime"].Value = 0; //unlock account
+                UserModel.ADCache.DE.CommitChanges(); //may not be needed but adding it anyways
+                UserModel.ADCache.DE.Close();
             }
             catch (UnauthorizedAccessException e)
             {
@@ -190,18 +190,18 @@ namespace ITSWebMgmt.Controllers
 
         public ActionResult ToggleUserprofile([FromBody]string username)
         {
-            UserModel = getUserModel(username);
+            UserModel = GetUserModel(username);
             //XXX log what the new value of profile is :)
-            new Logger(_context).Log(LogEntryType.ToggleUserProfile, HttpContext.User.Identity.Name, UserModel.adpath);
+            new Logger(_context).Log(LogEntryType.ToggleUserProfile, HttpContext.User.Identity.Name, UserModel.ADPath);
 
-            //string profilepath = (string)(ADcache.DE.Properties["profilePath"])[0];
+            //string profilepath = (string)(ADCache.DE.Properties["profilePath"])[0];
 
             try
             {
-                if (UserModel.ADcache.DE.Properties.Contains("profilepath"))
+                if (UserModel.ADCache.DE.Properties.Contains("profilepath"))
                 {
-                    UserModel.ADcache.DE.Properties["profilePath"].Clear();
-                    UserModel.ADcache.DE.CommitChanges();
+                    UserModel.ADCache.DE.Properties["profilePath"].Clear();
+                    UserModel.ADCache.DE.CommitChanges();
                 }
                 else
                 {
@@ -210,8 +210,8 @@ namespace ITSWebMgmt.Controllers
 
                     string path = string.Format("\\\\{0}\\profiles\\{1}", tmp[1], tmp[0]);
 
-                    UserModel.ADcache.DE.Properties["profilePath"].Add(path);
-                    UserModel.ADcache.DE.CommitChanges();
+                    UserModel.ADCache.DE.Properties["profilePath"].Add(path);
+                    UserModel.ADCache.DE.CommitChanges();
                 }
             }
             catch (UnauthorizedAccessException e)
@@ -253,10 +253,10 @@ namespace ITSWebMgmt.Controllers
             };
 
             var errorList = new WebMgmtErrorList(errors);
-            UserModel.ErrorCountMessage = errorList.getErrorCountMessage();
+            UserModel.ErrorCountMessage = errorList.GetErrorCountMessage();
             UserModel.ErrorMessages = errorList.ErrorMessages;
 
-            if (!userIsInRightOU())
+            if (!UserIsInRightOU())
             {
                 UserModel.ShowFixUserOU = true;
             }
@@ -277,7 +277,7 @@ namespace ITSWebMgmt.Controllers
             return Json(new { success = true, names });
         }
 
-        private bool caseNumberOk(string caseNumber)
+        private bool CaseNumberOk(string caseNumber)
         {
             if (caseNumber.Length < 3)
             {
@@ -297,14 +297,14 @@ namespace ITSWebMgmt.Controllers
         public ActionResult SetupOnedrive([FromBody]string data)
         {
             string[] temp = data.Split('|');
-            UserModel = getUserModel(temp[0]);
+            UserModel = GetUserModel(temp[0]);
 
             if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
             {
                 return Error("Fields cannot be empty");
             }
 
-            if(!caseNumberOk(temp[2]))
+            if(!CaseNumberOk(temp[2]))
             {
                 return Error("Case number is on a wrong format");
             }
@@ -334,19 +334,19 @@ namespace ITSWebMgmt.Controllers
         public ActionResult DisableADUser([FromBody]string data)
         {
             string[] temp = data.Split('|');
-            UserModel = getUserModel(temp[0]);
+            UserModel = GetUserModel(temp[0]);
 
             if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
             {
                 return Error("Fields cannot be empty");
             }
 
-            if (!caseNumberOk(temp[2]))
+            if (!CaseNumberOk(temp[2]))
             {
                 return Error("Case number is on a wrong format");
             }
 
-            if (ADHelper.DisableUser(UserModel.adpath))
+            if (ADHelper.DisableUser(UserModel.ADPath))
             {
                 new Logger(_context).Log(LogEntryType.DisabledAdUser, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserPrincipalName, temp[1], temp[2] });
 
@@ -361,14 +361,14 @@ namespace ITSWebMgmt.Controllers
         public ActionResult EnableADUser([FromBody]string data)
         {
             string[] temp = data.Split('|');
-            UserModel = getUserModel(temp[0]);
+            UserModel = GetUserModel(temp[0]);
 
             if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
             {
                 return Error("Fields cannot be empty");
             }
 
-            if (!caseNumberOk(temp[2]))
+            if (!CaseNumberOk(temp[2]))
             {
                 return Error("Case number is on a wrong format");
             }
@@ -378,7 +378,7 @@ namespace ITSWebMgmt.Controllers
                 return Error("Do the required actions first");
             }
 
-            if (ADHelper.EnableUser(UserModel.adpath))
+            if (ADHelper.EnableUser(UserModel.ADPath))
             {
                 new Logger(_context).Log(LogEntryType.EnabledAdUser, HttpContext.User.Identity.Name, new List<string>() { UserModel.UserPrincipalName, temp[2] });
 
@@ -392,7 +392,7 @@ namespace ITSWebMgmt.Controllers
 
         public override ActionResult LoadTab(string tabName, string name)
         {
-            UserModel = getUserModel(name);
+            UserModel = GetUserModel(name);
 
             new Logger(_context).Log(LogEntryType.LoadedTabUser, HttpContext.User.Identity.Name, new List<string>() { tabName, UserModel.UserPrincipalName }, true);
 
@@ -407,7 +407,7 @@ namespace ITSWebMgmt.Controllers
                     break;
                 case "groups":
                     viewName = "Groups";
-                    model = new PartialGroupModel(UserModel.ADcache, "memberOf");
+                    model = new PartialGroupModel(UserModel.ADCache, "memberOf");
                     break;
                 case "tasks":
                     viewName = "Tasks";
@@ -436,7 +436,7 @@ namespace ITSWebMgmt.Controllers
                 case "print":
                     return PartialView("Print", new PrintConnector(UserModel.Guid.ToString()).GetData());
                 case "rawdata":
-                    return PartialView("Rawtable", UserModel.ADcache.getAllProperties());
+                    return PartialView("Rawtable", UserModel.ADCache.GetAllProperties());
                 case "netaaudk":
                     return PartialView("TableView", UserModel.InitNetaaudk());
             }

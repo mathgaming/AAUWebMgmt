@@ -2,9 +2,9 @@
 
 namespace ITSWebMgmt.Caches
 {
-    public class GroupADcache : ADcache
+    public class GroupADCache : ADCache
     {
-        public GroupADcache(string adpath) : base(adpath, new List<Property>
+        public GroupADCache(string ADPath) : base(ADPath, new List<Property>
         {
             new Property("memberOf", typeof(object[])),
             new Property("member", typeof(object[])),

@@ -4,52 +4,50 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using System.Text;
 using System.Threading.Tasks;
 using ITSWebMgmt.Helpers;
 using System.Web;
 using Microsoft.Exchange.WebServices.Data;
-using Microsoft.AspNetCore.Http;
 using ITSWebMgmt.Connectors;
 using static ITSWebMgmt.Connectors.NetaaudkConnector;
 
 namespace ITSWebMgmt.Models
 {
-    public class UserModel : WebMgmtModel<UserADcache>
+    public class UserModel : WebMgmtModel<UserADCache>
     {
         public List<TabModel> Tabs = new List<TabModel>();
-        public string Guid { get => new Guid((byte[])(ADcache.getProperty("objectGUID"))).ToString(); }
-        public string UserPrincipalName { get => ADcache.getProperty("userPrincipalName"); }
-        public string DisplayName { get => ADcache.getProperty("displayName"); }
+        public string Guid { get => new Guid((byte[])(ADCache.GetProperty("objectGUID"))).ToString(); }
+        public string UserPrincipalName { get => ADCache.GetProperty("userPrincipalName"); }
+        public string DisplayName { get => ADCache.GetProperty("displayName"); }
         public string[] ProxyAddresses
         {
             get
             {
-                var temp = ADcache.getProperty("proxyAddresses");
+                var temp = ADCache.GetProperty("proxyAddresses");
                 return temp.GetType().Equals(typeof(string)) ? (new string[] { temp }) : temp;
             }
         }
-        public int UserAccountControlComputed { get => ADcache.getProperty("msDS-User-Account-Control-Computed"); }
-        public int UserAccountControl { get => ADcache.getProperty("userAccountControl"); }
-        public string UserPasswordExpiryTimeComputed { get => ADcache.getProperty("msDS-UserPasswordExpiryTimeComputed"); }
-        public string GivenName { get => ADcache.getProperty("givenName"); }
-        public string SN { get => ADcache.getProperty("sn"); }
-        public string AAUStaffID { get => ADcache.getProperty("aauStaffID").ToString(); }
-        public string AAUStudentID { get => ADcache.getProperty("aauStudentID").ToString(); }
-        public object Profilepath { get => ADcache.getProperty("profilepath"); }
-        public string AAUUserClassification { get => ADcache.getProperty("aauUserClassification"); }
-        public string AAUUserStatus { get => ADcache.getProperty("aauUserStatus").ToString(); }
-        public string ScriptPath { get => ADcache.getProperty("scriptPath"); }
-        public bool IsAccountLocked { get => ADcache.getProperty("IsAccountLocked"); }
-        public int BadPwdCount { get => ADcache.getProperty("badPwdCount"); }
-        public string AAUAAUID { get => ADcache.getProperty("aauAAUID"); }
-        public string AAUUUID { get => ADcache.getProperty("aauUUID"); }
-        public string TelephoneNumber { get => ADcache.getProperty("telephoneNumber"); set => ADcache.saveProperty("telephoneNumber", value); }
-        public string LastLogon { get => ADcache.getProperty("lastLogon"); }
-        public string Manager { get => ADcache.getProperty("manager"); }
-        public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
-        public ManagementObjectCollection getUserMachineRelationshipFromUserName(string userName) => SCCMcache.getUserMachineRelationshipFromUserName(userName);
-        public List<WindowsComputerModel> getManagedWindowsComputers() {
+        public int UserAccountControlComputed { get => ADCache.GetProperty("msDS-User-Account-Control-Computed"); }
+        public int UserAccountControl { get => ADCache.GetProperty("userAccountControl"); }
+        public string UserPasswordExpiryTimeComputed { get => ADCache.GetProperty("msDS-UserPasswordExpiryTimeComputed"); }
+        public string GivenName { get => ADCache.GetProperty("givenName"); }
+        public string SN { get => ADCache.GetProperty("sn"); }
+        public string AAUStaffID { get => ADCache.GetProperty("aauStaffID").ToString(); }
+        public string AAUStudentID { get => ADCache.GetProperty("aauStudentID").ToString(); }
+        public object Profilepath { get => ADCache.GetProperty("profilepath"); }
+        public string AAUUserClassification { get => ADCache.GetProperty("aauUserClassification"); }
+        public string AAUUserStatus { get => ADCache.GetProperty("aauUserStatus").ToString(); }
+        public string ScriptPath { get => ADCache.GetProperty("scriptPath"); }
+        public bool IsAccountLocked { get => ADCache.GetProperty("IsAccountLocked"); }
+        public int BadPwdCount { get => ADCache.GetProperty("badPwdCount"); }
+        public string AAUAAUID { get => ADCache.GetProperty("aauAAUID"); }
+        public string AAUUUID { get => ADCache.GetProperty("aauUUID"); }
+        public string TelephoneNumber { get => ADCache.GetProperty("telephoneNumber"); set => ADCache.SaveProperty("telephoneNumber", value); }
+        public string LastLogon { get => ADCache.GetProperty("lastLogon"); }
+        public string Manager { get => ADCache.GetProperty("manager"); }
+        public string DistinguishedName { get => ADCache.GetProperty("distinguishedName"); }
+        public ManagementObjectCollection GetUserMachineRelationshipFromUserName(string userName) => SCCMCache.GetUserMachineRelationshipFromUserName(userName);
+        public List<WindowsComputerModel> GetManagedWindowsComputers() {
             List<WindowsComputerModel> managedComputerList = new List<WindowsComputerModel>();
 
             if (UserPrincipalName != "")
@@ -59,7 +57,7 @@ namespace ITSWebMgmt.Models
 
                 string formattedName = string.Format("{0}\\\\{1}", domain, upnsplit[0]);
 
-                foreach (ManagementObject o in getUserMachineRelationshipFromUserName(formattedName))
+                foreach (ManagementObject o in GetUserMachineRelationshipFromUserName(formattedName))
                 {
                     string machineName = o.Properties["ResourceName"].Value.ToString();
                     WindowsComputerModel model = new WindowsComputerModel(machineName);
@@ -76,7 +74,7 @@ namespace ITSWebMgmt.Models
 
         public bool UserFound = false;
 
-        public string[] getUserInfo()
+        public string[] GetUserInfo()
         {
             return new string[]
             {
@@ -115,7 +113,7 @@ namespace ITSWebMgmt.Models
         }
         public GetUserAvailabilityResults CalInfo { get; set; }
         public string CalAgendaStatus { get; set; }
-        public ServiceManagerModel serviceManager { get; set; }
+        public ServiceManagerModel ServiceManager { get; set; }
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
         public string UserName { get; set; } = "mhsv16@its.aau.dk";
@@ -137,22 +135,22 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public UserModel(string adpath, string test)
+        public UserModel(string ADPath, string test)
         {
-            Init(adpath, false);
+            Init(ADPath, false);
         }
 
         public UserModel(string username, bool loadDataInbackground = true)
         {
-            string adpath = null;
+            string ADPath = null;
             if (username != null)
             {
                 UserName = username;
-                adpath = ADHelper.GetADPath(username);
+                ADPath = ADHelper.GetADPath(username);
             }
-            if (adpath != null)
+            if (ADPath != null)
             {
-                Init(adpath, loadDataInbackground);
+                Init(ADPath, loadDataInbackground);
             }
             else
             {
@@ -163,10 +161,10 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public void Init(string adpath, bool loadDataInbackground = true)
+        public void Init(string ADPath, bool loadDataInbackground = true)
         {
-            ADcache = new UserADcache(adpath);
-            SCCMcache = new SCCMcache();
+            ADCache = new UserADCache(ADPath);
+            SCCMCache = new SCCMCache();
             UserFound = true;
             if (loadDataInbackground)
             {
@@ -246,7 +244,7 @@ namespace ITSWebMgmt.Models
 
             //Other fileds
             var attrDisplayName = "Department (Pure), Office (Pure), ADFS locked, Account locked, Password Expire Date, Password expired, Bad password count, UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
-            var attrArry = getUserInfo();
+            var attrArry = GetUserInfo();
             var dispArry = attrDisplayName.Split(',');
 
             List<string[]> rows = new List<string[]>();
@@ -260,23 +258,23 @@ namespace ITSWebMgmt.Models
             }
 
             //OneDrive
-            UsesOnedrive = OneDriveHelper.doesUserUseOneDrive(this);
+            UsesOnedrive = OneDriveHelper.DoesUserUseOneDrive(this);
             rows.Add(new string[] { "Uses OneDrive?", UsesOnedrive });
 
             BasicInfoTable = new TableModel(null, rows);
         }
-        public List<string> getUserMails(){
+        public List<string> GetUserMails(){
             List<string> emails = new List<string>();
             foreach (string s in ProxyAddresses)
             {
-                if (isAnEmail(s))
+                if (IsAnEmail(s))
                 {
                     emails.Add(s.ToLower().Replace("smtp:", ""));
                 }
             }
             return emails;
         }
-        private bool isAnEmail(string s)
+        private bool IsAnEmail(string s)
         {
             return s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase);
         }
@@ -287,7 +285,7 @@ namespace ITSWebMgmt.Models
 
             try
             {
-                CalInfo = getFreeBusyResultsAsync(this).Result;
+                CalInfo = GetFreeBusyResultsAsync(this).Result;
 
                 DateTime now = DateTime.Now;
                 foreach (AttendeeAvailability availability in CalInfo.AttendeesAvailability)
@@ -310,11 +308,13 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public static async Task<GetUserAvailabilityResults> getFreeBusyResultsAsync(UserModel UserModel)
+        public static async Task<GetUserAvailabilityResults> GetFreeBusyResultsAsync(UserModel UserModel)
         {
-            ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2);
-            service.UseDefaultCredentials = true; // Use domain account for connecting 
-            service.Url = new Uri("https://mail.aau.dk/EWS/exchange.asmx");
+            ExchangeService service = new ExchangeService(ExchangeVersion.Exchange2010_SP2)
+            {
+                UseDefaultCredentials = true, // Use domain account for connecting 
+                Url = new Uri("https://mail.aau.dk/EWS/exchange.asmx")
+            };
 
             List<AttendeeInfo> attendees = new List<AttendeeInfo>();
 
@@ -331,10 +331,11 @@ namespace ITSWebMgmt.Models
             });
 
             // Specify availability options.
-            AvailabilityOptions myOptions = new AvailabilityOptions();
-
-            myOptions.MeetingDuration = 30;
-            myOptions.RequestedFreeBusyView = FreeBusyViewType.FreeBusy;
+            AvailabilityOptions myOptions = new AvailabilityOptions
+            {
+                MeetingDuration = 30,
+                RequestedFreeBusyView = FreeBusyViewType.FreeBusy
+            };
 
             // Return a set of free/busy times.
             DateTime dayBegin = DateTime.Now.Date;
@@ -346,7 +347,7 @@ namespace ITSWebMgmt.Models
         {
             try
             {
-                var windowsComputers = getManagedWindowsComputers();
+                var windowsComputers = GetManagedWindowsComputers();
 
                 if (windowsComputers.Count != 0)
                 {
@@ -358,12 +359,12 @@ namespace ITSWebMgmt.Models
                         string OnedriveWarning = "";
                         try
                         {
-                            if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADcache))
+                            if (UsesOnedrive.Contains("True") && !OneDriveHelper.ComputerUsesOneDrive(m.ADCache))
                             {
                                 OnedriveWarning = " (NOT USING ONEDRIVE!)";
                             }
                         }
-                        catch (System.Runtime.InteropServices.COMException e)
+                        catch (System.Runtime.InteropServices.COMException)
                         {
                             // Does get an unknown error (0x80005000) when computer is found in SCCM, but not in AD
                         }
@@ -382,7 +383,7 @@ namespace ITSWebMgmt.Models
 
                 JamfConnector jamf = new JamfConnector();
                 List<string> macComputers = new List<string>();
-                foreach (var email in getUserMails())
+                foreach (var email in GetUserMails())
                 {
                     macComputers.AddRange(jamf.GetComputerNamesForUserWith1X(email));
                 }
@@ -414,7 +415,7 @@ namespace ITSWebMgmt.Models
 
         public PartialGroupModel InitExchange()
         {
-            PartialGroupModel model = new PartialGroupModel(ADcache, "memberOf");
+            PartialGroupModel model = new PartialGroupModel(ADCache, "memberOf");
 
             var members = model.GroupAllList;
             if (members.Count == 0)
@@ -445,7 +446,7 @@ namespace ITSWebMgmt.Models
 
         public PartialGroupModel InitFileshares()
         {
-            PartialGroupModel model = new PartialGroupModel(ADcache, "memberOf");
+            PartialGroupModel model = new PartialGroupModel(ADCache, "memberOf");
             var members = model.GroupAllList;
 
             if (members.Count == 0)
@@ -458,7 +459,7 @@ namespace ITSWebMgmt.Models
             //Filter fileshare groups and convert to Fileshare Objects
             var fileshareList = members.Where((string value) =>
             {
-                return GroupController.isFileShare(value);
+                return GroupController.IsFileShare(value);
             }).Select(x => new FileshareModel(x));
 
             foreach (FileshareModel f in fileshareList)
@@ -480,9 +481,9 @@ namespace ITSWebMgmt.Models
             bool haveWindows7 = false;
             List<string[]> rows = new List<string[]>();
 
-            foreach (WindowsComputerModel m in getManagedWindowsComputers())
+            foreach (WindowsComputerModel m in GetManagedWindowsComputers())
             {
-                m.setConfig();
+                m.SetConfig();
                 string upgradeButton = "";
                 if (m.ConfigPC.Equals("AAU7 PC") || m.ConfigPC.Equals("Administrativ7 PC"))
                 {
@@ -496,7 +497,7 @@ namespace ITSWebMgmt.Models
             if (haveWindows7)
             {
                 var scsm = new SCSMConnector();
-                _ = scsm.getUUID(UserPrincipalName, getUserMails()).Result;
+                _ = scsm.GetUUID(UserPrincipalName, GetUserMails()).Result;
                 SCSMUserID = scsm.userID;
 
                 Windows7to10 = new TableModel(new string[] { "Computername", "Windows 7 to 10 upgrade" }, rows);

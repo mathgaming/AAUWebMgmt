@@ -50,7 +50,7 @@ namespace ITSWebMgmt.Models
                     }
                 }
 
-                var access = groupNameSplit[groupNameSplit.Length - 1];
+                var access = groupNameSplit[^1];
 
                 Name = nameString;
                 Domain = domain;
