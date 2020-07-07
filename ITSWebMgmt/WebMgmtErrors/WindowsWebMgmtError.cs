@@ -216,4 +216,19 @@ namespace ITSWebMgmt.WebMgmtErrors
             return computer.ComputerModel.Windows.ConfigPC != "Administrativ10 PC" && computer.ComputerModel.Windows.HasJava();
         }
     }
+
+    public class HaveVirus : ComputerWebMgmtError
+    {
+        public HaveVirus(ComputerController computer) : base(computer)
+        {
+            Heading = "Virus found on computer";
+            Description = "A decription on of the virus can be seen in the antivirus tab";
+            Severeness = Severity.Warning;
+        }
+
+        public override bool HaveError()
+        {
+            return computer.ComputerModel.Windows.SCCMAV.ErrorMessage != "Antivirus information not found";
+        }
+    }
 }

@@ -173,7 +173,7 @@ namespace ITSWebMgmt.Connectors
         public Dictionary<string, List<int>> GetJamfDictionary(bool updateCache = false)
         {
             string filename = @"jamf-aau1x.bin";
-            if (updateCache && File.Exists(filename) && File.GetLastWriteTime(filename) > DateTime.Now.AddDays(-7))
+            if (File.Exists(filename) && !(updateCache && File.GetLastWriteTime(filename) > DateTime.Now.AddDays(-7)))
             {
                 JamfDictionary = readDictionary(filename);
             }

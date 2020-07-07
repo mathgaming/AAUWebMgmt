@@ -91,6 +91,7 @@ namespace ITSWebMgmt.Models
                     SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
                     BaseModel.ComputerName = ADcache.ComputerName;
                     BaseModel.ComputerFound = ADcache.ComputerFound;
+                    InitSCCMAV();
                     LoadDataInbackground();
                 }
             }

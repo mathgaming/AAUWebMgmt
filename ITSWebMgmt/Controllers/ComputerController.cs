@@ -404,7 +404,8 @@ namespace ITSWebMgmt.Controllers
                 new IsWindows7(this),
                 new ManagerAndComputerNotInSameDomain(this),
                 new PasswordExpired(this),
-                new MissingJavaLicense(this)
+                new MissingJavaLicense(this),
+                new HaveVirus(this)
             };
 
             LoadWarnings(warnings);
