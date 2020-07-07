@@ -1,6 +1,6 @@
 ﻿@model ITSWebMgmt.Models.MacComputerModel
 
 <h3>Applications</h3>
-@Html.Partial("TableView", Model.Applications)
+@await Html.PartialAsync("TableView", Model.Applications)
 <h3>Plugins</h3>
-@Html.Partial("TableView", Model.Plugins)
+@await Html.PartialAsync("TableView", Model.Plugins)

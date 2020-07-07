@@ -4,8 +4,8 @@
 @if (Model.WindowsComputerTable != null)
 {
     <h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>
-    @Html.Partial("TableView", Model.WindowsComputerTable)
-    @Html.Partial("TableView", Model.MacComputerTable)
+    @await Html.PartialAsync("TableView", Model.WindowsComputerTable)
+    @await Html.PartialAsync("TableView", Model.MacComputerTable)
 }
 else
 {

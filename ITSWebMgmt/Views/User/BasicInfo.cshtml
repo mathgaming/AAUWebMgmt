@@ -19,7 +19,7 @@
                 }
             </td>
         </tr>
-        @Html.Partial("TableView", Model.BasicInfoTable)
+        @await Html.PartialAsync("TableView", Model.BasicInfoTable)
         <tr>
             <td>E-mails</td>
             <td>

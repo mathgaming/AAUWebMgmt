@@ -152,7 +152,7 @@
                 <div class="ui tab segment">
                     none<!-- spacer as the fist elemen else is placed differencet -->
                 </div>
-                <div class="ui active tab segment" id="" data-tab="basicinfo">@Html.Partial("BasicInfo", Model)</div>
+                <div class="ui active tab segment" id="" data-tab="basicinfo">@await Html.PartialAsync("BasicInfo", Model)</div>
                 @foreach (var tab in Model.Tabs)
                 {
                     <div class="ui tab segment" id=@tab.TabId data-tab=@tab.TabId>

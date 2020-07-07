@@ -16,12 +16,12 @@
                     }
                 </tr>
             </thead>
-            @Html.Partial("TableBodyView", Model)
+            @await Html.PartialAsync("TableBodyView", Model)
         </table>
     }
     else
     {
-        @Html.Partial("TableBodyView", Model)
+        @await Html.PartialAsync("TableBodyView", Model)
     }
 }
 else

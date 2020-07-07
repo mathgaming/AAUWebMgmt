@@ -11,14 +11,14 @@
         {
             <font color="red">Result have been limited to 4500 members. Some member is not shown!</font>
         }
-        @Html.Partial("TableView", Model.GroupTable)
+        @await Html.PartialAsync("TableView", Model.GroupTable)
     </div>
     <div class="ui tab segment" data-tab="groups-all">
         @if (Model.GroupAllTable.Rows.Count == 4500)
         {
             <font color="red">Result have been limited to 4500 members. Some member is not shown!</font>
         }
-        @Html.Partial("TableView", Model.GroupAllTable)
+        @await Html.PartialAsync("TableView", Model.GroupAllTable)
     </div>
 </div>
 <script>

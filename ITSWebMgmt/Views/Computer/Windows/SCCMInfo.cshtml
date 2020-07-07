@@ -2,6 +2,6 @@
 
 <h2>SCCM Info</h2>
 <h3>Computer Details</h3>
-@Html.Partial("TableView", Model.SCCMInfoComputer)
+@await Html.PartialAsync("TableView", Model.SCCMInfoComputer)
 <h3>System info</h3>
-@Html.Partial("TableView", Model.SCCMInfoSystem)
+@await Html.PartialAsync("TableView", Model.SCCMInfoSystem)
