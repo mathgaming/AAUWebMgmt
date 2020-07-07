@@ -170,10 +170,10 @@ namespace ITSWebMgmt.Connectors
             public string asset_tag { get; set; }
         }
 
-        public Dictionary<string, List<int>> GetJamfDictionary()
+        public Dictionary<string, List<int>> GetJamfDictionary(bool updateCache = false)
         {
             string filename = @"jamf-aau1x.bin";
-            if (File.Exists(filename) && File.GetLastWriteTime(filename) > DateTime.Now.AddDays(-7))
+            if (updateCache && File.Exists(filename) && File.GetLastWriteTime(filename) > DateTime.Now.AddDays(-7))
             {
                 JamfDictionary = readDictionary(filename);
             }

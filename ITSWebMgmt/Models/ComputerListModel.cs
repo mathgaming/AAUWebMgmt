@@ -30,7 +30,7 @@ namespace ITSWebMgmt.Helpers
                 try
                 {
                     Running = true;
-                    jamfDictionary = new JamfConnector().GetJamfDictionary();
+                    jamfDictionary = new JamfConnector().GetJamfDictionary(true);
                     MakeList();
                     CombineLists();
                     string stats = GetStats();
