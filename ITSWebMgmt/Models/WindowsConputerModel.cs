@@ -8,30 +8,31 @@ using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.Models
 {
-    public class WindowsComputerModel : WebMgmtModel<ComputerADcache>
+    public class WindowsComputerModel : WebMgmtModel<ComputerADCache>
     {
-        //SCCMcache
-        public ManagementObjectCollection RAM { get => SCCMcache.RAM; private set { } }
-        public ManagementObjectCollection LogicalDisk { get => SCCMcache.LogicalDisk; private set { } }
-        public ManagementObjectCollection BIOS { get => SCCMcache.BIOS; private set { } }
-        public ManagementObjectCollection VideoController { get => SCCMcache.VideoController; private set { } }
-        public ManagementObjectCollection Processor { get => SCCMcache.Processor; private set { } }
-        public ManagementObjectCollection Disk { get => SCCMcache.Disk; private set { } }
-        public ManagementObjectCollection Software { get => SCCMcache.Software; private set { } }
-        public ManagementObjectCollection Computer { get => SCCMcache.Computer; private set { } }
-        public ManagementObjectCollection Antivirus { get => SCCMcache.Antivirus; private set { } }
-        public ManagementObjectCollection System { get => SCCMcache.System; private set { } }
-        public ManagementObjectCollection Collection { get => SCCMcache.Collection; private set { } }
+        //SCCMCache
+        public ManagementObjectCollection RAM { get => SCCMCache.RAM; private set { } }
+        public ManagementObjectCollection LogicalDisk { get => SCCMCache.LogicalDisk; private set { } }
+        public ManagementObjectCollection BIOS { get => SCCMCache.BIOS; private set { } }
+        public ManagementObjectCollection VideoController { get => SCCMCache.VideoController; private set { } }
+        public ManagementObjectCollection Processor { get => SCCMCache.Processor; private set { } }
+        public ManagementObjectCollection Disk { get => SCCMCache.Disk; private set { } }
+        public ManagementObjectCollection Software { get => SCCMCache.Software; private set { } }
+        public ManagementObjectCollection Computer { get => SCCMCache.Computer; private set { } }
+        public ManagementObjectCollection Antivirus { get => SCCMCache.Antivirus; private set { } }
+        public ManagementObjectCollection System { get => SCCMCache.System; private set { } }
+        public ManagementObjectCollection Collection { get => SCCMCache.Collection; private set { } }
+        public string LastLogonUserName { get => System.GetPropertyAsString("LastLogonUserName"); }
 
-        //ADcache
+        //ADCache
         public string ComputerName { get => BaseModel.ComputerName; }
-        public string ComputerNameAD { get => ADcache.ComputerName; }
-        public string Domain { get => ADcache.Domain; }
-        public bool ComputerFound { get => ADcache.ComputerFound; set => ADcache.ComputerFound = value; }
-        public string AdminPasswordExpirationTime { get => ADcache.getProperty("ms-Mcs-AdmPwdExpirationTime"); }
-        public string ManagedByAD { get => ADcache.getProperty("managedBy"); set => ADcache.saveProperty("managedBy", value); }
-        public string DistinguishedName { get => ADcache.getProperty("distinguishedName"); }
-        public DateTime WhenCreated { get => ADcache.getProperty("whenCreated"); }
+        public string ComputerNameAD { get => ADCache.ComputerName; }
+        public string Domain { get => ADCache.Domain; }
+        public bool ComputerFound { get => ADCache.ComputerFound; set => ADCache.ComputerFound = value; }
+        public string AdminPasswordExpirationTime { get => ADCache.GetProperty("ms-Mcs-AdmPwdExpirationTime"); }
+        public string ManagedByAD { get => ADCache.GetProperty("managedBy"); set => ADCache.SaveProperty("managedBy", value); }
+        public string DistinguishedName { get => ADCache.GetProperty("distinguishedName"); }
+        public DateTime WhenCreated { get => ADCache.GetProperty("whenCreated"); }
 
         //Display
         public string PasswordExpireDate
@@ -84,13 +85,14 @@ namespace ITSWebMgmt.Models
             BaseModel = baseModel;
             if (ComputerName != null)
             {
-                ADcache = new ComputerADcache(ComputerName);
-                if (ADcache.ComputerFound)
+                ADCache = new ComputerADCache(ComputerName);
+                if (ADCache.ComputerFound)
                 {
-                    SCCMcache = new SCCMcache();
-                    SCCMcache.ResourceID = getSCCMResourceIDFromComputerName(ComputerNameAD);
-                    BaseModel.ComputerName = ADcache.ComputerName;
-                    BaseModel.ComputerFound = ADcache.ComputerFound;
+                    SCCMCache = new SCCMCache();
+                    SCCMCache.ResourceID = GetSCCMResourceIDFromComputerName(ComputerNameAD);
+                    BaseModel.ComputerName = ADCache.ComputerName;
+                    BaseModel.ComputerFound = ADCache.ComputerFound;
+                    InitSCCMAV();
                     LoadDataInbackground();
                 }
             }
@@ -98,14 +100,16 @@ namespace ITSWebMgmt.Models
 
         public WindowsComputerModel(string computerName) : this(new ComputerModel(computerName)) { }
 
-        public string getSCCMResourceIDFromComputerName(string computername)
+        public string GetSCCMResourceIDFromComputerName(string computername)
         {
             string resourceID = "";
             //XXX use ad path to get right object in sccm, also dont get obsolite
-            foreach (ManagementObject o in SCCMcache.getResourceIDFromComputerName(computername))
+            foreach (ManagementObject o in SCCMCache.GetResourceIDFromComputerName(computername))
             {
-                var tempCache = new SCCMcache();
-                tempCache.ResourceID = o.Properties["ResourceID"].Value.ToString();
+                var tempCache = new SCCMCache
+                {
+                    ResourceID = o.Properties["ResourceID"].Value.ToString()
+                };
 
                 if (tempCache.System.GetProperty("Obsolete") != 1)
                 {
@@ -117,7 +121,7 @@ namespace ITSWebMgmt.Models
             return resourceID;
         }
 
-        public List<string> setConfig()
+        public List<string> SetConfig()
         {
             ManagementObjectCollection Collection = this.Collection;
             WindowsComputerModel ComputerModel = this;
@@ -164,10 +168,11 @@ namespace ITSWebMgmt.Models
 
                     var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
                     ManagementPath path = new ManagementPath(pathString);
-                    ManagementObject obj = new ManagementObject();
-
-                    obj.Scope = SCCM.ms;
-                    obj.Path = path;
+                    ManagementObject obj = new ManagementObject
+                    {
+                        Scope = SCCM.MS,
+                        Path = path
+                    };
                     obj.Get();
 
                     namesInCollection.Add(obj["Name"].ToString());
@@ -184,14 +189,14 @@ namespace ITSWebMgmt.Models
             if (!string.IsNullOrWhiteSpace(ManagedByAD))
             {
                 string email = ADHelper.DistinguishedNameToUPN(ManagedByAD);
-                ManagedBy = new ManagedByModel(adpath, HttpUtility.HtmlEncode("LDAP://" + ManagedByAD), email);
+                ManagedBy = new ManagedByModel(ADPath, HttpUtility.HtmlEncode("LDAP://" + ManagedByAD), email);
             }
             else
             {
-                ManagedBy = new ManagedByModel(adpath, "", "");
+                ManagedBy = new ManagedByModel(ADPath, "", "");
             }
 
-            UsesOnedrive = OneDriveHelper.ComputerUsesOneDrive(ADcache);
+            UsesOnedrive = OneDriveHelper.ComputerUsesOneDrive(ADCache);
 
             if (AdminPasswordExpirationTime != null)
             {
@@ -280,7 +285,7 @@ namespace ITSWebMgmt.Models
         public void InitSCCMCollections()
         {
             List<string[]> rows = new List<string[]>();
-            var names = setConfig();
+            var names = SetConfig();
 
             if (names != null)
             {

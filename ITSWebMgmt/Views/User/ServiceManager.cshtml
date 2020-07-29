@@ -5,7 +5,7 @@
 </script>
 @{
     SCSMConnector sccm = new SCSMConnector();
-    Model.serviceManager = await sccm.getServiceManager(Model.UserPrincipalName, Model.getUserMails());
+    Model.ServiceManager = await sccm.GetServiceManager(Model.UserPrincipalName, Model.GetUserMails());
     Model.SCSMUserID = sccm.userID;
 }
 
@@ -38,7 +38,7 @@ else
                 <th>Last Modified</th>
             </tr>
         </thead>
-        @foreach (var d in Model.serviceManager.openCases)
+        @foreach (var d in Model.ServiceManager.OpenCases)
         {
             <tr>
                 <td><a href="https://webmgmt.aau.dk/AAURedirector/?id=@d.Id" target="_blank">@d.Id</a></td>
@@ -61,7 +61,7 @@ else
                 <th>Last Modified</th>
             </tr>
         </thead>
-        @foreach (var d in Model.serviceManager.closedCases)
+        @foreach (var d in Model.ServiceManager.ClosedCases)
         {
             <tr>
                 <td><a href="https://webmgmt.aau.dk/AAURedirector/?id=@d.Id" target="_blank">@d.Id</a></td>

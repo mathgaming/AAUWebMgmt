@@ -20,24 +20,24 @@ namespace ITSWebMgmt.Caches
         }
     }
 
-    public abstract class ADcache
+    public abstract class ADCache
     {
         protected Dictionary<string, Property> properties = new Dictionary<string, Property>();
         public DirectoryEntry DE;
         public SearchResult result;
         public string Path { get => DE.Path; }
-        public string adpath;
-        private List<Type> types = new List<Type>();
+        public string ADPath;
+        private readonly List<Type> types = new List<Type>();
         private List<PropertyValueCollection> AllProperties;
-        private Dictionary<string, List<string>> groups = new Dictionary<string, List<string>>();
-        private Dictionary<string, List<string>> groupsTransitive = new Dictionary<string, List<string>>();
+        private readonly Dictionary<string, List<string>> groups = new Dictionary<string, List<string>>();
+        private readonly Dictionary<string, List<string>> groupsTransitive = new Dictionary<string, List<string>>();
         private readonly object cacheLock = new object();
-        public ADcache() { }
+        public ADCache() { }
 
-        public ADcache(string adpath, List<Property> properties, List<Property> propertiesToRefresh)
+        public ADCache(string ADPath, List<Property> properties, List<Property> propertiesToRefresh)
         {
-            this.adpath = adpath;
-            DE = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
+            this.ADPath = ADPath;
+            DE = DirectoryEntryCreator.CreateNewDirectoryEntry(ADPath);
             var search = new DirectorySearcher(DE);
 
             if (propertiesToRefresh != null)
@@ -59,10 +59,10 @@ namespace ITSWebMgmt.Caches
 
             result = search.FindOne();
 
-            saveCache(properties, propertiesToRefresh);
+            SaveCache(properties, propertiesToRefresh);
         }
 
-        protected void saveCache(List<Property> properties, List<Property> propertiesToRefresh)
+        protected void SaveCache(List<Property> properties, List<Property> propertiesToRefresh)
         {
             foreach (var p in properties)
             {
@@ -96,11 +96,11 @@ namespace ITSWebMgmt.Caches
                 }
 
                 p.Value = value;
-                addProperty(p.Name, p);
+                AddProperty(p.Name, p);
             }
         }
 
-        public List<PropertyValueCollection> getAllProperties()
+        public List<PropertyValueCollection> GetAllProperties()
         {
             if (AllProperties == null)
             {
@@ -113,7 +113,7 @@ namespace ITSWebMgmt.Caches
             return AllProperties;
         }
 
-        public dynamic getProperty(string property)
+        public dynamic GetProperty(string property)
         {
             if (properties.ContainsKey(property))
             {
@@ -122,7 +122,7 @@ namespace ITSWebMgmt.Caches
             return null;
         }
 
-        public void saveProperty(string property, dynamic value)
+        public void SaveProperty(string property, dynamic value)
         {
             if (properties[property].Type.Equals(value.GetType()))
             {
@@ -133,18 +133,18 @@ namespace ITSWebMgmt.Caches
                 Debug.WriteLine($"Not saved due to wrong type");
         }
 
-        public void clearProperty(string property)
+        public void ClearProperty(string property)
         {
             DE.Properties[property].Clear();
             DE.CommitChanges();
         }
 
-        public void addProperty(string property, Property value)
+        public void AddProperty(string property, Property value)
         {
             properties.Add(property, value);
         }
 
-        public List<string> getGroups(string name)
+        public List<string> GetGroups(string name)
         {
             if (!groups.ContainsKey(name))
             {
@@ -153,7 +153,7 @@ namespace ITSWebMgmt.Caches
             return groups[name];
         }
 
-        public List<string> getGroupsTransitive(string name)
+        public List<string> GetGroupsTransitive(string name)
         {
             string attName = $"msds-{name}Transitive";
             lock (cacheLock)

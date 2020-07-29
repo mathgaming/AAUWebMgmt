@@ -1,31 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace ITSWebMgmt.Controllers
 {
     public class CreateWorkItemController : Controller
     {
-        private static readonly HttpClient HttpClient;
-
-        static CreateWorkItemController()
-        {
-            HttpClient = new HttpClient();
-        }
         public IActionResult Index(string userPrincipalName, string userID, bool isfeedback = false)
         {
-            CreateWorkItemModel model = new CreateWorkItemModel();
-            model.IsFeedback = isfeedback;
-            model.UserID = userID;
+            CreateWorkItemModel model = new CreateWorkItemModel
+            {
+                IsFeedback = isfeedback,
+                UserID = userID
+            };
             if (isfeedback)
             {
                 string[] parts = HttpContext.User.Identity.Name.Split('\\');
@@ -66,7 +55,7 @@ namespace ITSWebMgmt.Controllers
         public IActionResult Win7Index (string userPrincipalName, string computerName, string userID)
         {
             //Special case of returning predefined form for upgrading windows 7 pc's
-            return createWindows7UpgradeForm(userPrincipalName, computerName, userID);
+            return CreateWindows7UpgradeForm(userPrincipalName, computerName, userID);
         }
 
         protected string FormatWorkItemToJson(CreateWorkItemModel model)
@@ -75,7 +64,7 @@ namespace ITSWebMgmt.Controllers
             {
                 SCSMConnector sccm = new SCSMConnector();
 
-                _ = sccm.getServiceManager(model.AffectedUser, new List<string>{model.AffectedUser}).Result;
+                _ = sccm.GetServiceManager(model.AffectedUser, new List<string>{model.AffectedUser}).Result;
 
                 model.UserID = sccm.userID;
             }
@@ -98,13 +87,15 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        protected ActionResult createWindows7UpgradeForm(string computerOwner, string affectedComputerName, string userID)
+        protected ActionResult CreateWindows7UpgradeForm(string computerOwner, string affectedComputerName, string userID)
         {
-            CreateWorkItemModel newUpgradeForm = new CreateWorkItemModel();
-            newUpgradeForm.AffectedUser = computerOwner;
-            newUpgradeForm.Title = "Opgradering af Windows 7 til 10";
-            newUpgradeForm.Description = "PC-navn: " + affectedComputerName;
-            newUpgradeForm.UserID = userID;
+            CreateWorkItemModel newUpgradeForm = new CreateWorkItemModel
+            {
+                AffectedUser = computerOwner,
+                Title = "Opgradering af Windows 7 til 10",
+                Description = "PC-navn: " + affectedComputerName,
+                UserID = userID
+            };
             return CreateSR(newUpgradeForm);
         }
         
@@ -130,18 +121,18 @@ namespace ITSWebMgmt.Controllers
         public ActionResult ReportIssue(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = true;
-            sendEmail(workitem, "isssue reported");
+            SendEmail(workitem, "isssue reported");
             return CreateItemInServiceManager("https://service.aau.dk/Incident/New/", workitem);
         }
         [HttpPost]
         public ActionResult RequestNewFeature(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = true;
-            sendEmail(workitem, "feature requested");
+            SendEmail(workitem, "feature requested");
             return CreateItemInServiceManager("https://service.aau.dk/ServiceRequest/New/", workitem);
         }
 
-        private void sendEmail(CreateWorkItemModel workitem, string type)
+        private void SendEmail(CreateWorkItemModel workitem, string type)
         {
             string title = $"WebMgmt: New {type}: {workitem.Title}";
             string description = $"Title: {workitem.Title}\nUser: {workitem.AffectedUser}\nDescription: {workitem.Description}";

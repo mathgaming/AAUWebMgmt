@@ -6,5 +6,5 @@
 }
 else
 {
-    @Html.Partial("TableView", Model.FilteredTable)
+    @await Html.PartialAsync("TableView", Model.FilteredTable)
 }

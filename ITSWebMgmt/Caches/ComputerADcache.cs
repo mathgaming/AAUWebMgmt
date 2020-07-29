@@ -2,18 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 
 namespace ITSWebMgmt.Caches
 {
-    public class ComputerADcache : ADcache
+    public class ComputerADCache : ADCache
     {
         public string ComputerName;
         public bool ComputerFound = false;
         public string Domain;
         public object AdmPwdExpirationTime;
-        public ComputerADcache(string computerName) : base()
+        public ComputerADCache(string computerName) : base()
         {
             ComputerName = computerName;
 
@@ -38,8 +36,8 @@ namespace ITSWebMgmt.Caches
 
             ComputerFound = true;
 
-            adpath = result.Properties["ADsPath"][0].ToString();
-            DE = DirectoryEntryCreator.CreateNewDirectoryEntry(adpath);
+            ADPath = result.Properties["ADsPath"][0].ToString();
+            DE = DirectoryEntryCreator.CreateNewDirectoryEntry(ADPath);
 
             var PropertyNames = new List<string> { "memberOf", "cn", "ms-Mcs-AdmPwdExpirationTime", "managedBy", "whenCreated" };
 
@@ -61,7 +59,7 @@ namespace ITSWebMgmt.Caches
                 new Property("whenCreated", typeof(object)) //System.__ComObject
             };
 
-            saveCache(properties, null);
+            SaveCache(properties, null);
         }
 
         public void DeleteComputer()

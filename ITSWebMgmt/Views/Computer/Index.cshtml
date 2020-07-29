@@ -103,11 +103,11 @@
                 </div>
                 @if (Model.IsWindows)
                 {
-                    <div id="basicinfo" class="ui active tab segment" data-tab="basicinfo">@Html.Partial("Windows/BasicInfo", Model.Windows)</div>
+                    <div id="basicinfo" class="ui active tab segment" data-tab="basicinfo">@await Html.PartialAsync("Windows/BasicInfo", Model.Windows)</div>
                 }
                 else
                 {
-                    <div id="macbasicinfo" class="ui active tab segment" data-tab="macbasicinfo">@Html.Partial("TableView", Model.Mac.BasicInfoTable)</div>
+                    <div id="macbasicinfo" class="ui active tab segment" data-tab="macbasicinfo">@await Html.PartialAsync("TableView", Model.Mac.BasicInfoTable)</div>
                 }
                 @foreach (var tab in Model.Tabs)
                 {

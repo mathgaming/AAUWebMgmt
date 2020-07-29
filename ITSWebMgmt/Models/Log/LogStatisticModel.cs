@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Models.Log
 {
     public class LogStatisticModel
     {
-        private IQueryable<LogEntry> logEntries;
+        private readonly IQueryable<LogEntry> logEntries;
         public List<LogCountStatisticsModel> ComputerTabs { get; set; } = new List<LogCountStatisticsModel>();
         public List<LogCountStatisticsModel> UserTabs { get; set; } = new List<LogCountStatisticsModel>();
         public List<LogCountStatisticsModel> LookupCounts { get; set; }
@@ -54,46 +52,46 @@ namespace ITSWebMgmt.Models.Log
 
             var loadedComputerTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabComputer).ToList();
 
-            foreach (var tab in computerTabNames)
+            foreach (var (name, date) in computerTabNames)
             {
-                int count = loadedComputerTabs.Where(x => x.Arguments[0].Value == tab.name).ToList().Count;
-                ComputerTabs.Add(new LogCountStatisticsModel(tab.name, count, tab.date));
+                int count = loadedComputerTabs.Where(x => x.Arguments[0].Value == name).ToList().Count;
+                ComputerTabs.Add(new LogCountStatisticsModel(name, count, date));
             }
 
             var loadeduserTabs = logEntries.Where(x => x.Type == LogEntryType.LoadedTabUser).ToList();
 
-            foreach (var tab in userTabNames)
+            foreach (var (name, date) in userTabNames)
             {
-                int count = loadeduserTabs.Where(x => x.Arguments[0].Value == tab.name).ToList().Count;
-                UserTabs.Add(new LogCountStatisticsModel(tab.name, count, tab.date));
+                int count = loadeduserTabs.Where(x => x.Arguments[0].Value == name).ToList().Count;
+                UserTabs.Add(new LogCountStatisticsModel(name, count, date));
             }
 
             LookupCounts = new List<LogCountStatisticsModel>
             {
-                new LogCountStatisticsModel("Computer lookups", getCount(LogEntryType.ComputerLookup)),
-                new LogCountStatisticsModel("User lookups", getCount(LogEntryType.UserLookup))
+                new LogCountStatisticsModel("Computer lookups", GetCount(LogEntryType.ComputerLookup)),
+                new LogCountStatisticsModel("User lookups", GetCount(LogEntryType.UserLookup))
             };
 
             TasksCounts = new List<LogCountStatisticsModel>
             {
-                new LogCountStatisticsModel($"Get admin password", getCount(LogEntryType.ComputerAdminPassword)),
-                new LogCountStatisticsModel($"Bitlocker enabled", getCount(LogEntryType.Bitlocker)),
-                new LogCountStatisticsModel($"Computer deleted from AD", getCount(LogEntryType.ComputerDeletedFromAD), "2019-08-16"),
-                new LogCountStatisticsModel($"Responce challence", getCount(LogEntryType.ResponceChallence)),
-                new LogCountStatisticsModel($"Moved user OU", getCount(LogEntryType.UserMoveOU)),
-                new LogCountStatisticsModel($"unlocked user account", getCount(LogEntryType.UnlockUserAccount)),
-                new LogCountStatisticsModel($"Toggled user profile", getCount(LogEntryType.ToggleUserProfile)),
-                new LogCountStatisticsModel($"Onedrive", getCount(LogEntryType.Onedrive), "2019-08-13"),
-                new LogCountStatisticsModel($"Disabled user from AD", getCount(LogEntryType.DisabledAdUser), "2019-08-23"),
-                new LogCountStatisticsModel($"Fixed PCConfigs", getCount(LogEntryType.FixPCConfig), "2019-08-23"),
-                new LogCountStatisticsModel($"Changed ManagedBy", getCount(LogEntryType.ChangedManagedBy), "2019-08-27"),
-                new LogCountStatisticsModel($"Group lookups", getCount(LogEntryType.GroupLookup), "2019-08-27"),
-                new LogCountStatisticsModel($"Computer added to AD group", getCount(LogEntryType.AddedToADGroup), "2019-12-03"),
-                new LogCountStatisticsModel($"Enabled user from AD", getCount(LogEntryType.EnabledAdUser), "2020-01-06")
+                new LogCountStatisticsModel($"Get admin password", GetCount(LogEntryType.ComputerAdminPassword)),
+                new LogCountStatisticsModel($"Bitlocker enabled", GetCount(LogEntryType.Bitlocker)),
+                new LogCountStatisticsModel($"Computer deleted from AD", GetCount(LogEntryType.ComputerDeletedFromAD), "2019-08-16"),
+                new LogCountStatisticsModel($"Responce challence", GetCount(LogEntryType.ResponceChallence)),
+                new LogCountStatisticsModel($"Moved user OU", GetCount(LogEntryType.UserMoveOU)),
+                new LogCountStatisticsModel($"unlocked user account", GetCount(LogEntryType.UnlockUserAccount)),
+                new LogCountStatisticsModel($"Toggled user profile", GetCount(LogEntryType.ToggleUserProfile)),
+                new LogCountStatisticsModel($"Onedrive", GetCount(LogEntryType.Onedrive), "2019-08-13"),
+                new LogCountStatisticsModel($"Disabled user from AD", GetCount(LogEntryType.DisabledAdUser), "2019-08-23"),
+                new LogCountStatisticsModel($"Fixed PCConfigs", GetCount(LogEntryType.FixPCConfig), "2019-08-23"),
+                new LogCountStatisticsModel($"Changed ManagedBy", GetCount(LogEntryType.ChangedManagedBy), "2019-08-27"),
+                new LogCountStatisticsModel($"Group lookups", GetCount(LogEntryType.GroupLookup), "2019-08-27"),
+                new LogCountStatisticsModel($"Computer added to AD group", GetCount(LogEntryType.AddedToADGroup), "2019-12-03"),
+                new LogCountStatisticsModel($"Enabled user from AD", GetCount(LogEntryType.EnabledAdUser), "2020-01-06")
             };
         }
 
-        private int getCount(LogEntryType type)
+        private int GetCount(LogEntryType type)
         {
             return logEntries.Where(x => x.Type == type).ToList().Count;
         }

@@ -2,7 +2,7 @@
 {
     public class HTMLEncodingHelper
     {
-        public static string convertUTF8encodingToWindows1252(string s)
+        public static string ConvertUTF8encodingToWindows1252(string s)
         {
             string toReturn = s;
             string[][] table = new string[][] {

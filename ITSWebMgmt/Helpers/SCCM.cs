@@ -1,8 +1,6 @@
 using System;
 using System.Management;
 using System.Diagnostics;
-using System.Security;
-using System.IO;
 using System.Linq;
 using System.ComponentModel;
 
@@ -10,13 +8,13 @@ namespace ITSWebMgmt.Helpers
 {
     public static class SCCM
     {
-        private static string Username = Startup.Configuration["SCCMUsername"];
-        private static string Password = Startup.Configuration["SCCMPassword"];
-        public static ManagementScope ms {get; set; }
+        private static readonly string Username = Startup.Configuration["SCCMUsername"];
+        private static readonly string Password = Startup.Configuration["SCCMPassword"];
+        public static ManagementScope MS {get; set; }
 
-        public static ManagementObjectCollection getResults(WqlObjectQuery wqlq)
+        public static ManagementObjectCollection GetResults(WqlObjectQuery wqlq)
         {
-            var searcher = new ManagementObjectSearcher(ms, wqlq);
+            var searcher = new ManagementObjectSearcher(MS, wqlq);
             return searcher.Get();
         }
 
@@ -34,7 +32,7 @@ namespace ITSWebMgmt.Helpers
 
         public static void Init()
         {
-            ms = new ManagementScope("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1", GetConnectionOptions());
+            MS = new ManagementScope("\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1", GetConnectionOptions());
         }
 
         public static ConnectionOptions GetConnectionOptions()
@@ -43,34 +41,37 @@ namespace ITSWebMgmt.Helpers
             {
                 Console.WriteLine();
             }
-            ConnectionOptions con = new ConnectionOptions();
-            con.Username = Username;
-            con.Password = Password;
+            ConnectionOptions con = new ConnectionOptions
+            {
+                Username = Username,
+                Password = Password
+            };
             return con;
         }
 
         public static bool AddComputerToCollection(string resourceID, string collectionId)
         {
-            return runScript($"Add-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
+            return RunScript($"Add-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
         }
 
-        private static bool runScript(string script)
+        private static bool RunScript(string script)
         {
-            ProcessStartInfo psi = new ProcessStartInfo();
-            SecureString password = new SecureString();
-            psi.FileName = "powershell";
-            psi.UseShellExecute = false;
-            psi.RedirectStandardOutput = true;
-            psi.RedirectStandardError = true;
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "powershell",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
 
-            psi.Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;" + script + ";cd C:";
+                Arguments = @"cd $env:SMS_ADMIN_UI_PATH\..\;import-module .\ConfigurationManager.psd1;CD AA1:;" + script + ";cd C:"
+            };
             //It is not possible to run a process as a diffent user. Therefore is the user set in IIS for the application pool for WebMgmt.
 
             Process p = Process.Start(psi);
             p.WaitForExit();
             string errOutput = p.StandardError.ReadToEnd();
 
-            return errOutput.Length == 0;
+            return !errOutput.ToLower().Contains("error");
         }
 
         public static dynamic GetProperty(this ManagementObjectCollection moc, string property)
@@ -84,9 +85,9 @@ namespace ITSWebMgmt.Helpers
             var temp = GetPropertyAsString(moc, property);
             if (temp == "")
             {
-                return default(T);
+                return default;
             }
-            return (T)(tc.ConvertFromInvariantString(temp));
+            return (T)tc.ConvertFromInvariantString(temp);
         }
 
         public static int GetPropertyInGB(this ManagementObjectCollection moc, string property)

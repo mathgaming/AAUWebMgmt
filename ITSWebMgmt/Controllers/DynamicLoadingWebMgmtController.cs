@@ -1,7 +1,5 @@
-﻿using ITSWebMgmt.Models;
-using ITSWebMgmt.Models.Log;
+﻿using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 
 namespace ITSWebMgmt.Controllers
 {

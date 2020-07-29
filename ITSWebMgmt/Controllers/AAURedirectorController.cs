@@ -1,11 +1,8 @@
 ﻿using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -39,15 +36,15 @@ namespace ITSWebMgmt.Controllers
             }
             else if (id.StartsWith("C-", StringComparison.CurrentCultureIgnoreCase))
             {
-                return View(getChangeModel(id));
+                return View(GetChangeModel(id));
             }
             else if (id.StartsWith("EC-", StringComparison.CurrentCultureIgnoreCase))
             {
-                return View(getChangeModel(id));
+                return View(GetChangeModel(id));
             }
             else if (id.StartsWith("SC-", StringComparison.CurrentCultureIgnoreCase))
             {
-                return View(getChangeModel(id));
+                return View(GetChangeModel(id));
             }
             else if (id.StartsWith("AAU", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -57,7 +54,7 @@ namespace ITSWebMgmt.Controllers
             return View(new ChangeModel(){ Error = "Type not found" });
         }
 
-        private ChangeModel getChangeModel(string id)
+        private ChangeModel GetChangeModel(string id)
         {
             SqlConnection myConnection = new SqlConnection("Data Source = ad-sql2-misc.aau.dk; Initial Catalog = webmgmt; Integrated Security=SSPI;");
             try
@@ -81,7 +78,7 @@ namespace ITSWebMgmt.Controllers
 
             ChangeModel model = new ChangeModel()
             {
-                changeID = reader["ChangeID"].ToString(),
+                ChangeID = reader["ChangeID"].ToString(),
                 Name = reader["Navn"].ToString(),
                 Discription = reader["Beskrivelse"].ToString(),
                 Start = reader["Start"].ToString(),

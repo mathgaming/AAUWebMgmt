@@ -18,6 +18,9 @@
     <br />
     <br />
 }
+<button id="EnableMicrosoftProject">Enable Microsoft Project</button>
+<br />
+<br />
 <button id="DeleteComputerFromAD">Delete computer from AD</button>
 <br />
 <br />
@@ -44,6 +47,11 @@
     $("#MoveComputerOU").click(function ()
     {
         sendPostRequest("MoveOU_Click")
+    });
+
+    $("#EnableMicrosoftProject").click(function ()
+    {
+        sendPostRequest("EnableMicrosoftProject")
     });
 
     $("#AddToOneDrive").click(function () {

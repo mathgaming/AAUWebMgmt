@@ -19,11 +19,11 @@
                 }
             </td>
         </tr>
-        @Html.Partial("TableView", Model.BasicInfoTable)
+        @await Html.PartialAsync("TableView", Model.BasicInfoTable)
         <tr>
             <td>E-mails</td>
             <td>
-                @foreach (string mailAddress in Model.getUserMails())
+                @foreach (string mailAddress in Model.GetUserMails())
                 {
                     <a href="mailto:@mailAddress">@mailAddress</a><br />
                 }

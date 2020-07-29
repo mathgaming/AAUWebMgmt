@@ -1,22 +1,19 @@
 using ITSWebMgmt.Helpers;
-using System;
-using System.ComponentModel;
-using System.Linq;
 using System.Management;
 
 namespace ITSWebMgmt.Caches
 {
-    public class SCCMcache
+    public class SCCMCache
     {
         public string ResourceID;
 
-        public SCCMcache()
+        public SCCMCache()
         {
         }
 
-        private ManagementObjectCollection[] _cache = new ManagementObjectCollection[13];
+        private readonly ManagementObjectCollection[] _cache = new ManagementObjectCollection[13];
 
-        private string[] DBEntry = {
+        private readonly string[] DBEntry = {
             "SMS_G_System_PHYSICAL_MEMORY",
             "SMS_G_System_LOGICAL_DISK",
             "SMS_G_System_PC_BIOS" ,
@@ -56,7 +53,7 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection RAM { get => getQuery(0); private set { } }
+        public ManagementObjectCollection RAM { get => GetQuery(0); private set { } }
         #region Logical Disk
         /*
          * [DisplayName("Logical Disk"), dynamic: ToInstance, provider("ExtnProv")]
@@ -102,7 +99,7 @@ namespace ITSWebMgmt.Caches
         };
        */
         #endregion
-        public ManagementObjectCollection LogicalDisk { get => getQuery(1); private set { } }
+        public ManagementObjectCollection LogicalDisk { get => GetQuery(1); private set { } }
         #region BIOS
         /*
         [DisplayName("BIOS"), dynamic: ToInstance, provider("ExtnProv")]
@@ -142,7 +139,7 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection BIOS { get => getQuery(2); private set { } }
+        public ManagementObjectCollection BIOS { get => GetQuery(2); private set { } }
         #region Video controller
         /*
         class SMS_G_System_VIDEO_CONTROLLER : SMS_G_System_Current
@@ -211,7 +208,7 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection VideoController { get => getQuery(3); private set { } }
+        public ManagementObjectCollection VideoController { get => GetQuery(3); private set { } }
         #region Processor
         /*
         [DisplayName("Processor"), dynamic: ToInstance, provider("ExtnProv")]
@@ -281,7 +278,7 @@ namespace ITSWebMgmt.Caches
         };
          */
         #endregion
-        public ManagementObjectCollection Processor { get => getQuery(4); private set { } }
+        public ManagementObjectCollection Processor { get => GetQuery(4); private set { } }
         #region Disk
         /*
         [DisplayName("Disk"), dynamic: ToInstance, provider("ExtnProv")]
@@ -340,7 +337,7 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection Disk { get => getQuery(5); private set { } }
+        public ManagementObjectCollection Disk { get => GetQuery(5); private set { } }
         #region Software
         /*
         [DisplayName("Installed Software"), dynamic: ToInstance, provider("ExtnProv")]
@@ -381,9 +378,9 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection Software { get => getQuery(6); private set { } }
+        public ManagementObjectCollection Software { get => GetQuery(6); private set { } }
         //Missing class
-        public ManagementObjectCollection Computer { get => getQuery(7); private set { } }
+        public ManagementObjectCollection Computer { get => GetQuery(7); private set { } }
         #region Antivirus
         /*             
             instance of SMS_G_System_Threats
@@ -411,34 +408,34 @@ namespace ITSWebMgmt.Caches
             };
         */
         #endregion
-        public ManagementObjectCollection Antivirus { get => getQuery(8); private set { } }
+        public ManagementObjectCollection Antivirus { get => GetQuery(8); private set { } }
         //Missing class
-        public ManagementObjectCollection System { get => getQuery(9); private set { } }
+        public ManagementObjectCollection System { get => GetQuery(9); private set { } }
         //Missing class
-        public ManagementObjectCollection Collection { get => getQuery(10); private set { } }
+        public ManagementObjectCollection Collection { get => GetQuery(10); private set { } }
 
-        private int lastIndex = 10;
+        private readonly int lastIndex = 10;
 
-        public ManagementObjectCollection getResourceIDFromComputerName(string computerName) => getQuery(lastIndex + 1, new WqlObjectQuery("select ResourceID from SMS_CM_RES_COLL_SMS00001 where name like '" + computerName + "'"));
-        public ManagementObjectCollection getUserMachineRelationshipFromUserName(string userName) => getQuery(lastIndex + 2, new WqlObjectQuery("SELECT * FROM SMS_UserMachineRelationship WHERE UniqueUserName = \"" + userName + "\""));
+        public ManagementObjectCollection GetResourceIDFromComputerName(string computerName) => GetQuery(lastIndex + 1, new WqlObjectQuery("select ResourceID from SMS_CM_RES_COLL_SMS00001 where name like '" + computerName + "'"));
+        public ManagementObjectCollection GetUserMachineRelationshipFromUserName(string userName) => GetQuery(lastIndex + 2, new WqlObjectQuery("SELECT * FROM SMS_UserMachineRelationship WHERE UniqueUserName = \"" + userName + "\""));
 
-        private ManagementObjectCollection getQuery(int i, WqlObjectQuery wqlq)
+        private ManagementObjectCollection GetQuery(int i, WqlObjectQuery wqlq)
         {
             if (_cache[i] == null)
             {
-                _cache[i] = SCCM.getResults(wqlq);
+                _cache[i] = SCCM.GetResults(wqlq);
             }
 
             return _cache[i];
         }
 
-        private ManagementObjectCollection getQuery(int i) => getQuery(i, new WqlObjectQuery($"SELECT * FROM {DBEntry[i]} WHERE ResourceID=" + ResourceID));
+        private ManagementObjectCollection GetQuery(int i) => GetQuery(i, new WqlObjectQuery($"SELECT * FROM {DBEntry[i]} WHERE ResourceID=" + ResourceID));
 
         public void LoadAllIntoCache()
         {
             for (int i = 0; i < DBEntry.Length; i++)
             {
-                getQuery(i);
+                GetQuery(i);
             }
         }
     }

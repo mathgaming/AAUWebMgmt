@@ -1,8 +1,6 @@
-﻿using ITSWebMgmt.Controllers;
-using ITSWebMgmt.Models;
+﻿using ITSWebMgmt.Models;
 using ITSWebMgmt.Caches;
 using System.Management;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
 namespace ITSWebMgmt.Helpers
@@ -11,9 +9,9 @@ namespace ITSWebMgmt.Helpers
     {
         const string COMPUTER_USES_1DRIVE_FLAG = "GPO_Computer_UseOnedriveStorage";
         const string USER_USES_1DRIVE_FLAG = "GPO_User_DenyFolderRedirection";
-        public static string doesUserUseOneDrive(UserModel user) {
-            bool userOnedrive = doesUserHaveDeniedFolderRedirect(user);
-            bool computerOnedreive = doesOneComputerUseOneDrive(user);
+        public static string DoesUserUseOneDrive(UserModel user) {
+            bool userOnedrive = DoesUserHaveDeniedFolderRedirect(user);
+            bool computerOnedreive = DoesOneComputerUseOneDrive(user);
 
             if (userOnedrive)
             {
@@ -29,7 +27,7 @@ namespace ITSWebMgmt.Helpers
 
             return "False";
         }
-        private static bool doesOneComputerUseOneDrive(UserModel user)
+        private static bool DoesOneComputerUseOneDrive(UserModel user)
         {
             string upn = user.UserPrincipalName;
             if (upn != "")
@@ -39,10 +37,10 @@ namespace ITSWebMgmt.Helpers
 
                 string userName = string.Format("{0}\\\\{1}", domain, upnsplit[0]);
 
-                ManagementObjectCollection connectedComputers = user.getUserMachineRelationshipFromUserName(userName);
+                ManagementObjectCollection connectedComputers = user.GetUserMachineRelationshipFromUserName(userName);
                 foreach (ManagementObject comp in connectedComputers)
                 {
-                    if (computerUsesOneDrive(comp))
+                    if (ComputerUsesOneDrive(comp))
                     {
                         return true;
                     }
@@ -51,16 +49,16 @@ namespace ITSWebMgmt.Helpers
             
             return false;
         }
-        public static bool doesUserHaveDeniedFolderRedirect(UserModel user)
+        public static bool DoesUserHaveDeniedFolderRedirect(UserModel user)
         {
-            List<string> memberGroups = user.ADcache.getGroupsTransitive("memberOf");
+            List<string> memberGroups = user.ADCache.GetGroupsTransitive("memberOf");
             return memberGroups.Exists(x => x.Contains(USER_USES_1DRIVE_FLAG));
         }
 
-        public static bool computerUsesOneDrive(ManagementObject comp)
+        public static bool ComputerUsesOneDrive(ManagementObject comp)
         {
             string computerName = comp.Properties["ResourceName"].Value.ToString();
-            ADcache cache = new ComputerADcache(computerName);
+            ADCache cache = new ComputerADCache(computerName);
             if (cache.Path == "LDAP://") //AD-OESSTEST can not be found in AD
             {
                 return false;
@@ -68,9 +66,9 @@ namespace ITSWebMgmt.Helpers
             return ComputerUsesOneDrive(cache);
         }
 
-        public static bool ComputerUsesOneDrive(ADcache cache)
+        public static bool ComputerUsesOneDrive(ADCache cache)
         {
-            return cache.getGroupsTransitive("memberOf").Exists(x => x.Contains(COMPUTER_USES_1DRIVE_FLAG));
+            return cache.GetGroupsTransitive("memberOf").Exists(x => x.Contains(COMPUTER_USES_1DRIVE_FLAG));
         }
     }
 }

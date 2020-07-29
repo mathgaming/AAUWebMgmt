@@ -1,11 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ITSWebMgmt.Models;
 using Microsoft.AspNetCore.Diagnostics;
-using System.Net.Mail;
-using System.Threading;
-using ITSWebMgmt.Helpers;
-using System;
-using ITSWebMgmt.Models.Log;
 
 namespace ITSWebMgmt.Controllers
 {

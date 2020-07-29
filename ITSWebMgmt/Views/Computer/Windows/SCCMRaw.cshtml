@@ -1,5 +1,5 @@
 ﻿@model ITSWebMgmt.Models.WindowsComputerModel
 <h3>Computer (SCCMRawTable)</h3>
-@Html.Partial("Windows/SCCMRawTable", new RawSCCMModel(Model.Computer, "Computer information not found"))
+@await Html.PartialAsync("Windows/SCCMRawTable", new RawSCCMModel(Model.Computer, "Computer information not found"))
 <h3>System (SCCM Info)</h3>
-@Html.Partial("Windows/SCCMRawTable", new RawSCCMModel(Model.System, "Computer not found i SCCM"))
+@await Html.PartialAsync("Windows/SCCMRawTable", new RawSCCMModel(Model.System, "Computer not found i SCCM"))

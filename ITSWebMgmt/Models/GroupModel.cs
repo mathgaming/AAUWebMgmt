@@ -1,21 +1,16 @@
 ﻿using ITSWebMgmt.Caches;
-using ITSWebMgmt.Controllers;
-using ITSWebMgmt.Helpers;
-using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Linq;
-using System.Text;
 using System.Web;
 
 namespace ITSWebMgmt.Models
 {
-    public class GroupModel : WebMgmtModel<GroupADcache>
+    public class GroupModel : WebMgmtModel<GroupADCache>
     {
-        public string Description { get => ADcache.getProperty("description"); }
-        public string Info { get => ADcache.getProperty("info"); }
-        public string Name { get => ADcache.getProperty("name"); }
-        public string GroupType { get => ADcache.getProperty("groupType").ToString(); }
-        public string DistinguishedName { get => ADcache.getProperty("distinguishedName").ToString(); }
+        public string Description { get => ADCache.GetProperty("description"); }
+        public string Info { get => ADCache.GetProperty("info"); }
+        public string Name { get => ADCache.GetProperty("name"); }
+        public string GroupType { get => ADCache.GetProperty("groupType").ToString(); }
+        public string DistinguishedName { get => ADCache.GetProperty("distinguishedName").ToString(); }
         public string Title { get; set; }
         public string Domain { get; set; }
         public string SecurityGroup { get; set; }
@@ -26,11 +21,11 @@ namespace ITSWebMgmt.Models
         public TableModel GroupOfAllTable { get; set; }
         public bool IsFileShare { get; set; } = false;
         public ManagedByModel ManagedBy {get;set;}
-        private string ADManagedBy { get => ADcache.getProperty("managedBy"); }
+        private string ADManagedBy { get => ADCache.GetProperty("managedBy"); }
 
-        public GroupModel(string adpath)
+        public GroupModel(string ADPath)
         {
-            ADcache = new GroupADcache(adpath);
+            ADCache = new GroupADCache(ADPath);
 
             //ManamgedBy
             var dom = Path.Split(',').Where(s => s.StartsWith("DC=")).ToArray()[0].Replace("DC=", "");
@@ -44,11 +39,11 @@ namespace ITSWebMgmt.Models
 
                 string managedByPath = HttpUtility.HtmlEncode("LDAP://" + ADManagedBy);
                 string managedByName = domain + "\\" + name;
-                ManagedBy = new ManagedByModel(adpath, managedByPath, managedByName);
+                ManagedBy = new ManagedByModel(ADPath, managedByPath, managedByName);
             }
             else
             {
-                ManagedBy = new ManagedByModel(adpath, "", "");
+                ManagedBy = new ManagedByModel(ADPath, "", "");
             }
 
             //IsDistributionGroup?

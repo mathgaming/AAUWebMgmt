@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Microsoft.PowerShell.Commands;
-using Newtonsoft.Json;
+using ITSWebMgmt.Helpers;
 using Newtonsoft.Json.Linq;
 
 namespace ITSWebMgmt.Connectors
@@ -25,11 +23,13 @@ namespace ITSWebMgmt.Connectors
             Auth = "Basic " + base64encodedusernpass;
         }
 
-        private HttpResponseMessage sendGetReuest(string url, string urlParameters)
+        private HttpResponseMessage SendGetReuest(string url, string urlParameters)
         {
             url = "https://aaudk.jamfcloud.com/JSSResource/" + url;
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(url);
+            HttpClient client = new HttpClient
+            {
+                BaseAddress = new Uri(url)
+            };
             client.DefaultRequestHeaders.Add("Authorization", Auth);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -41,18 +41,18 @@ namespace ITSWebMgmt.Connectors
 
         public string GetAllComputerInformationAsJSONString(int id)
         { 
-            return sendGetReuest("computers/id/" + id, "?fiels=computer.general").Content.ReadAsStringAsync().Result;
+            return SendGetReuest("computers/id/" + id, "?fiels=computer.general").Content.ReadAsStringAsync().Result;
         }
 
         public List<string> GetComputerNamesForUser(string user)
         {
-            HttpResponseMessage response = sendGetReuest("computers/match/" + user, "");
+            HttpResponseMessage response = SendGetReuest("computers/match/" + user, "");
             List<string> computerNames = new List<string>();
 
             if (response.IsSuccessStatusCode)
             {
                 response.Content.Headers.ContentType.MediaType = "application/json";
-                Computers computers = response.Content.ReadAsAsync<Computers>().Result;
+                ComputerList computers = response.Content.ReadAsAsync<ComputerList>().Result;
                 foreach (Computer computer in computers.computers)
                 {
                     computerNames.Add(computer.asset_tag);
@@ -74,7 +74,7 @@ namespace ITSWebMgmt.Connectors
             {
                 foreach (var id in JamfDictionary[user])
                 {
-                    HttpResponseMessage response = sendGetReuest($"computers/id/{id}/subset/General", "");
+                    HttpResponseMessage response = SendGetReuest($"computers/id/{id}/subset/General", "");
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -90,12 +90,12 @@ namespace ITSWebMgmt.Connectors
 
         public int GetComputerIdByName(string name)
         {
-            HttpResponseMessage response = sendGetReuest("computers/match/" + name, "");
+            HttpResponseMessage response = SendGetReuest("computers/match/" + name, "");
 
             if (response.IsSuccessStatusCode)
             {
                 response.Content.Headers.ContentType.MediaType = "application/json";
-                Computers computers = response.Content.ReadAsAsync<Computers>().Result;
+                ComputerList computers = response.Content.ReadAsAsync<ComputerList>().Result;
                 if (computers.computers.Count != 0)
                 {
                     return computers.computers[0].id;
@@ -107,12 +107,12 @@ namespace ITSWebMgmt.Connectors
 
         public List<Computer> GetAllComputers()
         {
-            HttpResponseMessage response = sendGetReuest("computers", "");
+            HttpResponseMessage response = SendGetReuest("computers", "");
 
             if (response.IsSuccessStatusCode)
             {
                 response.Content.Headers.ContentType.MediaType = "application/json";
-                return response.Content.ReadAsAsync<Computers>().Result.computers;
+                return response.Content.ReadAsAsync<ComputerList>().Result.computers;
             }
 
             return null;
@@ -124,7 +124,7 @@ namespace ITSWebMgmt.Connectors
 
             foreach (var computer in GetAllComputers())
             {
-                HttpResponseMessage response = sendGetReuest($"computers/id/{computer.id}/subset/ExtensionAttributes", "");
+                HttpResponseMessage response = SendGetReuest($"computers/id/{computer.id}/subset/ExtensionAttributes", "");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -158,7 +158,8 @@ namespace ITSWebMgmt.Connectors
             return d;
         }
 
-        public class Computers
+#pragma warning disable IDE1006 // Naming Styles
+        public class ComputerList
         {
             public List<Computer> computers { get; set; }
         }
@@ -169,97 +170,41 @@ namespace ITSWebMgmt.Connectors
             public string name { get; set; }
             public string asset_tag { get; set; }
         }
+#pragma warning restore IDE1006 // Naming Styles
 
         public Dictionary<string, List<int>> GetJamfDictionary(bool updateCache = false)
         {
             string filename = @"jamf-aau1x.bin";
-            if (updateCache && File.Exists(filename) && File.GetLastWriteTime(filename) > DateTime.Now.AddDays(-7))
+            if (File.Exists(filename) && !(updateCache && File.GetLastWriteTime(filename) > DateTime.Now.AddDays(-7)))
             {
-                JamfDictionary = readDictionary(filename);
+                JamfDictionary = ReadDictionary(filename);
             }
             else
             {
                 JamfDictionary = Get1xDictionaty();
-                saveDictionary(JamfDictionary, filename);
+                SaveDictionary(JamfDictionary, filename);
             }
 
             return JamfDictionary;
         }
 
-        private void saveDictionary(Dictionary<string, List<int>> d, string path)
+        private void SaveDictionary(Dictionary<string, List<int>> d, string path)
         {
             var fi = new FileInfo(path);
             var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
 
-            using (var binaryFile = fi.Create())
-            {
-                binaryFormatter.Serialize(binaryFile, d);
-                binaryFile.Flush();
-            }
+            using var binaryFile = fi.Create();
+            binaryFormatter.Serialize(binaryFile, d);
+            binaryFile.Flush();
         }
 
-        private Dictionary<string, List<int>> readDictionary(string path)
+        private Dictionary<string, List<int>> ReadDictionary(string path)
         {
             var fi = new FileInfo(path);
             var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
 
-            using (var binaryFile = fi.OpenRead())
-            {
-                return (Dictionary<string, List<int>>)binaryFormatter.Deserialize(binaryFile);
-            }
+            using var binaryFile = fi.OpenRead();
+            return (Dictionary<string, List<int>>)binaryFormatter.Deserialize(binaryFile);
         }
-
-        #region Samples from new Jamf API
-        private void SampleRequestNewAPI()
-        {
-            string token = getToken();
-            string url = "https://aaudk.jamfcloud.com/uapi/auth/current";
-            string urlParameters = "";
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(url);
-            client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            HttpResponseMessage response = client.PostAsync(urlParameters, null).Result;
-            var test = response.Content.ReadAsStringAsync();
-        }
-
-        //Used in the new API
-        private string getToken()
-        {
-            string user = Startup.Configuration["cred:jamf:username"];
-            string pass = Startup.Configuration["cred:jamf:password"];
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(user + ":" + pass);
-            string base64encodedusernpass = Convert.ToBase64String(plainTextBytes);
-            string url = "https://aaudk.jamfcloud.com/uapi/auth/tokens";
-            string urlParameters = "";
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(url);
-            client.DefaultRequestHeaders.Add("Authorization", "Basic " + base64encodedusernpass);
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            HttpResponseMessage response = client.PostAsync(urlParameters, null).Result;
-            client.Dispose();
-
-            if (response.IsSuccessStatusCode)
-            {
-                Token dataObject = response.Content.ReadAsAsync<Token>().Result;
-
-                return dataObject.token;
-            }
-            else
-            {
-                Console.WriteLine("{0} ({1})", (int)response.StatusCode, response.ReasonPhrase);
-            }
-            return null;
-        }
-
-        public class Token
-        {
-            public string token { get; set; }
-            public string expires { get; set; }
-        }
-
-        #endregion Samples from new Jamf API
     }
 }

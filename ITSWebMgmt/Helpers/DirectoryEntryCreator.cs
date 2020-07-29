@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.DirectoryServices;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.DirectoryServices;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -10,9 +6,9 @@ namespace ITSWebMgmt.Helpers
     {
         private static readonly string username = Startup.Configuration["cred:ad:username"];
         private static readonly string password = Startup.Configuration["cred:ad:password"];
-        public static DirectoryEntry CreateNewDirectoryEntry(string adpath)
+        public static DirectoryEntry CreateNewDirectoryEntry(string ADPath)
         {
-            return new DirectoryEntry(adpath, username, password);
+            return new DirectoryEntry(ADPath, username, password);
         }
     }
 }

@@ -1,11 +1,8 @@
-﻿using ITSWebMgmt.Caches;
-using ITSWebMgmt.Connectors;
+﻿using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Models;
 using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
-using System.DirectoryServices.AccountManagement;
-using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -15,10 +12,10 @@ namespace ITSWebMgmt.Helpers
 {
     public class ComputerListModel
     {
-        private static string path = Path.Combine(Directory.GetCurrentDirectory(), "computer-list/");
+        private static readonly string path = Path.Combine(Directory.GetCurrentDirectory(), "computer-list/");
         private static readonly string filename = path + "computer-list.txt";
         private static readonly string emailFilename = path + "computer-list-emails.txt";
-        private static List<string> emails = new List<string>();
+        private static readonly List<string> emails = new List<string>();
         private static readonly string mailbody = "Computer list is attached.\n";
         private static Dictionary<string, List<int>> jamfDictionary;
         public static bool Running { private set; get; } = false;
@@ -47,13 +44,11 @@ namespace ITSWebMgmt.Helpers
                     string errorPath = path + "error.txt";
                     if (!File.Exists(errorPath))
                     {
-                        using (StreamWriter sw = File.CreateText(errorPath))
-                        {
-                            sw.WriteLine(e.Message);
-                            sw.WriteLine(e.StackTrace);
-                            sw.WriteLine(e.InnerException);
-                            sw.WriteLine(e.ToString());
-                        }
+                        using StreamWriter sw = File.CreateText(errorPath);
+                        sw.WriteLine(e.Message);
+                        sw.WriteLine(e.StackTrace);
+                        sw.WriteLine(e.InnerException);
+                        sw.WriteLine(e.ToString());
                     }
                     using (StreamWriter sw = File.AppendText(errorPath))
                     {
@@ -325,10 +320,12 @@ namespace ITSWebMgmt.Helpers
                 {
                     de = (DirectoryEntry)item;
                 }
-                DirectorySearcher userSearcher = new DirectorySearcher(de);
-                userSearcher.SearchScope = SearchScope.Subtree;
-                userSearcher.PageSize = 10000;
-                userSearcher.Filter = "(&(objectClass=user)(aauUserClassification=employee))";
+                DirectorySearcher userSearcher = new DirectorySearcher(de)
+                {
+                    SearchScope = SearchScope.Subtree,
+                    PageSize = 10000,
+                    Filter = "(&(objectClass=user)(aauUserClassification=employee))"
+                };
 
                 var res = userSearcher.FindAll();
                 List<string> allMembers = new List<string>();
@@ -344,7 +341,7 @@ namespace ITSWebMgmt.Helpers
                 List<string> batch = new List<string>();
 
                 using StreamWriter file = new StreamWriter(filename);
-                foreach (var adpath in membersADPath)
+                foreach (var ADPath in membersADPath)
                 {
                     if (count == 100)
                     {
@@ -353,7 +350,7 @@ namespace ITSWebMgmt.Helpers
                         batch = new List<string>();
                         count = 0;
                     }
-                    batch.Add(adpath);
+                    batch.Add(ADPath);
                     count++;
                 }
 
@@ -371,18 +368,18 @@ namespace ITSWebMgmt.Helpers
             }
         }
 
-        private List<string> getWindowsInformation(UserModel model, string formattedName)
+        private List<string> GetWindowsInformation(UserModel model, string formattedName)
         {
             List<string> computerInfo = new List<string>();
 
-            foreach (ManagementObject o in model.getUserMachineRelationshipFromUserName(formattedName))
+            foreach (ManagementObject o in model.GetUserMachineRelationshipFromUserName(formattedName))
             {
                 var computerName = o.Properties["ResourceName"].Value.ToString();
                 var computerModel = new WindowsComputerModel(computerName);
                 var onedrive = "Unknown";
                 try
                 {
-                    onedrive = OneDriveHelper.ComputerUsesOneDrive(computerModel.ADcache).ToString();
+                    onedrive = OneDriveHelper.ComputerUsesOneDrive(computerModel.ADCache).ToString();
                 }
                 catch (Exception)
                 {
@@ -417,7 +414,7 @@ namespace ITSWebMgmt.Helpers
 
                     computerInfo.Add($"{computerName};windows;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser};{DateTimeConverter.Convert(DateTime.Now)};");
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     computerInfo.Add($"{computerName};windows;{onedrive};;{@virtual};;;{DateTimeConverter.Convert(DateTime.Now)};Failed to get data for {computerName}");
                 }
@@ -426,11 +423,11 @@ namespace ITSWebMgmt.Helpers
             return computerInfo;
         }
 
-        private List<string> getMacInformation(string upn)
+        private List<string> GetMacInformation(string upn)
         {
             List<string> computerInfo = new List<string>();
             JamfConnector jamf = new JamfConnector();
-            foreach (var email in new UserModel(upn, false).getUserMails())
+            foreach (var email in new UserModel(upn, false).GetUserMails())
             {
                 List<int> ids = new List<int>();
                 foreach (var computerName in jamf.GetComputerNamesForUser(email))
@@ -472,14 +469,14 @@ namespace ITSWebMgmt.Helpers
             return $"{computerName};mac;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser};{DateTimeConverter.Convert(DateTime.Now)};";
         }
 
-        public List<string> lookupUser(string adpath)
+        public List<string> LookupUser(string ADPath)
         {
             List<string> lines = new List<string>();
             try
             {
-                adpath = "LDAP://" + adpath.Replace("GC://aau.dk/", "");
+                ADPath = "LDAP://" + ADPath.Replace("GC://aau.dk/", "");
 
-                UserModel model = new UserModel(adpath, "");
+                UserModel model = new UserModel(ADPath, "");
                 if (!model.IsDisabled)
                 {
                     string upn = model.UserPrincipalName;
@@ -488,20 +485,20 @@ namespace ITSWebMgmt.Helpers
 
                     List<string> computerInfo = new List<string>();
 
-                    computerInfo.AddRange(getWindowsInformation(model, formattedName));
-                    computerInfo.AddRange(getMacInformation(upn));
+                    computerInfo.AddRange(GetWindowsInformation(model, formattedName));
+                    computerInfo.AddRange(GetMacInformation(upn));
 
                     string staff = "Other";
-                    if (adpath.Contains("Staff"))
+                    if (ADPath.Contains("Staff"))
                     {
                         staff = "Staff";
                     }
-                    else if (adpath.Contains("Guests"))
+                    else if (ADPath.Contains("Guests"))
                     {
                         staff = "Guests";
                     }
                     var lastLogon = model.LastLogon;
-                    var usesOnedrive = OneDriveHelper.doesUserHaveDeniedFolderRedirect(model);
+                    var usesOnedrive = OneDriveHelper.DoesUserHaveDeniedFolderRedirect(model);
                     foreach (var computer in computerInfo)
                     {
                         lines.Add($"{upn};{lastLogon};{usesOnedrive};{staff};{computer}");
@@ -516,22 +513,22 @@ namespace ITSWebMgmt.Helpers
             }
             catch (Exception e)
             {
-                lines.Add($";;;;;;;;;;;{DateTimeConverter.Convert(DateTime.Now)};Error finding {adpath}");
+                lines.Add($";;;;;;;;;;;{DateTimeConverter.Convert(DateTime.Now)};Error finding {ADPath}");
                 Console.WriteLine(e.Message);
             }
 
             return lines;
         }
 
-        public void RunBatch(List<string> adpaths, int batch)
+        public void RunBatch(List<string> ADPaths, int batch)
         {
             string batchFilename = $"{path}computer-list-{batch}.txt";
             if (!File.Exists(batchFilename))
             {
                 using StreamWriter file = new StreamWriter(batchFilename);
-                foreach (var adpath in adpaths)
+                foreach (var ADPath in ADPaths)
                 {
-                    List<string> lines = lookupUser(adpath);
+                    List<string> lines = LookupUser(ADPath);
 
                     foreach (var line in lines)
                     {

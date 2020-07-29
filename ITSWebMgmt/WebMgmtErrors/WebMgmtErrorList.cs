@@ -5,24 +5,24 @@ namespace ITSWebMgmt.WebMgmtErrors
 {
     public class WebMgmtErrorList
     {
-        private List<WebMgmtError> errors;
-        private int[] ErrorCount = { 0, 0, 0 };
+        private readonly List<WebMgmtError> errors;
+        private readonly int[] ErrorCount = { 0, 0, 0 };
         public string ErrorMessages;
 
         public WebMgmtErrorList(List<WebMgmtError> errors)
         {
             this.errors = errors;
-            processErrors();
+            ProcessErrors();
         }
 
-        private void processErrors()
+        private void ProcessErrors()
         {
             foreach (WebMgmtError error in errors)
             {
                 if (error.HaveError())
                 {
                     ErrorCount[(int)error.Severeness]++;
-                    ErrorMessages += generateMessage(error);
+                    ErrorMessages += GenerateMessage(error);
                 }
             }
             if (ErrorMessages == null)
@@ -31,7 +31,7 @@ namespace ITSWebMgmt.WebMgmtErrors
             }
         }
 
-        private string generateMessage(WebMgmtError error)
+        private string GenerateMessage(WebMgmtError error)
         {
             string messageType = "";
 
@@ -65,7 +65,7 @@ namespace ITSWebMgmt.WebMgmtErrors
                     $"</div>";
         }
 
-        public string getErrorCountMessage()
+        public string GetErrorCountMessage()
         {
             string messageType = "";
             string heading = "";

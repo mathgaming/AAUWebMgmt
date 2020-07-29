@@ -10,6 +10,12 @@
             </td>
         </tr>
         <tr>
+            <td>LastLogonUserName:</td>
+            <td>
+                @Html.DisplayFor(model => model.LastLogonUserName)
+            </td>
+        </tr>
+        <tr>
             <td>Admin Pwd Expire:</td>
             <td>
                 @Html.DisplayFor(model => model.PasswordExpireDate)
@@ -28,7 +34,7 @@
             </td>
         </tr>
         <tr>
-            @Html.Partial("ManagedBy", Model.ManagedBy)
+            @await Html.PartialAsync("ManagedBy", Model.ManagedBy)
         </tr>
         <tr>
             <td>Using OneDrive:</td>

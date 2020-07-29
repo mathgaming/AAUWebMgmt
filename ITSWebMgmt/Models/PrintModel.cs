@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ITSWebMgmt.Models
+﻿namespace ITSWebMgmt.Models
 {
     public class PrintModel
     {
@@ -17,6 +12,6 @@ namespace ITSWebMgmt.Models
         public string CredentialError { get; set; }
         public decimal Free { get; set; }
         public decimal Balance { get; set; }
-        public decimal paid => Balance - Free;
+        public decimal Paid => Balance - Free;
     }
 }

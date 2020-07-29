@@ -1,12 +1,8 @@
-using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Connectors
@@ -17,14 +13,14 @@ namespace ITSWebMgmt.Connectors
         private const string webserviceURL = "https://service.aau.dk";
         public string userID = "";
         private static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
-        private string authkey;
+        private readonly string authkey;
 
         public SCSMConnector()
         {
-            authkey = getAuthKey().Result;
+            authkey = GetAuthKey().Result;
         }
 
-        protected async Task<string> getAuthKey()
+        protected async Task<string> GetAuthKey()
         {
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/Authorization/GetToken");
             request.Method = "POST";
@@ -62,11 +58,11 @@ namespace ITSWebMgmt.Connectors
             {
                 return new ServiceManagerModel(null, null);
             }
-            return new ServiceManagerModel(userId, lookupWorkItemsByUUID(userId).Result);
+            return new ServiceManagerModel(userId, LookupWorkItemsByUUID(userId).Result);
         }
 
         //returns json string for uuid
-        protected async Task<List<Case>> lookupWorkItemsByUUID(string uuid)
+        protected async Task<List<Case>> LookupWorkItemsByUUID(string uuid)
         {
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/WorkItem/GetGridWorkItemsMyRequests?userid=" + uuid + "&showInactiveItems=true");
             request.Method = "Get";
@@ -86,7 +82,7 @@ namespace ITSWebMgmt.Connectors
         }
 
         //Takes a upn and retuns the users uuid
-        protected async Task<string> getUserUUIDByUPN(string upn, List<string> emails)
+        protected async Task<string> GetUserUUIDByUPN(string upn, List<string> emails)
         {
             //Get username from UPN
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/User/GetUserList?fetchAll=false&userFilter=" + upn);
@@ -113,16 +109,16 @@ namespace ITSWebMgmt.Connectors
             return null;
         }
 
-        public async Task<ServiceManagerModel> getServiceManager(string upn, List<string> emails)
+        public async Task<ServiceManagerModel> GetServiceManager(string upn, List<string> emails)
         {
-            string uuid = await getUUID(upn, emails);
+            string uuid = await GetUUID(upn, emails);
             
             return CreateServiceManager(uuid);
         }
 
-        public async Task<string> getUUID(string upn, List<string> emails)
+        public async Task<string> GetUUID(string upn, List<string> emails)
         {
-            return await getUserUUIDByUPN(upn, emails);
+            return await GetUserUUIDByUPN(upn, emails);
         }
     }
 }

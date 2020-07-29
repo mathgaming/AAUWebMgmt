@@ -21,7 +21,7 @@
             }
             else
             {
-                @Html.Partial("ManagedBy", Model.ManagedBy)
+                @await Html.PartialAsync("ManagedBy", Model.ManagedBy)
             }
         </tr>
         <tr>

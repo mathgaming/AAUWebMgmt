@@ -21,7 +21,7 @@
 </script>
 
 <div runat="server" id="ResultDiv">
-    <a href="/Group?grouppath=@HttpUtility.UrlEncode(Model.adpath)&forceviewgroup=true">View fileshare as group</a><br />
+    <a href="/Group?grouppath=@HttpUtility.UrlEncode(Model.ADPath)&forceviewgroup=true">View fileshare as group</a><br />
     <div class="ui grid">
         <div class="four wide column">
             <div class="ui vertical fluid tabular menu">
@@ -35,7 +35,7 @@
                 none<!-- spacer as the fist elemen else is placed differencet -->
             </div>
             <div class="ui active tab segment" data-tab="basicinfo">
-                @Html.Partial("BasicInfo", Model)
+                @await Html.PartialAsync("BasicInfo", Model)
             </div>
             <div class="ui tab segment" data-tab="members">
                 <h2>Members</h2>
@@ -44,10 +44,10 @@
                     <a data-tab="groups-all" class="item">Recursive groups</a>
                 </div>
                 <div class="ui active tab segment" data-tab="groups-direct">
-                    @Html.Partial("TableView", Model.GroupTable)
+                    @await Html.PartialAsync("TableView", Model.GroupTable)
                 </div>
                 <div class="ui tab segment" data-tab="groups-all">
-                    @Html.Partial("TableView", Model.GroupAllTable)
+                    @await Html.PartialAsync("TableView", Model.GroupAllTable)
                 </div>
             </div>
             <div class="ui tab segment" data-tab="memberOf">
@@ -57,10 +57,10 @@
                     <a data-tab="groups-all" class="item">Recursive groups</a>
                 </div>
                 <div class="ui active tab segment" data-tab="groups-direct">
-                    @Html.Partial("TableView", Model.GroupOfTable)
+                    @await Html.PartialAsync("TableView", Model.GroupOfTable)
                 </div>
                 <div class="ui tab segment" data-tab="groups-all">
-                    @Html.Partial("TableView", Model.GroupOfAllTable)
+                    @await Html.PartialAsync("TableView", Model.GroupOfAllTable)
                 </div>
             </div>
         </div>

@@ -49,17 +49,17 @@
                 none<!-- spacer as the fist elemen else is placed differencet -->
             </div>
             <div class="ui active tab segment" data-tab="basicinfo">
-                @Html.Partial("BasicInfo", Model)
+                @await Html.PartialAsync("BasicInfo", Model)
             </div>
             <div class="ui tab segment" data-tab="members">
-                @Html.Partial("Groups", new PartialGroupModel(Model.ADcache, "member", "Members"))
+                @await Html.PartialAsync("Groups", new PartialGroupModel(Model.ADCache, "member", "Members"))
             </div>
             <div class="ui tab segment" data-tab="memberOf">
-                @Html.Partial("Groups", new PartialGroupModel(Model.ADcache, "memberOf", "Members Of"))
+                @await Html.PartialAsync("Groups", new PartialGroupModel(Model.ADCache, "memberOf", "Members Of"))
             </div>
             <div class="ui tab segment" data-tab="rawData">
                 <h2>Raw Data</h2>
-                @Html.Partial("RawTable", Model.getAllProperties())
+                @await Html.PartialAsync("RawTable", Model.GetAllProperties())
             </div>
         </div>
     </div>

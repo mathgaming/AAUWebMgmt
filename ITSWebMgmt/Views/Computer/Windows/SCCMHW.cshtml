@@ -4,12 +4,12 @@
 <h3>RAM</h3>
 @Html.DisplayFor(model => model.SCCMRAM)
 <h3>Processor</h3>
-@Html.Partial("TableView", Model.SCCMProcessor)
+@await Html.PartialAsync("TableView", Model.SCCMProcessor)
 <h3>Video controller</h3>
-@Html.Partial("TableView", Model.SCCMVC)
+@await Html.PartialAsync("TableView", Model.SCCMVC)
 <h3>BIOS</h3>
-@Html.Partial("TableView", Model.SCCMBIOS)
+@await Html.PartialAsync("TableView", Model.SCCMBIOS)
 <h3>Logical Disk</h3>
-@Html.Partial("TableView", Model.SCCMLD)
+@await Html.PartialAsync("TableView", Model.SCCMLD)
 <h3>Disk</h3>
-@Html.Partial("TableView", Model.SCCMDisk)
+@await Html.PartialAsync("TableView", Model.SCCMDisk)

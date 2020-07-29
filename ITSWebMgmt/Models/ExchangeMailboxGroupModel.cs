@@ -16,8 +16,8 @@ namespace ITSWebMgmt.Models
             RawValue = group;
             if (group.StartsWith("CN=MBX_"))
             {
-                var adpathsplit = group.Split(',');
-                var nameSplit = adpathsplit[0].Split('_');
+                var ADPathsplit = group.Split(',');
+                var nameSplit = ADPathsplit[0].Split('_');
 
                 if (nameSplit.Length == 5)
                 {

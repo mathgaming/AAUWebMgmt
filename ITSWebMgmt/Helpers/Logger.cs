@@ -1,12 +1,9 @@
-using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -158,7 +155,7 @@ namespace ITSWebMgmt.Helpers
 
         public void ImportLogEntriesFromFile()
         {
-            FixImport(); // Fix wrongly imported adpaths because of spaces in the path (only for LogEntryType.UserMoveOU)
+            FixImport(); // Fix wrongly imported ADPaths because of spaces in the path (only for LogEntryType.UserMoveOU)
             UpdateIdsFromFile();
             if (File.Exists(@"C:\webmgmtlog\importlogfile.txt"))
             {

@@ -1,10 +1,7 @@
 ﻿using ITSWebMgmt.Connectors;
-using ITSWebMgmt.Helpers;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Models
 {
@@ -62,34 +59,34 @@ namespace ITSWebMgmt.Models
             JObject jsonVal = JObject.Parse(jsonString) as JObject;
             ComputerName = jsonVal.SelectToken("computer.general.name").ToString();
 
-            setHardware(jsonVal);
-            setSoftware(jsonVal);
-            setBasic(jsonVal);
-            setNetwork(jsonVal);
-            setGroups(jsonVal);
-            setLocalAccounts(jsonVal);
-            setDisk(jsonVal);
+            SetHardware(jsonVal);
+            SetSoftware(jsonVal);
+            SetBasic(jsonVal);
+            SetNetwork(jsonVal);
+            SetGroups(jsonVal);
+            SetLocalAccounts(jsonVal);
+            SetDisk(jsonVal);
         }
 
-        private void setHardware(JObject jsonVal)
+        private void SetHardware(JObject jsonVal)
         {
             HardwareTable = CreateRawTableFromJamf(jsonVal, "computer.hardware", new List<string>() { "filevault2_users", "storage", "mapped_printers" }, "Hardware info", true);
             //TODO Add disk info til hardware info
             //TODO consider printers
         }
 
-        private void setSoftware(JObject jsonVal)
+        private void SetSoftware(JObject jsonVal)
         {
             Applications = CreateTableFromJamf(jsonVal, "computer.software.applications", new List<string>() { "name", "version" }, new string[] { "Name", "Version" }, null);
             Plugins = CreateTableFromJamf(jsonVal, "computer.software.plugins", new List<string>() { "name", "version" }, new string[] { "Name", "Version" }, null);
         }
 
-        private void setNetwork(JObject jsonVal)
+        private void SetNetwork(JObject jsonVal)
         {
             NetworkTable = CreateRawTableFromJamf(jsonVal, "computer.general", new List<string>() { "mac_address", "alt_mac_address", "ip_address", "last_reported_ip" }, "Network info");
         }
 
-        private void setDisk(JObject jsonVal)
+        private void SetDisk(JObject jsonVal)
         {
             dynamic token = jsonVal.SelectToken("computer.hardware.storage");
             List<string[]> rows = new List<string[]>();
@@ -129,8 +126,10 @@ namespace ITSWebMgmt.Models
                 }
                 else
                 {
-                    var list = new List<string>(diskInfo);
-                    list.Add("Partion info not found");
+                    var list = new List<string>(diskInfo)
+                    {
+                        "Partion info not found"
+                    };
                     rows.Add(list.ToArray());
                 }
             }
@@ -138,13 +137,14 @@ namespace ITSWebMgmt.Models
             DiskTable = new TableModel(new string[] { "Disk", "Model", "Revision", "Partition name", "Size (MB)", "Percentage full", "Filevault status" }, rows, "Disk info");
         }
 
-        private void setBasic(JObject jsonVal)
+        private void SetBasic(JObject jsonVal)
         {
             dynamic token = jsonVal.SelectToken("computer.location");
 
-            List<string[]> rows = new List<string[]>();
-
-            rows.Add(new string[] { "Computer type", "Mac" });
+            List<string[]> rows = new List<string[]>
+            {
+                new string[] { "Computer type", "Mac" }
+            };
 
             List<string> names = new List<string>() { "email_address"};
 
@@ -175,12 +175,12 @@ namespace ITSWebMgmt.Models
             BasicInfoTable = new TableModel(new string[] { "Property name", "Value" }, rows, "Basic info");
         }
 
-        private void setLocalAccounts(JObject jsonVal)
+        private void SetLocalAccounts(JObject jsonVal)
         {
             LocalAccountsTable = CreateTableFromJamf(jsonVal, "computer.groups_accounts.local_accounts", new List<string>() { "name", "realname", "uid", "home", "home_size", "administrator", "filevault_enabled" }, new string[] { "Name", "Real name", "uid", "Home directory", "Home size", "Administrator", "Filevault enabled" }, "Local accounts");
         }
 
-        private void setGroups(JObject jsonVal)
+        private void SetGroups(JObject jsonVal)
         {
             JArray groups = jsonVal.SelectToken("computer.groups_accounts.computer_group_memberships").ToObject<JArray>();
             Groups = groups.Select(x => x.ToString()).ToList();

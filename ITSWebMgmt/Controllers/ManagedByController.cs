@@ -5,7 +5,6 @@ using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Net;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -31,14 +30,14 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
-        public void SaveManagedBy(string email, string adpath, string oldEmail)
+        public void SaveManagedBy(string email, string ADPath, string oldEmail)
         {
             try
             {
                 if (email == "")
                 {
-                    new GroupADcache(adpath).clearProperty("managedBy");
-                    new Logger(_context).Log(LogEntryType.ChangedManagedBy, HttpContext.User.Identity.Name, new List<string>() { adpath, "(Nothing)", oldEmail });
+                    new GroupADCache(ADPath).ClearProperty("managedBy");
+                    new Logger(_context).Log(LogEntryType.ChangedManagedBy, HttpContext.User.Identity.Name, new List<string>() { ADPath, "(Nothing)", oldEmail });
                     ErrorMessage = "";
                 }
                 else
@@ -46,8 +45,8 @@ namespace ITSWebMgmt.Controllers
                     UserModel model = new UserModel(email);
                     if (model.DistinguishedName.Contains("CN="))
                     {
-                        new GroupADcache(adpath).saveProperty("managedBy", model.DistinguishedName);
-                        new Logger(_context).Log(LogEntryType.ChangedManagedBy, HttpContext.User.Identity.Name, new List<string>() { adpath, model.UserPrincipalName, oldEmail });
+                        new GroupADCache(ADPath).SaveProperty("managedBy", model.DistinguishedName);
+                        new Logger(_context).Log(LogEntryType.ChangedManagedBy, HttpContext.User.Identity.Name, new List<string>() { ADPath, model.UserPrincipalName, oldEmail });
                         ErrorMessage = "";
                     }
                     else

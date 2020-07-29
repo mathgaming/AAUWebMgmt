@@ -1,8 +1,4 @@
 ﻿using ITSWebMgmt.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ITSWebMgmt.WebMgmtErrors
 {
@@ -25,7 +21,7 @@ namespace ITSWebMgmt.WebMgmtErrors
             Severeness = Severity.Warning;
         }
 
-        public override bool HaveError() => !user.userIsInRightOU();
+        public override bool HaveError() => !user.UserIsInRightOU();
     }
 
     public class MissingAAUAttr : UserWebMgmtError

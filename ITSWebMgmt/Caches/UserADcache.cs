@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ITSWebMgmt.Caches
 {
-    public class UserADcache : ADcache
+    public class UserADCache : ADCache
     {
-        public UserADcache(string adpath) : base(adpath, new List<Property>
+        public UserADCache(string ADPath) : base(ADPath, new List<Property>
         {
             new Property("memberOf", typeof(object[])),
             new Property("member", typeof(object[])), //Check this
