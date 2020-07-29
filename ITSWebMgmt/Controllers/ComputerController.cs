@@ -179,6 +179,12 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
+        public ActionResult EnableMicrosoftProject([FromBody]string computername)
+        {
+            return AddComputerToCollection(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
+        }
+
+        [HttpPost]
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
             ComputerModel = GetComputerModel(computername);
@@ -189,16 +195,16 @@ namespace ITSWebMgmt.Controllers
         [HttpPost]
         public ActionResult AddToAAU10([FromBody]string computername)
         {
-            return AddComputerTocollection(computername, "AA1000BC", "AAU10 PC");
+            return AddComputerToCollection(computername, "AA1000BC", "AAU10 PC");
         }
 
         [HttpPost]
         public ActionResult AddToAdministrativ10([FromBody]string computername)
         {
-            return AddComputerTocollection(computername, "AA1001BD", "Administrativ10 PC");
+            return AddComputerToCollection(computername, "AA1001BD", "Administrativ10 PC");
         }
 
-        private ActionResult AddComputerTocollection(string computerName, string collectionId, string collectionName)
+        private ActionResult AddComputerToCollection(string computerName, string collectionId, string collectionName)
         {
             ComputerModel = GetComputerModel(computerName);
 

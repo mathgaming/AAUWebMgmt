@@ -71,7 +71,7 @@ namespace ITSWebMgmt.Helpers
             p.WaitForExit();
             string errOutput = p.StandardError.ReadToEnd();
 
-            return errOutput.Length == 0;
+            return !errOutput.ToLower().Contains("error");
         }
 
         public static dynamic GetProperty(this ManagementObjectCollection moc, string property)
