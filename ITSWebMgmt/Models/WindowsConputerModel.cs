@@ -22,6 +22,7 @@ namespace ITSWebMgmt.Models
         public ManagementObjectCollection Antivirus { get => SCCMCache.Antivirus; private set { } }
         public ManagementObjectCollection System { get => SCCMCache.System; private set { } }
         public ManagementObjectCollection Collection { get => SCCMCache.Collection; private set { } }
+        public string LastLogonUserName { get => System.GetPropertyAsString("LastLogonUserName"); }
 
         //ADCache
         public string ComputerName { get => BaseModel.ComputerName; }
