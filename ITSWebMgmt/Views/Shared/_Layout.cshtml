@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using ITSWebMgmt.Helpers
+<!DOCTYPE html>
 
 <html lang="en">
 <head runat="server">
@@ -46,6 +47,26 @@
             alert("Internet Explorer is not supported, please use a different browser such as Chrome, Firefox or Edge.");
         }
     </script>
+    <script>
+        function StartMaintenance() {
+            var message = prompt("Please enter maintenance message", "WebMgmt is currently down for maintenance");
+            $.ajax({
+                type: "POST",
+                url: '/Home/StartMaintenance',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(message),
+                dataType: "json",
+                success: function (response) {
+                    alert(response.message);
+                },
+                error: function (response) {
+                    var r = JSON.parse(response.responseText);
+                    alert(r.errorMessage);
+                }
+            });
+            //location.reload();
+        }
+    </script>
 </head>
 <body>
     <header>
@@ -54,15 +75,16 @@
                 <a class="item" asp-area="" asp-controller="Home" asp-action="Index"><img src="https://www.resources.aau.dk/design2013/images/logo.png">ITS Webmgmt</a>
                 <div href="#" class="ui simple dropdown item">
                     Tools <i class="dropdown icon"></i>
-                          <div class="menu">
-                              <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a>
-                              <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a>
-                              <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a>
-                              <a class="item" asp-area="" asp-controller="ComputerList" asp-action="Index">Computer list (Only for platform)</a>
-                              <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage know issues (Only for platform)</a>
-                              <a class="item" asp-area="" asp-controller="MissingGroups" asp-action="Index">Manage Mac error groups (Only for platform)</a>
-                              <a class="item" asp-area="" asp-controller="CSV" asp-action="Index">CSV to email converter</a>
-                          </div>
+                    <div class="menu">
+                        <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a>
+                        <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a>
+                        <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a>
+                        <a class="item" asp-area="" asp-controller="ComputerList" asp-action="Index">Computer list (Only for platform)</a>
+                        <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage know issues (Only for platform)</a>
+                        <a class="item" asp-area="" asp-controller="MissingGroups" asp-action="Index">Manage Mac error groups (Only for platform)</a>
+                        <a class="item" onclick="StartMaintenance()">Take down for maintenance (Only for platform)</a>
+                        <a class="item" asp-area="" asp-controller="CSV" asp-action="Index">CSV to email converter</a>
+                    </div>
                 </div>
                 <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a>
                 <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a>
@@ -74,10 +96,25 @@
 
     <div class="ui main text container">
         <partial name="_CookieConsentPartial" />
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+        @if (MaintenanceHelper.IsDownForMaintenance)
+        {
+            <main role="main" class="pb-3">
+                <h1>@MaintenanceHelper.Message</h1>
+                @if (Authentication.IsPlatform(Context.User.Identity.Name))
+                {
+                    <input type="button" value="Go back to normal" onclick="location.href='@Url.Action("StopMaintenance", "Home")'" />
+                }
+                @{ IgnoreBody(); }
+            </main>
+        }
+        else
+        {
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        }
     </div>
+
 
     @RenderSection("Scripts", required: false)
     <footer class="border-top footer text-muted">

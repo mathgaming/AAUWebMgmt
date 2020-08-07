@@ -22,6 +22,11 @@ namespace ITSWebMgmt.Helpers
             return false;
         }
 
+        public static bool IsPlatform(string user)
+        {
+            return !IsNotPlatform(user);
+        }
+
         //Hardcoded, but fast
         public static bool IsNotPlatform(string user)
         {
@@ -36,7 +41,7 @@ namespace ITSWebMgmt.Helpers
                 }
             }
 
-            return true;
+            return false;
         }
     }
 }
