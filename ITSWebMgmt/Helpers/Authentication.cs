@@ -41,7 +41,7 @@ namespace ITSWebMgmt.Helpers
                 }
             }
 
-            return false;
+            return true;
         }
     }
 }
