@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,6 +39,7 @@ namespace ITSWebMgmt.Controllers
         public class ComputerList
         {
             public List<Computer> computers { get; set; }
+            public string name { get; set; }
         }
 
         public class AdvancedComputerSearchResult
@@ -50,7 +52,8 @@ namespace ITSWebMgmt.Controllers
         {
             var jamf = new JamfConnector();
 
-            var computers = jamf.SendGetReuest("advancedcomputersearches/id/" + id, "").Content.ReadAsAsync<AdvancedComputerSearchResult>().Result.advanced_computer_search.computers;
+            var res = jamf.SendGetReuest("advancedcomputersearches/id/" + id, "").Content.ReadAsAsync<AdvancedComputerSearchResult>().Result.advanced_computer_search;
+            var computers = res.computers;
 
             StringBuilder sb = new StringBuilder();
 
@@ -80,7 +83,8 @@ namespace ITSWebMgmt.Controllers
                 }
             }
 
-            return Success(sb.ToString());
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json(new { success = true, message = sb.ToString(), group = res.name});
         }
     }
 }

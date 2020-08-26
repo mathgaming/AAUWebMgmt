@@ -21,14 +21,13 @@
             data: JSON.stringify(id),
             dataType: "json",
             success: function (response) {
-                download("emails.csv", response.message);
+                download(response.group + ".csv", response.message);
             },
             error: function (response) {
                 var r = JSON.parse(response.responseText);
                 alert(r.errorMessage);
             }
         });
-        //location.reload();
     }
 </script>
 <h1>Jamf email list creator</h1>
