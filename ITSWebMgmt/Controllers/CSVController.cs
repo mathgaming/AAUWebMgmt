@@ -64,10 +64,11 @@ namespace ITSWebMgmt.Controllers
                         try
                         {
                             var user = new UserModel(email, false);
-                            string name = user.DisplayName;
+                            string user_email = user.UserFound ? user.GetUserMails()[0] : "not found";
+                            string name = user.UserFound ? user.DisplayName : "Not found";
                             string computerName = columbs[computernameIndex];
                             string sn = columbs[snIndex];
-                            sb.Append($"{user.GetUserMails()[0]};{columbs[aauNumberIndex]};{name};{computerName};{sn}\n");
+                            sb.Append($"{user_email};{columbs[aauNumberIndex]};{name};{computerName};{sn}\n");
                         }
                         catch (Exception)
                         {

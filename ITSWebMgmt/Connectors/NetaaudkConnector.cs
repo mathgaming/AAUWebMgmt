@@ -34,9 +34,12 @@ namespace ITSWebMgmt.Connectors
             }
             client.Dispose();
 
-            response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            if (response.Content.Headers.ContentLength > 1)
+            {
+                return response.Content.ReadAsAsync<List<NetaaudkModel>>().Result;
+            }
 
-            return response.Content.ReadAsAsync<List<NetaaudkModel>>().Result;
+            return new List<NetaaudkModel>();
         }
 
 #pragma warning disable IDE1006 // Naming Styles

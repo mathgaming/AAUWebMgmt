@@ -59,11 +59,10 @@ namespace ITSWebMgmt.Controllers
                     ComputerModel = new ComputerModel(computerName);
                     ComputerModel.Windows = new WindowsComputerModel(ComputerModel);
 
-                    if (ComputerModel.Windows.ComputerFound)
+                    if (ComputerModel.IsWindows)
                     {
                         try
                         {
-                            ComputerModel.IsWindows = true;
                             ComputerModel.Windows.SetConfig();
                             ComputerModel.Windows.InitBasicInfo();
                             LoadWindowsWarnings();
@@ -84,7 +83,6 @@ namespace ITSWebMgmt.Controllers
                         ComputerModel.Mac = new MacComputerModel(ComputerModel);
                         if (ComputerModel.Mac.ComputerFound)
                         {
-                            ComputerModel.IsWindows = false;
                             ComputerModel.SetTabs();
                             LoadMacWarnings();
                         }

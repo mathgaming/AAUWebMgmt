@@ -1,0 +1,39 @@
+@model ITSWebMgmt.Models.AdvancedComputerSearchList
+<script>
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    function CreateList(id) {
+        $.ajax({
+            type: "POST",
+            url: '/JamfGroup/GetEmailList',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(id),
+            dataType: "json",
+            success: function (response) {
+                download(response.group + ".csv", response.message);
+            },
+            error: function (response) {
+                var r = JSON.parse(response.responseText);
+                alert(r.errorMessage);
+            }
+        });
+    }
+</script>
+<h1>Jamf email list creator</h1>
+<p>Press a group to get the email list</p>
+@foreach (var search in Model.advanced_computer_searches)
+{
+    <a  href="#" onclick="CreateList(@search.id)">@search.name</a>
+    <br />
+}

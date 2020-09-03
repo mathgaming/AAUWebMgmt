@@ -23,16 +23,15 @@ namespace ITSWebMgmt.Connectors
             Auth = "Basic " + base64encodedusernpass;
         }
 
-        private HttpResponseMessage SendGetReuest(string url, string urlParameters)
+        public HttpResponseMessage SendGetReuest(string url, string urlParameters)
         {
             url = "https://aaudk.jamfcloud.com/JSSResource/" + url;
             HttpClient client = new HttpClient
             {
-                BaseAddress = new Uri(url)
+                BaseAddress = new Uri(url),
             };
             client.DefaultRequestHeaders.Add("Authorization", Auth);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
             HttpResponseMessage response = client.GetAsync(urlParameters).Result;
             client.Dispose();
 
