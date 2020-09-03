@@ -11,6 +11,7 @@ namespace ITSWebMgmt.Models
 
         //Display
         public bool IsWindows { get; set; }
+        public bool IsInAD { get; set; }
         public string ComputerName { get; set; } = "AAU115359";
         public string ErrorCountMessage { get; set; }
         public string ErrorMessages { get; set; }
@@ -52,6 +53,11 @@ namespace ITSWebMgmt.Models
                 Tabs.Add(new TabModel("macloaclaccounts", "Local accounts"));
                 Tabs.Add(new TabModel("purchase", "Purchase info (INDB)"));
                 Tabs.Add(new TabModel("warnings", "Warnings"));
+                if (IsInAD)
+                {
+                    Tabs.Add(new TabModel("groups", "Groups (AD)"));
+                    Tabs.Add(new TabModel("rawdata", "Raw data (AD)"));
+                }
             }
         }
     }

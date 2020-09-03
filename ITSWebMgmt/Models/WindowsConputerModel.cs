@@ -88,12 +88,17 @@ namespace ITSWebMgmt.Models
                 ADCache = new ComputerADCache(ComputerName);
                 if (ADCache.ComputerFound)
                 {
-                    SCCMCache = new SCCMCache();
-                    SCCMCache.ResourceID = GetSCCMResourceIDFromComputerName(ComputerNameAD);
+                    baseModel.IsInAD = true;
                     BaseModel.ComputerName = ADCache.ComputerName;
                     BaseModel.ComputerFound = ADCache.ComputerFound;
-                    InitSCCMAV();
-                    LoadDataInbackground();
+                    baseModel.IsWindows = !ADCache.GetProperty("operatingSystem").ToLower().Contains("mac os");
+                    if (baseModel.IsWindows)
+                    {
+                        SCCMCache = new SCCMCache();
+                        SCCMCache.ResourceID = GetSCCMResourceIDFromComputerName(ComputerNameAD);
+                        InitSCCMAV();
+                        LoadDataInbackground();
+                    }
                 }
             }
         }
