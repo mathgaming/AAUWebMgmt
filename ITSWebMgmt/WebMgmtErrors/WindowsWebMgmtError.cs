@@ -24,7 +24,15 @@ namespace ITSWebMgmt.WebMgmtErrors
             Severeness = Severity.Warning;
         }
 
-        public override bool HaveError() => computer.ComputerModel.Windows.LogicalDisk.Count == 0;
+        public override bool HaveError()
+        {
+            if (computer.ComputerModel.Windows.SCCMCache.ResourceID == "")
+            {
+                return true;
+            }
+
+            return computer.ComputerModel.Windows.LogicalDisk.Count == 0;
+        }
     }
 
     public class DriveAlmostFull : ComputerWebMgmtError
@@ -38,6 +46,11 @@ namespace ITSWebMgmt.WebMgmtErrors
 
         public override bool HaveError()
         {
+            if (computer.ComputerModel.Windows.SCCMCache.ResourceID == "")
+            {
+                return false;
+            }
+
             if (computer.ComputerModel.Windows.LogicalDisk.Count != 0)
             {
                 int space = computer.ComputerModel.Windows.LogicalDisk.GetPropertyInGB("FreeSpace");
