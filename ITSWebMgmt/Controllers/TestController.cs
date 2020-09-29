@@ -1,4 +1,5 @@
-﻿using ITSWebMgmt.Models.Log;
+﻿using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Models.Log;
 using System;
 
 namespace ITSWebMgmt.Controllers
@@ -9,7 +10,9 @@ namespace ITSWebMgmt.Controllers
 
         public void Index()
         {
-            throw new NotImplementedException();
+            var øss = new ØSSConnector();
+
+            //throw new NotImplementedException();
         }
     }
 }
