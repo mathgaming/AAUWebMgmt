@@ -54,7 +54,7 @@ namespace ITSWebMgmt
                 app.UseHsts();
             }
 
-            SCCM.Init();
+            SCCMConnector.Init();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

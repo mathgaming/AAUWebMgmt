@@ -2,7 +2,7 @@
 
 namespace ITSWebMgmt.Helpers
 {
-    public class DirectoryEntryCreator
+    public class ADConnector
     {
         private static readonly string username = Startup.Configuration["cred:ad:username"];
         private static readonly string password = Startup.Configuration["cred:ad:password"];

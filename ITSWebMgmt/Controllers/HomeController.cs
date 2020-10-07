@@ -83,7 +83,7 @@ namespace ITSWebMgmt.Controllers
                 {
                     ADPath = "LDAP://" + ADPath;
                 }
-                DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry(ADPath);
+                DirectoryEntry de = ADConnector.CreateNewDirectoryEntry(ADPath);
 
                 var type = de.SchemaEntry.Name;
 

@@ -20,7 +20,7 @@ namespace ITSWebMgmt.Helpers
         {
             try
             {
-                DirectoryEntry user = DirectoryEntryCreator.CreateNewDirectoryEntry(ADPath);
+                DirectoryEntry user = ADConnector.CreateNewDirectoryEntry(ADPath);
                 int val = (int)user.Properties["userAccountControl"].Value;
                 if (enable)
                 {
@@ -46,7 +46,7 @@ namespace ITSWebMgmt.Helpers
         {
             try
             {
-                DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry(groupADPath);
+                DirectoryEntry dirEntry = ADConnector.CreateNewDirectoryEntry(groupADPath);
                 dirEntry.Properties["member"].Add(userADPath);
                 dirEntry.CommitChanges();
                 dirEntry.Close();
@@ -60,7 +60,7 @@ namespace ITSWebMgmt.Helpers
 
         public static void RemoteMemberFromGroup(string userADPath, string groupADPath)
         {
-            DirectoryEntry dirEntry = DirectoryEntryCreator.CreateNewDirectoryEntry(groupADPath);
+            DirectoryEntry dirEntry = ADConnector.CreateNewDirectoryEntry(groupADPath);
             dirEntry.Properties["member"].Remove(userADPath);
             dirEntry.CommitChanges();
             dirEntry.Close();
@@ -135,7 +135,7 @@ namespace ITSWebMgmt.Helpers
 
         private static string GlobalSearch(string seachString)
         {
-            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry("GC://aau.dk");
+            DirectoryEntry de = ADConnector.CreateNewDirectoryEntry("GC://aau.dk");
             string filter;
             if (seachString.Length == 6)
             {
@@ -186,7 +186,7 @@ namespace ITSWebMgmt.Helpers
 
             } // else format is ok
 
-            DirectoryEntry de = DirectoryEntryCreator.CreateNewDirectoryEntry("GC://aau.dk");
+            DirectoryEntry de = ADConnector.CreateNewDirectoryEntry("GC://aau.dk");
             string filter = string.Format("(&(objectCategory=person)(objectClass=user)(telephoneNumber={0}))", number);
 
             DirectorySearcher search = new DirectorySearcher(de, filter);

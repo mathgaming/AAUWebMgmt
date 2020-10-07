@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace ITSWebMgmt.Helpers
 {
-    public static class SCCM
+    public static class SCCMConnector
     {
         private static readonly string Username = Startup.Configuration["SCCMUsername"];
         private static readonly string Password = Startup.Configuration["SCCMPassword"];

@@ -75,7 +75,7 @@ namespace ITSWebMgmt.Models
 
             foreach (ManagementObject o in Software)
             {
-                string name = SCCM.GetPropertyAsString(o.Properties["ProductName"]).ToLower();
+                string name = SCCMConnector.GetPropertyAsString(o.Properties["ProductName"]).ToLower();
                 if (name.Contains("java") && name.Contains("Update"))
                 {
                     return true;
@@ -136,7 +136,7 @@ namespace ITSWebMgmt.Models
             ManagementObjectCollection Collection = this.Collection;
             WindowsComputerModel ComputerModel = this;
 
-            if (SCCM.HasValues(Collection))
+            if (SCCMConnector.HasValues(Collection))
             {
                 List<string> namesInCollection = new List<string>();
                 foreach (ManagementObject o in Collection)
@@ -180,7 +180,7 @@ namespace ITSWebMgmt.Models
                     ManagementPath path = new ManagementPath(pathString);
                     ManagementObject obj = new ManagementObject
                     {
-                        Scope = SCCM.MS,
+                        Scope = SCCMConnector.MS,
                         Path = path
                     };
                     obj.Get();
@@ -220,7 +220,7 @@ namespace ITSWebMgmt.Models
                 new List<string>() { "DeviceID", "FileSystem", "Size", "FreeSpace" },
                 "Disk information not found");
 
-            if (SCCM.HasValues(RAM))
+            if (SCCMConnector.HasValues(RAM))
             {
                 int total = 0;
                 int count = 0;
@@ -259,7 +259,7 @@ namespace ITSWebMgmt.Models
         {
             List<string[]> rows = new List<string[]>();
 
-            if (SCCM.HasValues(results))
+            if (SCCMConnector.HasValues(results))
             {
                 var o = results.OfType<ManagementObject>().FirstOrDefault();
 
@@ -280,7 +280,7 @@ namespace ITSWebMgmt.Models
                     }
                     else
                     {
-                        rows.Add(new string[] { p, SCCM.GetPropertyAsString(property) });
+                        rows.Add(new string[] { p, SCCMConnector.GetPropertyAsString(property) });
                     }
                 }
 
@@ -320,7 +320,7 @@ namespace ITSWebMgmt.Models
 
         public TableModel CreateTableFromDatabase(ManagementObjectCollection results, List<string> keys, List<string> names, string errorMessage, string title)
         {
-            if (SCCM.HasValues(results))
+            if (SCCMConnector.HasValues(results))
             {
                 List<string[]> rows = new List<string[]>();
 
@@ -329,7 +329,7 @@ namespace ITSWebMgmt.Models
                     List<string> properties = new List<string>();
                     foreach (var p in keys)
                     {
-                        properties.Add(SCCM.GetPropertyAsString(o.Properties[p]));
+                        properties.Add(SCCMConnector.GetPropertyAsString(o.Properties[p]));
                     }
                     rows.Add(properties.ToArray());
                 }

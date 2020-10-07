@@ -156,7 +156,7 @@ namespace ITSWebMgmt.Controllers
 
                 new Logger(_context).Log(LogEntryType.UserMoveOU, HttpContext.User.Identity.Name, new List<string>() {newPath, UserModel.ADPath });
 
-                var newLocaltion = DirectoryEntryCreator.CreateNewDirectoryEntry(newPath);
+                var newLocaltion = ADConnector.CreateNewDirectoryEntry(newPath);
                 UserModel.ADCache.DE.MoveTo(newLocaltion);
 
                 return Success();

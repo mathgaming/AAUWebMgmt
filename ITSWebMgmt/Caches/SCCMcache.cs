@@ -428,7 +428,7 @@ namespace ITSWebMgmt.Caches
 
             if (_cache[i] == null)
             {
-                _cache[i] = SCCM.GetResults(wqlq);
+                _cache[i] = SCCMConnector.GetResults(wqlq);
             }
 
             return _cache[i];

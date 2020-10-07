@@ -316,7 +316,7 @@ namespace ITSWebMgmt.Helpers
             else
             {
                 DirectoryEntry de = null;
-                foreach (var item in DirectoryEntryCreator.CreateNewDirectoryEntry("GC:").Children)
+                foreach (var item in ADConnector.CreateNewDirectoryEntry("GC:").Children)
                 {
                     de = (DirectoryEntry)item;
                 }
@@ -398,7 +398,7 @@ namespace ITSWebMgmt.Helpers
                 try
                 {
                     var diskspace = -1;
-                    if (SCCM.HasValues(computerModel.Disk))
+                    if (SCCMConnector.HasValues(computerModel.Disk))
                     {
                         var disk = computerModel.LogicalDisk.OfType<ManagementObject>().FirstOrDefault();
                         diskspace = disk.Properties["FreeSpace"].Value != null ? (int.Parse(disk.Properties["FreeSpace"].Value.ToString()) / 1024) : -1;
