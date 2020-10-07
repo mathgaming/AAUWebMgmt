@@ -15,9 +15,8 @@ namespace ITSWebMgmt.Connectors
         public SplunkConnector(IMemoryCache cache)
         {
             _cache = cache;
-            string user = Startup.Configuration["cred:ad:username"];
-            string pass = Startup.Configuration["cred:ad:password"];
-            var plainTextBytes = Encoding.UTF8.GetBytes(user + ":" + pass);
+            Secret secret = new PasswordManagerConnector().GetSecret("Splunk");
+            var plainTextBytes = Encoding.UTF8.GetBytes(secret.UserName + ":" + secret.Password);
             string base64encodedusernpass = Convert.ToBase64String(plainTextBytes);
             Auth = "Basic " + base64encodedusernpass;
         }

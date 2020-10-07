@@ -10,16 +10,9 @@ namespace ITSWebMgmt.Connectors
     {
         private readonly IMemoryCache _cache;
 
-        public PasswordManagerConnector(IMemoryCache cache)
+        public PasswordManagerConnector(IMemoryCache cache = null)
         {
             _cache = cache;
-        }
-
-        public class Secret
-        {
-            public static string UserName { get; set; }
-            public static string Password { get; set; }
-            public static string APIKey { get; set; }
         }
 
         public Secret GetSecret(string name)
@@ -41,5 +34,12 @@ namespace ITSWebMgmt.Connectors
             //API dokumentation kan findes under Help, når man er logget ind
             return new Secret();
         }
+    }
+
+    public class Secret
+    {
+        public string UserName { get; set; }
+        public string Password { get; set; }
+        public string APIKey { get; set; }
     }
 }

@@ -8,7 +8,6 @@ namespace ITSWebMgmt.Connectors
 {
     public class PureConnector
     {
-        private readonly string APIkey = Startup.Configuration["PureApiKey"];
         private readonly string street = null;
         private readonly string building = null;
 
@@ -64,7 +63,8 @@ namespace ITSWebMgmt.Connectors
             {
                 BaseAddress = new Uri(url)
             };
-            client.DefaultRequestHeaders.Add("api-key", APIkey);
+            Secret secret = new PasswordManagerConnector().GetSecret("Pure");
+            client.DefaultRequestHeaders.Add("api-key", secret.APIKey);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = client.GetAsync(urlParameters).Result;
             client.Dispose();

@@ -3,13 +3,12 @@ using System.Management;
 using System.Diagnostics;
 using System.Linq;
 using System.ComponentModel;
+using ITSWebMgmt.Connectors;
 
 namespace ITSWebMgmt.Helpers
 {
     public static class SCCMConnector
     {
-        private static readonly string Username = Startup.Configuration["SCCMUsername"];
-        private static readonly string Password = Startup.Configuration["SCCMPassword"];
         public static ManagementScope MS {get; set; }
 
         public static ManagementObjectCollection GetResults(WqlObjectQuery wqlq)
@@ -42,14 +41,11 @@ namespace ITSWebMgmt.Helpers
 
         public static ConnectionOptions GetConnectionOptions()
         {
-            if (Username == null)
-            {
-                Console.WriteLine();
-            }
+            Secret secret = new PasswordManagerConnector().GetSecret("SCCM");
             ConnectionOptions con = new ConnectionOptions
             {
-                Username = Username,
-                Password = Password
+                Username = secret.UserName,
+                Password = secret.Password
             };
             return con;
         }
