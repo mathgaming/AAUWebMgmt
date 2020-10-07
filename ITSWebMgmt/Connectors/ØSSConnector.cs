@@ -19,8 +19,8 @@ namespace ITSWebMgmt.Connectors
 
         void Connect()
         {
-            string user = Startup.Configuration["cred:jamf:username"];
-            string pass = Startup.Configuration["cred:jamf:password"];
+            string user = Startup.Configuration["cred:øss:username"];
+            string pass = Startup.Configuration["cred:øss:password"];
             string oradb = "Data Source=(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = ora-oss-stdb.srv.aau.dk)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = OSSPSB)));"
                 + $"User Id={user};Password={pass}; Connection Timeout=60;";
 
