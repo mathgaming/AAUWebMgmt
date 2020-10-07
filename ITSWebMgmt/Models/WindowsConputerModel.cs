@@ -68,6 +68,11 @@ namespace ITSWebMgmt.Models
         public bool UsesOnedrive { get; set; } = false;
         public bool HasJava()
         {
+            if (SCCMCache.ResourceID == "")
+            {
+                return false;
+            }
+
             foreach (ManagementObject o in Software)
             {
                 string name = SCCM.GetPropertyAsString(o.Properties["ProductName"]).ToLower();

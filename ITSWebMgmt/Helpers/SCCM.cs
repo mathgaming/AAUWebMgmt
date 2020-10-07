@@ -22,6 +22,11 @@ namespace ITSWebMgmt.Helpers
         {
             try
             {
+                if (results == null)
+                {
+                    return false;
+                }
+
                 var t2 = results.Count;
                 return results.Count != 0;
             }
@@ -95,7 +100,15 @@ namespace ITSWebMgmt.Helpers
             return GetPropertyAs<int>(moc, property) / 1024;
         }
 
-        public static string GetPropertyAsString(this ManagementObjectCollection moc, string property) => GetPropertyAsString(moc.OfType<ManagementObject>().FirstOrDefault()?.Properties[property]);
+        public static string GetPropertyAsString(this ManagementObjectCollection moc, string property)
+        {
+            if (moc == null)
+            {
+                return "Not found";
+            }
+
+            return GetPropertyAsString(moc.OfType<ManagementObject>().FirstOrDefault()?.Properties[property]);
+        }
 
         public static string GetPropertyAsString(PropertyData property)
         {
