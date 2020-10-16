@@ -3,6 +3,7 @@ using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Connectors
@@ -10,27 +11,47 @@ namespace ITSWebMgmt.Connectors
     public class ØSSConnector
     {
         private OracleConnection conn;
+        private readonly SecureString s = new SecureString();
+        private readonly OracleCredential credential;
 
         public ØSSConnector()
         {
-            Connect();
-            Disconnect();
+            string user = Startup.Configuration["cred:oss:username"];
+            string pass = Startup.Configuration["cred:oss:password"];
+
+            foreach (var c in pass)
+            {
+                s.AppendChar(c);
+            }
+
+            s.MakeReadOnly();
+
+            credential = new OracleCredential(user, s);
         }
 
-        void Connect()
+        private void Connect()
         {
-            string user = Startup.Configuration["cred:øss:username"];
-            string pass = Startup.Configuration["cred:øss:password"];
-            string oradb = "Data Source=(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = ora-oss-stdb.srv.aau.dk)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = OSSPSB)));"
-                + $"User Id={user};Password={pass}; Connection Timeout=60;";
+            string oradb = "Data Source=(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = ora-oss-stdb.srv.aau.dk)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = OSSPSB)));";
 
-            conn = new OracleConnection(oradb);
+            conn = new OracleConnection(oradb, credential);
             conn.Open();
 
             Console.WriteLine();
         }
 
-        void LookupUser(string name) //UserModel.DisplayName
+        public TableModel LookUpByAAUNumber(string id)
+        {
+            string query = $"select * from webmgmt_assets where tag_number like '{id}'";
+            return GetTableFromQuery(query);
+        }
+
+        public TableModel LookUpByEmployeeID(string id)
+        {
+            string query = $"select * from webmgmt_assets where employee_number like '{id}'";
+            return GetTableFromQuery(query);
+        }
+
+        public TableModel LookUpByEmployeeName(string name)
         {
             string[] parts = name.Split(" ");
             string formattedName = parts[parts.Length - 1] + ",";
@@ -41,6 +62,12 @@ namespace ITSWebMgmt.Connectors
 
             string query = $"select * from webmgmt_assets where employee_name like '{formattedName}'";
 
+            return GetTableFromQuery(query);
+        }
+
+        public TableModel GetTableFromQuery(string query)
+        {
+            Connect();
             OracleCommand command = conn.CreateCommand();
             command.CommandText = query;
 
@@ -56,19 +83,27 @@ namespace ITSWebMgmt.Connectors
                 line.Description = reader["DESCRIPTION"] as string;
                 line.SerialNumber = reader["SERIAL_NUMBER"] as string;
                 line.EmployeeName = reader["EMPLOYEE_NANE"] as string;
-                line.EmployeeNUmber = reader["EMPLOYEE_NUMBER"] as string;
+                line.EmployeeNumber = reader["EMPLOYEE_NUMBER"] as string;
 
                 lines.Add(line);
             }
 
-            // do something with the lines
+            Disconnect();
+
+            List<string[]> rows = new List<string[]>();
+
+            foreach (var line in lines)
+            {
+                rows.Add(new string[] { line.TagNumber, line.AssetNumber, line.Description, line.SerialNumber, line.EmployeeName, line.EmployeeNumber });
+            }
+
+            return new TableModel(new string[] { "Tag number", "Asset number", "Description", "Serial number", "Employee_name", "Employee number" }, rows);      
         }
 
-        void Disconnect()
+        private void Disconnect()
         {
             conn.Close();
             conn.Dispose();
-            Console.Write("Disconnected");
         }
     }
 
@@ -80,6 +115,6 @@ namespace ITSWebMgmt.Connectors
         public string SerialNumber { get; set; }
         public string EmployeeName { get; set; }
 
-        public string EmployeeNUmber { get; set; }
+        public string EmployeeNumber { get; set; }
     }
 }
