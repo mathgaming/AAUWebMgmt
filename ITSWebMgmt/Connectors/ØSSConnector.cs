@@ -85,7 +85,7 @@ namespace ITSWebMgmt.Connectors
 
             foreach (var line in lines)
             {
-                rows.Add(new string[] { line.TagNumber, line.AssetNumber, line.Description, line.SerialNumber, line.EmployeeName, line.EmployeeNumber, line.TransactionType, DateTimeConverter.Convert(line.LastUpdateDate) });
+                rows.Add(new string[] { line.TagNumber, line.Description, line.EmployeeName, line.TransactionType, DateTimeConverter.Convert(line.LastUpdateDate) });
             }
 
             TableModel table;
@@ -95,8 +95,7 @@ namespace ITSWebMgmt.Connectors
             }
             else
             {
-                table =new TableModel(new string[] { "Tag number", "Asset number", "Description", "Serial number",
-                "Employee_name", "Employee number", "Transaction type", "Last update date" }, rows);
+                table = new TableModel(new string[] { "Tag/AAU number", "Description", "Employee name", "Transaction type", "Last update date" }, rows);
             }
 
             table.ViewHeading = "ØSS info";
