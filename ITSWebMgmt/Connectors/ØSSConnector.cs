@@ -49,21 +49,8 @@ namespace ITSWebMgmt.Connectors
 
         public TableModel LookUpByEmployeeID(string id)
         {
-            string query = $"select * from webmgmt_assets where employee_number like '{id}'";
-            return GetTableFromQuery(query);
-        }
-
-        public TableModel LookUpByEmployeeName(string name)
-        {
-            string[] parts = name.Split(" ");
-            string formattedName = parts[parts.Length - 1] + ",";
-            for (int i = 0; i < parts.Length - 1; i++)
-            {
-                formattedName += " " + parts[i];
-            }
-
-            string query = $"select * from webmgmt_assets where employee_name like '{formattedName}'";
-
+            string query = $"select * from webmgmt_assets where employee_number like '{id}'"+
+                " and (LOWER(DESCRIPTION) like '%pc%' or LOWER(DESCRIPTION) like '%bærbar%' or LOWER(DESCRIPTION) like '%computer%' or LOWER(DESCRIPTION) like '%mac%')";
             return GetTableFromQuery(query);
         }
 
