@@ -171,6 +171,8 @@ namespace ITSWebMgmt.Controllers
                     return PartialView("TableView", ComputerModel.Mac.DiskTable);
                 case "purchase":
                     return PartialView("INDB", INDBConnector.GetInfo(ComputerModel.ComputerName));
+                case "øss":
+                    return PartialView("TableView", new ØSSConnector().LookUpByAAUNumber(ComputerModel.ComputerName));
             }
 
             return PartialView(viewName, ComputerModel.Windows);

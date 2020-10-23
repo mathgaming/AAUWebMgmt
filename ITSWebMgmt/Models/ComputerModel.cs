@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ITSWebMgmt.Connectors;
 
 namespace ITSWebMgmt.Models
 {
@@ -17,7 +18,6 @@ namespace ITSWebMgmt.Models
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
         public virtual bool ComputerFound { get; set; }
-
 
         public ComputerModel(string computerName)
         {
@@ -38,6 +38,7 @@ namespace ITSWebMgmt.Models
                 Tabs.Add(new TabModel("sccmHW", "Hardware info"));
                 Tabs.Add(new TabModel("sccmAV", "Antivirus"));
                 Tabs.Add(new TabModel("purchase", "Purchase info (INDB)"));
+                Tabs.Add(new TabModel("øss", "ØSS Info"));
                 Tabs.Add(new TabModel("rawdata", "Raw data (AD)"));
                 Tabs.Add(new TabModel("rawdatasccm", "Raw data (SCCM)"));
                 Tabs.Add(new TabModel("tasks", "Tasks"));
@@ -52,6 +53,7 @@ namespace ITSWebMgmt.Models
                 Tabs.Add(new TabModel("macnetwork", "Network info"));
                 Tabs.Add(new TabModel("macloaclaccounts", "Local accounts"));
                 Tabs.Add(new TabModel("purchase", "Purchase info (INDB)"));
+                Tabs.Add(new TabModel("øss", "ØSS Info"));
                 Tabs.Add(new TabModel("warnings", "Warnings"));
                 if (IsInAD)
                 {

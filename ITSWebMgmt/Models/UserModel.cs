@@ -122,6 +122,7 @@ namespace ITSWebMgmt.Models
         public TableModel Windows7to10 { get; set; }
         public TableModel WindowsComputerTable { get; set; }
         public TableModel MacComputerTable { get; set; }
+        public TableModel ØSSComputerTable { get; set; }
         public bool ShowFixUserOU { get; set; } = false;
         public bool ShowLoginScript { get; set; } = false;
         public string UsesOnedrive { get; set; } = "False";
@@ -410,6 +411,14 @@ namespace ITSWebMgmt.Models
             {
                 WindowsComputerTable = null;
                 MacComputerTable = null;
+            }
+            try
+            {
+                ØSSComputerTable = new ØSSConnector().LookUpByEmployeeID(AAUStaffID);
+            }
+            catch (Exception e)
+            {
+                ØSSComputerTable = new TableModel(e.Message + e.StackTrace);
             }
         }
 

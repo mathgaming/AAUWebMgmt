@@ -1,4 +1,5 @@
-﻿using ITSWebMgmt.Models;
+﻿using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Models;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,7 @@ namespace ITSWebMgmt.Connectors
 
         public TableModel LookUpByAAUNumber(string id)
         {
+            id = id.Substring(3);
             string query = $"select * from webmgmt_assets where tag_number like '{id}'";
             return GetTableFromQuery(query);
         }
@@ -82,8 +84,10 @@ namespace ITSWebMgmt.Connectors
                 line.AssetNumber = reader["ASSET_NUMBER"] as string;
                 line.Description = reader["DESCRIPTION"] as string;
                 line.SerialNumber = reader["SERIAL_NUMBER"] as string;
-                line.EmployeeName = reader["EMPLOYEE_NANE"] as string;
+                line.EmployeeName = reader["EMPLOYEE_NAME"] as string;
                 line.EmployeeNumber = reader["EMPLOYEE_NUMBER"] as string;
+                line.TransactionType = reader["TRANSACTION_TYPE_CODE"] as string;
+                line.LastUpdateDate = reader["LAST_UPDATE_DATE"] as DateTime?;
 
                 lines.Add(line);
             }
@@ -94,10 +98,23 @@ namespace ITSWebMgmt.Connectors
 
             foreach (var line in lines)
             {
-                rows.Add(new string[] { line.TagNumber, line.AssetNumber, line.Description, line.SerialNumber, line.EmployeeName, line.EmployeeNumber });
+                rows.Add(new string[] { line.TagNumber, line.AssetNumber, line.Description, line.SerialNumber, line.EmployeeName, line.EmployeeNumber, line.TransactionType, DateTimeConverter.Convert(line.LastUpdateDate) });
             }
 
-            return new TableModel(new string[] { "Tag number", "Asset number", "Description", "Serial number", "Employee_name", "Employee number" }, rows);      
+            TableModel table;
+            if (rows.Count == 0)
+            {
+                table = new TableModel("No information found from ØSS");
+            }
+            else
+            {
+                table =new TableModel(new string[] { "Tag number", "Asset number", "Description", "Serial number",
+                "Employee_name", "Employee number", "Transaction type", "Last update date" }, rows);
+            }
+
+            table.ViewHeading = "ØSS info";
+
+            return table;
         }
 
         private void Disconnect()
@@ -114,7 +131,8 @@ namespace ITSWebMgmt.Connectors
         public string Description { get; set; }
         public string SerialNumber { get; set; }
         public string EmployeeName { get; set; }
-
         public string EmployeeNumber { get; set; }
+        public string TransactionType { get; set; }
+        public DateTime? LastUpdateDate { get; set; } 
     }
 }
