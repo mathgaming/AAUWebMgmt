@@ -421,6 +421,11 @@ namespace ITSWebMgmt.Caches
 
         private ManagementObjectCollection GetQuery(int i, WqlObjectQuery wqlq)
         {
+            if (ResourceID == "")
+            {
+                return null;
+            }
+
             if (_cache[i] == null)
             {
                 _cache[i] = SCCM.GetResults(wqlq);
