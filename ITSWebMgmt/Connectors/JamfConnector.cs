@@ -16,9 +16,8 @@ namespace ITSWebMgmt.Connectors
 
         public JamfConnector()
         {
-            string user = Startup.Configuration["cred:jamf:username"];
-            string pass = Startup.Configuration["cred:jamf:password"];
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(user + ":" + pass);
+            Secret secret = new PasswordManagerConnector().GetSecret("Jamf");
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(secret.UserName + ":" + secret.Password);
             string base64encodedusernpass = Convert.ToBase64String(plainTextBytes);
             Auth = "Basic " + base64encodedusernpass;
         }

@@ -20,16 +20,14 @@ namespace ITSWebMgmt.Connectors
         {
             PrintModel model = new PrintModel();
 
-            string domain = Startup.Configuration["cred:equitrac:domain"];
-            string username = Startup.Configuration["cred:equitrac:username"];
-            string secret = Startup.Configuration["cred:equitrac:password"];
+            Secret secret = new PasswordManagerConnector().GetSecret("Print");
 
-            if (domain == null || username == null || secret == null)
+            if (secret.Domain == null || secret.UserName == null || secret.Password == null)
             {
                 model.CredentialError = "No valid creds for Equitrac";
             }
 
-            var credentials = new UserCredentials(domain, username, secret);
+            var credentials = new UserCredentials(secret.Domain, secret.UserName, secret.Password);
             Impersonation.RunAsUser(credentials, LogonType.NewCredentials, () =>
             {
                 SqlConnection myConnection = new SqlConnection("Data Source = AD-SQL2-MISC.AAU.DK; Database = eqcas; Integrated Security=SSPI; MultipleActiveResultSets=true");

@@ -127,10 +127,9 @@ namespace ITSWebMgmt.Connectors
 
         private static (IDbConnection conn, string error) TryConnect()
         {
-            string username = Startup.Configuration["cred:indkoeb:username"];
-            string password = Startup.Configuration["cred:indkoeb:password"];
+            Secret secret = new PasswordManagerConnector().GetSecret("INDB");
 
-            if (username == null || password == null)
+            if (secret.UserName == null || secret.Password == null)
             {
                 return (null, "Invalid creds for indkoeb");
             }
@@ -154,10 +153,9 @@ namespace ITSWebMgmt.Connectors
             string directoryServer = "sqlnet.adm.aau.dk:389";
             string defaultAdminContext = "dc=adm,dc=aau,dc=dk";
             string serviceName = "AAUF";
-            string userId = Startup.Configuration["cred:indkoeb:username"];
-            string password = Startup.Configuration["cred:indkoeb:password"];
+            Secret secret = new PasswordManagerConnector().GetSecret("INDB");
 
-            return GetConnection(directoryServer, defaultAdminContext, serviceName, userId, password);
+            return GetConnection(directoryServer, defaultAdminContext, serviceName, secret.UserName, secret.Password);
         }
 
         private static IDbConnection GetConnection(string directoryServer, string defaultAdminContext, string serviceName, string userId, string password)

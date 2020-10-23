@@ -11,7 +11,8 @@ namespace ITSWebMgmt.Connectors
         public string Auth { get; }
         public NetaaudkConnector()
         {
-            Auth = "Bearer " + Startup.Configuration["cred:netaaudk:token"];
+            Secret secret = new PasswordManagerConnector().GetSecret("Net.aau.dk");
+            Auth = "Bearer " + secret.APIKey;
         }
 
         public List<NetaaudkModel> GetData(string username)

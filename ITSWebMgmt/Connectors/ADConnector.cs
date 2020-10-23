@@ -1,14 +1,14 @@
-﻿using System.DirectoryServices;
+﻿using ITSWebMgmt.Connectors;
+using System.DirectoryServices;
 
 namespace ITSWebMgmt.Helpers
 {
     public class ADConnector
     {
-        private static readonly string username = Startup.Configuration["cred:ad:username"];
-        private static readonly string password = Startup.Configuration["cred:ad:password"];
         public static DirectoryEntry CreateNewDirectoryEntry(string ADPath)
         {
-            return new DirectoryEntry(ADPath, username, password);
+            Secret secret = new PasswordManagerConnector().GetSecret("ad");
+            return new DirectoryEntry(ADPath, secret.UserName, secret.Password);
         }
     }
 }
