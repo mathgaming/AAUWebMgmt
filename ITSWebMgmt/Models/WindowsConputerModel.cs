@@ -96,7 +96,7 @@ namespace ITSWebMgmt.Models
                     baseModel.IsInAD = true;
                     BaseModel.ComputerName = ADCache.ComputerName;
                     BaseModel.ComputerFound = ADCache.ComputerFound;
-                    baseModel.IsWindows = !ADCache.GetProperty("operatingSystem").ToLower().Contains("mac os");
+                    baseModel.IsWindows = !(ADCache.GetProperty("operatingSystem").ToLower().Contains("mac os") || ADCache.GetProperty("operatingSystem").ToLower().Contains("macos"));
                     if (baseModel.IsWindows)
                     {
                         SCCMCache = new SCCMCache();
