@@ -42,9 +42,7 @@ namespace ITSWebMgmt.Connectors
 
         public TableModel LookUpByAAUNumber(string id)
         {
-            id = id.Substring(3);
-            string query = $"select * from webmgmt_assets where tag_number like '{id}'";
-            return GetTableFromQuery(query);
+            return GetTableFromQuery(id.Substring(3));
         }
 
         public TableModel LookUpByEmployeeID(string id)
@@ -54,11 +52,33 @@ namespace ITSWebMgmt.Connectors
             return GetTableFromQuery(query);
         }
 
-        public TableModel GetTableFromQuery(string query)
+        private string getAssetNumberFromTagNumber(string tagNumber)
+        {
+            OracleCommand command = conn.CreateCommand();
+            command.CommandText = $"select ASSET_NUMBER from FA_ADDITIONS_V where TAG_NUMBER like { tagNumber }";
+            OracleDataReader reader = command.ExecuteReader();
+
+            reader.Read();
+            return reader["ASSET_NUMBER"] as string;
+        }
+
+        public TableModel GetTableFromQuery(string computerNumber)
         {
             Connect();
             OracleCommand command = conn.CreateCommand();
-            command.CommandText = query;
+            string assetNumber = getAssetNumberFromTagNumber(computerNumber);
+            if (assetNumber.Length == 0)
+            {
+                return new TableModel("No information found from ØSS"); 
+            }
+
+            command.CommandText =  $"select IN_USE_FLAG, MANUFACTURER_NAME, MODEL_NUMBER, TAG_NUMBER, " + /*fra FA_ADDITIONS_V*/
+                                    "COMMENTS, DATE_EFFECTIVE, DESCRIPTION, TRANSACTION_DATE_ENTERED, TRANSACTION_TYPE, " + /*fra FA_TRANSACTION_HISTORY_TRX_V */
+                                    "EMPLOYEE_NAME, EMPLOYEE_NUMBER, SERIAL_NUMBER, STATE " + /*fra FA_ADDITIONS_V*/
+                                    "from FA_ADDITIONS_V " +
+                                    "full join FA_TRANSACTION_HISTORY_TRX_V on FA_ADDITIONS_V.ASSET_NUMBER = FA_TRANSACTION_HISTORY_TRX_V.ASSET_NUMBER " +
+                                    "full join FA_ASSET_DISTRIBUTION_V on FA_ADDITIONS_V.ASSET_NUMBER = FA_ASSET_DISTRIBUTION_V.ASSET_NUMBER " +
+                                    $"where FA_ADDITIONS_V.ASSET_NUMBER like {assetNumber}";
 
             OracleDataReader reader = command.ExecuteReader();
 
@@ -67,14 +87,19 @@ namespace ITSWebMgmt.Connectors
             while (reader.Read())
             {
                 ØSSLine line = new ØSSLine();
+                line.InUseFlag = reader["In_USE_FLAG"] as string;
+                line.Manufacturer = reader["MANUFACTURER_NAME"] as string;
+                line.ModelNumber = reader["MODEL_NUMBER"] as string;
                 line.TagNumber = reader["TAG_NUMBER"] as string;
-                line.AssetNumber = reader["ASSET_NUMBER"] as string;
+                line.Comment = reader["COMMENTS"] as string;
+                line.DateEffective = reader["DATE_EFFECTIVE"] as DateTime?;
                 line.Description = reader["DESCRIPTION"] as string;
-                line.SerialNumber = reader["SERIAL_NUMBER"] as string;
+                line.TransactionDateEntered = reader["TRANSACTION_DATE_ENTERED"] as DateTime?;
+                line.TransactionType = reader["TRANSACTION_TYPE"] as string;
                 line.EmployeeName = reader["EMPLOYEE_NAME"] as string;
                 line.EmployeeNumber = reader["EMPLOYEE_NUMBER"] as string;
-                line.TransactionType = reader["TRANSACTION_TYPE_CODE"] as string;
-                line.LastUpdateDate = reader["LAST_UPDATE_DATE"] as DateTime?;
+                line.SerialNumber = reader["SERIAL_NUMBER"] as string;
+                line.State = reader["STATE"] as string;
 
                 lines.Add(line);
             }
@@ -85,7 +110,19 @@ namespace ITSWebMgmt.Connectors
 
             foreach (var line in lines)
             {
-                rows.Add(new string[] { line.TagNumber, line.Description, line.EmployeeName, line.TransactionType, DateTimeConverter.Convert(line.LastUpdateDate) });
+                rows.Add(new string[] { line.InUseFlag,
+                                        line.Manufacturer,
+                                        line.ModelNumber,
+                                        line.TagNumber,
+                                        line.Comment,
+                                        DateTimeConverter.Convert(line.DateEffective),
+                                        line.Description,
+                                        DateTimeConverter.Convert(line.TransactionDateEntered),
+                                        line.TransactionType,
+                                        line.EmployeeName,
+                                        line.EmployeeNumber,
+                                        line.SerialNumber,
+                                        line.State} );
             }
 
             TableModel table;
@@ -95,7 +132,7 @@ namespace ITSWebMgmt.Connectors
             }
             else
             {
-                table = new TableModel(new string[] { "Tag/AAU number", "Description", "Employee name", "Transaction type", "Last update date" }, rows);
+                table = new TableModel(new string[] { "IN_USE_FLAG", "MANUFACTURER_NAME", "MODEL_NUMBER", "TAG_NUMBER", "COMMENTS", "DATE_EFFECTIVE", "DESCRIPTION", "TRANSACTION_DATE_ENTERED", "TRANSACTION_TYPE", "EMPLOYEE_NAME", "EMPLOYEE_NUMBER", "SERIAL_NUMBER", "STATE" }, rows);
             }
 
             table.ViewHeading = "ØSS info";
@@ -112,13 +149,18 @@ namespace ITSWebMgmt.Connectors
 
     class ØSSLine
     {
+        public string InUseFlag { get; set; }
+        public string Manufacturer { get; set; }
+        public string ModelNumber { get; set; }
         public string TagNumber { get; set; }
-        public string AssetNumber { get; set; }
+        public string Comment { get; set; }
+        public DateTime? DateEffective { get; set; }
         public string Description { get; set; }
-        public string SerialNumber { get; set; }
+        public DateTime? TransactionDateEntered { get; set; }
+        public string TransactionType { get; set; }
         public string EmployeeName { get; set; }
         public string EmployeeNumber { get; set; }
-        public string TransactionType { get; set; }
-        public DateTime? LastUpdateDate { get; set; } 
+        public string SerialNumber { get; set; }
+        public string State { get; set; }
     }
 }
