@@ -40,9 +40,26 @@ namespace ITSWebMgmt.Connectors
             Console.WriteLine();
         }
 
+        public string GetAAUNumberFromSerialNumber(string serialNumber)
+        {
+            OracleCommand command = conn.CreateCommand();
+            command.CommandText = $"select ASSET_NUMBER from FA_ADDITIONS_V where SERIAL_NUMBER like { serialNumber }";
+            OracleDataReader reader = command.ExecuteReader();
+
+            reader.Read();
+            return reader["ASSET_NUMBER"] as string;
+        }
+
+        public TableModel LookUpBySerialNumber(string id)
+        {
+            string assetNumber = GetAAUNumberFromSerialNumber(id);
+            return GetTableFromQuery(assetNumber);
+        }
+
         public TableModel LookUpByAAUNumber(string id)
         {
-            return GetTableFromQuery(id.Substring(3));
+            string assetNumber = GetAssetNumberFromTagNumber(id);
+            return GetTableFromQuery(assetNumber);
         }
 
         public TableModel LookUpByEmployeeID(string id)
@@ -52,8 +69,9 @@ namespace ITSWebMgmt.Connectors
             return GetTableFromQuery(query);
         }
 
-        private string getAssetNumberFromTagNumber(string tagNumber)
+        public string GetAssetNumberFromTagNumber(string tagNumber)
         {
+            tagNumber = tagNumber.Substring(3);
             OracleCommand command = conn.CreateCommand();
             command.CommandText = $"select ASSET_NUMBER from FA_ADDITIONS_V where TAG_NUMBER like { tagNumber }";
             OracleDataReader reader = command.ExecuteReader();
@@ -62,11 +80,10 @@ namespace ITSWebMgmt.Connectors
             return reader["ASSET_NUMBER"] as string;
         }
 
-        public TableModel GetTableFromQuery(string computerNumber)
+        public TableModel GetTableFromQuery(string assetNumber)
         {
             Connect();
             OracleCommand command = conn.CreateCommand();
-            string assetNumber = getAssetNumberFromTagNumber(computerNumber);
             if (assetNumber.Length == 0)
             {
                 return new TableModel("No information found from ØSS"); 

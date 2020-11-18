@@ -36,7 +36,10 @@ namespace ITSWebMgmt.Controllers
                     new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, computername + " (Not found)", true);
                 }
             }
-
+            if (ComputerModel.OnlyFoundInØss)
+            {
+                return PartialView("TableView", ComputerModel.ØssTable);
+            }
             return View(ComputerModel);
         }
 
@@ -88,14 +91,34 @@ namespace ITSWebMgmt.Controllers
                         }
                         else
                         {
-                            try
+                            var øss = new ØSSConnector();
+                            ComputerModel.ØssTable = øss.LookUpByAAUNumber(computerName);
+                            if (ComputerModel.ØssTable.ErrorMessage != null)
                             {
-                                ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                                ComputerModel.ResultError = "Computer has not been registrered in AD or Jamf, but was found in ØSS";
+                                ComputerModel.OnlyFoundInØss = true;
                             }
-                            catch (Exception e)
+                            else
                             {
-                                HandleError(e);
-                                ComputerModel.ResultError = "Computer not found";
+                                ComputerModel.ØssTable = øss.LookUpByAAUNumber(computerName);
+                                if (ComputerModel.ØssTable.ErrorMessage != null)
+                                {
+                                    ComputerModel.ResultError = "Computer has not been registrered in AD or Jamf, but was found in ØSS";
+                                    ComputerModel.OnlyFoundInØss = true;
+                                }
+                                else
+                                {
+
+                                    try
+                                    {
+                                        ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        HandleError(e);
+                                        ComputerModel.ResultError = "Computer not found";
+                                    }
+                                }
                             }
                         }
                     }
