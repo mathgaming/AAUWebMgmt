@@ -194,7 +194,25 @@ namespace ITSWebMgmt.Controllers
                 case "purchase":
                     return PartialView("INDB", INDBConnector.GetInfo(ComputerModel.ComputerName));
                 case "øss":
-                    return PartialView("TableView", new ØSSConnector().LookUpByAAUNumber(ComputerModel.ComputerName));
+                    {
+                        if (ComputerModel.IsWindows)
+                        {
+                            return PartialView("TableView", new ØSSConnector().LookUpByAAUNumber(ComputerModel.ComputerName));
+                        }
+                        else
+                        {
+                            TableModel table = new ØSSConnector().LookUpByAAUNumber(ComputerModel.Mac.ComputerName);
+                            if (table.ErrorMessage != null)
+                            {
+                                return PartialView("TableView", table);
+                            }
+                            else
+                            {
+                                table = new ØSSConnector().LookUpBySerialNumber(ComputerModel.Mac.SerialNumber);
+                                return PartialView("TableView", table);
+                            }
+                        }
+                    }
             }
 
             return PartialView(viewName, ComputerModel.Windows);
