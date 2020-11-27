@@ -93,22 +93,21 @@ namespace ITSWebMgmt.Controllers
                         {
                             var øss = new ØSSConnector();
                             ComputerModel.ØssTable = øss.LookUpByAAUNumber(computerName);
-                            if (ComputerModel.ØssTable.ErrorMessage != null)
+                            if (ComputerModel.ØssTable.ErrorMessage == null)
                             {
                                 ComputerModel.ResultError = "Computer has not been registrered in AD or Jamf, but was found in ØSS";
                                 ComputerModel.OnlyFoundInØss = true;
                             }
                             else
                             {
-                                ComputerModel.ØssTable = øss.LookUpByAAUNumber(computerName);
-                                if (ComputerModel.ØssTable.ErrorMessage != null)
+                                ComputerModel.ØssTable = øss.LookUpBySerialNumber(computerName);
+                                if (ComputerModel.ØssTable.ErrorMessage == null)
                                 {
                                     ComputerModel.ResultError = "Computer has not been registrered in AD or Jamf, but was found in ØSS";
                                     ComputerModel.OnlyFoundInØss = true;
                                 }
                                 else
                                 {
-
                                     try
                                     {
                                         ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);

@@ -40,16 +40,6 @@ namespace ITSWebMgmt.Connectors
             Console.WriteLine();
         }
 
-        public string GetAAUNumberFromSerialNumber(string serialNumber)
-        {
-            OracleCommand command = conn.CreateCommand();
-            command.CommandText = $"select ASSET_NUMBER from FA_ADDITIONS_V where SERIAL_NUMBER like { serialNumber }";
-            OracleDataReader reader = command.ExecuteReader();
-
-            reader.Read();
-            return reader["ASSET_NUMBER"] as string;
-        }
-
         public TableModel LookUpBySerialNumber(string id)
         {
             string assetNumber = GetAAUNumberFromSerialNumber(id);
@@ -64,20 +54,57 @@ namespace ITSWebMgmt.Connectors
 
         public TableModel LookUpByEmployeeID(string id)
         {
-            string query = $"select * from webmgmt_assets where employee_number like '{id}'"+
-                " and (LOWER(DESCRIPTION) like '%pc%' or LOWER(DESCRIPTION) like '%bærbar%' or LOWER(DESCRIPTION) like '%computer%' or LOWER(DESCRIPTION) like '%mac%')";
-            return GetTableFromQuery(query);
+            string assetNumber = GetAssetNumberFromEmployeeID(id);
+            return GetTableFromQuery(assetNumber);
+        }
+
+        public string GetAssetNumberFromEmployeeID(string id)
+        {
+            Connect();
+            OracleCommand command = conn.CreateCommand();
+            command.CommandText = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where EMPLOYEE_NUMBER like '{ id }'";
+            OracleDataReader reader = command.ExecuteReader();
+
+            string assetNumber = "";
+            if (reader.Read())
+            {
+                assetNumber = reader["ASSET_NUMBER"] as string;
+            }
+            Disconnect();
+            return assetNumber;
         }
 
         public string GetAssetNumberFromTagNumber(string tagNumber)
         {
+            Connect();
             tagNumber = tagNumber.Substring(3);
             OracleCommand command = conn.CreateCommand();
-            command.CommandText = $"select ASSET_NUMBER from FA_ADDITIONS_V where TAG_NUMBER like { tagNumber }";
+            command.CommandText = $"select ASSET_NUMBER from FA_ADDITIONS_V where TAG_NUMBER like '{ tagNumber }'";
             OracleDataReader reader = command.ExecuteReader();
 
-            reader.Read();
-            return reader["ASSET_NUMBER"] as string;
+            string assetNumber = "";
+            if (reader.Read())
+            {
+                assetNumber = reader["ASSET_NUMBER"] as string;
+            }
+            Disconnect();
+            return assetNumber;
+        }
+
+        public string GetAAUNumberFromSerialNumber(string serialNumber)
+        {
+            Connect();
+            OracleCommand command = conn.CreateCommand();
+            command.CommandText = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where SERIAL_NUMBER like '{ serialNumber }'";
+            OracleDataReader reader = command.ExecuteReader();
+
+            string assetNumber = "";
+            if (reader.Read())
+            {
+                assetNumber = reader["ASSET_NUMBER"] as string;
+            }
+            Disconnect();
+            return assetNumber;
         }
 
         public TableModel GetTableFromQuery(string assetNumber)
@@ -160,7 +187,6 @@ namespace ITSWebMgmt.Connectors
         private void Disconnect()
         {
             conn.Close();
-            conn.Dispose();
         }
     }
 
