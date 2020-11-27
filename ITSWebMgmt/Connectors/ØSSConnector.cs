@@ -91,8 +91,20 @@ namespace ITSWebMgmt.Connectors
             return assetNumber;
         }
 
-        public string GetAAUNumberFromSerialNumber(string serialNumber)
+        public string GetAAUNumberFromSerialNumber(string serialNumber, bool tryAgain = true)
         {
+            if (!tryAgain)
+            {
+                if (serialNumber[0] == 'S')
+                {
+                    serialNumber = serialNumber.Substring(1);
+                }
+                else
+                {
+                    serialNumber = 'S' + serialNumber;
+                }
+            }
+
             Connect();
             OracleCommand command = conn.CreateCommand();
             command.CommandText = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where SERIAL_NUMBER like '{ serialNumber }'";
@@ -103,7 +115,14 @@ namespace ITSWebMgmt.Connectors
             {
                 assetNumber = reader["ASSET_NUMBER"] as string;
             }
+
             Disconnect();
+
+            if (assetNumber == "" && tryAgain)
+            {
+                return GetAAUNumberFromSerialNumber(serialNumber, false);
+            }
+
             return assetNumber;
         }
 
