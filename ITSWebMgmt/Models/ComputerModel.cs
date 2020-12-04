@@ -13,12 +13,12 @@ namespace ITSWebMgmt.Models
         //Display
         public bool IsWindows { get; set; }
         public bool IsInAD { get; set; }
-        public bool OnlyFoundInØss { get; set; }
+        public bool OnlyFoundInOESS { get; set; }
         public string ComputerName { get; set; } = "AAU115359";
         public string ErrorCountMessage { get; set; }
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
-        public TableModel ØssTable { get; set; }
+        public TableModel OESSTable { get; set; }
         public virtual bool ComputerFound { get; set; }
 
         public ComputerModel(string computerName)

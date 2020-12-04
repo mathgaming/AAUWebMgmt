@@ -36,10 +36,6 @@ namespace ITSWebMgmt.Controllers
                     new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, computername + " (Not found)", true);
                 }
             }
-            if (ComputerModel.OnlyFoundInØss)
-            {
-                return PartialView("TableView", ComputerModel.ØssTable);
-            }
             return View(ComputerModel);
         }
 
@@ -92,19 +88,19 @@ namespace ITSWebMgmt.Controllers
                         else
                         {
                             var øss = new ØSSConnector();
-                            ComputerModel.ØssTable = øss.LookUpByAAUNumber(computerName);
-                            if (ComputerModel.ØssTable.ErrorMessage == null)
+                            ComputerModel.OESSTable = øss.LookUpByAAUNumber(computerName);
+                            if (ComputerModel.OESSTable.ErrorMessage == null)
                             {
                                 ComputerModel.ResultError = "Computer has not been registrered in AD or Jamf, but was found in ØSS";
-                                ComputerModel.OnlyFoundInØss = true;
+                                ComputerModel.OnlyFoundInOESS = true;
                             }
                             else
                             {
-                                ComputerModel.ØssTable = øss.LookUpBySerialNumber(computerName);
-                                if (ComputerModel.ØssTable.ErrorMessage == null)
+                                ComputerModel.OESSTable = øss.LookUpBySerialNumber(computerName);
+                                if (ComputerModel.OESSTable.ErrorMessage == null)
                                 {
                                     ComputerModel.ResultError = "Computer has not been registrered in AD or Jamf, but was found in ØSS";
-                                    ComputerModel.OnlyFoundInØss = true;
+                                    ComputerModel.OnlyFoundInOESS = true;
                                 }
                                 else
                                 {
@@ -202,15 +198,22 @@ namespace ITSWebMgmt.Controllers
                         else
                         {
                             TableModel table = new ØSSConnector().LookUpByAAUNumber(ComputerModel.Mac.ComputerName);
-                            if (table.ErrorMessage != null)
+                            if (table.ErrorMessage == null)
                             {
                                 return PartialView("TableView", table);
                             }
-                            else
+                            if (ComputerModel.Mac.AssetTag.Length > 0)
                             {
-                                table = new ØSSConnector().LookUpBySerialNumber(ComputerModel.Mac.SerialNumber);
-                                return PartialView("TableView", table);
+                                table = new ØSSConnector().LookUpByAAUNumber(ComputerModel.Mac.AssetTag);
+
+                                if (table.ErrorMessage == null)
+                                {
+                                    return PartialView("TableView", table);
+                                }
                             }
+                            table = new ØSSConnector().LookUpBySerialNumber(ComputerModel.Mac.SerialNumber);
+
+                            return PartialView("TableView", table);
                         }
                     }
             }

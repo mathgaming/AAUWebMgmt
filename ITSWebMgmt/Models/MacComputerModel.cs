@@ -21,6 +21,7 @@ namespace ITSWebMgmt.Models
         public List<string> Groups { get; set; }
         public int FreeSpace { get; set; }
         public string ComputerName { get; set; }
+        public string AssetTag { get; set; }
         public string SerialNumber { get; set; }
         public int Id { get; set; }
 
@@ -65,6 +66,7 @@ namespace ITSWebMgmt.Models
             JObject jsonVal = JObject.Parse(jsonString) as JObject;
             ComputerName = jsonVal.SelectToken("computer.general.name").ToString();
             SerialNumber = jsonVal.SelectToken("computer.general.serial_number").ToString();
+            AssetTag = jsonVal.SelectToken("computer.general.asset_tag").ToString();
 
             SetHardware(jsonVal);
             SetSoftware(jsonVal);
