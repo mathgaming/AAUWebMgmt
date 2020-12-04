@@ -184,7 +184,7 @@ namespace ITSWebMgmt.Connectors
                 table = new TableModel(new string[] { "Email", "First name", "Last name" }, rows);
             }
 
-            table.ViewHeading = "Responsible person";
+            table.ViewHeading = "Equipment manager";
 
             return table;
         }
