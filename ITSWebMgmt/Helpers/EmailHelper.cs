@@ -18,7 +18,7 @@ namespace ITSWebMgmt.Helpers
             };
             mail.Subject = subject;
             mail.Body = body;
-            //client.Send(mail);
+            client.Send(mail);
         }
 
         public static void SendEmailWithAttachment(string subject, string body, string reviever, string file)

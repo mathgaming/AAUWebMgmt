@@ -19,6 +19,7 @@ namespace ITSWebMgmt.Models
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
         public TableModel OESSTable { get; set; }
+        public TableModel OESSResponsiblePersonTable { get; set; }
         public virtual bool ComputerFound { get; set; }
 
         public ComputerModel(string computerName)
@@ -61,6 +62,39 @@ namespace ITSWebMgmt.Models
                 {
                     Tabs.Add(new TabModel("groups", "Groups (AD)"));
                     Tabs.Add(new TabModel("rawdata", "Raw data (AD)"));
+                }
+            }
+        }
+
+        public void InitØSSInfo()
+        {
+            if (IsWindows)
+            {
+                OESSTable = new ØSSConnector().LookUpByAAUNumber(ComputerName);
+                OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(ComputerName);
+            }
+            else
+            {
+                TableModel table = new ØSSConnector().LookUpByAAUNumber(Mac.ComputerName);
+                if (table.ErrorMessage == null)
+                {
+                    OESSTable = table;
+                    OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(Mac.ComputerName);
+                }
+                else if (Mac.AssetTag.Length > 0)
+                {
+                    table = new ØSSConnector().LookUpByAAUNumber(Mac.AssetTag);
+
+                    if (table.ErrorMessage == null)
+                    {
+                        OESSTable = table;
+                        OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(Mac.AssetTag);
+                    }
+                }
+                else
+                {
+                    OESSTable = new ØSSConnector().LookUpBySerialNumber(Mac.SerialNumber);
+                    OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleBySerialNumber(Mac.SerialNumber);
                 }
             }
         }

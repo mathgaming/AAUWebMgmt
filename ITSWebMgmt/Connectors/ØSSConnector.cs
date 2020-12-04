@@ -42,7 +42,7 @@ namespace ITSWebMgmt.Connectors
 
         public TableModel LookUpBySerialNumber(string id)
         {
-            string assetNumber = GetAAUNumberFromSerialNumber(id);
+            string assetNumber = GetAssetNumberFromSerialNumber(id);
             return GetTableFromQuery(assetNumber);
         }
 
@@ -52,46 +52,54 @@ namespace ITSWebMgmt.Connectors
             return GetTableFromQuery(assetNumber);
         }
 
+        public TableModel LookUpResponsibleBySerialNumber(string id)
+        {
+            string assetNumber = GetAssetNumberFromSerialNumber(id);
+            return GetResponsiblePersonTable(assetNumber);
+        }
+
+        public TableModel LookUpResponsibleByAAUNumber(string id)
+        {
+            string assetNumber = GetSegmentFromAssetTag(id);
+            return GetResponsiblePersonTable(assetNumber);
+        }
+
         public TableModel LookUpByEmployeeID(string id)
         {
             string assetNumber = GetAssetNumberFromEmployeeID(id);
             return GetTableFromQuery(assetNumber);
         }
 
-        public string GetAssetNumberFromEmployeeID(string id)
+        public string RunQuery(string query, string outputKeyName)
         {
             Connect();
             OracleCommand command = conn.CreateCommand();
-            command.CommandText = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where EMPLOYEE_NUMBER like '{ id }'";
+            command.CommandText = query;
             OracleDataReader reader = command.ExecuteReader();
 
-            string assetNumber = "";
+            string output = "";
             if (reader.Read())
             {
-                assetNumber = reader["ASSET_NUMBER"] as string;
+                output = reader[outputKeyName] as string;
             }
             Disconnect();
-            return assetNumber;
+            return output;
+        }
+
+        public string GetAssetNumberFromEmployeeID(string id)
+        {
+            string query = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where EMPLOYEE_NUMBER like '{ id }'";
+            return RunQuery(query, "ASSET_NUMBER");
         }
 
         public string GetAssetNumberFromTagNumber(string tagNumber)
         {
-            Connect();
             tagNumber = tagNumber.Substring(3);
-            OracleCommand command = conn.CreateCommand();
-            command.CommandText = $"select ASSET_NUMBER from FA_ADDITIONS_V where TAG_NUMBER like '{ tagNumber }'";
-            OracleDataReader reader = command.ExecuteReader();
-
-            string assetNumber = "";
-            if (reader.Read())
-            {
-                assetNumber = reader["ASSET_NUMBER"] as string;
-            }
-            Disconnect();
-            return assetNumber;
+            string query = $"select ASSET_NUMBER from FA_ADDITIONS_V where TAG_NUMBER like '{ tagNumber }'";
+            return RunQuery(query, "ASSET_NUMBER");
         }
 
-        public string GetAAUNumberFromSerialNumber(string serialNumber, bool tryAgain = true)
+        public string GetKeyFromSerialNumber(string query, string serialNumber, string outputKeyName, bool tryAgain = true)
         {
             if (!tryAgain)
             {
@@ -105,36 +113,91 @@ namespace ITSWebMgmt.Connectors
                 }
             }
 
-            Connect();
-            OracleCommand command = conn.CreateCommand();
-            command.CommandText = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where SERIAL_NUMBER like '{ serialNumber }'";
-            OracleDataReader reader = command.ExecuteReader();
-
-            string assetNumber = "";
-            if (reader.Read())
-            {
-                assetNumber = reader["ASSET_NUMBER"] as string;
-            }
-
-            Disconnect();
+            string actualQuery = query + $" '{ serialNumber }'";
+            string assetNumber = RunQuery(actualQuery, outputKeyName);
 
             if (assetNumber == "" && tryAgain)
             {
-                return GetAAUNumberFromSerialNumber(serialNumber, false);
+                return GetKeyFromSerialNumber(query, serialNumber, outputKeyName, false);
             }
 
             return assetNumber;
         }
 
-        public TableModel GetTableFromQuery(string assetNumber)
+        public string GetAssetNumberFromSerialNumber(string serialNumber)
         {
-            Connect();
-            OracleCommand command = conn.CreateCommand();
-            if (assetNumber.Length == 0)
+            string query = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where SERIAL_NUMBER like";
+            return GetKeyFromSerialNumber(query, serialNumber, "ASSET_NUMBER");
+        }
+
+        public string GetSegmentFromAssetTag(string tagNumber)
+        {
+            tagNumber = tagNumber.Substring(3);
+            string query = $"select SEGMENT1 from FA_ADDITIONS_V "+
+                            "join FA_ASSET_KEYWORDS on FA_ADDITIONS_V.ASSET_KEY_CCID = FA_ASSET_KEYWORDS.ASSET_KEY_CCID "+
+                            $"where TAG_NUMBER like '{ tagNumber }'";
+            return RunQuery(query, "SEGMENT1");
+        }
+        public string GetSegmentFromSerialNumber(string serialNumber)
+        {
+            string query = "select SEGMENT1 from FA_ADDITIONS_V "+
+                            "join FA_ASSET_KEYWORDS on FA_ADDITIONS_V.ASSET_KEY_CCID = FA_ASSET_KEYWORDS.ASSET_KEY_CCID "+
+                            "join FA_ASSET_DISTRIBUTION_V on FA_ADDITIONS_V.ASSET_NUMBER = FA_ASSET_DISTRIBUTION_V.ASSET_NUMBER "+
+                            "where FA_ASSET_DISTRIBUTION_V.SERIAL_NUMBER like";
+            return GetKeyFromSerialNumber(query, serialNumber, "SEGMENT1");
+        }
+
+        public TableModel GetResponsiblePersonTable(string segment)
+        {
+            if (segment.Length == 0)
             {
-                return new TableModel("No information found from ØSS"); 
+                return new TableModel("No information found from ØSS");
             }
 
+            Connect();
+            OracleCommand command = conn.CreateCommand();
+            command.CommandText =   "select EMAIL, FORNAVN, EFTERNAVN from PER_PERSON_ANALYSES "+
+                                    "join PER_ANALYSIS_CRITERIA_KFV on PER_PERSON_ANALYSES.ANALYSIS_CRITERIA_ID = PER_ANALYSIS_CRITERIA_KFV.ANALYSIS_CRITERIA_ID "+
+                                    "join AAU_HR_PERSON_IMPORT on AAU_HR_PERSON_IMPORT.PERSON_ID = PER_PERSON_ANALYSES.PERSON_ID "+
+                                    $"where TIL_DATO IS NULL and PER_ANALYSIS_CRITERIA_KFV.SEGMENT1 <= '{segment}' and PER_ANALYSIS_CRITERIA_KFV.SEGMENT2 >= '{segment}'";
+
+            OracleDataReader reader = command.ExecuteReader();
+
+            List<string[]> rows = null;
+            if (reader.Read())
+            {
+                string email = reader["EMAIL"] as string;
+                string first_name = reader["FORNAVN"] as string;
+                string last_name = reader["EFTERNAVN"] as string;
+
+                rows = new List<string[]>{ new string[] { email, first_name, last_name } };
+            }
+            Disconnect();
+
+            TableModel table;
+            if (rows == null)
+            {
+                table = new TableModel("No information found from ØSS");
+            }
+            else
+            {
+                table = new TableModel(new string[] { "Email", "First name", "Last name" }, rows);
+            }
+
+            table.ViewHeading = "Responsible person";
+
+            return table;
+        }
+
+        public TableModel GetTableFromQuery(string assetNumber)
+        {
+            if (assetNumber.Length == 0)
+            {
+                return new TableModel("No information found from ØSS");
+            }
+
+            Connect();
+            OracleCommand command = conn.CreateCommand();
             command.CommandText =  $"select IN_USE_FLAG, MANUFACTURER_NAME, MODEL_NUMBER, TAG_NUMBER, " + /*fra FA_ADDITIONS_V*/
                                     "COMMENTS, DATE_EFFECTIVE, DESCRIPTION, TRANSACTION_DATE_ENTERED, TRANSACTION_TYPE, " + /*fra FA_TRANSACTION_HISTORY_TRX_V */
                                     "EMPLOYEE_NAME, EMPLOYEE_NUMBER, SERIAL_NUMBER, STATE " + /*fra FA_ADDITIONS_V*/

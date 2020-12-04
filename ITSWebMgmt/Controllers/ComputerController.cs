@@ -87,32 +87,21 @@ namespace ITSWebMgmt.Controllers
                         }
                         else
                         {
-                            var øss = new ØSSConnector();
-                            ComputerModel.OESSTable = øss.LookUpByAAUNumber(computerName);
+                            ComputerModel.InitØSSInfo();
                             if (ComputerModel.OESSTable.ErrorMessage == null)
                             {
-                                ComputerModel.ResultError = "Computer has not been registrered in AD or Jamf, but was found in ØSS";
                                 ComputerModel.OnlyFoundInOESS = true;
                             }
                             else
                             {
-                                ComputerModel.OESSTable = øss.LookUpBySerialNumber(computerName);
-                                if (ComputerModel.OESSTable.ErrorMessage == null)
+                                try
                                 {
-                                    ComputerModel.ResultError = "Computer has not been registrered in AD or Jamf, but was found in ØSS";
-                                    ComputerModel.OnlyFoundInOESS = true;
+                                    ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
                                 }
-                                else
+                                catch (Exception e)
                                 {
-                                    try
-                                    {
-                                        ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        HandleError(e);
-                                        ComputerModel.ResultError = "Computer not found";
-                                    }
+                                    HandleError(e);
+                                    ComputerModel.ResultError = "Computer not found";
                                 }
                             }
                         }
@@ -190,32 +179,8 @@ namespace ITSWebMgmt.Controllers
                 case "purchase":
                     return PartialView("INDB", INDBConnector.GetInfo(ComputerModel.ComputerName));
                 case "øss":
-                    {
-                        if (ComputerModel.IsWindows)
-                        {
-                            return PartialView("TableView", new ØSSConnector().LookUpByAAUNumber(ComputerModel.ComputerName));
-                        }
-                        else
-                        {
-                            TableModel table = new ØSSConnector().LookUpByAAUNumber(ComputerModel.Mac.ComputerName);
-                            if (table.ErrorMessage == null)
-                            {
-                                return PartialView("TableView", table);
-                            }
-                            if (ComputerModel.Mac.AssetTag.Length > 0)
-                            {
-                                table = new ØSSConnector().LookUpByAAUNumber(ComputerModel.Mac.AssetTag);
-
-                                if (table.ErrorMessage == null)
-                                {
-                                    return PartialView("TableView", table);
-                                }
-                            }
-                            table = new ØSSConnector().LookUpBySerialNumber(ComputerModel.Mac.SerialNumber);
-
-                            return PartialView("TableView", table);
-                        }
-                    }
+                    ComputerModel.InitØSSInfo();
+                    return PartialView("OESS", ComputerModel);
             }
 
             return PartialView(viewName, ComputerModel.Windows);
