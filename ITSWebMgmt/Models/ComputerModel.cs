@@ -66,9 +66,23 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public void InitØSSInfo()
+        public void InitØSSInfo(bool input_as_search = false)
         {
-            if (IsWindows)
+            if (input_as_search)
+            {
+                TableModel table = new ØSSConnector().LookUpByAAUNumber(ComputerName);
+                if (table.ErrorMessage == null)
+                {
+                    OESSTable = table;
+                    OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(ComputerName);
+                }
+                else
+                {
+                    OESSTable = new ØSSConnector().LookUpResponsibleBySerialNumber(ComputerName);
+                    OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleBySerialNumber(ComputerName);
+                }
+            }
+            else if (IsWindows)
             {
                 OESSTable = new ØSSConnector().LookUpByAAUNumber(ComputerName);
                 OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(ComputerName);
