@@ -36,19 +36,24 @@ namespace ITSWebMgmt.Models
 
         public TableModel RotateTable()
         {
-            List<string[]> rows = new List<string[]>();
-            for (int i = 0; i < Headings.Length; i++)
+            if (ErrorMessage == null)
             {
-                List<string> row = new List<string>();
-                row.Add(Headings[i]);
-                for (int j = 0; j < Rows.Count; j++)
+                List<string[]> rows = new List<string[]>();
+                for (int i = 0; i < Headings.Length; i++)
                 {
-                    row.Add(Rows[j][i]);
+                    List<string> row = new List<string>();
+                    row.Add(Headings[i]);
+                    for (int j = 0; j < Rows.Count; j++)
+                    {
+                        row.Add(Rows[j][i]);
+                    }
+                    rows.Add(row.ToArray());
                 }
-                rows.Add(row.ToArray());
+
+                return new TableModel(null, rows, ViewHeading);
             }
 
-            return new TableModel(null, rows, ViewHeading);
+            return new TableModel(ErrorMessage);
         }
     }
 }
