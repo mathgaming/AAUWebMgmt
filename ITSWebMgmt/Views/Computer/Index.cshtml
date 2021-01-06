@@ -73,7 +73,7 @@
     </script>
     @if (Model.OnlyFoundInOESS)
     {
-        <div>@await Html.PartialAsync("TableView", Model.OESSTable)</div>
+        <div>@await Html.PartialAsync("TableView", Model.OESSTables)</div>
         <div>@await Html.PartialAsync("TableView", Model.OESSResponsiblePersonTable)</div>
     }
     else if (!Model.ComputerFound)

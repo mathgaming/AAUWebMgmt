@@ -18,7 +18,7 @@ namespace ITSWebMgmt.Models
         public string ErrorCountMessage { get; set; }
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
-        public TableModel OESSTable { get; set; }
+        public ØSSTableModel OESSTables { get; set; }
         public TableModel OESSResponsiblePersonTable { get; set; }
         public virtual bool ComputerFound { get; set; }
 
@@ -70,44 +70,44 @@ namespace ITSWebMgmt.Models
         {
             if (input_as_search)
             {
-                TableModel table = new ØSSConnector().LookUpByAAUNumber(ComputerName);
-                if (table.ErrorMessage == null)
+                ØSSTableModel tables = new ØSSConnector().LookUpByAAUNumber(ComputerName);
+                if (tables.InfoTable.ErrorMessage == null)
                 {
-                    OESSTable = table;
+                    OESSTables = tables;
                     OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(ComputerName);
                 }
                 else
                 {
-                    OESSTable = new ØSSConnector().LookUpResponsibleBySerialNumber(ComputerName);
+                    OESSTables = new ØSSConnector().LookUpBySerialNumber(ComputerName);
                     OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleBySerialNumber(ComputerName);
                 }
             }
             else if (IsWindows)
             {
-                OESSTable = new ØSSConnector().LookUpByAAUNumber(ComputerName);
+                OESSTables = new ØSSConnector().LookUpByAAUNumber(ComputerName);
                 OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(ComputerName);
             }
             else
             {
-                TableModel table = new ØSSConnector().LookUpByAAUNumber(Mac.ComputerName);
-                if (table.ErrorMessage == null)
+                ØSSTableModel tables = new ØSSConnector().LookUpByAAUNumber(Mac.ComputerName);
+                if (tables.InfoTable.ErrorMessage == null)
                 {
-                    OESSTable = table;
+                    OESSTables = tables;
                     OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(Mac.ComputerName);
                 }
                 else if (Mac.AssetTag.Length > 0)
                 {
-                    table = new ØSSConnector().LookUpByAAUNumber(Mac.AssetTag);
+                    tables = new ØSSConnector().LookUpByAAUNumber(Mac.AssetTag);
 
-                    if (table.ErrorMessage == null)
+                    if (tables.InfoTable.ErrorMessage == null)
                     {
-                        OESSTable = table;
+                        OESSTables = tables;
                         OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(Mac.AssetTag);
                     }
                 }
                 else
                 {
-                    OESSTable = new ØSSConnector().LookUpBySerialNumber(Mac.SerialNumber);
+                    OESSTables = new ØSSConnector().LookUpBySerialNumber(Mac.SerialNumber);
                     OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleBySerialNumber(Mac.SerialNumber);
                 }
             }

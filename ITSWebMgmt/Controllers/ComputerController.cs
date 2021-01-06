@@ -88,7 +88,7 @@ namespace ITSWebMgmt.Controllers
                         else
                         {
                             ComputerModel.InitØSSInfo(true);
-                            if (ComputerModel.OESSTable.ErrorMessage == null)
+                            if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
                             {
                                 ComputerModel.OnlyFoundInOESS = true;
                             }
