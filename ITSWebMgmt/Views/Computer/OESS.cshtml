@@ -1,4 +1,4 @@
 ﻿@model ITSWebMgmt.Models.ComputerModel
 
-@await Html.PartialAsync("TableView", Model.OESSTable)
+@await Html.PartialAsync("RotatedTableView", Model.OESSTable.RotateTable())
 @await Html.PartialAsync("TableView", Model.OESSResponsiblePersonTable)
