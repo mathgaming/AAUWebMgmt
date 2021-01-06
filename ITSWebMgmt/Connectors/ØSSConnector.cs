@@ -11,9 +11,9 @@ namespace ITSWebMgmt.Connectors
 {
     public class ØSSConnector
     {
-        private OracleConnection conn;
         private readonly SecureString s = new SecureString();
         private readonly OracleCredential credential;
+        private readonly string connectionString = "Data Source=(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = ora-oss-stdb.srv.aau.dk)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = OSSPSB)));Pooling = false;";
 
         public ØSSConnector()
         {
@@ -28,16 +28,6 @@ namespace ITSWebMgmt.Connectors
             s.MakeReadOnly();
 
             credential = new OracleCredential(user, s);
-        }
-
-        private void Connect()
-        {
-            string oradb = "Data Source=(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = ora-oss-stdb.srv.aau.dk)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = OSSPSB)));";
-
-            conn = new OracleConnection(oradb, credential);
-            conn.Open();
-
-            Console.WriteLine();
         }
 
         public TableModel LookUpBySerialNumber(string id)
@@ -72,17 +62,20 @@ namespace ITSWebMgmt.Connectors
 
         public string RunQuery(string query, string outputKeyName)
         {
-            Connect();
-            OracleCommand command = conn.CreateCommand();
-            command.CommandText = query;
-            OracleDataReader reader = command.ExecuteReader();
-
             string output = "";
-            if (reader.Read())
+
+            using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                output = reader[outputKeyName] as string;
+                conn.Open();
+                OracleCommand command = conn.CreateCommand();
+                command.CommandText = query;
+                OracleDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    output = reader[outputKeyName] as string;
+                }
             }
-            Disconnect();
             return output;
         }
 
@@ -154,25 +147,28 @@ namespace ITSWebMgmt.Connectors
                 return new TableModel("No information found from ØSS");
             }
 
-            Connect();
-            OracleCommand command = conn.CreateCommand();
-            command.CommandText =   "select EMAIL, FORNAVN, EFTERNAVN from PER_PERSON_ANALYSES "+
-                                    "join PER_ANALYSIS_CRITERIA_KFV on PER_PERSON_ANALYSES.ANALYSIS_CRITERIA_ID = PER_ANALYSIS_CRITERIA_KFV.ANALYSIS_CRITERIA_ID "+
-                                    "join AAU_HR_PERSON_IMPORT on AAU_HR_PERSON_IMPORT.PERSON_ID = PER_PERSON_ANALYSES.PERSON_ID "+
-                                    $"where TIL_DATO IS NULL and PER_ANALYSIS_CRITERIA_KFV.SEGMENT1 <= '{segment}' and PER_ANALYSIS_CRITERIA_KFV.SEGMENT2 >= '{segment}'";
-
-            OracleDataReader reader = command.ExecuteReader();
-
             List<string[]> rows = null;
-            if (reader.Read())
-            {
-                string email = reader["EMAIL"] as string;
-                string first_name = reader["FORNAVN"] as string;
-                string last_name = reader["EFTERNAVN"] as string;
 
-                rows = new List<string[]>{ new string[] { email, first_name, last_name } };
+            using (OracleConnection conn = new OracleConnection(connectionString, credential))
+            {
+                conn.Open();
+                OracleCommand command = conn.CreateCommand();
+                command.CommandText = "select EMAIL, FORNAVN, EFTERNAVN from PER_PERSON_ANALYSES " +
+                                        "join PER_ANALYSIS_CRITERIA_KFV on PER_PERSON_ANALYSES.ANALYSIS_CRITERIA_ID = PER_ANALYSIS_CRITERIA_KFV.ANALYSIS_CRITERIA_ID " +
+                                        "join AAU_HR_PERSON_IMPORT on AAU_HR_PERSON_IMPORT.PERSON_ID = PER_PERSON_ANALYSES.PERSON_ID " +
+                                        $"where TIL_DATO IS NULL and PER_ANALYSIS_CRITERIA_KFV.SEGMENT1 <= '{segment}' and PER_ANALYSIS_CRITERIA_KFV.SEGMENT2 >= '{segment}'";
+
+                OracleDataReader reader = command.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    string email = reader["EMAIL"] as string;
+                    string first_name = reader["FORNAVN"] as string;
+                    string last_name = reader["EFTERNAVN"] as string;
+
+                    rows = new List<string[]> { new string[] { email, first_name, last_name } };
+                }
             }
-            Disconnect();
 
             TableModel table;
             if (rows == null)
@@ -196,41 +192,42 @@ namespace ITSWebMgmt.Connectors
                 return new TableModel("No information found from ØSS");
             }
 
-            Connect();
-            OracleCommand command = conn.CreateCommand();
-            command.CommandText =  $"select IN_USE_FLAG, MANUFACTURER_NAME, MODEL_NUMBER, TAG_NUMBER, " + /*fra FA_ADDITIONS_V*/
-                                    "COMMENTS, DATE_EFFECTIVE, DESCRIPTION, TRANSACTION_DATE_ENTERED, TRANSACTION_TYPE, " + /*fra FA_TRANSACTION_HISTORY_TRX_V */
-                                    "EMPLOYEE_NAME, EMPLOYEE_NUMBER, SERIAL_NUMBER, STATE " + /*fra FA_ADDITIONS_V*/
-                                    "from FA_ADDITIONS_V " +
-                                    "full join FA_TRANSACTION_HISTORY_TRX_V on FA_ADDITIONS_V.ASSET_NUMBER = FA_TRANSACTION_HISTORY_TRX_V.ASSET_NUMBER " +
-                                    "full join FA_ASSET_DISTRIBUTION_V on FA_ADDITIONS_V.ASSET_NUMBER = FA_ASSET_DISTRIBUTION_V.ASSET_NUMBER " +
-                                    $"where FA_ADDITIONS_V.ASSET_NUMBER like {assetNumber}";
-
-            OracleDataReader reader = command.ExecuteReader();
-
             List<ØSSLine> lines = new List<ØSSLine>();
 
-            while (reader.Read())
+            using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                ØSSLine line = new ØSSLine();
-                line.InUseFlag = reader["In_USE_FLAG"] as string;
-                line.Manufacturer = reader["MANUFACTURER_NAME"] as string;
-                line.ModelNumber = reader["MODEL_NUMBER"] as string;
-                line.TagNumber = reader["TAG_NUMBER"] as string;
-                line.Comment = reader["COMMENTS"] as string;
-                line.DateEffective = reader["DATE_EFFECTIVE"] as DateTime?;
-                line.Description = reader["DESCRIPTION"] as string;
-                line.TransactionDateEntered = reader["TRANSACTION_DATE_ENTERED"] as DateTime?;
-                line.TransactionType = reader["TRANSACTION_TYPE"] as string;
-                line.EmployeeName = reader["EMPLOYEE_NAME"] as string;
-                line.EmployeeNumber = reader["EMPLOYEE_NUMBER"] as string;
-                line.SerialNumber = reader["SERIAL_NUMBER"] as string;
-                line.State = reader["STATE"] as string;
+                conn.Open();
+                OracleCommand command = conn.CreateCommand();
+                command.CommandText = $"select IN_USE_FLAG, MANUFACTURER_NAME, MODEL_NUMBER, TAG_NUMBER, " + /*fra FA_ADDITIONS_V*/
+                                        "COMMENTS, DATE_EFFECTIVE, DESCRIPTION, TRANSACTION_DATE_ENTERED, TRANSACTION_TYPE, " + /*fra FA_TRANSACTION_HISTORY_TRX_V */
+                                        "EMPLOYEE_NAME, EMPLOYEE_NUMBER, SERIAL_NUMBER, STATE " + /*fra FA_ADDITIONS_V*/
+                                        "from FA_ADDITIONS_V " +
+                                        "full join FA_TRANSACTION_HISTORY_TRX_V on FA_ADDITIONS_V.ASSET_NUMBER = FA_TRANSACTION_HISTORY_TRX_V.ASSET_NUMBER " +
+                                        "full join FA_ASSET_DISTRIBUTION_V on FA_ADDITIONS_V.ASSET_NUMBER = FA_ASSET_DISTRIBUTION_V.ASSET_NUMBER " +
+                                        $"where FA_ADDITIONS_V.ASSET_NUMBER like {assetNumber}";
 
-                lines.Add(line);
+                OracleDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    ØSSLine line = new ØSSLine();
+                    line.InUseFlag = reader["In_USE_FLAG"] as string;
+                    line.Manufacturer = reader["MANUFACTURER_NAME"] as string;
+                    line.ModelNumber = reader["MODEL_NUMBER"] as string;
+                    line.TagNumber = reader["TAG_NUMBER"] as string;
+                    line.Comment = reader["COMMENTS"] as string;
+                    line.DateEffective = reader["DATE_EFFECTIVE"] as DateTime?;
+                    line.Description = reader["DESCRIPTION"] as string;
+                    line.TransactionDateEntered = reader["TRANSACTION_DATE_ENTERED"] as DateTime?;
+                    line.TransactionType = reader["TRANSACTION_TYPE"] as string;
+                    line.EmployeeName = reader["EMPLOYEE_NAME"] as string;
+                    line.EmployeeNumber = reader["EMPLOYEE_NUMBER"] as string;
+                    line.SerialNumber = reader["SERIAL_NUMBER"] as string;
+                    line.State = reader["STATE"] as string;
+
+                    lines.Add(line);
+                }
             }
-
-            Disconnect();
 
             List<string[]> rows = new List<string[]>();
 
@@ -264,11 +261,6 @@ namespace ITSWebMgmt.Connectors
             table.ViewHeading = "ØSS info";
 
             return table;
-        }
-
-        private void Disconnect()
-        {
-            conn.Close();
         }
     }
 
