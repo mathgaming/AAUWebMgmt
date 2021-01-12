@@ -33,11 +33,12 @@
                 <a class="item" asp-area="" asp-controller="User" asp-action="Index">User Info</a><br />
                 <a class="item" asp-area="" asp-controller="Computer" asp-action="Index">Computer Info</a><br />
                 <a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log (Only for platform)</a><br />
+                <a class="item" asp-area="" asp-controller="TrashRequests" asp-action="Index">Trash</a><br />
                 <a class="item" asp-area="" asp-controller="ComputerList" asp-action="Index">Computer list (Only for platform)</a><br />
                 <a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage known issues (Only for platform)</a><br />
                 <a class="item" asp-area="" asp-controller="MissingGroups" asp-action="Index">Manage Mac error groups (Only for platform)</a><br />
                 <a class="item" asp-area="" asp-controller="CSV" asp-action="Index">CSV to email converter</a><br />
-                <br/>
+                <br />
                 @using (Html.BeginForm("GiveFeedback", "Home", FormMethod.Post))
                 {
                     <input type="submit" value="Request new feature or report issue" />
