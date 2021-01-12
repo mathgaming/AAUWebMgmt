@@ -41,10 +41,23 @@ namespace ITSWebMgmt.Connectors
             string assetNumber = GetAssetNumberFromTagNumber(id);
             return GetØssTable(assetNumber);
         }
-        public ØSSTableModel LookUpByEmployeeID(string id)
+        public List<ØSSTableModel> LookUpByEmployeeID(string id)
         {
-            string assetNumber = GetAssetNumberFromEmployeeID(id);
-            return GetØssTable(assetNumber);
+            List<string> assetNumbers = GetAssetNumbersFromEmployeeID(id);
+            List<ØSSTableModel> tabels = new List<ØSSTableModel>();
+            foreach (var assetNumber in assetNumbers)
+            {
+                try
+                {
+                    tabels.Add(GetØssTable(assetNumber));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine( e.Message);
+                }
+                
+            }
+            return tabels;
         }
 
         public TableModel LookUpResponsibleBySerialNumber(string id)
@@ -78,10 +91,32 @@ namespace ITSWebMgmt.Connectors
             return output;
         }
 
-        public string GetAssetNumberFromEmployeeID(string id)
+        public List<string> RunQueryMoreResults(string query, string outputKeyName)
+        {
+            List<string> output = new List<string>();
+
+            using (OracleConnection conn = new OracleConnection(connectionString, credential))
+            {
+                conn.Open();
+                OracleCommand command = conn.CreateCommand();
+                command.CommandText = query;
+                OracleDataReader reader = command.ExecuteReader();
+
+
+
+                while (reader.Read())
+                {
+                    output.Add(reader[outputKeyName] as string);
+                }
+            }
+
+            return output;
+        }
+
+        public List<string> GetAssetNumbersFromEmployeeID(string id)
         {
             string query = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where EMPLOYEE_NUMBER like '{ id }'";
-            return RunQuery(query, "ASSET_NUMBER");
+            return RunQueryMoreResults(query, "ASSET_NUMBER");
         }
 
         public string GetAssetNumberFromTagNumber(string tagNumber)

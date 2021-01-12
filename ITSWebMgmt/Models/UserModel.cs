@@ -126,7 +126,7 @@ namespace ITSWebMgmt.Models
         public TableModel Windows7to10 { get; set; }
         public TableModel WindowsComputerTable { get; set; }
         public TableModel MacComputerTable { get; set; }
-        public ØSSTableModel ØSSComputerTables { get; set; }
+        public List<ØSSTableModel> ØSSComputerTables { get; set; }
         public bool ShowFixUserOU { get; set; } = false;
         public bool ShowLoginScript { get; set; } = false;
         public string UsesOnedrive { get; set; } = "False";
@@ -422,7 +422,7 @@ namespace ITSWebMgmt.Models
             }
             catch (Exception e)
             {
-                ØSSComputerTables = new ØSSTableModel();
+                ØSSComputerTables = new List<ØSSTableModel> { new ØSSTableModel() };
             }
         }
 

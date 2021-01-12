@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using ITSWebMgmt.Helpers;
 using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace ITSWebMgmt.Connectors
 {
@@ -189,21 +190,19 @@ namespace ITSWebMgmt.Connectors
 
         private void SaveDictionary(Dictionary<string, List<int>> d, string path)
         {
-            var fi = new FileInfo(path);
-            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-
-            using var binaryFile = fi.Create();
-            binaryFormatter.Serialize(binaryFile, d);
-            binaryFile.Flush();
+            using (StreamWriter file = new StreamWriter(path, true))
+            {
+                file.Write(JsonSerializer.Serialize(d));
+            }
         }
 
         private Dictionary<string, List<int>> ReadDictionary(string path)
         {
-            var fi = new FileInfo(path);
-            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-
-            using var binaryFile = fi.OpenRead();
-            return (Dictionary<string, List<int>>)binaryFormatter.Deserialize(binaryFile);
+            using (StreamReader file = new StreamReader(path, true))
+            {
+                string input = file.ReadToEnd();
+                return JsonSerializer.Deserialize<Dictionary<string, List<int>>>(input);
+            }
         }
     }
 }
