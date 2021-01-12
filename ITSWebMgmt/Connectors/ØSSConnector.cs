@@ -355,7 +355,7 @@ namespace ITSWebMgmt.Connectors
             else
             {
                 infoTable = new TableModel(new string[] { "IN_USE_FLAG", "MANUFACTURER_NAME", "MODEL_NUMBER", "TAG_NUMBER", "EMPLOYEE_NAME", "EMPLOYEE_NUMBER", "SERIAL_NUMBER", "STATE"}, row);
-                transactionTable = new TableModel(new string[] { "Comments", "Timestamp", "Descripion", "Transaction date", "Transaction type" }, rows);
+                transactionTable = new TableModel(new string[] { "Comments", "Timestamp", "Description", "Transaction date", "Transaction type" }, rows);
             }
 
             infoTable.ViewHeading = "ØSS info";
