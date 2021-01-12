@@ -87,7 +87,7 @@ namespace ITSWebMgmt.Controllers
                         }
                         else
                         {
-                            ComputerModel.InitØSSInfo(true);
+                            ComputerModel.InitÃ˜SSInfo(true);
                             if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
                             {
                                 ComputerModel.OnlyFoundInOESS = true;
@@ -178,8 +178,8 @@ namespace ITSWebMgmt.Controllers
                     return PartialView("TableView", ComputerModel.Mac.DiskTable);
                 case "purchase":
                     return PartialView("INDB", INDBConnector.GetInfo(ComputerModel.ComputerName));
-                case "øss":
-                    ComputerModel.InitØSSInfo();
+                case "Ã¸ss":
+                    ComputerModel.InitÃ˜SSInfo();
                     return PartialView("OESS", ComputerModel);
             }
 
@@ -497,17 +497,17 @@ namespace ITSWebMgmt.Controllers
 
             if (userModel.UserFound)
             {
-                ØSSConnector øss = new ØSSConnector();
+                Ã˜SSConnector Ã˜ss = new Ã˜SSConnector();
                 (string assetNumber, string segment) = ComputerModel.GetAssetNumberAndSegment();
-                ØSSInfo info = øss.GetØSSInfo(assetNumber);
+                Ã˜SSInfo info = Ã˜ss.GetÃ˜SSInfo(assetNumber);
 
                 TrashRequest request = new TrashRequest();
                 request.RequestedBy = temp[1];
                 request.CreatedBy = HttpContext.User.Identity.Name;
                 request.TimeStamp = DateTime.Now;
-                request.ØSSEmployeeId = info.EmployeeName;
-                request.ØSSEmployeeName = info.EmployeeNumber;
-                request.EquipmentManager = øss.GetResponsiblePerson(segment).email;
+                request.Ã˜SSEmployeeId = info.EmployeeName;
+                request.Ã˜SSEmployeeName = info.EmployeeNumber;
+                request.EquipmentManager = Ã˜ss.GetResponsiblePerson(segment).email;
 
                 _context.Add(request);
                 _context.SaveChanges();
