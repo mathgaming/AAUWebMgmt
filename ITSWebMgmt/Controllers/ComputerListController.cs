@@ -7,7 +7,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class ComputerListController : WebMgmtController
     {
-        public ComputerListController(LogEntryContext context) : base(context) { }
+        public ComputerListController(WebMgmtContext context) : base(context) { }
 
         public IActionResult Index()
         {

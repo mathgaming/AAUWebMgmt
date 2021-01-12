@@ -42,7 +42,7 @@ namespace ITSWebMgmt.Controllers
         private readonly IMemoryCache _cache;
         public ComputerModel ComputerModel;
 
-        public ComputerController(LogEntryContext context, IMemoryCache cache) : base(context)
+        public ComputerController(WebMgmtContext context, IMemoryCache cache) : base(context)
         {
             _cache = cache;
         }
@@ -481,6 +481,48 @@ namespace ITSWebMgmt.Controllers
             {
                 return Error("User not found");
             }
+        }
+
+        public ActionResult TrashComputer([FromBody] string data)
+        {
+            string[] temp = data.Split('|');
+            ComputerModel = GetComputerModel(temp[0]);
+
+            if (temp[1].Length == 0)
+            {
+                return Error("User email cannot be empty");
+            }
+
+            UserModel userModel = new UserModel(temp[1]);
+
+            if (userModel.UserFound)
+            {
+                ØSSConnector øss = new ØSSConnector();
+                (string assetNumber, string segment) = ComputerModel.GetAssetNumberAndSegment();
+                ØSSInfo info = øss.GetØSSInfo(assetNumber);
+
+                TrashRequest request = new TrashRequest();
+                request.RequestedBy = temp[1];
+                request.CreatedBy = HttpContext.User.Identity.Name;
+                request.TimeStamp = DateTime.Now;
+                request.ØSSEmployeeId = info.EmployeeName;
+                request.ØSSEmployeeName = info.EmployeeNumber;
+                request.EquipmentManager = øss.GetResponsiblePerson(segment).email;
+
+                _context.Add(request);
+                _context.SaveChanges();
+
+                sendTrashComputerEmail(request);
+                return Success("Computer have been marked as trashed");
+            }
+            else
+            {
+                return Error("User not found by the inputted email");
+            }
+        }
+        private void sendTrashComputerEmail(TrashRequest trashRequest)
+        {
+            // TODO implement this
         }
     }
 }

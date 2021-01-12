@@ -33,30 +33,30 @@ namespace ITSWebMgmt.Connectors
         public ØSSTableModel LookUpBySerialNumber(string id)
         {
             string assetNumber = GetAssetNumberFromSerialNumber(id);
-            return GetTableFromQuery(assetNumber);
+            return GetØssTable(assetNumber);
         }
 
         public ØSSTableModel LookUpByAAUNumber(string id)
         {
             string assetNumber = GetAssetNumberFromTagNumber(id);
-            return GetTableFromQuery(assetNumber);
+            return GetØssTable(assetNumber);
         }
         public ØSSTableModel LookUpByEmployeeID(string id)
         {
             string assetNumber = GetAssetNumberFromEmployeeID(id);
-            return GetTableFromQuery(assetNumber);
+            return GetØssTable(assetNumber);
         }
 
         public TableModel LookUpResponsibleBySerialNumber(string id)
         {
-            string assetNumber = GetAssetNumberFromSerialNumber(id);
-            return GetResponsiblePersonTable(assetNumber);
+            string segment = GetAssetNumberFromSerialNumber(id);
+            return GetResponsiblePersonTable(segment);
         }
 
         public TableModel LookUpResponsibleByAAUNumber(string id)
         {
-            string assetNumber = GetSegmentFromAssetTag(id);
-            return GetResponsiblePersonTable(assetNumber);
+            string segment = GetSegmentFromAssetTag(id);
+            return GetResponsiblePersonTable(segment);
         }
 
         public string RunQuery(string query, string outputKeyName)
@@ -139,14 +139,12 @@ namespace ITSWebMgmt.Connectors
             return GetKeyFromSerialNumber(query, serialNumber, "SEGMENT1");
         }
 
-        public TableModel GetResponsiblePersonTable(string segment)
+        public (string email, string first_name, string last_name) GetResponsiblePerson(string segment)
         {
             if (segment.Length == 0)
             {
-                return new TableModel("No information found from ØSS");
+                return ("", "", "");
             }
-
-            List<string[]> rows = null;
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
@@ -165,17 +163,30 @@ namespace ITSWebMgmt.Connectors
                     string first_name = reader["FORNAVN"] as string;
                     string last_name = reader["EFTERNAVN"] as string;
 
-                    rows = new List<string[]> { new string[] { email, first_name, last_name } };
+                    return (email, first_name, last_name);
                 }
             }
 
+            return ("", "", "");
+        }
+
+        public TableModel GetResponsiblePersonTable(string segment)
+        {
+            if (segment.Length == 0)
+            {
+                return new TableModel("No information found from ØSS");
+            }
+
+            (string email, string first_name, string last_name) = GetResponsiblePerson(segment);
+
             TableModel table;
-            if (rows == null)
+            if (email.Length == 0)
             {
                 table = new TableModel("No information found from ØSS");
             }
             else
             {
+                List<string[]> rows = new List<string[]> { new string[] { email, first_name, last_name } };
                 table = new TableModel(new string[] { "Email", "First name", "Last name" }, rows);
             }
 
@@ -184,18 +195,14 @@ namespace ITSWebMgmt.Connectors
             return table;
         }
 
-        public ØSSTableModel GetTableFromQuery(string assetNumber)
+        public ØSSInfo GetØSSInfo(string assetNumber)
         {
-            ØSSTableModel tables = new ØSSTableModel();
-
             if (assetNumber.Length == 0)
             {
-                return tables;
+                return new ØSSInfo();
             }
 
-            List<ØSSLine> lines = new List<ØSSLine>();
             ØSSInfo info = new ØSSInfo();
-
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
                 conn.Open();
@@ -221,9 +228,29 @@ namespace ITSWebMgmt.Connectors
                     info.SerialNumber = reader["SERIAL_NUMBER"] as string;
                     info.State = reader["STATE"] as string;
                 }
+            }
 
+            return info;
+        }
+
+        public ØSSTableModel GetØssTable(string assetNumber)
+        {
+            ØSSTableModel tables = new ØSSTableModel();
+
+            if (assetNumber.Length == 0)
+            {
+                return tables;
+            }
+
+            List<ØSSLine> lines = new List<ØSSLine>();
+            ØSSInfo info = GetØSSInfo(assetNumber);
+
+            using (OracleConnection conn = new OracleConnection(connectionString, credential))
+            {
+                conn.Open();
+                OracleCommand command = conn.CreateCommand();
                 command.CommandText = $"select COMMENTS, DATE_EFFECTIVE, DESCRIPTION, TRANSACTION_DATE_ENTERED, TRANSACTION_TYPE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber}";
-                reader = command.ExecuteReader();
+                OracleDataReader reader = command.ExecuteReader();
 
                 while (reader.Read())
                 {
@@ -282,7 +309,7 @@ namespace ITSWebMgmt.Connectors
         }
     }
 
-    class ØSSInfo
+    public class ØSSInfo
     {
         public string InUseFlag { get; set; }
         public string Manufacturer { get; set; }

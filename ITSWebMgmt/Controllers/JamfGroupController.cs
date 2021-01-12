@@ -14,7 +14,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class JamfGroupController : WebMgmtController
     {
-        public JamfGroupController(LogEntryContext context) : base(context)
+        public JamfGroupController(WebMgmtContext context) : base(context)
         {
         }
 

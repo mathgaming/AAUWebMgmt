@@ -1,5 +1,26 @@
 ﻿@model ITSWebMgmt.Models.ComputerModel
+@using System.Web;
 
 @await Html.PartialAsync("RotatedTableView", Model.OESSTables.InfoTable.RotateTable())
 @await Html.PartialAsync("TableView", Model.OESSTables.TransactionTable)
 @await Html.PartialAsync("TableView", Model.OESSResponsiblePersonTable)
+
+<h3>Form for marking a computer as trashed</h3>
+<label>Email for user that requsted the computer should be trashed</label>
+<br />
+<input type="text" id="username" />
+<br />
+<label>Computername</label>
+<br />
+@Html.TextBoxFor(m => m.ComputerName, new { @readonly = true })
+<br />
+<button id="TrashComputer">Mark as trashed/marker som afmeldt</button>
+<br />
+<br />
+
+<script>
+    $("#TrashComputer").click(function () {
+        var data = '@HttpUtility.JavaScriptStringEncode(Model.ComputerName)' + '|' + $('#username').val();
+        sendPostRequest("TrashComputer", JSON.stringify(data));
+    });
+</script>

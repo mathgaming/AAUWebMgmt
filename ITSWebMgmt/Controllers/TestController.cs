@@ -5,7 +5,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class TestController : WebMgmtController
     {
-        public TestController(LogEntryContext context) : base(context) { }
+        public TestController(WebMgmtContext context) : base(context) { }
 
         public void Index()
         {

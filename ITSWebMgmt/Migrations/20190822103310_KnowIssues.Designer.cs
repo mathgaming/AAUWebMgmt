@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ITSWebMgmt.Migrations
 {
-    [DbContext(typeof(LogEntryContext))]
+    [DbContext(typeof(WebMgmtContext))]
     [Migration("20190822103310_KnowIssues")]
     partial class KnowIssues
     {

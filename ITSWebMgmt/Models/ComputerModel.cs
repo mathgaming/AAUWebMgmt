@@ -66,51 +66,61 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public void InitØSSInfo(bool input_as_search = false)
+        public (string assetNumber, string segment) GetAssetNumberAndSegment(bool input_as_search = false)
         {
+            ØSSConnector øss = new ØSSConnector();
+            string assetNumber = "";
+            string segment = "";
+
             if (input_as_search)
             {
-                ØSSTableModel tables = new ØSSConnector().LookUpByAAUNumber(ComputerName);
-                if (tables.InfoTable.ErrorMessage == null)
+                assetNumber = øss.GetAssetNumberFromTagNumber(ComputerName);
+                if (assetNumber.Length != 0)
                 {
-                    OESSTables = tables;
-                    OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(ComputerName);
+                    segment = øss.GetSegmentFromAssetTag(ComputerName);
                 }
                 else
                 {
-                    OESSTables = new ØSSConnector().LookUpBySerialNumber(ComputerName);
-                    OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleBySerialNumber(ComputerName);
+                    assetNumber = øss.GetAssetNumberFromSerialNumber(ComputerName);
+                    segment = øss.GetSegmentFromSerialNumber(ComputerName);
                 }
             }
             else if (IsWindows)
             {
-                OESSTables = new ØSSConnector().LookUpByAAUNumber(ComputerName);
-                OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(ComputerName);
+                assetNumber = øss.GetAssetNumberFromTagNumber(ComputerName);
+                segment = øss.GetSegmentFromAssetTag(ComputerName);
             }
-            else
+            else // Mac
             {
-                ØSSTableModel tables = new ØSSConnector().LookUpByAAUNumber(Mac.ComputerName);
-                if (tables.InfoTable.ErrorMessage == null)
+                assetNumber = øss.GetAssetNumberFromTagNumber(Mac.ComputerName);
+                if (assetNumber.Length != 0)
                 {
-                    OESSTables = tables;
-                    OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(Mac.ComputerName);
+                    segment = øss.GetSegmentFromAssetTag(Mac.ComputerName);
                 }
                 else if (Mac.AssetTag.Length > 0)
                 {
-                    tables = new ØSSConnector().LookUpByAAUNumber(Mac.AssetTag);
-
-                    if (tables.InfoTable.ErrorMessage == null)
+                    assetNumber = øss.GetAssetNumberFromTagNumber(Mac.AssetTag);
+                    if (assetNumber.Length != 0)
                     {
-                        OESSTables = tables;
-                        OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleByAAUNumber(Mac.AssetTag);
+                        segment = øss.GetSegmentFromAssetTag(Mac.AssetTag);
                     }
                 }
                 else
                 {
-                    OESSTables = new ØSSConnector().LookUpBySerialNumber(Mac.SerialNumber);
-                    OESSResponsiblePersonTable = new ØSSConnector().LookUpResponsibleBySerialNumber(Mac.SerialNumber);
+                    assetNumber = øss.GetAssetNumberFromSerialNumber(Mac.SerialNumber);
+                    segment = øss.GetSegmentFromSerialNumber(Mac.SerialNumber);
                 }
             }
+
+            return (assetNumber, segment);
+        }
+
+        public void InitØSSInfo(bool input_as_search = false)
+        {
+            (string assetNumber, string segment) = GetAssetNumberAndSegment(input_as_search);
+
+            OESSTables = new ØSSConnector().GetØssTable(assetNumber);
+            OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(segment);
         }
     }
 }

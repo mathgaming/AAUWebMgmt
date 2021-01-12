@@ -9,7 +9,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class HomeController : WebMgmtController
     {
-        public HomeController(LogEntryContext context) : base(context) { }
+        public HomeController(WebMgmtContext context) : base(context) { }
 
         public IActionResult Index()
         {

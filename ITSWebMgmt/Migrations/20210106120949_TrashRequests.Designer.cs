@@ -10,14 +10,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITSWebMgmt.Migrations
 {
     [DbContext(typeof(WebMgmtContext))]
-    [Migration("20191031135346_MacErrors")]
-    partial class MacErrors
+    [Migration("20210106120949_TrashRequests")]
+    partial class TrashRequests
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -120,6 +120,39 @@ namespace ITSWebMgmt.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MacErrors");
+                });
+
+            modelBuilder.Entity("ITSWebMgmt.Models.TrashRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EquipmentManager")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ØSSEmployeeId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ØSSEmployeeName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TrashRequests");
                 });
 
             modelBuilder.Entity("ITSWebMgmt.Models.Log.LogEntryArgument", b =>
