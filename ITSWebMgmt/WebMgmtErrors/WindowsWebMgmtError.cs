@@ -39,9 +39,9 @@ namespace ITSWebMgmt.WebMgmtErrors
     {
         public DriveAlmostFull(ComputerController computer) : base(computer)
         {
-            Heading = "Less than 5 GB space avilable";
+            Heading = "Less than 25 GB space avilable";
             Description = "Having an almost full drive might cause troubles";
-            Severeness = Severity.Warning;
+            Severeness = Severity.Error;
         }
 
         public override bool HaveError()
@@ -55,7 +55,7 @@ namespace ITSWebMgmt.WebMgmtErrors
             {
                 int space = computer.ComputerModel.Windows.LogicalDisk.GetPropertyInGB("FreeSpace");
                 if (space == 0) return false;
-                return space <= 5;
+                return space <= 25;
             }
 
             return false;
