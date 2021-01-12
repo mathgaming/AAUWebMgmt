@@ -242,4 +242,19 @@ namespace ITSWebMgmt.WebMgmtErrors
             return computer.ComputerModel.Windows.SCCMAV.ErrorMessage != "Antivirus information not found";
         }
     }
+
+    public class IsTrashed : ComputerWebMgmtError
+    {
+        public IsTrashed(ComputerController computer) : base(computer)
+        {
+            Heading = "Computer is trashed in ØSS";
+            Description = "The computer have been marked as trash in ØSS but was found in AD";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            return computer.ComputerModel.IsTrashedInØSS;
+        }
+    }
 }

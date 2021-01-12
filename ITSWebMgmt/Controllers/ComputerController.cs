@@ -418,7 +418,8 @@ namespace ITSWebMgmt.Controllers
                 new ManagerAndComputerNotInSameDomain(this),
                 new PasswordExpired(this),
                 new MissingJavaLicense(this),
-                new HaveVirus(this)
+                new HaveVirus(this),
+                new IsTrashed(this)
             };
 
             LoadWarnings(warnings);
@@ -428,7 +429,8 @@ namespace ITSWebMgmt.Controllers
         {
             List<WebMgmtError> warnings = new List<WebMgmtError>
             {
-                new NotAAUMac(this)
+                new NotAAUMac(this),
+                new IsTrashedMac(this)
             };
 
             warnings.AddRange(GetAllMacWarnings());
@@ -498,8 +500,7 @@ namespace ITSWebMgmt.Controllers
             if (userModel.UserFound)
             {
                 ØSSConnector Øss = new ØSSConnector();
-                (string assetNumber, string segment) = ComputerModel.GetAssetNumberAndSegment();
-                ØSSInfo info = Øss.GetØSSInfo(assetNumber);
+                ØSSInfo info = Øss.GetØSSInfo(ComputerModel.ØSSAssetnumber);
 
                 TrashRequest request = new TrashRequest();
                 request.RequestedBy = temp[1];
@@ -507,7 +508,7 @@ namespace ITSWebMgmt.Controllers
                 request.TimeStamp = DateTime.Now;
                 request.ØSSEmployeeId = info.EmployeeName;
                 request.ØSSEmployeeName = info.EmployeeNumber;
-                request.EquipmentManager = Øss.GetResponsiblePerson(segment).email;
+                request.EquipmentManager = Øss.GetResponsiblePerson(ComputerModel.ØSSSegment).email;
 
                 _context.Add(request);
                 _context.SaveChanges();

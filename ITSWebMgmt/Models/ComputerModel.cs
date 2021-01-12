@@ -9,6 +9,9 @@ namespace ITSWebMgmt.Models
 
         public MacComputerModel Mac;
         public WindowsComputerModel Windows;
+        private string øSSAssetnumber;
+        private string øSSSegment;
+        private bool? isTrashedInØSS;
 
         //Display
         public bool IsWindows { get; set; }
@@ -19,6 +22,46 @@ namespace ITSWebMgmt.Models
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
         public ØSSTableModel OESSTables { get; set; }
+        public string ØSSAssetnumber
+        {
+            get
+            {
+                if (øSSAssetnumber == null)
+                {
+                    (string assetNumber, string segment) = GetAssetNumberAndSegment();
+                    øSSAssetnumber = assetNumber;
+                    øSSSegment = segment;
+                }
+                return øSSAssetnumber;
+            }
+            set => øSSAssetnumber = value;
+        }
+
+        public string ØSSSegment
+        {
+            get
+            {
+                if (øSSSegment == null)
+                {
+                    (string assetNumber, string segment) = GetAssetNumberAndSegment();
+                    øSSAssetnumber = assetNumber;
+                    øSSSegment = segment;
+                }
+                return øSSSegment;
+            }
+            set => øSSSegment = value;
+        }
+        public bool IsTrashedInØSS { get
+            {
+                if (isTrashedInØSS == null)
+                {
+                    isTrashedInØSS = new ØSSConnector().IsTrashed(ØSSAssetnumber);
+                }
+
+                return isTrashedInØSS == true;
+            }
+            set => isTrashedInØSS = value;
+        }
         public TableModel OESSResponsiblePersonTable { get; set; }
         public virtual bool ComputerFound { get; set; }
 
@@ -66,7 +109,7 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public (string assetNumber, string segment) GetAssetNumberAndSegment(bool input_as_search = false)
+        private (string assetNumber, string segment) GetAssetNumberAndSegment(bool input_as_search = false)
         {
             ØSSConnector øss = new ØSSConnector();
             string assetNumber = "";

@@ -268,6 +268,30 @@ namespace ITSWebMgmt.Connectors
             return info;
         }
 
+        public bool IsTrashed(string assetNumber)
+        {
+            bool isTrashed = false;
+
+            using (OracleConnection conn = new OracleConnection(connectionString, credential))
+            {
+                conn.Open();
+                OracleCommand command = conn.CreateCommand();
+                command.CommandText = $"select TRANSACTION_TYPE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber}";
+                OracleDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    if (reader["TRANSACTION_TYPE"] as string == "Fuldstændig afgang")
+                    {
+                        isTrashed = true;
+                        break;
+                    }
+                }
+            }
+
+            return isTrashed;
+        }
+
         public ØSSTableModel GetØssTable(string assetNumber)
         {
             ØSSTableModel tables = new ØSSTableModel();
@@ -284,7 +308,7 @@ namespace ITSWebMgmt.Connectors
             {
                 conn.Open();
                 OracleCommand command = conn.CreateCommand();
-                command.CommandText = $"select COMMENTS, DATE_EFFECTIVE, DESCRIPTION, TRANSACTION_DATE_ENTERED, TRANSACTION_TYPE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber}";
+                command.CommandText = $"select COMMENTS, DATE_EFFECTIVE, DESCRIPTION, TRANSACTION_DATE_ENTERED, TRANSACTION_TYPE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber} order by DATE_EFFECTIVE asc";
                 OracleDataReader reader = command.ExecuteReader();
 
                 while (reader.Read())
@@ -331,7 +355,7 @@ namespace ITSWebMgmt.Connectors
             else
             {
                 infoTable = new TableModel(new string[] { "IN_USE_FLAG", "MANUFACTURER_NAME", "MODEL_NUMBER", "TAG_NUMBER", "EMPLOYEE_NAME", "EMPLOYEE_NUMBER", "SERIAL_NUMBER", "STATE"}, row);
-                transactionTable = new TableModel(new string[] { "COMMENTS", "DATE_EFFECTIVE", "DESCRIPTION", "TRANSACTION_DATE_ENTERED", "TRANSACTION_TYPE" }, rows);
+                transactionTable = new TableModel(new string[] { "Comments", "Timestamp", "Descripion", "Transaction date", "Transaction type" }, rows);
             }
 
             infoTable.ViewHeading = "ØSS info";

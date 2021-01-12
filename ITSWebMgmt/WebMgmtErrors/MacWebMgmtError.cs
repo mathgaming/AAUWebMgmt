@@ -33,6 +33,21 @@ namespace ITSWebMgmt.Models
         }
     }
 
+    public class IsTrashedMac : MacWebMgmtError
+    {
+        public IsTrashedMac(ComputerController computer) : base(computer)
+        {
+            Heading = "Computer is trashed in ØSS";
+            Description = "The computer have been marked as trash in ØSS but was found in Jamf";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            return computer.ComputerModel.IsTrashedInØSS;
+        }
+    }
+
     public class MissingGroup : MacWebMgmtError
     {
         public MissingGroup() : base(null) { }
