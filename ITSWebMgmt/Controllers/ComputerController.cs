@@ -55,7 +55,7 @@ namespace ITSWebMgmt.Controllers
                 computerName = computerName.Substring(computerName.IndexOf('\\') + 1);
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
-                    ComputerModel = new ComputerModel(computerName);
+                    ComputerModel = new ComputerModel(computerName, GetTrashRequest(computerName));
                     ComputerModel.Windows = new WindowsComputerModel(ComputerModel);
 
                     if (ComputerModel.IsWindows)
@@ -113,10 +113,15 @@ namespace ITSWebMgmt.Controllers
             }
             else
             {
-                ComputerModel = new ComputerModel(computerName);
+                ComputerModel = new ComputerModel(computerName, GetTrashRequest(computerName));
             }
 
             return ComputerModel;
+        }
+
+        private TrashRequest GetTrashRequest(string computerName)
+        {
+            return _context.TrashRequests.FirstOrDefault(x => x.ComputerName == computerName);
         }
 
         public override ActionResult LoadTab(string tabName, string name)
@@ -419,7 +424,8 @@ namespace ITSWebMgmt.Controllers
                 new PasswordExpired(this),
                 new MissingJavaLicense(this),
                 new HaveVirus(this),
-                new IsTrashed(this)
+                new IsTrashed(this),
+                new IsHalfTrashed(this)
             };
 
             LoadWarnings(warnings);
@@ -430,7 +436,8 @@ namespace ITSWebMgmt.Controllers
             List<WebMgmtError> warnings = new List<WebMgmtError>
             {
                 new NotAAUMac(this),
-                new IsTrashedMac(this)
+                new IsTrashedMac(this),
+                new IsHalfTrashedMac(this)
             };
 
             warnings.AddRange(GetAllMacWarnings());
@@ -521,6 +528,7 @@ namespace ITSWebMgmt.Controllers
                 return Error("User not found by the inputted email");
             }
         }
+
         private void sendTrashComputerEmail(TrashRequest trashRequest)
         {
             // TODO implement this

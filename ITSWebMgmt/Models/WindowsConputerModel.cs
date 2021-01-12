@@ -108,7 +108,7 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public WindowsComputerModel(string computerName) : this(new ComputerModel(computerName)) { }
+        public WindowsComputerModel(string computerName) : this(new ComputerModel(computerName, null)) { }
 
         public string GetSCCMResourceIDFromComputerName(string computername)
         {

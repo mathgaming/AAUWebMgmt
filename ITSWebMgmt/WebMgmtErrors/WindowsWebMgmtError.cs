@@ -247,14 +247,29 @@ namespace ITSWebMgmt.WebMgmtErrors
     {
         public IsTrashed(ComputerController computer) : base(computer)
         {
-            Heading = "Computer is trashed in �SS";
-            Description = "The computer have been marked as trash in �SS but was found in AD";
+            Heading = "Computer is trashed in ØSS";
+            Description = "The computer have been marked as trash in ØSS but was found in AD";
             Severeness = Severity.Error;
         }
 
         public override bool HaveError()
         {
-            return computer.ComputerModel.IsTrashedIn�SS;
+            return computer.ComputerModel.IsTrashedInØSS;
+        }
+    }
+
+    public class IsHalfTrashed : ComputerWebMgmtError
+    {
+        public IsHalfTrashed(ComputerController computer) : base(computer)
+        {
+            Heading = "Computer is trashed in WebMgmt, but not in ØSS";
+            Description = "The computer have been marked as trash in WebMgmt but not in ØSS";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            return computer.ComputerModel.IsTrashedInWebMgmt() && !computer.ComputerModel.IsTrashedInØSS;
         }
     }
 }

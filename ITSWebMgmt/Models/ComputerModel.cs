@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Models.Log;
 
 namespace ITSWebMgmt.Models
 {
@@ -62,14 +64,23 @@ namespace ITSWebMgmt.Models
             }
             set => isTrashedInØSS = value;
         }
+
+        public TrashRequest TrashRequest { get; set; }
+
+        public bool IsTrashedInWebMgmt()
+        {
+            return TrashRequest != null;
+        }
+
         public TableModel OESSResponsiblePersonTable { get; set; }
         public virtual bool ComputerFound { get; set; }
 
-        public ComputerModel(string computerName)
+        public ComputerModel(string computerName, TrashRequest request)
         {
             if (computerName != null)
             {
                 ComputerName = computerName;
+                TrashRequest = request;
             }
         }
 

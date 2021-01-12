@@ -38,6 +38,7 @@ namespace ITSWebMgmt
             services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
             var connection = Configuration.GetConnectionString("MyConnectionString");
             services.AddDbContext<WebMgmtContext>(options => options.UseSqlServer(connection));
+            services.AddScoped<IDatabaseHelper, DatabaseHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
