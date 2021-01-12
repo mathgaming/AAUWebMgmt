@@ -516,6 +516,7 @@ namespace ITSWebMgmt.Controllers
                 request.ØSSEmployeeId = info.EmployeeName;
                 request.ØSSEmployeeName = info.EmployeeNumber;
                 request.EquipmentManager = Øss.GetResponsiblePerson(ComputerModel.ØSSSegment).email;
+                request.ComputerName = ComputerModel.ComputerName;
 
                 _context.Add(request);
                 _context.SaveChanges();
