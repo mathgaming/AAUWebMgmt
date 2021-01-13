@@ -209,19 +209,26 @@ namespace ITSWebMgmt.Helpers
 
         public static string ConvertToStringWithCorrectFormatIfDate(dynamic v)
         {
-            if (v.GetType().Equals(typeof(DateTime)))
+            try
             {
-                return DateTimeConverter.Convert((DateTime)v);
+                if (v.GetType().Equals(typeof(DateTime)))
+                {
+                    return DateTimeConverter.Convert((DateTime)v);
+                }
             }
-            else if (v.GetType().ToString() == "System.__ComObject")
+            catch (Exception)
             {
                 try
                 {
-                    int test = (int)v.GetType().InvokeMember("HighPart", System.Reflection.BindingFlags.GetProperty, null, v, null);
                     return DateTimeConverter.Convert(v);
                 }
-                catch (Exception) { }
+                catch (Exception)
+                {
+                    return "System.__ComObject";
+                }
+
             }
+        
             return v.ToString();
         }
     }
