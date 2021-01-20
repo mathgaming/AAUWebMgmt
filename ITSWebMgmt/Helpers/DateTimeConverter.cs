@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -32,9 +32,9 @@ namespace ITSWebMgmt.Helpers
         {
             IADsLargeInteger largeInt = (IADsLargeInteger)adsLargeInteger;
             long datelong = (((long)largeInt.HighPart) << 32) + largeInt.LowPart;
-            if (datelong == 9223372032559808511)
+            if (datelong == 9223372032559808511 || datelong > DateTime.MaxValue.ToFileTime())
             {
-                return null;
+                return Convert(DateTime.MaxValue);
             }
 
             DateTime date = DateTime.FromFileTime(datelong);
