@@ -30,12 +30,6 @@ namespace ITSWebMgmt.Connectors
             credential = new OracleCredential(user, s);
         }
 
-        public ØSSTableModel LookUpBySerialNumber(string id)
-        {
-            string assetNumber = GetAssetNumberFromSerialNumber(id);
-            return GetØssTable(assetNumber);
-        }
-
         public ØSSTableModel LookUpByAAUNumber(string id)
         {
             string assetNumber = GetAssetNumberFromTagNumber(id);
@@ -58,18 +52,6 @@ namespace ITSWebMgmt.Connectors
                 
             }
             return tabels;
-        }
-
-        public TableModel LookUpResponsibleBySerialNumber(string id)
-        {
-            string segment = GetAssetNumberFromSerialNumber(id);
-            return GetResponsiblePersonTable(segment);
-        }
-
-        public TableModel LookUpResponsibleByAAUNumber(string id)
-        {
-            string segment = GetSegmentFromAssetTag(id);
-            return GetResponsiblePersonTable(segment);
         }
 
         public string RunQuery(string query, string outputKeyName)
@@ -189,21 +171,12 @@ namespace ITSWebMgmt.Connectors
             return GetKeyFromSerialNumber(query, serialNumber, "ASSET_NUMBER");
         }
 
-        public string GetSegmentFromAssetTag(string tagNumber)
+        public string GetSegmentFromAssetNumber(string assetNumber)
         {
-            tagNumber = tagNumber.Substring(3);
             string query = $"select SEGMENT1 from FA_ADDITIONS_V "+
                             "join FA_ASSET_KEYWORDS on FA_ADDITIONS_V.ASSET_KEY_CCID = FA_ASSET_KEYWORDS.ASSET_KEY_CCID "+
-                            $"where TAG_NUMBER like '{ tagNumber }'";
+                            $"where ASSET_NUMBER like '{ assetNumber }'";
             return RunQuery(query, "SEGMENT1");
-        }
-        public string GetSegmentFromSerialNumber(string serialNumber)
-        {
-            string query = "select SEGMENT1 from FA_ADDITIONS_V "+
-                            "join FA_ASSET_KEYWORDS on FA_ADDITIONS_V.ASSET_KEY_CCID = FA_ASSET_KEYWORDS.ASSET_KEY_CCID "+
-                            "join FA_ASSET_DISTRIBUTION_V on FA_ADDITIONS_V.ASSET_NUMBER = FA_ASSET_DISTRIBUTION_V.ASSET_NUMBER "+
-                            "where FA_ASSET_DISTRIBUTION_V.SERIAL_NUMBER like";
-            return GetKeyFromSerialNumber(query, serialNumber, "SEGMENT1");
         }
 
         public (string email, string first_name, string last_name) GetResponsiblePerson(string segment)
@@ -303,6 +276,11 @@ namespace ITSWebMgmt.Connectors
         public bool IsTrashed(string assetNumber)
         {
             bool isTrashed = false;
+
+            if (assetNumber.Length == 0)
+            {
+                return false;
+            }
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {

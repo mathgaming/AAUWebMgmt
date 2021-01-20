@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Models.Log;
@@ -30,9 +30,7 @@ namespace ITSWebMgmt.Models
             {
                 if (øSSAssetnumber == null)
                 {
-                    (string assetNumber, string segment) = GetAssetNumberAndSegment();
-                    øSSAssetnumber = assetNumber;
-                    øSSSegment = segment;
+                    øSSAssetnumber = GetAssetNumber();
                 }
                 return øSSAssetnumber;
             }
@@ -45,9 +43,7 @@ namespace ITSWebMgmt.Models
             {
                 if (øSSSegment == null)
                 {
-                    (string assetNumber, string segment) = GetAssetNumberAndSegment();
-                    øSSAssetnumber = assetNumber;
-                    øSSSegment = segment;
+                    øSSSegment = new ØSSConnector().GetSegmentFromAssetNumber(ØSSAssetnumber);
                 }
                 return øSSSegment;
             }
@@ -120,61 +116,50 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        private (string assetNumber, string segment) GetAssetNumberAndSegment(bool input_as_search = false)
+        private string GetAssetNumber(bool input_as_search = false)
         {
             ØSSConnector øss = new ØSSConnector();
             string assetNumber = "";
-            string segment = "";
 
             if (input_as_search)
             {
                 assetNumber = øss.GetAssetNumberFromTagNumber(ComputerName);
                 if (assetNumber.Length != 0)
                 {
-                    segment = øss.GetSegmentFromAssetTag(ComputerName);
+                    return assetNumber;
                 }
                 else
                 {
-                    assetNumber = øss.GetAssetNumberFromSerialNumber(ComputerName);
-                    segment = øss.GetSegmentFromSerialNumber(ComputerName);
+                    return øss.GetAssetNumberFromSerialNumber(ComputerName);
                 }
             }
             else if (IsWindows)
             {
-                assetNumber = øss.GetAssetNumberFromTagNumber(ComputerName);
-                segment = øss.GetSegmentFromAssetTag(ComputerName);
+                return øss.GetAssetNumberFromTagNumber(ComputerName);
             }
             else // Mac
             {
                 assetNumber = øss.GetAssetNumberFromTagNumber(Mac.ComputerName);
                 if (assetNumber.Length != 0)
                 {
-                    segment = øss.GetSegmentFromAssetTag(Mac.ComputerName);
+                    return assetNumber;
                 }
-                else if (Mac.AssetTag.Length > 0)
+                if (Mac.AssetTag.Length > 0)
                 {
                     assetNumber = øss.GetAssetNumberFromTagNumber(Mac.AssetTag);
                     if (assetNumber.Length != 0)
                     {
-                        segment = øss.GetSegmentFromAssetTag(Mac.AssetTag);
+                        return assetNumber;
                     }
                 }
-                else
-                {
-                    assetNumber = øss.GetAssetNumberFromSerialNumber(Mac.SerialNumber);
-                    segment = øss.GetSegmentFromSerialNumber(Mac.SerialNumber);
-                }
+                return øss.GetAssetNumberFromSerialNumber(Mac.SerialNumber);
             }
-
-            return (assetNumber, segment);
         }
 
         public void InitØSSInfo(bool input_as_search = false)
         {
-            (string assetNumber, string segment) = GetAssetNumberAndSegment(input_as_search);
-
-            OESSTables = new ØSSConnector().GetØssTable(assetNumber);
-            OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(segment);
+            OESSTables = new ØSSConnector().GetØssTable(ØSSAssetnumber);
+            OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(ØSSSegment);
         }
     }
 }
