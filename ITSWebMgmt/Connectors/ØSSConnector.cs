@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Helpers;
+using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -124,6 +124,38 @@ namespace ITSWebMgmt.Connectors
             tagNumber = tagNumber.Substring(3);
             string query = $"select ASSET_NUMBER from FA_ADDITIONS_V where TAG_NUMBER like '{ tagNumber }'";
             return RunQuery(query, "ASSET_NUMBER");
+        }
+
+        public string GetTagNumberFromAssetNumber(string asssetNumber)
+        {
+            string query = $"select TAG_NUMBER from FA_ADDITIONS_V where ASSET_NUMBER like '{ asssetNumber }'";
+            return RunQuery(query, "TAG_NUMBER");
+        }
+
+        public List<string> GetAssetNumbersFromInvoiceNumber(string number)
+        {
+            string query = $"select Distinct (ASSET_ID) from FA_ASSET_INVOICES_V where INVOICE_NUMBER like '{ number }'";
+
+            List<string> output = new List<string>();
+
+            using (OracleConnection conn = new OracleConnection(connectionString, credential))
+            {
+                conn.Open();
+                OracleCommand command = conn.CreateCommand();
+                command.CommandText = query;
+                OracleDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    output.Add((reader["ASSET_ID"] as long?).ToString());
+                }
+            }
+            return output;
+        }
+
+        public string GetAssetNumberFromInvoiceNumber(string number)
+        {
+            return GetAssetNumbersFromInvoiceNumber(number)[0];
         }
 
         public string GetKeyFromSerialNumber(string query, string serialNumber, string outputKeyName, bool tryAgain = true)
