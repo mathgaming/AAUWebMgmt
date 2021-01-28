@@ -10,5 +10,6 @@ namespace ITSWebMgmt.Models.Log
         public DbSet<KnownIssue> KnownIssues { get; set; }
         public DbSet<MissingGroup> MacErrors { get; set; }
         public DbSet<TrashRequest> TrashRequests { get; set; }
+        public DbSet<MacCSVInfo> MacCSVInfos { get; set; }
     }
 }

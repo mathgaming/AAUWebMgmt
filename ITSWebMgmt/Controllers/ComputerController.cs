@@ -80,28 +80,47 @@ namespace ITSWebMgmt.Controllers
                     else
                     {
                         ComputerModel.Mac = new MacComputerModel(ComputerModel);
+
+                        string sn = computerName;
+                        if (sn.Length > 0 && sn[0] != 'S' && sn[0] != 's')
+                        {
+                            sn = "S" + sn;
+                        }
+                        MacCSVInfo info = _context.MacCSVInfos.FirstOrDefault(x => x.SerialNumber == sn);
+
                         if (ComputerModel.Mac.ComputerFound)
                         {
+                            ComputerModel.SetØSSAssetnumber(info.OESSAssetNumber);
                             ComputerModel.SetTabs();
                             LoadMacWarnings();
                         }
                         else
                         {
-                            ComputerModel.InitØSSInfo(true);
-                            if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
+                            if (info != null)
                             {
+                                ComputerModel.MacCSVInfo = info;
+                                ComputerModel.OESSTables = new ØSSConnector().GetØssTable(info.OESSAssetNumber);
+                                ComputerModel.OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(new ØSSConnector().GetSegmentFromAssetNumber(info.OESSAssetNumber));
                                 ComputerModel.OnlyFoundInOESS = true;
                             }
                             else
                             {
-                                try
+                                ComputerModel.InitØSSInfo(computerName);
+                                if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
                                 {
-                                    ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                                    ComputerModel.OnlyFoundInOESS = true;
                                 }
-                                catch (Exception e)
+                                else
                                 {
-                                    HandleError(e);
-                                    ComputerModel.ResultError = "Computer not found";
+                                    try
+                                    {
+                                        ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        HandleError(e);
+                                        ComputerModel.ResultError = "Computer not found";
+                                    }
                                 }
                             }
                         }
@@ -507,7 +526,7 @@ namespace ITSWebMgmt.Controllers
             if (userModel.UserFound)
             {
                 ØSSConnector Øss = new ØSSConnector();
-                ØSSInfo info = Øss.GetØSSInfo(ComputerModel.ØSSAssetnumber);
+                ØSSInfo info = Øss.GetØSSInfo(ComputerModel.GetØSSAssetnumber());
 
                 TrashRequest request = new TrashRequest();
                 request.RequestedBy = temp[1];
@@ -515,7 +534,7 @@ namespace ITSWebMgmt.Controllers
                 request.TimeStamp = DateTime.Now;
                 request.ØSSEmployeeId = info.EmployeeName;
                 request.ØSSEmployeeName = info.EmployeeNumber;
-                request.EquipmentManager = Øss.GetResponsiblePerson(ComputerModel.ØSSSegment).email;
+                request.EquipmentManager = Øss.GetResponsiblePerson(ComputerModel.GetØSSSegment()).email;
                 request.ComputerName = ComputerModel.ComputerName;
 
                 _context.Add(request);

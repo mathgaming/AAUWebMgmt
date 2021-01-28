@@ -71,10 +71,48 @@
         });
     }
     </script>
+
+    @if (Model.MacCSVInfo != null)
+    {
+        <table class="ui definition table">
+            <tbody>
+                <tr>
+                    <td>Model name:</td>
+                    <td>
+                        @Model.MacCSVInfo.Name
+                    </td>
+                </tr>
+                <tr>
+                    <td>Specs:</td>
+                    <td>
+                        @Model.MacCSVInfo.Specs
+                    </td>
+                </tr>
+                <tr>
+                    <td>Computer type:</td>
+                    <td>
+                        @Model.MacCSVInfo.ComputerType
+                    </td>
+                </tr>
+                <tr>
+                    <td>Serial number:</td>
+                    <td>
+                        @Model.MacCSVInfo.SerialNumber
+                    </td>
+                </tr>
+                <tr>
+                    <td>AAU number:</td>
+                    <td>
+                        @Model.MacCSVInfo.AAUNumber
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    }
     @if (Model.OnlyFoundInOESS)
     {
         <div>@await Html.PartialAsync("RotatedTableView", Model.OESSTables.InfoTable.RotateTable())</div>
-        <div>@await Html.PartialAsync("TableView", Model.OESSTables.TransactionTable)</div
+        <div>@await Html.PartialAsync("TableView", Model.OESSTables.TransactionTable)</div>
         <div>@await Html.PartialAsync("TableView", Model.OESSResponsiblePersonTable)</div>
     }
     else if (!Model.ComputerFound)

@@ -11,7 +11,7 @@ namespace ITSWebMgmt.Models
 
         public MacComputerModel Mac;
         public WindowsComputerModel Windows;
-        private string øSSAssetnumber;
+        public string øSSAssetnumber;
         private string øSSSegment;
         private bool? isTrashedInØSS;
 
@@ -19,41 +19,40 @@ namespace ITSWebMgmt.Models
         public bool IsWindows { get; set; }
         public bool IsInAD { get; set; }
         public bool OnlyFoundInOESS { get; set; }
+        public MacCSVInfo MacCSVInfo { get; set; }
         public string ComputerName { get; set; } = "AAU115359";
         public string ErrorCountMessage { get; set; }
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
         public ØSSTableModel OESSTables { get; set; }
-        public string ØSSAssetnumber
+        public string GetØSSAssetnumber(string input = "")
         {
-            get
+            if (øSSAssetnumber == null)
             {
-                if (øSSAssetnumber == null)
-                {
-                    øSSAssetnumber = GetAssetNumber();
-                }
-                return øSSAssetnumber;
+                øSSAssetnumber = GetAssetNumber(input);
             }
-            set => øSSAssetnumber = value;
+            return øSSAssetnumber;
         }
 
-        public string ØSSSegment
+        public void SetØSSAssetnumber(string asssetNumber)
         {
-            get
+            øSSAssetnumber = asssetNumber;
+        }
+
+
+        public string GetØSSSegment(string input = "")
+        {
+            if (øSSSegment == null)
             {
-                if (øSSSegment == null)
-                {
-                    øSSSegment = new ØSSConnector().GetSegmentFromAssetNumber(ØSSAssetnumber);
-                }
-                return øSSSegment;
+                øSSSegment = new ØSSConnector().GetSegmentFromAssetNumber(GetØSSAssetnumber(input));
             }
-            set => øSSSegment = value;
+            return øSSSegment;
         }
         public bool IsTrashedInØSS { get
             {
                 if (isTrashedInØSS == null)
                 {
-                    isTrashedInØSS = new ØSSConnector().IsTrashed(ØSSAssetnumber);
+                    isTrashedInØSS = new ØSSConnector().IsTrashed(GetØSSAssetnumber());
                 }
 
                 return isTrashedInØSS == true;
@@ -116,21 +115,21 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        private string GetAssetNumber(bool input_as_search = false)
+        private string GetAssetNumber(string input = "")
         {
             ØSSConnector øss = new ØSSConnector();
             string assetNumber = "";
 
-            if (input_as_search)
+            if (input != "")
             {
-                assetNumber = øss.GetAssetNumberFromTagNumber(ComputerName);
+                assetNumber = øss.GetAssetNumberFromTagNumber(input);
                 if (assetNumber.Length != 0)
                 {
                     return assetNumber;
                 }
                 else
                 {
-                    return øss.GetAssetNumberFromSerialNumber(ComputerName);
+                    return øss.GetAssetNumberFromSerialNumber(input);
                 }
             }
             else if (IsWindows)
@@ -152,14 +151,15 @@ namespace ITSWebMgmt.Models
                         return assetNumber;
                     }
                 }
+
                 return øss.GetAssetNumberFromSerialNumber(Mac.SerialNumber);
             }
         }
 
-        public void InitØSSInfo(bool input_as_search = false)
+        public void InitØSSInfo(string input = "")
         {
-            OESSTables = new ØSSConnector().GetØssTable(ØSSAssetnumber);
-            OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(ØSSSegment);
+            OESSTables = new ØSSConnector().GetØssTable(GetØSSAssetnumber(input));
+            OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(GetØSSSegment(input));
         }
     }
 }

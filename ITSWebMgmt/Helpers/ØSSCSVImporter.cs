@@ -1,4 +1,5 @@
 ﻿using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +10,62 @@ namespace ITSWebMgmt.Helpers
 {
     public class ØSSCSVImporter
     {
+        // Remember to add this to the database from a controller
+        public List<MacCSVInfo> Import()
+        {
+            List<MacCSVInfo> data = new List<MacCSVInfo>();
+            List<MacCSVInfo> remove = new List<MacCSVInfo>();
+            int id = 0;
+
+            using (var reader = new StreamReader(@"C:\webmgmtlog\macs-invoice-aau-number.csv"))
+            {
+                reader.ReadLine();
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split(';');
+
+                    bool notDeleted  = int.Parse(values[9]) > 0;
+                    bool missingSerialNumber = values[27] == "";
+                    bool foundInØSS = values[65] != "";
+
+                    if (missingSerialNumber)
+                    {
+                        values[27] = $"Unknown {id++}";
+                    }
+
+                    MacCSVInfo info = new MacCSVInfo()
+                    {
+                        Name = values[5],
+                        Specs = values[6],
+                        ComputerType = values[7],
+                        InvoiceNumber = values[12],
+                        SerialNumber = values[27],
+                        OESSAssetNumber = values[65],
+                        AAUNumber = values[66]
+                    };
+
+                    if (notDeleted)
+                    {
+                        data.Add(info);
+                    }
+                    else
+                    {
+                        remove.Add(info);
+                    }
+                }
+            }
+
+            foreach (var r in remove)
+            {
+                data.RemoveAll(x => x.SerialNumber == r.SerialNumber);
+            }
+
+            data = data.GroupBy(x => x.SerialNumber).Select(g => g.First()).ToList();
+
+            return data;
+        }
+
         public void readCSV()
         {
             ØSSConnector øss = new ØSSConnector();
