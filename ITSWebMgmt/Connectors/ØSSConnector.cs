@@ -35,15 +35,15 @@ namespace ITSWebMgmt.Connectors
             string assetNumber = GetAssetNumberFromTagNumber(id);
             return GetØssTable(assetNumber);
         }
-        public List<ØSSTableModel> LookUpByEmployeeID(string id)
+        public List<string> LookUpByEmployeeID(string id)
         {
             List<string> assetNumbers = GetAssetNumbersFromEmployeeID(id);
-            List<ØSSTableModel> tabels = new List<ØSSTableModel>();
+            List<string> tagNumbers = new List<string>();
             foreach (var assetNumber in assetNumbers)
             {
                 try
                 {
-                    tabels.Add(GetØssTable(assetNumber));
+                    tagNumbers.Add("AAU" + GetØSSInfo(assetNumber).TagNumber);
                 }
                 catch (Exception e)
                 {
@@ -51,7 +51,7 @@ namespace ITSWebMgmt.Connectors
                 }
                 
             }
-            return tabels;
+            return tagNumbers;
         }
 
         public string RunQuery(string query, string outputKeyName)
@@ -271,6 +271,29 @@ namespace ITSWebMgmt.Connectors
             }
 
             return info;
+        }
+
+        public (string OESSStatus, string OESSComment) GetOESSStatus(string assetNumber)
+        {
+            if (assetNumber.Length == 0)
+            {
+                return ("", "");
+            }
+
+            using (OracleConnection conn = new OracleConnection(connectionString, credential))
+            {
+                conn.Open();
+                OracleCommand command = conn.CreateCommand();
+                command.CommandText = $"select TRANSACTION_TYPE, COMMENTS from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber} order by DATE_EFFECTIVE desc fetch first 1 row only";
+                OracleDataReader reader = command.ExecuteReader();
+
+                if(reader.Read())
+                {
+                    return (reader["TRANSACTION_TYPE"] as string, reader["COMMENTS"] as string);
+                }
+            }
+
+            return ("", "");
         }
 
         public bool IsTrashed(string assetNumber)

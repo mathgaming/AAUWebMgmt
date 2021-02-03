@@ -10,6 +10,10 @@
 <br />
 <input type="text" id="username" />
 <br />
+<label>Comment</label>
+<br />
+<input type="text" id="comment" />
+<br />
 <label>Computername</label>
 <br />
 @Html.TextBoxFor(m => m.ComputerName, new { @readonly = true })
@@ -20,7 +24,7 @@
 
 <script>
     $("#TrashComputer").click(function () {
-        var data = '@HttpUtility.JavaScriptStringEncode(Model.ComputerName)' + '|' + $('#username').val();
+        var data = '@HttpUtility.JavaScriptStringEncode(Model.ComputerName)' + '|' + $('#username').val() + '|' + $('#comment').val();
         sendPostRequest("TrashComputer", JSON.stringify(data));
     });
 </script>

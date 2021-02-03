@@ -25,11 +25,14 @@ namespace ITSWebMgmt.Models
         public string SerialNumber { get; set; }
         public int Id { get; set; }
 
-        public MacComputerModel(ComputerModel baseModel)
+        public MacComputerModel(ComputerModel baseModel, int id = -1)
         {
             BaseModel = baseModel;
 
-            int id = Jamf.GetComputerIdByName(BaseModel.ComputerName);
+            if (id == -1)
+            {
+                id = Jamf.GetComputerIdByName(BaseModel.ComputerName);
+            }
 
             if (id != -1) //Computer found
             {

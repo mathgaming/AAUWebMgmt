@@ -6,15 +6,16 @@
     <h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>
     @await Html.PartialAsync("TableView", Model.WindowsComputerTable)
     @await Html.PartialAsync("TableView", Model.MacComputerTable)
-    @if (Model.ØSSComputerTables.Count == 0)
+    <h2>ØSS computers</h2>
+    @if (Model.ØSSComputerList != null && Model.ØSSComputerList.Count == 0)
     {
-        <h2>ØSS computers</h2>
         <p>No computers found in ØSS</p>
     }
-    @foreach (var table in Model.ØSSComputerTables)
+    @foreach (var computer in Model.ØSSComputerList)
     {
-        @await Html.PartialAsync("RotatedTableView", table.InfoTable.RotateTable())
-        @await Html.PartialAsync("TableView", table.TransactionTable)
+        string link = "/Computer?computername=" + computer;
+        <a href="@link">@computer</a>
+        <br />
     }
 }
 else

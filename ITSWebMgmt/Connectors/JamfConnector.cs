@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using ITSWebMgmt.Helpers;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
+using ITSWebMgmt.Models;
 
 namespace ITSWebMgmt.Connectors
 {
@@ -156,6 +157,26 @@ namespace ITSWebMgmt.Connectors
             }
 
             return d;
+        }
+
+        public HttpResponseMessage SendUpdateReuest(string url, string value)
+        {
+            url = "https://aaudk.jamfcloud.com/JSSResource/" + url;
+            HttpClient client = new HttpClient
+            {
+                BaseAddress = new Uri(url),
+            };
+
+            client.DefaultRequestHeaders.Add("Authorization", Auth);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(value);
+
+            HttpContent content = new ByteArrayContent(bytes);
+
+            HttpResponseMessage response = client.PutAsync("", content).Result;
+            client.Dispose();
+
+            return response;
         }
 
 #pragma warning disable IDE1006 // Naming Styles

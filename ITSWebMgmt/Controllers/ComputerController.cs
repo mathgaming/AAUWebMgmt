@@ -90,36 +90,64 @@ namespace ITSWebMgmt.Controllers
 
                         if (ComputerModel.Mac.ComputerFound)
                         {
-                            ComputerModel.SetØSSAssetnumber(info.OESSAssetNumber);
+                            if (info != null && !info.OESSAssetNumber.Contains(','))
+                            {
+                                ComputerModel.SetØSSAssetnumber(info.OESSAssetNumber);
+                            }
                             ComputerModel.SetTabs();
                             LoadMacWarnings();
                         }
                         else
                         {
-                            if (info != null)
+                            if (computerName.StartsWith("AAU") && int.TryParse(computerName.Substring(3), out _))
                             {
-                                ComputerModel.MacCSVInfo = info;
-                                ComputerModel.OESSTables = new ØSSConnector().GetØssTable(info.OESSAssetNumber);
-                                ComputerModel.OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(new ØSSConnector().GetSegmentFromAssetNumber(info.OESSAssetNumber));
-                                ComputerModel.OnlyFoundInOESS = true;
-                            }
-                            else
-                            {
-                                ComputerModel.InitØSSInfo(computerName);
-                                if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
+                                MacCSVInfo i = _context.MacCSVInfos.FirstOrDefault(x => x.AAUNumber == computerName.Substring(3));
+                                if (i != null && i.SerialNumber != null && i.SerialNumber != "")
                                 {
+                                    string sn2 = i.SerialNumber;
+                                    if (i.SerialNumber.StartsWith("S"))
+                                    {
+                                        sn2 = sn2.Substring(1);
+                                    }
+                                    ComputerModel.ComputerName = sn2;
+                                    
+                                    ComputerModel.Mac = new MacComputerModel(ComputerModel);
+                                    if (ComputerModel.Mac.ComputerFound)
+                                    {
+                                        ComputerModel.SetØSSAssetnumber(i.OESSAssetNumber);
+                                        ComputerModel.SetTabs();
+                                        LoadMacWarnings();
+                                    }
+                                }
+                            }
+                            if (!ComputerModel.Mac.ComputerFound)
+                            {
+                                ComputerModel.ComputerName = computerName;
+                                if (info != null)
+                                {
+                                    ComputerModel.MacCSVInfo = info;
+                                    ComputerModel.OESSTables = new ØSSConnector().GetØssTable(info.OESSAssetNumber);
+                                    ComputerModel.OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(new ØSSConnector().GetSegmentFromAssetNumber(info.OESSAssetNumber));
                                     ComputerModel.OnlyFoundInOESS = true;
                                 }
                                 else
                                 {
-                                    try
+                                    ComputerModel.InitØSSInfo(computerName);
+                                    if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
                                     {
-                                        ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                                        ComputerModel.OnlyFoundInOESS = true;
                                     }
-                                    catch (Exception e)
+                                    else
                                     {
-                                        HandleError(e);
-                                        ComputerModel.ResultError = "Computer not found";
+                                        try
+                                        {
+                                            ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            HandleError(e);
+                                            ComputerModel.ResultError = "Computer not found";
+                                        }
                                     }
                                 }
                             }
@@ -530,11 +558,15 @@ namespace ITSWebMgmt.Controllers
 
                 TrashRequest request = new TrashRequest();
                 request.RequestedBy = temp[1];
+                request.Comment = temp[2];
                 request.CreatedBy = HttpContext.User.Identity.Name;
                 request.TimeStamp = DateTime.Now;
                 request.ØSSEmployeeId = info.EmployeeName;
                 request.ØSSEmployeeName = info.EmployeeNumber;
-                request.EquipmentManager = Øss.GetResponsiblePerson(ComputerModel.GetØSSSegment()).email;
+                request.Desciption = $"{info.Manufacturer} {info.ModelNumber}";
+                var EquipmentManager = Øss.GetResponsiblePerson(ComputerModel.GetØSSSegment());
+                request.EquipmentManager =$"{EquipmentManager.first_name} {EquipmentManager.last_name}";
+                request.EquipmentManagerEmail = EquipmentManager.email;
                 request.ComputerName = ComputerModel.ComputerName;
 
                 _context.Add(request);
@@ -551,7 +583,13 @@ namespace ITSWebMgmt.Controllers
 
         private void sendTrashComputerEmail(TrashRequest trashRequest)
         {
-            // TODO implement this
+            string subject = $"Kvittering for afleveringsnummer {trashRequest.Id}";
+            string body = $"(Brugers navn) har i dag afleveret {trashRequest.Desciption} med AAU-nummer {trashRequest.ComputerName} til {trashRequest.CreatedBy} hos ITS.\n\n" +
+                          $"Kvittering er sendt til {trashRequest.EquipmentManager}({trashRequest.EquipmentManagerEmail})\n\n" +
+                          $"Ekstra kvittering er sendt til {trashRequest.RequestedBy}";
+
+            // Hilken anden email skal den sendes til?
+            //EmailHelper.SendEmail(subject, body, trashRequest.RequestedBy);
         }
     }
 }

@@ -1,0 +1,53 @@
+﻿
+
+<h1>Platform</h1>
+<a class="item" asp-area="" asp-controller="Log" asp-action="Index">Log</a>
+<br />
+<a class="item" asp-area="" asp-controller="ComputerList" asp-action="Index">Computer list</a>
+<br />
+<a class="item" asp-area="" asp-controller="KnownIssues" asp-action="Index">Manage known issues</a>
+<br />
+<a class="item" asp-area="" asp-controller="MissingGroups" asp-action="Index">Manage Mac error groups</a>
+<br />
+<a class="item" onclick="StartMaintenance()">Take down for maintenance</a>
+<br />
+<br />
+<button id="UpdateList">Update ØSS info in Jamf</button>
+
+<script>
+    function StartMaintenance() {
+        var message = prompt("Please enter maintenance message", "WebMgmt is currently down for maintenance");
+        $.ajax({
+            type: "POST",
+            url: '/Platform/StartMaintenance',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(message),
+            dataType: "json",
+            success: function (response) {
+                alert(response.message);
+            },
+            error: function (response) {
+                var r = JSON.parse(response.responseText);
+                alert(r.errorMessage);
+            }
+        });
+        //location.reload();
+    }
+</script>
+
+<script>
+    $("#UpdateList").click(function () {
+        alert("Updating the list takes about 1.5 hours. Keep this page open to get a messege when it is done or have failed.");
+        $.ajax({
+            type: "POST",
+            url: '/Platform/UpdateList',
+            success: function (response) {
+                alert(response.message);
+            },
+            error: function (response) {
+                var r = JSON.parse(response.responseText);
+                alert(r.errorMessage);
+            }
+        });
+    });
+</script>

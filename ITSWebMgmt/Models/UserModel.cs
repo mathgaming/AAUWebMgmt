@@ -126,7 +126,7 @@ namespace ITSWebMgmt.Models
         public TableModel Windows7to10 { get; set; }
         public TableModel WindowsComputerTable { get; set; }
         public TableModel MacComputerTable { get; set; }
-        public List<ØSSTableModel> ØSSComputerTables { get; set; }
+        public List<string> ØSSComputerList { get; set; }
         public bool ShowFixUserOU { get; set; } = false;
         public bool ShowLoginScript { get; set; } = false;
         public string UsesOnedrive { get; set; } = "False";
@@ -391,6 +391,7 @@ namespace ITSWebMgmt.Models
                 foreach (var email in GetUserMails())
                 {
                     macComputers.AddRange(jamf.GetComputerNamesForUserWith1X(email));
+                    macComputers = macComputers.Distinct().ToList();
                 }
 
                 if (macComputers.Count != 0)
@@ -418,11 +419,10 @@ namespace ITSWebMgmt.Models
             }
             try
             {
-                ØSSComputerTables = new ØSSConnector().LookUpByEmployeeID(AAUStaffID);
+                ØSSComputerList = new ØSSConnector().LookUpByEmployeeID(AAUStaffID);
             }
             catch (Exception e)
             {
-                ØSSComputerTables = new List<ØSSTableModel> { new ØSSTableModel() };
             }
         }
 
