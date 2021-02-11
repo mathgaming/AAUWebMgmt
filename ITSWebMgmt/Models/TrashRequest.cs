@@ -15,8 +15,6 @@ namespace ITSWebMgmt.Models
         public string Comment { get; set; }
         public string RequestedBy { get; set; }
         public string CreatedBy { get; set; }
-        public string ØSSEmployeeName { get; set; }
-        public string ØSSEmployeeId { get; set; }
         public string EquipmentManager { get; set; }
         public string EquipmentManagerEmail { get; set; }
         public TrashRequestStatus Status { get; set; } = TrashRequestStatus.NotConfirmed;

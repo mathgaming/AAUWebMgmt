@@ -4,6 +4,10 @@
     ViewData["Title"] = "Index";
 }
 
+<script>
+    document.documentElement.style.setProperty("--main-width", "1600px");
+</script>
+
 <h1>Index</h1>
 
 <p>
@@ -16,19 +20,25 @@
                 @Html.DisplayNameFor(model => model.TimeStamp)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.ComputerName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Desciption)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Comment)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.RequestedBy)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedBy)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ØSSEmployeeName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ØSSEmployeeId)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.EquipmentManager)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EquipmentManagerEmail)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Status)
@@ -43,19 +53,25 @@
                 @Html.DisplayFor(modelItem => item.TimeStamp)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.ComputerName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Desciption)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Comment)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.RequestedBy)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedBy)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ØSSEmployeeName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ØSSEmployeeId)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.EquipmentManager)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EquipmentManagerEmail)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Status)

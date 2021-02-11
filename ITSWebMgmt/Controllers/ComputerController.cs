@@ -239,12 +239,6 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public ActionResult EnableMicrosoftProject([FromBody]string computername)
-        {
-            return AddComputerToCollection(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
-        }
-
-        [HttpPost]
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
             ComputerModel = GetComputerModel(computername);
@@ -536,48 +530,6 @@ namespace ITSWebMgmt.Controllers
             else
             {
                 return Error("User not found");
-            }
-        }
-
-        public ActionResult TrashComputer([FromBody] string data)
-        {
-            string[] temp = data.Split('|');
-            ComputerModel = GetComputerModel(temp[0]);
-
-            if (temp[1].Length == 0)
-            {
-                return Error("User email cannot be empty");
-            }
-
-            UserModel userModel = new UserModel(temp[1]);
-
-            if (userModel.UserFound)
-            {
-                ØSSConnector Øss = new ØSSConnector();
-                ØSSInfo info = Øss.GetØSSInfo(ComputerModel.GetØSSAssetnumber());
-
-                TrashRequest request = new TrashRequest();
-                request.RequestedBy = temp[1];
-                request.Comment = temp[2];
-                request.CreatedBy = HttpContext.User.Identity.Name;
-                request.TimeStamp = DateTime.Now;
-                request.ØSSEmployeeId = info.EmployeeName;
-                request.ØSSEmployeeName = info.EmployeeNumber;
-                request.Desciption = $"{info.Manufacturer} {info.ModelNumber}";
-                var EquipmentManager = Øss.GetResponsiblePerson(ComputerModel.GetØSSSegment());
-                request.EquipmentManager =$"{EquipmentManager.first_name} {EquipmentManager.last_name}";
-                request.EquipmentManagerEmail = EquipmentManager.email;
-                request.ComputerName = ComputerModel.ComputerName;
-
-                _context.Add(request);
-                _context.SaveChanges();
-
-                sendTrashComputerEmail(request);
-                return Success("Computer have been marked as trashed");
-            }
-            else
-            {
-                return Error("User not found by the inputted email");
             }
         }
 

@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
+using ITSWebMgmt.Connectors;
 
-namespace ITSWebMgmt.Views
+namespace ITSWebMgmt.Controllers
 {
     public class TrashRequestsController : Controller
     {
@@ -44,9 +45,37 @@ namespace ITSWebMgmt.Views
         }
 
         // GET: TrashRequests/Create
-        public IActionResult Create()
+        public IActionResult Create(string data)
         {
-            return View();
+            TrashRequest trashRequest = new TrashRequest();
+            trashRequest.CreatedBy = HttpContext.User.Identity.Name;
+
+            if (data is not null && data != "")
+            {
+                trashRequest.ComputerName = data;
+
+                trashRequest = AddOESSInfo(trashRequest);
+            }
+
+            return View(trashRequest);
+        }
+
+        public TrashRequest AddOESSInfo(TrashRequest trashRequest)
+        {
+            if (trashRequest.ComputerName is not null && trashRequest.ComputerName != "")
+            {
+                ØSSConnector Øss = new ØSSConnector();
+                ComputerModel model = new ComputerModel(trashRequest.ComputerName, trashRequest);
+                var assetNumber = model.GetØSSAssetnumber(trashRequest.ComputerName);
+                ØSSInfo info = Øss.GetØSSInfo(assetNumber);
+
+                trashRequest.Desciption = $"{info.Manufacturer} {info.ModelNumber}";
+                var EquipmentManager = Øss.GetResponsiblePerson(model.GetØSSSegment(assetNumber));
+                trashRequest.EquipmentManager = $"{EquipmentManager.first_name} {EquipmentManager.last_name}";
+                trashRequest.EquipmentManagerEmail = EquipmentManager.email;
+            }
+
+            return trashRequest;
         }
 
         // POST: TrashRequests/Create
@@ -54,15 +83,27 @@ namespace ITSWebMgmt.Views
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,TimeStamp,RequestedBy,CreatedBy,ØSSEmployeeName,ØSSEmployeeId,EquipmentManager,Status")] TrashRequest trashRequest)
+        public async Task<IActionResult> Create([Bind("Id,TimeStamp,ComputerName,Desciption,Comment,RequestedBy,CreatedBy,EquipmentManager,EquipmentManagerEmail,Status")] TrashRequest trashRequest, string command)
         {
-            if (ModelState.IsValid)
+            if (command.Equals("Autofill"))
             {
-                _context.Add(trashRequest);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.Clear();
+                trashRequest = AddOESSInfo(trashRequest);
+
+                return View("Create", trashRequest);
             }
-            return View(trashRequest);
+            else
+            {
+                if (ModelState.IsValid)
+                {
+                    trashRequest.TimeStamp = DateTime.Now;
+                    trashRequest.Status = TrashRequestStatus.NotConfirmed;
+                    _context.Add(trashRequest);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(trashRequest);
+            }
         }
 
         // GET: TrashRequests/Edit/5
@@ -86,7 +127,7 @@ namespace ITSWebMgmt.Views
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,TimeStamp,RequestedBy,CreatedBy,ØSSEmployeeName,ØSSEmployeeId,EquipmentManager,Status")] TrashRequest trashRequest)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,TimeStamp,ComputerName,Desciption,Comment,RequestedBy,CreatedBy,EquipmentManager,EquipmentManagerEmail,Status")] TrashRequest trashRequest)
         {
             if (id != trashRequest.Id)
             {
