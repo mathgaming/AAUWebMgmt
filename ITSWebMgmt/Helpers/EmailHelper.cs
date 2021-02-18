@@ -5,7 +5,7 @@ namespace ITSWebMgmt.Helpers
 {
     public static class EmailHelper
     {
-        public static void SendEmail(string subject, string body, string to = "platform@its.aau.dk")
+        public static void SendEmail(string subject, string body, string to = "platform@its.aau.dk", string cc = null)
         {
             MailMessage mail = new MailMessage("platform@its.aau.dk", to);
             SmtpClient client = new SmtpClient
@@ -16,6 +16,10 @@ namespace ITSWebMgmt.Helpers
                 UseDefaultCredentials = true,
                 Timeout = 10000
             };
+            if (cc is not null)
+            {
+                mail.CC.Add(cc);
+            }
             mail.Subject = subject;
             mail.Body = body;
             client.Send(mail);

@@ -111,9 +111,7 @@
     }
     @if (Model.OnlyFoundInOESS)
     {
-        <div>@await Html.PartialAsync("RotatedTableView", Model.OESSTables.InfoTable.RotateTable())</div>
-        <div>@await Html.PartialAsync("TableView", Model.OESSTables.TransactionTable)</div>
-        <div>@await Html.PartialAsync("TableView", Model.OESSResponsiblePersonTable)</div>
+        @await Html.PartialAsync("OESS", Model)
     }
     else if (!Model.ComputerFound)
     {

@@ -18,6 +18,13 @@
     <br />
     <br />
 }
+<button id="EnableMicrosoftProject">Enable Microsoft Project</button> (Requires licence)
+<br />
+<br />
+<button id="DisableMicrosoftProject">Disable Microsoft Project</button>
+<br />
+<br />
+
 <button id="DeleteComputerFromAD">Delete computer from AD</button>
 <br />
 <br />
@@ -34,11 +41,6 @@
 <button id="AddToOneDrive">Add to Onedrive</button>
 <br />
 <br />
-<input type="button" value="Mark as trashed/marker som afmeldt" onclick="window.open('/TrashRequests/Create?data=@HttpUtility.JavaScriptStringEncode(Model.ComputerName)')">
-<p>Opens a form in a new tab</p>
-<br />
-<br />
-
 
 <script>
     $("#btnPassword2").click(function ()
@@ -49,6 +51,15 @@
     $("#MoveComputerOU").click(function ()
     {
         sendPostRequest("MoveOU_Click")
+    });
+
+    $("#EnableMicrosoftProject").click(function ()
+    {
+        sendPostRequest("EnableMicrosoftProject")
+    });
+
+    $("#DisableMicrosoftProject").click(function () {
+        sendPostRequest("DisableMicrosoftProject")
     });
 
     $("#AddToOneDrive").click(function () {

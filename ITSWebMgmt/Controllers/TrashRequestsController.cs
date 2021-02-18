@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
 using ITSWebMgmt.Connectors;
+using ITSWebMgmt.Helpers;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -100,10 +101,21 @@ namespace ITSWebMgmt.Controllers
                     trashRequest.Status = TrashRequestStatus.NotConfirmed;
                     _context.Add(trashRequest);
                     await _context.SaveChangesAsync();
+                    sendTrashComputerEmail(trashRequest);
                     return RedirectToAction(nameof(Index));
                 }
                 return View(trashRequest);
             }
+        }
+
+        private void sendTrashComputerEmail(TrashRequest trashRequest)
+        {
+            string subject = $"Kvittering for afleveringsnummer {trashRequest.Id}";
+            string body = $"(Brugers navn) har i dag afleveret {trashRequest.Desciption} med AAU-nummer {trashRequest.ComputerName} til {trashRequest.CreatedBy} hos ITS.\n\n" +
+                          $"Kvittering er sendt til {trashRequest.EquipmentManager}({trashRequest.EquipmentManagerEmail})\n\n" +
+                          $"Ekstra kvittering er sendt til {trashRequest.RequestedBy}";
+
+            // EmailHelper.SendEmail(subject, body, trashRequest.EquipmentManagerEmail, trashRequest.RequestedBy);
         }
 
         // GET: TrashRequests/Edit/5

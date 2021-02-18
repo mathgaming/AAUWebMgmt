@@ -239,6 +239,18 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
+        public ActionResult EnableMicrosoftProject([FromBody] string computername)
+        {
+            return AddComputerToCollection(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
+        }
+
+        [HttpPost]
+        public ActionResult DisableMicrosoftProject([FromBody] string computername)
+        {
+            return RemoveComputerFromCollection(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
+        }
+
+        [HttpPost]
         public ActionResult MoveOU_Click([FromBody]string computername)
         {
             ComputerModel = GetComputerModel(computername);
@@ -264,11 +276,24 @@ namespace ITSWebMgmt.Controllers
 
             if (SCCM.AddComputerToCollection(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
             {
-                new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, collectionName });
+                new Logger(_context).Log(LogEntryType.AddedToCollection, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, collectionName });
                 return Success("Computer added to " + collectionName);
             }
 
-            return Error("Failed to add computer to group");
+            return Error("Failed to add computer to collection");
+        }
+
+        private ActionResult RemoveComputerFromCollection(string computerName, string collectionId, string collectionName)
+        {
+            ComputerModel = GetComputerModel(computerName);
+
+            if (SCCM.RemoveComputerFromCollection(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
+            {
+                new Logger(_context).Log(LogEntryType.RemovedFromCollection, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, collectionName });
+                return Success("Computer removed from " + collectionName);
+            }
+
+            return Error("Failed to remove computer from collection");
         }
 
         [HttpPost]
@@ -531,17 +556,6 @@ namespace ITSWebMgmt.Controllers
             {
                 return Error("User not found");
             }
-        }
-
-        private void sendTrashComputerEmail(TrashRequest trashRequest)
-        {
-            string subject = $"Kvittering for afleveringsnummer {trashRequest.Id}";
-            string body = $"(Brugers navn) har i dag afleveret {trashRequest.Desciption} med AAU-nummer {trashRequest.ComputerName} til {trashRequest.CreatedBy} hos ITS.\n\n" +
-                          $"Kvittering er sendt til {trashRequest.EquipmentManager}({trashRequest.EquipmentManagerEmail})\n\n" +
-                          $"Ekstra kvittering er sendt til {trashRequest.RequestedBy}";
-
-            // Hilken anden email skal den sendes til?
-            //EmailHelper.SendEmail(subject, body, trashRequest.RequestedBy);
         }
     }
 }

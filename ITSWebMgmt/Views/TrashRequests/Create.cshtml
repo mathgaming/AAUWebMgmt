@@ -4,16 +4,15 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<h1>Create trash request</h1>
 
-<h4>TrashRequest</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action ="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="ComputerName" class="control-label"></label>
+                <label asp-for="ComputerName" class="control-label">Computer name (AAU number)</label>
                 <input asp-for="ComputerName" class="form-control" />
                 <span asp-validation-for="ComputerName" class="text-danger"></span>
             </div>
@@ -23,31 +22,30 @@
                 <span asp-validation-for="Comment" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="RequestedBy" class="control-label"></label>
-                <label>Email for user that requsted the computer should be trashed</label>
+                <label asp-for="RequestedBy" class="control-label">User e-mail</label>
                 <input asp-for="RequestedBy" class="form-control" />
                 <span asp-validation-for="RequestedBy" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CreatedBy" class="control-label"></label>
+                <label asp-for="CreatedBy" class="control-label">Created by</label>
                 <input asp-for="CreatedBy" class="form-control" readonly="readonly" />
                 <span asp-validation-for="CreatedBy" class="text-danger"></span>
             </div>
             <h5>ØSS Info</h5>
             <input type="submit" name="command" value="Autofill" class="btn btn-primary"/>
+            <p>Autofill the fields below based on computer name (requires no errors in input to form)</p>
             <div class="form-group">
-                <label asp-for="Desciption" class="control-label"></label>
-                <label>Manufacture and modelnumber from ØSS</label>
+                <label asp-for="Desciption" class="control-label">Description (Manufacture and modelnumber from ØSS)</label>
                 <input asp-for="Desciption" class="form-control" />
                 <span asp-validation-for="Desciption" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EquipmentManager" class="control-label"></label>
+                <label asp-for="EquipmentManager" class="control-label">Equipment manager</label>
                 <input asp-for="EquipmentManager" class="form-control" />
                 <span asp-validation-for="EquipmentManager" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EquipmentManagerEmail" class="control-label"></label>
+                <label asp-for="EquipmentManagerEmail" class="control-label">Equipment manager e-mail</label>
                 <input asp-for="EquipmentManagerEmail" class="form-control" />
                 <span asp-validation-for="EquipmentManagerEmail" class="text-danger"></span>
             </div>
