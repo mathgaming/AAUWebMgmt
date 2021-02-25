@@ -53,7 +53,7 @@ namespace ITSWebMgmt.Models
                 return new TableModel(null, rows, ViewHeading);
             }
 
-            return new TableModel(ErrorMessage);
+            return new TableModel(ErrorMessage, ViewHeading);
         }
     }
 }

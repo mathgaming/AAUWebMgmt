@@ -216,25 +216,20 @@ namespace ITSWebMgmt.Connectors
 
         public TableModel GetResponsiblePersonTable(string segment)
         {
+            TableModel table = new TableModel("No information found from ØSS", "Equipment manager");
             if (segment.Length == 0)
             {
-                return new TableModel("No information found from ØSS");
+                return table;
             }
 
             (string email, string first_name, string last_name) = GetResponsiblePerson(segment);
 
-            TableModel table;
-            if (email.Length == 0)
-            {
-                table = new TableModel("No information found from ØSS");
-            }
-            else
+
+            if (email.Length != 0)
             {
                 List<string[]> rows = new List<string[]> { new string[] { email, first_name, last_name } };
-                table = new TableModel(new string[] { "Email", "First name", "Last name" }, rows);
+                table = new TableModel(new string[] { "Email", "First name", "Last name" }, rows, table.ViewHeading);
             }
-
-            table.ViewHeading = "Equipment manager";
 
             return table;
         }
@@ -331,11 +326,15 @@ namespace ITSWebMgmt.Connectors
 
         public ØSSTableModel GetØssTable(string assetNumber)
         {
-            ØSSTableModel tables = new ØSSTableModel();
+            ØSSTableModel tabels = new ØSSTableModel();
+            string infoHeading = "ØSS info";
+            string tranactionHeading = "Transaction Info";
 
             if (assetNumber.Length == 0)
             {
-                return tables;
+                tabels.InfoTable = new TableModel("No information found from ØSS", infoHeading);
+                tabels.TransactionTable = new TableModel("No information found from ØSS", tranactionHeading);
+                return tabels;
             }
 
             List<ØSSLine> lines = new List<ØSSLine>();
@@ -382,26 +381,14 @@ namespace ITSWebMgmt.Connectors
                 info.SerialNumber,
                 info.State} };
 
-            TableModel transactionTable;
-            TableModel infoTable;
-            if (rows.Count == 0)
+
+            if (rows.Count != 0)
             {
-                transactionTable = new TableModel("No information found from ØSS");
-                infoTable = new TableModel("No information found from ØSS");
-            }
-            else
-            {
-                infoTable = new TableModel(new string[] { "IN_USE_FLAG", "MANUFACTURER_NAME", "MODEL_NUMBER", "TAG_NUMBER", "EMPLOYEE_NAME", "EMPLOYEE_NUMBER", "SERIAL_NUMBER", "STATE"}, row);
-                transactionTable = new TableModel(new string[] { "Comments", "Timestamp", "Description", "Transaction date", "Transaction type" }, rows);
+                tabels.InfoTable = new TableModel(new string[] { "IN_USE_FLAG", "MANUFACTURER_NAME", "MODEL_NUMBER", "TAG_NUMBER", "EMPLOYEE_NAME", "EMPLOYEE_NUMBER", "SERIAL_NUMBER", "STATE"}, row, infoHeading);
+                tabels.TransactionTable = new TableModel(new string[] { "Comments", "Timestamp", "Description", "Transaction date", "Transaction type" }, rows, tranactionHeading);
             }
 
-            infoTable.ViewHeading = "ØSS info";
-            transactionTable.ViewHeading = "Transaction Info";
-
-            tables.InfoTable = infoTable;
-            tables.TransactionTable = transactionTable;
-
-            return tables;
+            return tabels;
         }
     }
 
