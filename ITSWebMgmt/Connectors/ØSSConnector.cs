@@ -103,6 +103,10 @@ namespace ITSWebMgmt.Connectors
 
         public string GetAssetNumberFromTagNumber(string tagNumber)
         {
+            if (tagNumber.Length <= 3)
+            {
+                return "";
+            }
             tagNumber = tagNumber.Substring(3);
             string query = $"select ASSET_NUMBER from FA_ADDITIONS_V where TAG_NUMBER like '{ tagNumber }'";
             return RunQuery(query, "ASSET_NUMBER");
