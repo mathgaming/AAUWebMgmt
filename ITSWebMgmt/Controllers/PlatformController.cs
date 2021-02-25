@@ -33,6 +33,51 @@ namespace ITSWebMgmt.Controllers
             }
 
         }
+
+        public void UpdateBestAAUGuess()
+        {
+            JamfConnector jc = new JamfConnector();
+            foreach (var computer in jc.GetAllComputers())
+            {
+                ComputerModel model = new ComputerModel(computer.name, null);
+                model.Mac = new MacComputerModel(model, computer.id);
+                string number = model.Mac.ComputerName;
+
+                if (model.Mac.AssetTag != null && model.Mac.AssetTag != "")
+                {
+                    number = model.Mac.AssetTag;
+                }
+
+                string sn = model.Mac.SerialNumber;
+                if (sn.Length > 0 && sn[0] != 'S' && sn[0] != 's')
+                {
+                    sn = "S" + sn;
+                }
+                MacCSVInfo info = _context.MacCSVInfos.FirstOrDefault(x => x.SerialNumber == sn);
+                if (info != null && !info.AAUNumber.Contains(','))
+                {
+                    number = info.AAUNumber;
+                }
+                else
+                {
+                    ØSSConnector øss = new ØSSConnector();
+                    string assetNumber = øss.GetAssetNumberFromSerialNumber(sn);
+                    if (assetNumber != "")
+                    {
+                        string tagNumber = øss.GetTagNumberFromAssetNumber(assetNumber);
+                        if (tagNumber != "")
+                        {
+                            number = tagNumber;
+                        }
+                    }
+                }
+
+                string xml = $"<?xml version=\"1.0\"?><computer><extension_attributes><extension_attribute><name>AAUNumber</name> <value>{number}</value> </extension_attribute></extension_attributes></computer>";
+                jc.SendUpdateReuest($"computers/id/{computer.id}/subset/ExtensionAttributes", xml);
+
+                Thread.Sleep(5000);
+            }
+        }
         public void UpdateØSSStatus()
         {
             JamfConnector jc = new JamfConnector();

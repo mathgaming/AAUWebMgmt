@@ -13,6 +13,10 @@
 <br />
 <br />
 <button id="UpdateList">Update ØSS info in Jamf</button>
+<br />
+<br />
+<button id="UpdateAAUGuess">Update best AAU number guess in Jamf</button>
+<p>Best guest is the first AAU number it finds looking in the follwing order: CSV-files, ØSS, Jamf asset tag, Jamf computername</p>
 
 <script>
     function StartMaintenance() {
@@ -41,6 +45,20 @@
         $.ajax({
             type: "POST",
             url: '/Platform/UpdateList',
+            success: function (response) {
+                alert(response.message);
+            },
+            error: function (response) {
+                var r = JSON.parse(response.responseText);
+                alert(r.errorMessage);
+            }
+        });
+    });
+    $("#UpdateAAUGuess").click(function () {
+        alert("Updating the list takes about 1.5 hours. Keep this page open to get a messege when it is done or have failed.");
+        $.ajax({
+            type: "POST",
+            url: '/Platform/UpdateBestAAUGuess',
             success: function (response) {
                 alert(response.message);
             },
