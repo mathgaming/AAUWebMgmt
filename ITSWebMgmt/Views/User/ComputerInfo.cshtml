@@ -6,7 +6,7 @@
     <h4>Links to computerinfo can be to computers in the wrong domain, because the domain was not found</h4>
     @await Html.PartialAsync("TableView", Model.WindowsComputerTable)
     @await Html.PartialAsync("TableView", Model.MacComputerTable)
-    <h2>ØSS computers</h2>
+    <h2>Computers found in ØSS database</h2>
     @if (Model.ØSSComputerList != null && Model.ØSSComputerList.Count == 0)
     {
         <p>No computers found in ØSS</p>
