@@ -8,23 +8,23 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ITSWebMgmt.Migrations
 {
-    [DbContext(typeof(LogEntryContext))]
+    [DbContext(typeof(WebMgmtContext))]
     partial class LogEntryContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "5.0.1");
 
             modelBuilder.Entity("ITSWebMgmt.Models.KnownIssue", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
@@ -51,7 +51,7 @@ namespace ITSWebMgmt.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<bool>("Hidden")
                         .HasColumnType("bit");
@@ -75,7 +75,7 @@ namespace ITSWebMgmt.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<int?>("LogEntryId")
                         .HasColumnType("int");
@@ -90,12 +90,40 @@ namespace ITSWebMgmt.Migrations
                     b.ToTable("LogEntryArguments");
                 });
 
+            modelBuilder.Entity("ITSWebMgmt.Models.MacCSVInfo", b =>
+                {
+                    b.Property<string>("SerialNumber")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AAUNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ComputerType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OESSAssetNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Specs")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("SerialNumber");
+
+                    b.ToTable("MacCSVInfos");
+                });
+
             modelBuilder.Entity("ITSWebMgmt.Models.MissingGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
@@ -120,11 +148,61 @@ namespace ITSWebMgmt.Migrations
                     b.ToTable("MacErrors");
                 });
 
+            modelBuilder.Entity("ITSWebMgmt.Models.TrashRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ComputerName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Desciption")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EquipmentManager")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EquipmentManagerEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ØSSEmployeeId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ØSSEmployeeName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TrashRequests");
+                });
+
             modelBuilder.Entity("ITSWebMgmt.Models.Log.LogEntryArgument", b =>
                 {
                     b.HasOne("ITSWebMgmt.Models.Log.LogEntry", null)
                         .WithMany("Arguments")
                         .HasForeignKey("LogEntryId");
+                });
+
+            modelBuilder.Entity("ITSWebMgmt.Models.Log.LogEntry", b =>
+                {
+                    b.Navigation("Arguments");
                 });
 #pragma warning restore 612, 618
         }

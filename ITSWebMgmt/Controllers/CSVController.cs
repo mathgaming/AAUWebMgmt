@@ -10,7 +10,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class CSVController : WebMgmtController
     {
-        public CSVController(LogEntryContext context) : base(context) { }
+        public CSVController(WebMgmtContext context) : base(context) { }
 
         public IActionResult Index()
         {

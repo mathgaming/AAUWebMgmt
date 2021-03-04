@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.Management;
+using System.Runtime.InteropServices;
+using System.Security;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -28,17 +30,33 @@ namespace ITSWebMgmt.Helpers
 
         public static string Convert(object adsLargeInteger)
         {
-            var highPart = (int)adsLargeInteger.GetType().InvokeMember("HighPart", System.Reflection.BindingFlags.GetProperty, null, adsLargeInteger, null);
-            var lowPart = (int)adsLargeInteger.GetType().InvokeMember("LowPart", System.Reflection.BindingFlags.GetProperty, null, adsLargeInteger, null);
-            var result = highPart * ((long)uint.MaxValue + 1) + lowPart;
-
-            if (result == 9223372032559808511)
+            IADsLargeInteger largeInt = (IADsLargeInteger)adsLargeInteger;
+            long datelong = (((long)largeInt.HighPart) << 32) + largeInt.LowPart;
+            if (datelong == 9223372032559808511 || datelong > DateTime.MaxValue.ToFileTime())
             {
-                return null;
+                return Convert(DateTime.MaxValue);
             }
 
-            DateTime date = DateTime.FromFileTime(result);
+            DateTime date = DateTime.FromFileTime(datelong);
             return Convert(date);
+        }
+    }
+
+    [ComImport, Guid("9068270b-0939-11d1-8be1-00c04fd8d503"), InterfaceType(ComInterfaceType.InterfaceIsDual)]
+    internal interface IADsLargeInteger
+    {
+        long HighPart
+        {
+            [SuppressUnmanagedCodeSecurity]
+            get; [SuppressUnmanagedCodeSecurity]
+            set;
+        }
+
+        long LowPart
+        {
+            [SuppressUnmanagedCodeSecurity]
+            get; [SuppressUnmanagedCodeSecurity]
+            set;
         }
     }
 }

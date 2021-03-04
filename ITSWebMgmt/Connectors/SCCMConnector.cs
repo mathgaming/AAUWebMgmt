@@ -55,6 +55,11 @@ namespace ITSWebMgmt.Helpers
             return RunScript($"Add-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
         }
 
+        public static bool RemoveComputerFromCollection(string resourceID, string collectionId)
+        {
+            return RunScript($"Remove-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
+        }
+
         private static bool RunScript(string script)
         {
             ProcessStartInfo psi = new ProcessStartInfo

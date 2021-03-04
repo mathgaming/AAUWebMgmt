@@ -21,6 +21,10 @@
 <button id="EnableMicrosoftProject">Enable Microsoft Project</button> (Requires licence)
 <br />
 <br />
+<button id="DisableMicrosoftProject">Disable Microsoft Project</button>
+<br />
+<br />
+
 <button id="DeleteComputerFromAD">Delete computer from AD</button>
 <br />
 <br />
@@ -52,6 +56,10 @@
     $("#EnableMicrosoftProject").click(function ()
     {
         sendPostRequest("EnableMicrosoftProject")
+    });
+
+    $("#DisableMicrosoftProject").click(function () {
+        sendPostRequest("DisableMicrosoftProject")
     });
 
     $("#AddToOneDrive").click(function () {

@@ -9,7 +9,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class HomeController : WebMgmtController
     {
-        public HomeController(LogEntryContext context) : base(context) { }
+        public HomeController(WebMgmtContext context) : base(context) { }
 
         public IActionResult Index()
         {
@@ -51,28 +51,6 @@ namespace ITSWebMgmt.Controllers
         public IActionResult Privacy()
         {
             return View();
-        }
-
-        public void StopMaintenance()
-        {
-            if (Authentication.IsPlatform(HttpContext.User.Identity.Name))
-            {
-                MaintenanceHelper.IsDownForMaintenance = false;
-                Response.Redirect("/");
-            }
-        }
-
-        [HttpPost]
-        public IActionResult StartMaintenance([FromBody] string message)
-        {
-            if (Authentication.IsPlatform(HttpContext.User.Identity.Name))
-            {
-                MaintenanceHelper.IsDownForMaintenance = true;
-                MaintenanceHelper.Message = message;
-                return Success("WebMgmt is now down for maintenance");
-            }
-
-            return Error("You do no have access to do this");
         }
 
         public void Redirector(string ADPath)

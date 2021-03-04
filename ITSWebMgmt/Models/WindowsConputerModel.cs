@@ -96,7 +96,7 @@ namespace ITSWebMgmt.Models
                     baseModel.IsInAD = true;
                     BaseModel.ComputerName = ADCache.ComputerName;
                     BaseModel.ComputerFound = ADCache.ComputerFound;
-                    baseModel.IsWindows = !ADCache.GetProperty("operatingSystem").ToLower().Contains("mac os");
+                    baseModel.IsWindows = !(ADCache.GetProperty("operatingSystem").ToLower().Contains("mac os") || ADCache.GetProperty("operatingSystem").ToLower().Contains("macos"));
                     if (baseModel.IsWindows)
                     {
                         SCCMCache = new SCCMCache();
@@ -108,7 +108,7 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public WindowsComputerModel(string computerName) : this(new ComputerModel(computerName)) { }
+        public WindowsComputerModel(string computerName) : this(new ComputerModel(computerName, null)) { }
 
         public string GetSCCMResourceIDFromComputerName(string computername)
         {

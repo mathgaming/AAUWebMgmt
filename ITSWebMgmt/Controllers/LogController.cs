@@ -9,7 +9,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class LogController : WebMgmtController
     {
-        public LogController(LogEntryContext context) : base(context) { }
+        public LogController(WebMgmtContext context) : base(context) { }
 
         private IQueryable<LogEntry> logEntries;
 

@@ -30,7 +30,7 @@ namespace ITSWebMgmt.Controllers
 
         public GroupModel GroupModel;
 
-        public GroupController(LogEntryContext context) : base(context) {}
+        public GroupController(WebMgmtContext context) : base(context) {}
 
         public bool IsGroup()
         {

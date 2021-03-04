@@ -36,7 +36,7 @@ namespace ITSWebMgmt.Controllers
         private readonly IMemoryCache _cache;
         public UserModel UserModel;
 
-        public UserController(LogEntryContext context, IMemoryCache cache) : base(context)
+        public UserController(WebMgmtContext context, IMemoryCache cache) : base(context)
         {
             _cache = cache;
         }

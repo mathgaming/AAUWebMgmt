@@ -10,7 +10,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class MissingGroupsController : WebMgmtController
     {
-        public MissingGroupsController(LogEntryContext context) : base(context)
+        public MissingGroupsController(WebMgmtContext context) : base(context)
         {
         }
 

@@ -87,7 +87,9 @@ namespace ITSWebMgmt.Models.Log
                 new LogCountStatisticsModel($"Changed ManagedBy", GetCount(LogEntryType.ChangedManagedBy), "2019-08-27"),
                 new LogCountStatisticsModel($"Group lookups", GetCount(LogEntryType.GroupLookup), "2019-08-27"),
                 new LogCountStatisticsModel($"Computer added to AD group", GetCount(LogEntryType.AddedToADGroup), "2019-12-03"),
-                new LogCountStatisticsModel($"Enabled user from AD", GetCount(LogEntryType.EnabledAdUser), "2020-01-06")
+                new LogCountStatisticsModel($"Enabled user from AD", GetCount(LogEntryType.EnabledAdUser), "2020-01-06"),
+                new LogCountStatisticsModel($"Added to collection", GetCount(LogEntryType.AddedToCollection), "2021-02-18"),
+                new LogCountStatisticsModel($"Removed from collection", GetCount(LogEntryType.RemovedFromCollection), "2021-02-18")
             };
         }
 

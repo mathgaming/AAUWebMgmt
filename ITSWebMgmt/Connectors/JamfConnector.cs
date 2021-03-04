@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using ITSWebMgmt.Helpers;
 using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using ITSWebMgmt.Models;
 
 namespace ITSWebMgmt.Connectors
 {
@@ -156,6 +158,26 @@ namespace ITSWebMgmt.Connectors
             return d;
         }
 
+        public HttpResponseMessage SendUpdateReuest(string url, string value)
+        {
+            url = "https://aaudk.jamfcloud.com/JSSResource/" + url;
+            HttpClient client = new HttpClient
+            {
+                BaseAddress = new Uri(url),
+            };
+
+            client.DefaultRequestHeaders.Add("Authorization", Auth);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(value);
+
+            HttpContent content = new ByteArrayContent(bytes);
+
+            HttpResponseMessage response = client.PutAsync("", content).Result;
+            client.Dispose();
+
+            return response;
+        }
+
 #pragma warning disable IDE1006 // Naming Styles
         public class ComputerList
         {
@@ -188,21 +210,19 @@ namespace ITSWebMgmt.Connectors
 
         private void SaveDictionary(Dictionary<string, List<int>> d, string path)
         {
-            var fi = new FileInfo(path);
-            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-
-            using var binaryFile = fi.Create();
-            binaryFormatter.Serialize(binaryFile, d);
-            binaryFile.Flush();
+            using (StreamWriter file = new StreamWriter(path, true))
+            {
+                file.Write(JsonSerializer.Serialize(d));
+            }
         }
 
         private Dictionary<string, List<int>> ReadDictionary(string path)
         {
-            var fi = new FileInfo(path);
-            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-
-            using var binaryFile = fi.OpenRead();
-            return (Dictionary<string, List<int>>)binaryFormatter.Deserialize(binaryFile);
+            using (StreamReader file = new StreamReader(path, true))
+            {
+                string input = file.ReadToEnd();
+                return JsonSerializer.Deserialize<Dictionary<string, List<int>>>(input);
+            }
         }
     }
 }
