@@ -390,6 +390,14 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult UpdateAD([FromBody] string data)
+        {
+            UserModel = GetUserModel(data);
+            UserModel.ADCache.MakeCache();
+            return PartialView("BasicInfo", UserModel);
+        }
+
         public override ActionResult LoadTab(string tabName, string name)
         {
             UserModel = GetUserModel(name);
