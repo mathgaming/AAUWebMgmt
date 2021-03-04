@@ -9,9 +9,9 @@ namespace ITSWebMgmt.Helpers
 {
     public class Logger
     {
-        private readonly LogEntryContext _context;
+        private readonly WebMgmtContext _context;
 
-        public Logger(LogEntryContext context)
+        public Logger(WebMgmtContext context)
         {
             _context = context;
         }

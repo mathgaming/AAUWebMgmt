@@ -12,7 +12,7 @@ namespace ITSWebMgmt.Controllers
     {
         public string ErrorMessage;
 
-        public ManagedByController(LogEntryContext context) : base(context) {}
+        public ManagedByController(WebMgmtContext context) : base(context) {}
 
         [HttpPost]
         public ActionResult SaveEditManagedBy([FromBody]string data)

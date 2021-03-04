@@ -8,9 +8,9 @@ namespace ITSWebMgmt.Controllers
 {
     public abstract class WebMgmtController : Controller
     {
-        protected readonly LogEntryContext _context;
+        protected readonly WebMgmtContext _context;
 
-        protected WebMgmtController(LogEntryContext context)
+        protected WebMgmtController(WebMgmtContext context)
         {
             _context = context;
         }

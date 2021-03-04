@@ -33,5 +33,27 @@ namespace ITSWebMgmt.Models
             ErrorMessage = errorMessage;
             ViewHeading = viewHeading;
         }
+
+        public TableModel RotateTable()
+        {
+            if (ErrorMessage == null)
+            {
+                List<string[]> rows = new List<string[]>();
+                for (int i = 0; i < Headings.Length; i++)
+                {
+                    List<string> row = new List<string>();
+                    row.Add(Headings[i]);
+                    for (int j = 0; j < Rows.Count; j++)
+                    {
+                        row.Add(Rows[j][i]);
+                    }
+                    rows.Add(row.ToArray());
+                }
+
+                return new TableModel(null, rows, ViewHeading);
+            }
+
+            return new TableModel(ErrorMessage, ViewHeading);
+        }
     }
 }

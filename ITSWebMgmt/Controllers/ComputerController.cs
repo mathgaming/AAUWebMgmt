@@ -36,14 +36,13 @@ namespace ITSWebMgmt.Controllers
                     new Logger(_context).Log(LogEntryType.ComputerLookup, HttpContext.User.Identity.Name, computername + " (Not found)", true);
                 }
             }
-
             return View(ComputerModel);
         }
 
         private readonly IMemoryCache _cache;
         public ComputerModel ComputerModel;
 
-        public ComputerController(LogEntryContext context, IMemoryCache cache) : base(context)
+        public ComputerController(WebMgmtContext context, IMemoryCache cache) : base(context)
         {
             _cache = cache;
         }
@@ -56,7 +55,7 @@ namespace ITSWebMgmt.Controllers
                 computerName = computerName.Substring(computerName.IndexOf('\\') + 1);
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
-                    ComputerModel = new ComputerModel(computerName);
+                    ComputerModel = new ComputerModel(computerName, GetTrashRequest(computerName));
                     ComputerModel.Windows = new WindowsComputerModel(ComputerModel);
 
                     if (ComputerModel.IsWindows)
@@ -81,21 +80,76 @@ namespace ITSWebMgmt.Controllers
                     else
                     {
                         ComputerModel.Mac = new MacComputerModel(ComputerModel);
+
+                        string sn = computerName;
+                        if (sn.Length > 0 && sn[0] != 'S' && sn[0] != 's')
+                        {
+                            sn = "S" + sn;
+                        }
+                        MacCSVInfo info = _context.MacCSVInfos.FirstOrDefault(x => x.SerialNumber == sn);
+
                         if (ComputerModel.Mac.ComputerFound)
                         {
+                            if (info != null && !info.OESSAssetNumber.Contains(','))
+                            {
+                                ComputerModel.SetØSSAssetnumber(info.OESSAssetNumber);
+                            }
                             ComputerModel.SetTabs();
                             LoadMacWarnings();
                         }
                         else
                         {
-                            try
+                            if (computerName.StartsWith("AAU") && int.TryParse(computerName.Substring(3), out _))
                             {
-                                ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                                MacCSVInfo i = _context.MacCSVInfos.FirstOrDefault(x => x.AAUNumber == computerName.Substring(3));
+                                if (i != null && i.SerialNumber != null && i.SerialNumber != "")
+                                {
+                                    string sn2 = i.SerialNumber;
+                                    if (i.SerialNumber.StartsWith("S"))
+                                    {
+                                        sn2 = sn2.Substring(1);
+                                    }
+                                    ComputerModel.ComputerName = sn2;
+                                    
+                                    ComputerModel.Mac = new MacComputerModel(ComputerModel);
+                                    if (ComputerModel.Mac.ComputerFound)
+                                    {
+                                        ComputerModel.SetØSSAssetnumber(i.OESSAssetNumber);
+                                        ComputerModel.SetTabs();
+                                        LoadMacWarnings();
+                                    }
+                                }
                             }
-                            catch (Exception e)
+                            if (!ComputerModel.Mac.ComputerFound)
                             {
-                                HandleError(e);
-                                ComputerModel.ResultError = "Computer not found";
+                                ComputerModel.ComputerName = computerName;
+                                if (info != null)
+                                {
+                                    ComputerModel.MacCSVInfo = info;
+                                    ComputerModel.OESSTables = new ØSSConnector().GetØssTable(info.OESSAssetNumber);
+                                    ComputerModel.OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(new ØSSConnector().GetSegmentFromAssetNumber(info.OESSAssetNumber));
+                                    ComputerModel.OnlyFoundInOESS = true;
+                                }
+                                else
+                                {
+                                    ComputerModel.InitØSSInfo(computerName);
+                                    if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
+                                    {
+                                        ComputerModel.OnlyFoundInOESS = true;
+                                    }
+                                    else
+                                    {
+                                        try
+                                        {
+                                            ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            HandleError(e);
+                                            ComputerModel.ResultError = "Computer not found";
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -106,10 +160,15 @@ namespace ITSWebMgmt.Controllers
             }
             else
             {
-                ComputerModel = new ComputerModel(computerName);
+                ComputerModel = new ComputerModel(computerName, GetTrashRequest(computerName));
             }
 
             return ComputerModel;
+        }
+
+        private TrashRequest GetTrashRequest(string computerName)
+        {
+            return _context.TrashRequests.FirstOrDefault(x => x.ComputerName == computerName);
         }
 
         public override ActionResult LoadTab(string tabName, string name)
@@ -171,15 +230,24 @@ namespace ITSWebMgmt.Controllers
                     return PartialView("TableView", ComputerModel.Mac.DiskTable);
                 case "purchase":
                     return PartialView("INDB", INDBConnector.GetInfo(ComputerModel.ComputerName));
+                case "øss":
+                    ComputerModel.InitØSSInfo();
+                    return PartialView("OESS", ComputerModel);
             }
 
             return PartialView(viewName, ComputerModel.Windows);
         }
 
         [HttpPost]
-        public ActionResult EnableMicrosoftProject([FromBody]string computername)
+        public ActionResult EnableMicrosoftProject([FromBody] string computername)
         {
             return AddComputerToCollection(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
+        }
+
+        [HttpPost]
+        public ActionResult DisableMicrosoftProject([FromBody] string computername)
+        {
+            return RemoveComputerFromCollection(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
         }
 
         [HttpPost]
@@ -208,11 +276,24 @@ namespace ITSWebMgmt.Controllers
 
             if (SCCM.AddComputerToCollection(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
             {
-                new Logger(_context).Log(LogEntryType.FixPCConfig, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, collectionName });
+                new Logger(_context).Log(LogEntryType.AddedToCollection, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, collectionName });
                 return Success("Computer added to " + collectionName);
             }
 
-            return Error("Failed to add computer to group");
+            return Error("Failed to add computer to collection");
+        }
+
+        private ActionResult RemoveComputerFromCollection(string computerName, string collectionId, string collectionName)
+        {
+            ComputerModel = GetComputerModel(computerName);
+
+            if (SCCM.RemoveComputerFromCollection(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
+            {
+                new Logger(_context).Log(LogEntryType.RemovedFromCollection, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, collectionName });
+                return Success("Computer removed from " + collectionName);
+            }
+
+            return Error("Failed to remove computer from collection");
         }
 
         [HttpPost]
@@ -408,7 +489,9 @@ namespace ITSWebMgmt.Controllers
                 new ManagerAndComputerNotInSameDomain(this),
                 new PasswordExpired(this),
                 new MissingJavaLicense(this),
-                new HaveVirus(this)
+                new HaveVirus(this),
+                new IsTrashed(this),
+                new IsHalfTrashed(this)
             };
 
             LoadWarnings(warnings);
@@ -418,7 +501,9 @@ namespace ITSWebMgmt.Controllers
         {
             List<WebMgmtError> warnings = new List<WebMgmtError>
             {
-                new NotAAUMac(this)
+                new NotAAUMac(this),
+                new IsTrashedMac(this),
+                new IsHalfTrashedMac(this)
             };
 
             warnings.AddRange(GetAllMacWarnings());

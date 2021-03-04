@@ -10,7 +10,7 @@ namespace ITSWebMgmt.Models
         public IEnumerable<KnownIssue> KnownIssues { get; set; }
         public IEnumerable<LogEntry> LastSearches { get; set; }
         public bool IsFeedback = true;
-        public HomeModel(LogEntryContext context, string username)
+        public HomeModel(WebMgmtContext context, string username)
         {
             KnownIssues = context.KnownIssues.Where(x => x.Active);
             if (username == null)

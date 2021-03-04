@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ITSWebMgmt.Migrations
 {
-    [DbContext(typeof(LogEntryContext))]
+    [DbContext(typeof(WebMgmtContext))]
     [Migration("20191031135346_MacErrors")]
     partial class MacErrors
     {

@@ -1,0 +1,34 @@
+﻿@model ITSWebMgmt.Models.TableModel
+@if (Model.ViewHeading != null)
+{
+    <h2>@Model.ViewHeading</h2>
+}
+@if (Model.Rows != null)
+{
+<table class="ui celled table">
+    <tbody>
+        @foreach (string[] r in Model.Rows)
+        {
+            bool first = true;
+            <tr>
+                @foreach (string s in r)
+                {
+                    if (first)
+                    {
+                        <th>@s</th>
+                        first = false;
+                    }
+                    else
+                    {
+                        <td>@s</td>
+                    }
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>@Model.ErrorMessage</p>
+}

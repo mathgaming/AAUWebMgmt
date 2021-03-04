@@ -39,9 +39,9 @@ namespace ITSWebMgmt.WebMgmtErrors
     {
         public DriveAlmostFull(ComputerController computer) : base(computer)
         {
-            Heading = "Less than 5 GB space avilable";
+            Heading = "Less than 25 GB space avilable";
             Description = "Having an almost full drive might cause troubles";
-            Severeness = Severity.Warning;
+            Severeness = Severity.Error;
         }
 
         public override bool HaveError()
@@ -55,7 +55,7 @@ namespace ITSWebMgmt.WebMgmtErrors
             {
                 int space = computer.ComputerModel.Windows.LogicalDisk.GetPropertyInGB("FreeSpace");
                 if (space == 0) return false;
-                return space <= 5;
+                return space <= 25;
             }
 
             return false;
@@ -240,6 +240,36 @@ namespace ITSWebMgmt.WebMgmtErrors
         public override bool HaveError()
         {
             return computer.ComputerModel.Windows.SCCMAV.ErrorMessage != "Antivirus information not found";
+        }
+    }
+
+    public class IsTrashed : ComputerWebMgmtError
+    {
+        public IsTrashed(ComputerController computer) : base(computer)
+        {
+            Heading = "Computer is trashed in ØSS";
+            Description = "The computer have been marked as trash in ØSS but was found in AD";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            return computer.ComputerModel.IsTrashedInØSS;
+        }
+    }
+
+    public class IsHalfTrashed : ComputerWebMgmtError
+    {
+        public IsHalfTrashed(ComputerController computer) : base(computer)
+        {
+            Heading = "Computer is trashed in WebMgmt, but not in ØSS";
+            Description = "The computer have been marked as trash in WebMgmt but not in ØSS";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            return computer.ComputerModel.IsTrashedInWebMgmt() && !computer.ComputerModel.IsTrashedInØSS;
         }
     }
 }

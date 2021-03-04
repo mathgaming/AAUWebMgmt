@@ -21,13 +21,18 @@ namespace ITSWebMgmt.Models
         public List<string> Groups { get; set; }
         public int FreeSpace { get; set; }
         public string ComputerName { get; set; }
+        public string AssetTag { get; set; }
+        public string SerialNumber { get; set; }
         public int Id { get; set; }
 
-        public MacComputerModel(ComputerModel baseModel)
+        public MacComputerModel(ComputerModel baseModel, int id = -1)
         {
             BaseModel = baseModel;
 
-            int id = Jamf.GetComputerIdByName(BaseModel.ComputerName);
+            if (id == -1)
+            {
+                id = Jamf.GetComputerIdByName(BaseModel.ComputerName);
+            }
 
             if (id != -1) //Computer found
             {
@@ -40,6 +45,11 @@ namespace ITSWebMgmt.Models
 
         public MacComputerModel(string computerName)
         {
+            if (computerName[0] == 'S')
+            {
+                computerName = computerName.Substring(1);
+            }
+
             int id = Jamf.GetComputerIdByName(computerName);
 
             if (id != -1) //Computer found
@@ -58,6 +68,8 @@ namespace ITSWebMgmt.Models
             var jsonString = Jamf.GetAllComputerInformationAsJSONString(id);
             JObject jsonVal = JObject.Parse(jsonString) as JObject;
             ComputerName = jsonVal.SelectToken("computer.general.name").ToString();
+            SerialNumber = jsonVal.SelectToken("computer.general.serial_number").ToString();
+            AssetTag = jsonVal.SelectToken("computer.general.asset_tag").ToString();
 
             SetHardware(jsonVal);
             SetSoftware(jsonVal);
@@ -171,6 +183,7 @@ namespace ITSWebMgmt.Models
 
             dynamic jamfVersion = jsonVal.SelectToken("computer.general.jamf_version");
             rows.Add(new string[] { "Jamf version", jamfVersion.Value });
+            rows.Add(new string[] { "Serial number", SerialNumber });
 
             BasicInfoTable = new TableModel(new string[] { "Property name", "Value" }, rows, "Basic info");
         }
