@@ -16,12 +16,20 @@ namespace ITSWebMgmt.Controllers
 
         public IActionResult Index()
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
             return View();
         }
 
         [HttpPost]
         public ActionResult UpdateList()
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
             try
             {
                 UpdateØSSStatus();
@@ -34,7 +42,26 @@ namespace ITSWebMgmt.Controllers
 
         }
 
-        public void UpdateBestAAUGuess()
+        [HttpPost]
+        public ActionResult UpdateBestAAUGuess()
+        {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+            try
+            {
+                UpdateBestAAUGuessJamf();
+                return Success();
+            }
+            catch (Exception e)
+            {
+                return Error(e.Message);
+            }
+
+        }
+
+        public void UpdateBestAAUGuessJamf()
         {
             JamfConnector jc = new JamfConnector();
             foreach (var computer in jc.GetAllComputers())

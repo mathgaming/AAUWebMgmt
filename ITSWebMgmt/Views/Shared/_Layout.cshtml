@@ -80,7 +80,7 @@
                 <h1>@MaintenanceHelper.Message</h1>
                 @if (Authentication.IsPlatform(Context.User.Identity.Name))
                 {
-                    <input type="button" value="Go back to normal" onclick="location.href='@Url.Action("StopMaintenance", "Home")'" />
+                    <input type="button" value="Go back to normal" onclick="location.href='@Url.Action("StopMaintenance", "Platform")'" />
                 }
                 @{ IgnoreBody(); }
             </main>
