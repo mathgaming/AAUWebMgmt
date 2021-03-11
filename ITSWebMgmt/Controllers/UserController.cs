@@ -391,11 +391,12 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public ActionResult UpdateAD([FromBody] string data)
+        public ActionResult UpdateBasicInfoLocked([FromBody] string data)
         {
             UserModel = GetUserModel(data);
             UserModel.ADCache.MakeCache();
-            return PartialView("BasicInfo", UserModel);
+            UserModel.InitBasicInfo();
+            return Success(UserModel.BasicInfoLocked);
         }
 
         public override ActionResult LoadTab(string tabName, string name)

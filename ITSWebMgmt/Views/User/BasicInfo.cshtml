@@ -1,7 +1,7 @@
 ﻿@model ITSWebMgmt.Models.UserModel
 @using ITSWebMgmt.Helpers
 @using System.Web
-<div class="target">
+
 
     <partial>
         <table class="ui definition table">
@@ -19,6 +19,13 @@
                             @Html.HiddenFor(m => m.SCSMUserID)
                             <input type="submit" value="Create new IR/SR" />
                         }
+                    </td>
+                </tr>
+                <tr>
+                    <td>Account locked</td>
+                    <td>
+                        <span id="target">@Html.DisplayFor(model => model.BasicInfoLocked)</span>
+                        <button id="updateAccountLocked" style="float: right;">Update</button>
                     </td>
                 </tr>
                 @await Html.PartialAsync("TableView", Model.BasicInfoTable)
@@ -52,23 +59,23 @@
                 <tr>
                     <td>Romaing Profile</td>
                     <td>@Html.DisplayFor(model => model.BasicInfoRomaing)</td>
+
                 </tr>
             </tbody>
         </table>
-        <button id="updateAD">Update table</button>
         <script type="text/javascript">
             $(function(){
-                $("#updateAD").click(function () {
+                $("#updateAccountLocked").click(function () {
                     var username = '@HttpUtility.JavaScriptStringEncode(Model.UserName)';
                     data = JSON.stringify(username);
                     $.ajax({
                         type: "POST",
-                        url: 'User/UpdateAD',
+                        url: 'User/UpdateBasicInfoLocked',
                         contentType: "application/json; charset=utf-8",
                         data: data,
                         dataType: "json",
                         success: function (response) {
-                            document.getElementById("target").innerHTML = response; 
+                            document.getElementById("target").innerHTML = response.message; 
                         },
                         error: function(response) {
                             var r = JSON.parse(response.responseText);
@@ -79,4 +86,3 @@
             });
         </script>
     </partial>
-</div>

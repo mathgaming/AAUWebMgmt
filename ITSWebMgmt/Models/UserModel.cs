@@ -85,7 +85,6 @@ namespace ITSWebMgmt.Models
                 BasicInfoDepartmentPDS,
                 BasicInfoOfficePDS,
                 BasicInfoADFSLocked,
-                BasicInfoLocked,
                 BasicInfoPasswordExpireDate,
                 BasicInfoPasswordExpired,
                 BadPwdCount.ToString(),
@@ -248,7 +247,7 @@ namespace ITSWebMgmt.Models
             }
 
             //Other fileds
-            var attrDisplayName = "Department (Pure), Office (Pure), ADFS locked, Account locked, Password Expire Date, Password expired, Bad password count, UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
+            var attrDisplayName = "Department (Pure), Office (Pure), ADFS locked, Password Expire Date, Password expired, Bad password count, UserName, AAU-ID, AAU-UUID, UserStatus, StaffID, StudentID, UserClassification, Telephone, LastLogon (approx.)";
             var attrArry = GetUserInfo();
             var dispArry = attrDisplayName.Split(',');
 
