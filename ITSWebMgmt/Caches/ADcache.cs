@@ -22,7 +22,9 @@ namespace ITSWebMgmt.Caches
 
     public abstract class ADCache
     {
-        protected Dictionary<string, Property> properties = new Dictionary<string, Property>();
+        protected Dictionary<string, Property> Properties = new Dictionary<string, Property>();
+        protected List<Property> PropertyNames;
+        protected List<Property> PropertyToRefreshNames;
         public DirectoryEntry DE;
         public SearchResult result;
         public string Path { get => DE.Path; }
@@ -37,33 +39,45 @@ namespace ITSWebMgmt.Caches
         public ADCache(string ADPath, List<Property> properties, List<Property> propertiesToRefresh)
         {
             this.ADPath = ADPath;
+            PropertyNames = properties;
+            PropertyToRefreshNames = propertiesToRefresh;
             DE = DirectoryEntryCreator.CreateNewDirectoryEntry(ADPath);
+
+            MakeCache();
+        }
+
+        public void MakeCache()
+        {
             var search = new DirectorySearcher(DE);
 
-            if (propertiesToRefresh != null)
+            var tempProperties = PropertyNames;
+
+            if (PropertyToRefreshNames != null)
             {
                 List<string> propertiesNamesToRefresh = new List<string>();
-                foreach (var p in propertiesToRefresh)
+                foreach (var p in PropertyToRefreshNames)
                 {
                     propertiesNamesToRefresh.Add(p.Name);
-                    properties.Add(p);
+                    tempProperties.Add(p);
                 }
 
                 DE.RefreshCache(propertiesNamesToRefresh.ToArray());
             }
 
-            foreach (var p in properties)
+            foreach (var p in tempProperties)
             {
                 search.PropertiesToLoad.Add(p.Name);
             }
 
             result = search.FindOne();
 
-            SaveCache(properties, propertiesToRefresh);
+            SaveCache(tempProperties, PropertyToRefreshNames);
         }
 
         protected void SaveCache(List<Property> properties, List<Property> propertiesToRefresh)
         {
+            Properties = new Dictionary<string, Property>();
+
             foreach (var p in properties)
             {
                 var value = DE.Properties[p.Name].Value;
@@ -115,16 +129,17 @@ namespace ITSWebMgmt.Caches
 
         public dynamic GetProperty(string property)
         {
-            if (properties.ContainsKey(property))
+            if (Properties.ContainsKey(property))
             {
-                return properties[property].Value;
+                return Properties[property].Value;
             }
+
             return null;
         }
 
         public void SaveProperty(string property, dynamic value)
         {
-            if (properties[property].Type.Equals(value.GetType()))
+            if (Properties[property].Type.Equals(value.GetType()))
             {
                 DE.Properties[property].Value = value;
                 DE.CommitChanges();
@@ -141,7 +156,7 @@ namespace ITSWebMgmt.Caches
 
         public void AddProperty(string property, Property value)
         {
-            properties.Add(property, value);
+            Properties[property] = value;
         }
 
         public List<string> GetGroups(string name)

@@ -390,6 +390,15 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult UpdateBasicInfoLocked([FromBody] string data)
+        {
+            UserModel = GetUserModel(data);
+            UserModel.ADCache.MakeCache();
+            UserModel.InitBasicInfo();
+            return Success(UserModel.BasicInfoLocked);
+        }
+
         public override ActionResult LoadTab(string tabName, string name)
         {
             UserModel = GetUserModel(name);

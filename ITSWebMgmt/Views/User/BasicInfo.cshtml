@@ -1,56 +1,88 @@
 ﻿@model ITSWebMgmt.Models.UserModel
 @using ITSWebMgmt.Helpers
 @using System.Web
-<partial>
-<table class="ui definition table">
-    <tbody>
-        <tr>
-            <td>Name</td>
-            <td>@Html.DisplayFor(model => model.DisplayName)</td>
-        </tr>
-        <tr>
-            <td>New IR/SR for user</td>
-            <td>
-                @using (Html.BeginForm("CreateNewIRSR", "User", FormMethod.Post))
-                {
-                    @Html.HiddenFor(m => m.UserPrincipalName)
-                    @Html.HiddenFor(m => m.SCSMUserID)
-                    <input type="submit" value="Create new IR/SR" />
-                }
-            </td>
-        </tr>
-        @await Html.PartialAsync("TableView", Model.BasicInfoTable)
-        <tr>
-            <td>E-mails</td>
-            <td>
-                @foreach (string mailAddress in Model.GetUserMails())
-                {
-                    <a href="mailto:@mailAddress">@mailAddress</a><br />
-                }
-            </td>
-        </tr>
-        <tr>
-            <td>Primary leader (AD)</td>
-            <td>
-                @if (Model.Manager == "")
-                {
-                    <p>Not found</p>
-                }
-                else
-                { 
-                    var split = Model.Manager.Split(',');
-                    var name = split[0].Replace("CN=", "");
-                    var domain = split.Where<string>(s => s.StartsWith("DC=")).ToArray<string>()[0].Replace("DC=", "");
 
-                    var email = $"{name}@{domain}.aau.dk";
-                    <a href="/User?username=@HttpUtility.HtmlEncode(email)">@email</a><br/>
-                }
-            </td>
-        </tr>
-        <tr>
-            <td>Romaing Profile</td>
-            <td>@Html.DisplayFor(model => model.BasicInfoRomaing)</td>
-        </tr>
-    </tbody>
-</table>
-</partial>
+
+    <partial>
+        <table class="ui definition table">
+            <tbody>
+                <tr>
+                    <td>Name</td>
+                    <td>@Html.DisplayFor(model => model.DisplayName)</td>
+                </tr>
+                <tr>
+                    <td>New IR/SR for user</td>
+                    <td>
+                        @using (Html.BeginForm("CreateNewIRSR", "User", FormMethod.Post))
+                        {
+                            @Html.HiddenFor(m => m.UserPrincipalName)
+                            @Html.HiddenFor(m => m.SCSMUserID)
+                            <input type="submit" value="Create new IR/SR" />
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>Account locked</td>
+                    <td>
+                        <span id="target">@Html.DisplayFor(model => model.BasicInfoLocked)</span>
+                        <button id="updateAccountLocked" style="float: right;">Update</button>
+                    </td>
+                </tr>
+                @await Html.PartialAsync("TableView", Model.BasicInfoTable)
+                <tr>
+                    <td>E-mails</td>
+                    <td>
+                        @foreach (string mailAddress in Model.GetUserMails())
+                        {
+                            <a href="mailto:@mailAddress">@mailAddress</a><br />
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>Primary leader (AD)</td>
+                    <td>
+                        @if (Model.Manager == "")
+                        {
+                            <p>Not found</p>
+                        }
+                        else
+                        {
+                            var split = Model.Manager.Split(',');
+                            var name = split[0].Replace("CN=", "");
+                            var domain = split.Where<string>(s => s.StartsWith("DC=")).ToArray<string>()[0].Replace("DC=", "");
+
+                            var email = $"{name}@{domain}.aau.dk";
+                            <a href="/User?username=@HttpUtility.HtmlEncode(email)">@email</a><br />
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>Romaing Profile</td>
+                    <td>@Html.DisplayFor(model => model.BasicInfoRomaing)</td>
+
+                </tr>
+            </tbody>
+        </table>
+        <script type="text/javascript">
+            $(function(){
+                $("#updateAccountLocked").click(function () {
+                    var username = '@HttpUtility.JavaScriptStringEncode(Model.UserName)';
+                    data = JSON.stringify(username);
+                    $.ajax({
+                        type: "POST",
+                        url: 'User/UpdateBasicInfoLocked',
+                        contentType: "application/json; charset=utf-8",
+                        data: data,
+                        dataType: "json",
+                        success: function (response) {
+                            document.getElementById("target").innerHTML = response.message; 
+                        },
+                        error: function(response) {
+                            var r = JSON.parse(response.responseText);
+                            alert(r.errorMessage);
+                        }
+                    });
+                });
+            });
+        </script>
+    </partial>
