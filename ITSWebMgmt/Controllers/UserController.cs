@@ -9,14 +9,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Controllers
 {
     public class UserController : DynamicLoadingWebMgmtController
     {
-        public IActionResult Index(string username)
+        public async Task<IActionResult> Index(string username)
         {
-            UserModel = GetUserModel(username);
+            UserModel = await GetUserModelAsync(username);
 
             if (username != null)
             {
@@ -41,7 +42,7 @@ namespace ITSWebMgmt.Controllers
             _cache = cache;
         }
 
-        private UserModel GetUserModel(string username)
+        private async Task<UserModel> GetUserModelAsync(string username)
         {
             if (username != null)
             {
@@ -56,7 +57,7 @@ namespace ITSWebMgmt.Controllers
                     {
                         try
                         {
-                            UserModel.BasicInfoADFSLocked = new SplunkConnector(_cache).IsAccountADFSLocked(UserModel.UserPrincipalName);
+                            UserModel.BasicInfoADFSLocked = await new SplunkConnector(_cache).IsAccountADFSLockedAsync(UserModel.UserPrincipalName);
                         }
                         catch (Exception e)
                         {
@@ -65,7 +66,7 @@ namespace ITSWebMgmt.Controllers
                         }
                         UserModel.InitBasicInfo();
                         LoadWarnings();
-                        UserModel.InitCalendarAgenda();
+                        UserModel.InitCalendarAgendaAsync();
                         UserModel.SetTabs();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
@@ -87,7 +88,7 @@ namespace ITSWebMgmt.Controllers
 
             string[] ou = dnarray.Where(x => x.StartsWith("ou=", StringComparison.CurrentCultureIgnoreCase)).ToArray();
 
-            int count = ou.Count();
+            int count = ou.Length;
             if (count < 2)
             {
                 return false;
@@ -111,9 +112,9 @@ namespace ITSWebMgmt.Controllers
             return true;
         }
 
-        public ActionResult FixUserOu([FromBody]string username)
+        public async Task<IActionResult> FixUserOu([FromBody]string username)
         {
-            UserModel = GetUserModel(username);
+            UserModel = await GetUserModelAsync(username);
             if (UserIsInRightOU()) { return Error(); }
 
             //See if it can be fixed!
@@ -122,7 +123,7 @@ namespace ITSWebMgmt.Controllers
 
             string[] ou = dnarray.Where(x => x.StartsWith("ou=", StringComparison.CurrentCultureIgnoreCase)).ToArray();
 
-            int count = ou.Count();
+            int count = ou.Length;
 
             if (count < 2)
             {
@@ -165,9 +166,9 @@ namespace ITSWebMgmt.Controllers
             return Success($"no need to change user {UserModel.ADPath} out, all is good");
         }
 
-        public ActionResult UnlockUserAccount([FromBody]string username)
+        public async Task<IActionResult> UnlockUserAccount([FromBody]string username)
         {
-            UserModel = GetUserModel(username);
+            UserModel = await GetUserModelAsync(username);
             new Logger(_context).Log(LogEntryType.UnlockUserAccount, HttpContext.User.Identity.Name, UserModel.ADPath);
 
             try
@@ -188,9 +189,9 @@ namespace ITSWebMgmt.Controllers
             return Success();
         }
 
-        public ActionResult ToggleUserprofile([FromBody]string username)
+        public async Task<IActionResult> ToggleUserprofile([FromBody]string username)
         {
-            UserModel = GetUserModel(username);
+            UserModel = await GetUserModelAsync(username);
             //XXX log what the new value of profile is :)
             new Logger(_context).Log(LogEntryType.ToggleUserProfile, HttpContext.User.Identity.Name, UserModel.ADPath);
 
@@ -263,12 +264,12 @@ namespace ITSWebMgmt.Controllers
             //Password is expired and warning before expire (same timeline as windows displays warning)
         }
 
-        public ActionResult GetUsersByName([FromBody]string name)
+        public async Task<IActionResult> GetUsersByName([FromBody]string name)
         {
             List<string> names = new List<string>();
             try
             {
-                names = new PureConnector().GetUsersByName(name);
+                names = await new PureConnector().GetUsersByNameAsync(name);
             }
             catch (Exception)
             {
@@ -294,10 +295,10 @@ namespace ITSWebMgmt.Controllers
             return true;
         }
 
-        public ActionResult SetupOnedrive([FromBody]string data)
+        public async Task<IActionResult> SetupOnedrive([FromBody]string data)
         {
             string[] temp = data.Split('|');
-            UserModel = GetUserModel(temp[0]);
+            UserModel = await GetUserModelAsync(temp[0]);
 
             if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
             {
@@ -331,10 +332,10 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
-        public ActionResult DisableADUser([FromBody]string data)
+        public async Task<IActionResult> DisableADUser([FromBody]string data)
         {
             string[] temp = data.Split('|');
-            UserModel = GetUserModel(temp[0]);
+            UserModel = await GetUserModelAsync(temp[0]);
 
             if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
             {
@@ -358,10 +359,10 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
-        public ActionResult EnableADUser([FromBody]string data)
+        public async Task<IActionResult> EnableADUser([FromBody]string data)
         {
             string[] temp = data.Split('|');
-            UserModel = GetUserModel(temp[0]);
+            UserModel = await GetUserModelAsync(temp[0]);
 
             if (temp[0].Length == 0 || temp[1].Length == 0 || temp[2].Length == 0)
             {
@@ -391,17 +392,17 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public ActionResult UpdateBasicInfoLocked([FromBody] string data)
+        public async Task<IActionResult> UpdateBasicInfoLocked([FromBody] string data)
         {
-            UserModel = GetUserModel(data);
+            UserModel = await GetUserModelAsync(data);
             UserModel.ADCache.MakeCache();
             UserModel.InitBasicInfo();
             return Success(UserModel.BasicInfoLocked);
         }
 
-        public override ActionResult LoadTab(string tabName, string name)
+        public async override Task<IActionResult> LoadTab(string tabName, string name)
         {
-            UserModel = GetUserModel(name);
+            UserModel = await GetUserModelAsync(name);
 
             new Logger(_context).Log(LogEntryType.LoadedTabUser, HttpContext.User.Identity.Name, new List<string>() { tabName, UserModel.UserPrincipalName }, true);
 
@@ -427,7 +428,7 @@ namespace ITSWebMgmt.Controllers
                     model = UserModel.InitFileshares();
                     return PartialView("ExchangeFileshare", model);
                 case "calAgenda":
-                    UserModel.InitCalendarAgenda();
+                    UserModel.InitCalendarAgendaAsync();
                     return PartialView("Calendar", UserModel);
                 case "exchange":
                     model = UserModel.InitExchange();
@@ -436,18 +437,18 @@ namespace ITSWebMgmt.Controllers
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
-                    UserModel.InitComputerInformation();
+                    UserModel.InitComputerInformationAsync();
                     return PartialView("ComputerInfo", UserModel);
                 case "win7to10":
                     viewName = "Win7to10";
-                    UserModel.InitWin7to10();
+                    UserModel.InitWin7to10Async();
                     break;
                 case "print":
                     return PartialView("Print", new PrintConnector(UserModel.Guid.ToString()).GetData());
                 case "rawdata":
                     return PartialView("Rawtable", UserModel.ADCache.GetAllProperties());
                 case "netaaudk":
-                    return PartialView("TableView", UserModel.InitNetaaudk());
+                    return PartialView("TableView", UserModel.InitNetaaudkAsync());
             }
 
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);

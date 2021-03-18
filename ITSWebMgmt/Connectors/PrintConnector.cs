@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Connectors
 {
@@ -30,7 +31,7 @@ namespace ITSWebMgmt.Connectors
             }
 
             var credentials = new UserCredentials(domain, username, secret);
-            Impersonation.RunAsUser(credentials, LogonType.NewCredentials, () =>
+            Impersonation.RunAsUser(credentials, LogonType.NewCredentials, async () =>
             {
                 SqlConnection myConnection = new SqlConnection("Data Source = AD-SQL2-MISC.AAU.DK; Database = eqcas; Integrated Security=SSPI; MultipleActiveResultSets=true");
                 
@@ -73,9 +74,9 @@ namespace ITSWebMgmt.Connectors
                     var command = new SqlCommand(sqlcommand, myConnection);
                     command.Parameters.AddWithValue("@adguid", adguid);
 
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             model.Found = true;
                             string AAUCardXerox = reader["AAUCardXerox"] as string;
@@ -122,11 +123,11 @@ namespace ITSWebMgmt.Connectors
             return model;
         }
 
-        Dictionary<string, List<string>> GetAllColumnNames(SqlConnection connection)
+        async Task<Dictionary<string, List<string>>> GetAllColumnNamesAsync(SqlConnection connection)
         {
             Dictionary<string, List<string>> tables = new Dictionary<string, List<string>>();
 
-            foreach (var item in GetAllTables(connection))
+            foreach (var item in await GetAllTablesAsync(connection))
             {
                 string[] restrictions = new string[4] { null, null, item, null };
                 var columnList = connection.GetSchema("Columns", restrictions).AsEnumerable().Select(s => s.Field<string>("Column_Name")).ToList();
@@ -136,12 +137,12 @@ namespace ITSWebMgmt.Connectors
             return tables;
         }
 
-        string[] GetAllTables(SqlConnection connection)
+        async Task<string[]> GetAllTablesAsync(SqlConnection connection)
         {
             List<string> result = new List<string>();
             SqlCommand cmd = new SqlCommand("SELECT name FROM sys.Tables", connection);
-            System.Data.SqlClient.SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
+            SqlDataReader reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
                 result.Add(reader["name"].ToString());
             return result.ToArray();
         }

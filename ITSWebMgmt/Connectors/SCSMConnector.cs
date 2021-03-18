@@ -17,10 +17,10 @@ namespace ITSWebMgmt.Connectors
 
         public SCSMConnector()
         {
-            authkey = GetAuthKey().Result;
+            authkey = GetAuthKeyAsync().Result;
         }
 
-        protected async Task<string> GetAuthKey()
+        protected async Task<string> GetAuthKeyAsync()
         {
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/Authorization/GetToken");
             request.Method = "POST";
@@ -52,17 +52,17 @@ namespace ITSWebMgmt.Connectors
             return responseText.Replace("\"", "");
         }
 
-        protected ServiceManagerModel CreateServiceManager(string userId)
+        protected async Task<ServiceManagerModel> CreateServiceManagerAsync(string userId)
         {
             if (userId == null)
             {
                 return new ServiceManagerModel(null, null);
             }
-            return new ServiceManagerModel(userId, LookupWorkItemsByUUID(userId).Result);
+            return new ServiceManagerModel(userId, await LookupWorkItemsByUUIDAsync(userId));
         }
 
         //returns json string for uuid
-        protected async Task<List<Case>> LookupWorkItemsByUUID(string uuid)
+        protected async Task<List<Case>> LookupWorkItemsByUUIDAsync(string uuid)
         {
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/WorkItem/GetGridWorkItemsMyRequests?userid=" + uuid + "&showInactiveItems=true");
             request.Method = "Get";
@@ -82,7 +82,7 @@ namespace ITSWebMgmt.Connectors
         }
 
         //Takes a upn and retuns the users uuid
-        protected async Task<string> GetUserUUIDByUPN(string upn, List<string> emails)
+        protected async Task<string> GetUserUUIDByUPNAsync(string upn, List<string> emails)
         {
             //Get username from UPN
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/User/GetUserList?fetchAll=false&userFilter=" + upn);
@@ -109,16 +109,16 @@ namespace ITSWebMgmt.Connectors
             return null;
         }
 
-        public async Task<ServiceManagerModel> GetServiceManager(string upn, List<string> emails)
+        public async Task<ServiceManagerModel> GetServiceManagerAsync(string upn, List<string> emails)
         {
-            string uuid = await GetUUID(upn, emails);
+            string uuid = await GetUUIDAsync(upn, emails);
             
-            return CreateServiceManager(uuid);
+            return await CreateServiceManagerAsync(uuid);
         }
 
-        public async Task<string> GetUUID(string upn, List<string> emails)
+        public async Task<string> GetUUIDAsync(string upn, List<string> emails)
         {
-            return await GetUserUUIDByUPN(upn, emails);
+            return await GetUserUUIDByUPNAsync(upn, emails);
         }
     }
 }

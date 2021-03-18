@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -24,7 +25,7 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public ActionResult UpdateList()
+        public async Task<IActionResult> UpdateList()
         {
             if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
             {
@@ -32,7 +33,7 @@ namespace ITSWebMgmt.Controllers
             }
             try
             {
-                UpdateØSSStatus();
+                await UpdateØSSStatusAsync();
                 return Success();
             }
             catch (Exception e)
@@ -43,7 +44,7 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public ActionResult UpdateBestAAUGuess()
+        public async Task<IActionResult> UpdateBestAAUGuess()
         {
             if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
             {
@@ -51,7 +52,7 @@ namespace ITSWebMgmt.Controllers
             }
             try
             {
-                UpdateBestAAUGuessJamf();
+                await UpdateBestAAUGuessJamfAsync();
                 return Success();
             }
             catch (Exception e)
@@ -61,10 +62,10 @@ namespace ITSWebMgmt.Controllers
 
         }
 
-        public void UpdateBestAAUGuessJamf()
+        public async Task UpdateBestAAUGuessJamfAsync()
         {
             JamfConnector jc = new JamfConnector();
-            foreach (var computer in jc.GetAllComputers())
+            foreach (var computer in await jc.GetAllComputersAsync())
             {
                 ComputerModel model = new ComputerModel(computer.name, null);
                 model.Mac = new MacComputerModel(model, computer.id);
@@ -88,10 +89,10 @@ namespace ITSWebMgmt.Controllers
                 else
                 {
                     ØSSConnector øss = new ØSSConnector();
-                    string assetNumber = øss.GetAssetNumberFromSerialNumber(sn);
+                    string assetNumber = await øss.GetAssetNumberFromSerialNumberAsync(sn);
                     if (assetNumber != "")
                     {
-                        string tagNumber = øss.GetTagNumberFromAssetNumber(assetNumber);
+                        string tagNumber = await øss.GetTagNumberFromAssetNumberAsync(assetNumber);
                         if (tagNumber != "")
                         {
                             number = tagNumber;
@@ -100,15 +101,15 @@ namespace ITSWebMgmt.Controllers
                 }
 
                 string xml = $"<?xml version=\"1.0\"?><computer><extension_attributes><extension_attribute><name>AAUNumber</name> <value>{number}</value> </extension_attribute></extension_attributes></computer>";
-                jc.SendUpdateReuest($"computers/id/{computer.id}/subset/ExtensionAttributes", xml);
+                _ = await jc.SendUpdateReuestAsync($"computers/id/{computer.id}/subset/ExtensionAttributes", xml);
 
                 Thread.Sleep(5000);
             }
         }
-        public void UpdateØSSStatus()
+        public async Task UpdateØSSStatusAsync()
         {
             JamfConnector jc = new JamfConnector();
-            foreach (var computer in jc.GetAllComputers())
+            foreach (var computer in await jc.GetAllComputersAsync())
             {
                 ComputerModel model = new ComputerModel(computer.name, null);
                 model.Mac = new MacComputerModel(model, computer.id);
@@ -124,10 +125,10 @@ namespace ITSWebMgmt.Controllers
                     model.SetØSSAssetnumber(info.OESSAssetNumber);
                 }
 
-                (string status, string comment) = new ØSSConnector().GetOESSStatus(model.GetØSSAssetnumber());
+                (string status, string comment) = await new ØSSConnector().GetOESSStatusAsync(await model.GetØSSAssetnumberAsync());
 
                 string xml = $"<?xml version=\"1.0\"?><computer><extension_attributes><extension_attribute><name>F-status</name> <value>{status}</value> </extension_attribute><extension_attribute><name>F-comment</name> <value>{comment}</value> </extension_attribute></extension_attributes></computer>";
-                jc.SendUpdateReuest($"computers/id/{computer.id}/subset/ExtensionAttributes", xml);
+                _ = await jc.SendUpdateReuestAsync($"computers/id/{computer.id}/subset/ExtensionAttributes", xml);
 
                 Thread.Sleep(5000);
             }

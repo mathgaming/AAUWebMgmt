@@ -1,5 +1,6 @@
 ﻿using ITSWebMgmt.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.WebMgmtErrors
 {
@@ -12,14 +13,14 @@ namespace ITSWebMgmt.WebMgmtErrors
         public WebMgmtErrorList(List<WebMgmtError> errors)
         {
             this.errors = errors;
-            ProcessErrors();
+            _ = ProcessErrorsAsync();
         }
 
-        private void ProcessErrors()
+        private async Task ProcessErrorsAsync()
         {
             foreach (WebMgmtError error in errors)
             {
-                if (error.HaveError())
+                if (error.HaveError() || await error.HaveErrorAsync() == true)
                 {
                     ErrorCount[(int)error.Severeness]++;
                     ErrorMessages += GenerateMessage(error);

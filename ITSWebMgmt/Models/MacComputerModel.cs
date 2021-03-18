@@ -31,7 +31,7 @@ namespace ITSWebMgmt.Models
 
             if (id == -1)
             {
-                id = Jamf.GetComputerIdByName(BaseModel.ComputerName);
+                id = Jamf.GetComputerIdByNameAsync(BaseModel.ComputerName).Result;
             }
 
             if (id != -1) //Computer found
@@ -47,10 +47,10 @@ namespace ITSWebMgmt.Models
         {
             if (computerName[0] == 'S')
             {
-                computerName = computerName.Substring(1);
+                computerName = computerName[1..];
             }
 
-            int id = Jamf.GetComputerIdByName(computerName);
+            int id = Jamf.GetComputerIdByNameAsync(computerName).Result;
 
             if (id != -1) //Computer found
             {
@@ -62,11 +62,11 @@ namespace ITSWebMgmt.Models
             InitViews(id);
         }
 
-        public void InitViews(int id)
+        public async void InitViews(int id)
         {
             Id = id;
-            var jsonString = Jamf.GetAllComputerInformationAsJSONString(id);
-            JObject jsonVal = JObject.Parse(jsonString) as JObject;
+            var jsonString = await Jamf.GetAllComputerInformationAsJSONStringAsync(id);
+            JObject jsonVal = JObject.Parse(jsonString);
             ComputerName = jsonVal.SelectToken("computer.general.name").ToString();
             SerialNumber = jsonVal.SelectToken("computer.general.serial_number").ToString();
             AssetTag = jsonVal.SelectToken("computer.general.asset_tag").ToString();

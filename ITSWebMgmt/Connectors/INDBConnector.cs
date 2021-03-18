@@ -5,14 +5,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.DirectoryServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Connectors
 {
     public class INDBConnector
     {
-        public static List<TableModel> GetInfo(string computerName)
+        public static async Task<List<TableModel>> GetInfoAsync(string computerName)
         {
-            if (LookupComputer(computerName) == "Computer not found")
+            if (await LookupComputerAsync(computerName) == "Computer not found")
             {
                 return new List<TableModel> { new TableModel("Not found in purchase database") };
             }
@@ -23,7 +24,7 @@ namespace ITSWebMgmt.Connectors
 
             var conn = connection.conn;
 
-            IDbCommand command = conn.CreateCommand();
+            var command = conn.CreateCommand();
             command.CommandText = $"SELECT " +
                 $"BESTILLINGS_DATO," +
                 $"FABRIKAT," +
@@ -31,14 +32,14 @@ namespace ITSWebMgmt.Connectors
                 $"MODTAGELSESDATO," +
                 $"SERIENR," +
                 $"SLUTBRUGER" +
-                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName.Substring(3)}";
+                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName[3..]}";
 
             List<string[]> rows = new List<string[]>();
             List<TableModel> tables = new List<TableModel>();
             int results = 0;
-            using (IDataReader reader = command.ExecuteReader())
+            using (var reader = await command.ExecuteReaderAsync())
             {
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     results++;
                     for (int i = 0; i < 6; i++)
@@ -77,7 +78,7 @@ namespace ITSWebMgmt.Connectors
             }
         }
 
-        public static string LookupComputer(string computerName)
+        public static async Task<string> LookupComputerAsync(string computerName)
         {
             var connection = TryConnect();
             if (connection.conn == null)
@@ -90,23 +91,23 @@ namespace ITSWebMgmt.Connectors
                 return "Computer not found";
             }
 
-            var computerNameDegits = computerName.Substring(3);
+            var computerNameDegits = computerName[3..];
             if (!int.TryParse(computerNameDegits, out _))
             {
                 return "Computer not found";
             }
 
-            IDbCommand command = conn.CreateCommand();
+            var command = conn.CreateCommand();
             command.CommandText = $"SELECT " +
                 $"FABRIKAT," +
                 $"MODELLEN " +
-                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName.Substring(3)}";
+                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName[3..]}";
 
             string manifacturer = "";
             string model = "";
-            using (IDataReader reader = command.ExecuteReader())
+            using (var reader = await command.ExecuteReaderAsync())
             {
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     manifacturer = reader.GetValue(0).ToString();
                     model = reader.GetValue(1).ToString();
@@ -125,7 +126,7 @@ namespace ITSWebMgmt.Connectors
             }
         }
 
-        private static (IDbConnection conn, string error) TryConnect()
+        private static (OracleConnection conn, string error) TryConnect()
         {
             string username = Startup.Configuration["cred:indkoeb:username"];
             string password = Startup.Configuration["cred:indkoeb:password"];
@@ -135,7 +136,7 @@ namespace ITSWebMgmt.Connectors
                 return (null, "Invalid creds for indkoeb");
             }
 
-            IDbConnection conn = GetDatabaseConnection();
+            OracleConnection conn = GetDatabaseConnection();
 
             try
             {
@@ -149,7 +150,7 @@ namespace ITSWebMgmt.Connectors
             return (conn, null);
         }
 
-        private static IDbConnection GetDatabaseConnection()
+        private static OracleConnection GetDatabaseConnection()
         {
             string directoryServer = "sqlnet.adm.aau.dk:389";
             string defaultAdminContext = "dc=adm,dc=aau,dc=dk";
@@ -160,7 +161,7 @@ namespace ITSWebMgmt.Connectors
             return GetConnection(directoryServer, defaultAdminContext, serviceName, userId, password);
         }
 
-        private static IDbConnection GetConnection(string directoryServer, string defaultAdminContext, string serviceName, string userId, string password)
+        private static OracleConnection GetConnection(string directoryServer, string defaultAdminContext, string serviceName, string userId, string password)
         {
             string descriptor = ConnectionDescriptor(directoryServer, defaultAdminContext, serviceName);
             string connectionString = $"Data Source={descriptor}; User Id={userId}; Password={password};";

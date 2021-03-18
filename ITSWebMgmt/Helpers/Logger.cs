@@ -28,8 +28,10 @@ namespace ITSWebMgmt.Helpers
 
         public void Log(LogEntryType type, string userName, List<string> arguments, bool hidden, DateTime date)
         {
-            LogEntry entry = new LogEntry(type, userName, arguments, hidden);
-            entry.TimeStamp = date;
+            LogEntry entry = new LogEntry(type, userName, arguments, hidden)
+            {
+                TimeStamp = date
+            };
 
             _context.Add(entry);
         }
@@ -56,8 +58,8 @@ namespace ITSWebMgmt.Helpers
 
                         DateTime date = DateTime.Parse(parts[0] + " " + parts[1].Split("|")[0]);
 
-                        argumentsTo.Add(line.Substring(startTo, endTo - startTo));
-                        argumentsFrom.Add(line.Substring(startFrom, endFrom - startFrom));
+                        argumentsTo.Add(line[startTo..endTo]);
+                        argumentsFrom.Add(line[startFrom..endFrom]);
                         dates.Add(date);
                     }
                 }
@@ -99,14 +101,14 @@ namespace ITSWebMgmt.Helpers
             if (start == -1)
             {
                 var parts = input.Split(" ");
-                return parts[parts.Length - 1];
+                return parts[^1];
             }
             else if (end > start)
             {
-                return input.Substring(start, end - start);
+                return input[start..end];
             }
 
-            return input.Substring(start);
+            return input[start..];
         }
 
         public void UpdateIdsFromFile()
@@ -119,8 +121,6 @@ namespace ITSWebMgmt.Helpers
                 StreamWriter output = new StreamWriter(outputFile);
                 while ((line = file.ReadLine()) != null)
                 {
-                    var parts = line.Split(" ");
-
                     if (line.Length > 90)
                     {
                         if (line.Contains("LogEntries"))
@@ -173,7 +173,7 @@ namespace ITSWebMgmt.Helpers
                     LogEntryType type = 0;
                     List<string> arguments = new List<string>();
 
-                    if (parts[parts.Length - 1] == "(Hidden)")
+                    if (parts[^1] == "(Hidden)")
                     {
                         hidden = true;
                     }
@@ -193,11 +193,11 @@ namespace ITSWebMgmt.Helpers
                         type = LogEntryType.UserLookup;
                         if (hidden)
                         {
-                            arguments.Add(parts[parts.Length - 2]);
+                            arguments.Add(parts[^2]);
                         }
                         else
                         {
-                            arguments.Add(parts[parts.Length - 1]);
+                            arguments.Add(parts[^1]);
                             hidden = true;
                         }
                     }
@@ -217,7 +217,7 @@ namespace ITSWebMgmt.Helpers
                         type = LogEntryType.Onedrive;
                         arguments.Add(parts[5]);
                         arguments.Add(parts[7]);
-                        arguments.Add(parts[parts.Length - 1]);
+                        arguments.Add(parts[^1]);
                     }
 
                     // Spelling mistake in log
@@ -238,7 +238,7 @@ namespace ITSWebMgmt.Helpers
                         type = LogEntryType.ResponceChallence;
                         string search = " generated challange with reason ";
                         int start = line.IndexOf(search) + search.Length;
-                        arguments.Add(line.Substring(start));
+                        arguments.Add(line[start..]);
                     }
 
                     else if (line.Contains("changed OU on user to:"))
@@ -250,20 +250,20 @@ namespace ITSWebMgmt.Helpers
                         int startFrom = line.IndexOf("LDAP", line.IndexOf("LDAP") + 1);
                         int endFrom = line.Length - 1;
 
-                        arguments.Add(line.Substring(startTo, endTo - startTo));
-                        arguments.Add(line.Substring(startFrom, endFrom - startFrom));
+                        arguments.Add(line[startTo..endTo]);
+                        arguments.Add(line[startFrom..endFrom]);
                     }
 
                     else if (line.Contains(" from AD"))
                     {
                         type = LogEntryType.ComputerDeletedFromAD;
-                        arguments.Add(parts[parts.Length - 3]);
+                        arguments.Add(parts[^3]);
                     }
 
                     else if (line.Contains("enabled bitlocker for"))
                     {
                         type = LogEntryType.Bitlocker;
-                        arguments.Add(parts[parts.Length - 1]);
+                        arguments.Add(parts[^1]);
                     }
 
                     Log(type, username, arguments, hidden, date);

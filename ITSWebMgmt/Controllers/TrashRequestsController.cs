@@ -46,34 +46,36 @@ namespace ITSWebMgmt.Controllers
         }
 
         // GET: TrashRequests/Create
-        public IActionResult Create(string data)
+        public async Task<IActionResult> Create(string data)
         {
-            TrashRequest trashRequest = new TrashRequest();
-            trashRequest.CreatedBy = HttpContext.User.Identity.Name;
+            TrashRequest trashRequest = new TrashRequest
+            {
+                CreatedBy = HttpContext.User.Identity.Name
+            };
 
             if (data is not null && data != "")
             {
                 trashRequest.ComputerName = data;
 
-                trashRequest = AddOESSInfo(trashRequest);
+                trashRequest = await AddOESSInfoAsync(trashRequest);
             }
 
             return View(trashRequest);
         }
 
-        public TrashRequest AddOESSInfo(TrashRequest trashRequest)
+        public async Task<TrashRequest> AddOESSInfoAsync(TrashRequest trashRequest)
         {
             if (trashRequest.ComputerName is not null && trashRequest.ComputerName != "")
             {
                 ØSSConnector Øss = new ØSSConnector();
                 ComputerModel model = new ComputerModel(trashRequest.ComputerName, trashRequest);
-                var assetNumber = model.GetØSSAssetnumber(trashRequest.ComputerName);
-                ØSSInfo info = Øss.GetØSSInfo(assetNumber);
+                var assetNumber = await model.GetØSSAssetnumberAsync(trashRequest.ComputerName);
+                ØSSInfo info = await Øss.GetØSSInfoAsync(assetNumber);
 
                 trashRequest.Desciption = $"{info.Manufacturer} {info.ModelNumber}";
-                var EquipmentManager = Øss.GetResponsiblePerson(model.GetØSSSegment(assetNumber));
-                trashRequest.EquipmentManager = $"{EquipmentManager.first_name} {EquipmentManager.last_name}";
-                trashRequest.EquipmentManagerEmail = EquipmentManager.email;
+                var (email, first_name, last_name) = await Øss.GetResponsiblePersonAsync(await model.GetØSSSegmentAsync(assetNumber));
+                trashRequest.EquipmentManager = $"{first_name} {last_name}";
+                trashRequest.EquipmentManagerEmail = email;
             }
 
             return trashRequest;
@@ -89,7 +91,7 @@ namespace ITSWebMgmt.Controllers
             if (command.Equals("Autofill"))
             {
                 ModelState.Clear();
-                trashRequest = AddOESSInfo(trashRequest);
+                trashRequest = await AddOESSInfoAsync(trashRequest);
 
                 return View("Create", trashRequest);
             }
@@ -101,14 +103,14 @@ namespace ITSWebMgmt.Controllers
                     trashRequest.Status = TrashRequestStatus.NotConfirmed;
                     _context.Add(trashRequest);
                     await _context.SaveChangesAsync();
-                    sendTrashComputerEmail(trashRequest);
+                    SendTrashComputerEmail(trashRequest);
                     return RedirectToAction(nameof(Index));
                 }
                 return View(trashRequest);
             }
         }
 
-        private void sendTrashComputerEmail(TrashRequest trashRequest)
+        private void SendTrashComputerEmail(TrashRequest trashRequest)
         {
             string subject = $"Kvittering for afleveringsnummer {trashRequest.Id}";
             string body = $"(Brugers navn) har i dag afleveret {trashRequest.Desciption} med AAU-nummer {trashRequest.ComputerName} til {trashRequest.CreatedBy} hos ITS.\n\n" +

@@ -9,14 +9,16 @@ using Microsoft.Extensions.Caching.Memory;
 using ITSWebMgmt.WebMgmtErrors;
 using ITSWebMgmt.Models.Log;
 using ITSWebMgmt.Connectors;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace ITSWebMgmt.Controllers
 {
     public class ComputerController : DynamicLoadingWebMgmtController
     {
-        public IActionResult Index(string computername)
+        public async Task<IActionResult> Index(string computername)
         {
-            ComputerModel = GetComputerModel(computername);
+            ComputerModel = await GetComputerModelAsync(computername);
 
             if (computername != null)
             {
@@ -47,12 +49,12 @@ namespace ITSWebMgmt.Controllers
             _cache = cache;
         }
 
-        private ComputerModel GetComputerModel(string computerName)
+        private async Task<ComputerModel> GetComputerModelAsync(string computerName)
         {
             if (computerName != null)
             {
                 computerName = computerName.Trim().ToUpper();
-                computerName = computerName.Substring(computerName.IndexOf('\\') + 1);
+                computerName = computerName[(computerName.IndexOf('\\') + 1)..];
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(computerName, GetTrashRequest(computerName));
@@ -86,7 +88,7 @@ namespace ITSWebMgmt.Controllers
                         {
                             sn = "S" + sn;
                         }
-                        MacCSVInfo info = _context.MacCSVInfos.FirstOrDefault(x => x.SerialNumber == sn);
+                        MacCSVInfo info = await _context.MacCSVInfos.FirstOrDefaultAsync(x => x.SerialNumber == sn);
 
                         if (ComputerModel.Mac.ComputerFound)
                         {
@@ -99,7 +101,7 @@ namespace ITSWebMgmt.Controllers
                         }
                         else
                         {
-                            if (computerName.StartsWith("AAU") && int.TryParse(computerName.Substring(3), out _))
+                            if (computerName.StartsWith("AAU") && int.TryParse(computerName[3..], out _))
                             {
                                 MacCSVInfo i = _context.MacCSVInfos.FirstOrDefault(x => x.AAUNumber == computerName.Substring(3));
                                 if (i != null && i.SerialNumber != null && i.SerialNumber != "")
@@ -107,7 +109,7 @@ namespace ITSWebMgmt.Controllers
                                     string sn2 = i.SerialNumber;
                                     if (i.SerialNumber.StartsWith("S"))
                                     {
-                                        sn2 = sn2.Substring(1);
+                                        sn2 = sn2[1..];
                                     }
                                     ComputerModel.ComputerName = sn2;
                                     
@@ -126,13 +128,13 @@ namespace ITSWebMgmt.Controllers
                                 if (info != null)
                                 {
                                     ComputerModel.MacCSVInfo = info;
-                                    ComputerModel.OESSTables = new ØSSConnector().GetØssTable(info.OESSAssetNumber);
-                                    ComputerModel.OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(new ØSSConnector().GetSegmentFromAssetNumber(info.OESSAssetNumber));
+                                    ComputerModel.OESSTables = await new ØSSConnector().GetØssTableAsync(info.OESSAssetNumber);
+                                    ComputerModel.OESSResponsiblePersonTable = await new ØSSConnector().GetResponsiblePersonTableAsync(await new ØSSConnector().GetSegmentFromAssetNumberAsync(info.OESSAssetNumber));
                                     ComputerModel.OnlyFoundInOESS = true;
                                 }
                                 else
                                 {
-                                    ComputerModel.InitØSSInfo(computerName);
+                                    await ComputerModel.InitØSSInfoAsync(computerName);
                                     if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
                                     {
                                         ComputerModel.OnlyFoundInOESS = true;
@@ -141,7 +143,7 @@ namespace ITSWebMgmt.Controllers
                                     {
                                         try
                                         {
-                                            ComputerModel.ResultError = INDBConnector.LookupComputer(computerName);
+                                            ComputerModel.ResultError = await INDBConnector.LookupComputerAsync(computerName);
                                         }
                                         catch (Exception e)
                                         {
@@ -171,9 +173,9 @@ namespace ITSWebMgmt.Controllers
             return _context.TrashRequests.FirstOrDefault(x => x.ComputerName == computerName);
         }
 
-        public override ActionResult LoadTab(string tabName, string name)
+        public async override Task<IActionResult> LoadTab(string tabName, string name)
         {
-            ComputerModel = GetComputerModel(name);
+            ComputerModel = await GetComputerModelAsync(name);
 
             new Logger(_context).Log(LogEntryType.LoadedTabComputer, HttpContext.User.Identity.Name, new List<string>() { tabName, ComputerModel.Windows.ADPath }, true);
 
@@ -229,9 +231,9 @@ namespace ITSWebMgmt.Controllers
                 case "macDisk":
                     return PartialView("TableView", ComputerModel.Mac.DiskTable);
                 case "purchase":
-                    return PartialView("INDB", INDBConnector.GetInfo(ComputerModel.ComputerName));
+                    return PartialView("INDB", INDBConnector.GetInfoAsync(ComputerModel.ComputerName));
                 case "øss":
-                    ComputerModel.InitØSSInfo();
+                    await ComputerModel.InitØSSInfoAsync();
                     return PartialView("OESS", ComputerModel);
             }
 
@@ -239,40 +241,40 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public ActionResult EnableMicrosoftProject([FromBody] string computername)
+        public async Task<IActionResult> EnableMicrosoftProject([FromBody] string computername)
         {
-            return AddComputerToCollection(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
+            return await AddComputerToCollectionAsync(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
         }
 
         [HttpPost]
-        public ActionResult DisableMicrosoftProject([FromBody] string computername)
+        public async Task<IActionResult> DisableMicrosoftProject([FromBody] string computername)
         {
-            return RemoveComputerFromCollection(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
+            return await RemoveComputerFromCollectionAsync(computername, "AA100109", "Install Microsoft Project 2016 or 2019");
         }
 
         [HttpPost]
-        public ActionResult MoveOU_Click([FromBody]string computername)
+        public async Task<IActionResult> MoveOU_Click([FromBody]string computername)
         {
-            ComputerModel = GetComputerModel(computername);
+            ComputerModel = await GetComputerModelAsync(computername);
             MoveOU(HttpContext.User.Identity.Name, ComputerModel.Windows.ADPath);
             return Success("OU moved for" + computername);
         }
 
         [HttpPost]
-        public ActionResult AddToAAU10([FromBody]string computername)
+        public async Task<IActionResult> AddToAAU10([FromBody]string computername)
         {
-            return AddComputerToCollection(computername, "AA1000BC", "AAU10 PC");
+            return await AddComputerToCollectionAsync(computername, "AA1000BC", "AAU10 PC");
         }
 
         [HttpPost]
-        public ActionResult AddToAdministrativ10([FromBody]string computername)
+        public async Task<IActionResult> AddToAdministrativ10([FromBody]string computername)
         {
-            return AddComputerToCollection(computername, "AA1001BD", "Administrativ10 PC");
+            return await AddComputerToCollectionAsync(computername, "AA1001BD", "Administrativ10 PC");
         }
 
-        private ActionResult AddComputerToCollection(string computerName, string collectionId, string collectionName)
+        private async Task<IActionResult> AddComputerToCollectionAsync(string computerName, string collectionId, string collectionName)
         {
-            ComputerModel = GetComputerModel(computerName);
+            ComputerModel = await GetComputerModelAsync(computerName);
 
             if (SCCM.AddComputerToCollection(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
             {
@@ -283,9 +285,9 @@ namespace ITSWebMgmt.Controllers
             return Error("Failed to add computer to collection");
         }
 
-        private ActionResult RemoveComputerFromCollection(string computerName, string collectionId, string collectionName)
+        private async Task<IActionResult> RemoveComputerFromCollectionAsync(string computerName, string collectionId, string collectionName)
         {
-            ComputerModel = GetComputerModel(computerName);
+            ComputerModel = await GetComputerModelAsync(computerName);
 
             if (SCCM.RemoveComputerFromCollection(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
             {
@@ -297,27 +299,27 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddToADAAU10([FromBody]string computername)
+        public async Task<IActionResult> AddToADAAU10([FromBody]string computername)
         {
-            ComputerModel = GetComputerModel(computername);
+            ComputerModel = await GetComputerModelAsync(computername);
             ADHelper.AddMemberToGroup(ComputerModel.Windows.ADPath.Split("dk/")[1], "LDAP://CN=cm12_config_AAU10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
             new Logger(_context).Log(LogEntryType.AddedToADGroup, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, "cm12_config_AAU10" });
             return Success("Computer added to cm12_config_AAU10");
         }
 
         [HttpPost]
-        public ActionResult AddToADAdministrativ10([FromBody]string computername)
+        public async Task<IActionResult> AddToADAdministrativ10([FromBody]string computername)
         {
-            ComputerModel = GetComputerModel(computername);
+            ComputerModel = await GetComputerModelAsync(computername);
             ADHelper.AddMemberToGroup(ComputerModel.Windows.ADPath.Split("dk/")[1], "LDAP://CN=cm12_config_Administrativ10,OU=ConfigMgr,OU=Groups,DC=srv,DC=aau,DC=dk");
             new Logger(_context).Log(LogEntryType.AddedToADGroup, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, "cm12_config_Administrativ10" });
             return Success("Computer added to cm12_config_Administrativ10");
         }
 
         [HttpPost]
-        public ActionResult ResultGetPassword([FromBody]string computername)
+        public async Task<IActionResult> ResultGetPassword([FromBody]string computername)
         {
-            ComputerModel = GetComputerModel(computername);
+            ComputerModel = await GetComputerModelAsync(computername);
             new Logger(_context).Log(LogEntryType.ComputerAdminPassword, HttpContext.User.Identity.Name, ComputerModel.Windows.ADPath, true);
 
             var passwordReturned = GetLocalAdminPassword(ComputerModel.Windows.ADPath);
@@ -339,7 +341,7 @@ namespace ITSWebMgmt.Controllers
 
             string[] ou = dnarray.Where(x => x.StartsWith("ou=", StringComparison.CurrentCultureIgnoreCase)).ToArray();
 
-            int count = ou.Count();
+            int count = ou.Length;
 
             //Check root is people
             if ((ou[0]).Equals("OU=Clients", StringComparison.CurrentCultureIgnoreCase))
@@ -422,7 +424,7 @@ namespace ITSWebMgmt.Controllers
             string[] dnarray = dn.Split(',');
 
             string[] ou = dnarray.Where(x => x.StartsWith("ou=", StringComparison.CurrentCultureIgnoreCase)).ToArray<string>();
-            int count = ou.Count();
+            int count = ou.Length;
 
             //Check if topou is clients (where is should be)
             if (ou[count - 1].Equals("OU=Clients", StringComparison.CurrentCultureIgnoreCase))
@@ -453,12 +455,12 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteComputerFromAD([FromBody]string computername)
+        public async Task<IActionResult> DeleteComputerFromAD([FromBody]string computername)
         {
             string onedriveMessage = "";
             try
             {
-                ComputerModel = GetComputerModel(computername);
+                ComputerModel = await GetComputerModelAsync(computername);
                 ComputerModel.Windows.ADCache.DeleteComputer();
             }
             catch (Exception e)
@@ -527,10 +529,10 @@ namespace ITSWebMgmt.Controllers
             ComputerModel.ErrorMessages = errorList.ErrorMessages;
         }
 
-        public ActionResult AddToOneDrive([FromBody]string data)
+        public async Task<IActionResult> AddToOneDrive([FromBody]string data)
         {
             string[] temp = data.Split('|');
-            ComputerModel = GetComputerModel(temp[0]);
+            ComputerModel = await GetComputerModelAsync(temp[0]);
 
             if (temp[1].Length == 0)
             {

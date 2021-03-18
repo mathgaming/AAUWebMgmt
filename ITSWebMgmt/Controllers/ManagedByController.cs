@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Caches;
+using ITSWebMgmt.Caches;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
@@ -15,7 +15,7 @@ namespace ITSWebMgmt.Controllers
         public ManagedByController(WebMgmtContext context) : base(context) {}
 
         [HttpPost]
-        public ActionResult SaveEditManagedBy([FromBody]string data)
+        public IActionResult SaveEditManagedBy([FromBody] string data)
         {
             var parts = data.Split('|');
             SaveManagedBy(parts[0], parts[1], parts[2]);

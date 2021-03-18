@@ -1,5 +1,6 @@
 ﻿using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -8,6 +9,6 @@ namespace ITSWebMgmt.Controllers
         protected DynamicLoadingWebMgmtController(WebMgmtContext context) : base(context) {}
 
         [HttpGet]
-        public abstract ActionResult LoadTab(string tabName, string name);
+        public abstract Task<IActionResult> LoadTab(string tabName, string name);
     }
 }

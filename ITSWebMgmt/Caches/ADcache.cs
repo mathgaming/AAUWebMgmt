@@ -96,7 +96,7 @@ namespace ITSWebMgmt.Caches
                 else
                 {
                     //Print the type
-                    Debug.WriteLine($"{p.Name}: {value.GetType().ToString()}, value: {value.ToString()}");
+                    Debug.WriteLine($"{p.Name}: {value.GetType()}, value: {value}");
 
                     //Handle special types
                     if (value.GetType().Equals(typeof(object[])))

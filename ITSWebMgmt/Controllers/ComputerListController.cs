@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +18,7 @@ namespace ITSWebMgmt.Controllers
             return View();
         }
 
-        public ActionResult GenerateList([FromBody]string email)
+        public IActionResult GenerateList([FromBody] string email)
         {
             if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
             {

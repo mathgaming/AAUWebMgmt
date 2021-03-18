@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Caches;
+using ITSWebMgmt.Caches;
 using ITSWebMgmt.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -20,7 +20,7 @@ namespace ITSWebMgmt.Controllers
             if (forceviewgroup == false && IsFileShare(GroupModel.DistinguishedName))
             {
                 InitFileshareTables();
-                
+
                 GroupModel.IsFileShare = true;
 
                 return View("FileShare", GroupModel);
@@ -42,7 +42,7 @@ namespace ITSWebMgmt.Controllers
         {
             var split = value.Split(',');
             var oupath = split.Where(s => s.StartsWith("OU=")).ToArray();
-            int count = oupath.Count();
+            int count = oupath.Length;
 
             return ((count == 3 && oupath[count - 1].Equals("OU=Groups") && oupath[count - 2].Equals("OU=Resource Access")));
         }

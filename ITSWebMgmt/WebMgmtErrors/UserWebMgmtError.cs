@@ -1,4 +1,4 @@
-﻿using ITSWebMgmt.Controllers;
+using ITSWebMgmt.Controllers;
 
 namespace ITSWebMgmt.WebMgmtErrors
 {

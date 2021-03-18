@@ -1,5 +1,6 @@
 ﻿using ITSWebMgmt.Controllers;
 using ITSWebMgmt.WebMgmtErrors;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Models
 {
@@ -42,9 +43,9 @@ namespace ITSWebMgmt.Models
             Severeness = Severity.Error;
         }
 
-        public override bool HaveError()
+        public async override Task<bool?> HaveErrorAsync()
         {
-            return computer.ComputerModel.IsTrashedInØSS;
+            return await computer.ComputerModel.IsTrashedInØSSAsync();
         }
     }
 
@@ -57,9 +58,9 @@ namespace ITSWebMgmt.Models
             Severeness = Severity.Error;
         }
 
-        public override bool HaveError()
+        public override async Task<bool?> HaveErrorAsync()
         {
-            return computer.ComputerModel.IsTrashedInWebMgmt() && !computer.ComputerModel.IsTrashedInØSS;
+            return computer.ComputerModel.IsTrashedInWebMgmt() && !await computer.ComputerModel.IsTrashedInØSSAsync();
         }
     }
 
