@@ -5,7 +5,7 @@
 </script>
 @{
     SCSMConnector sccm = new SCSMConnector();
-    Model.ServiceManager = await sccm.GetServiceManager(Model.UserPrincipalName, Model.GetUserMails());
+    Model.ServiceManager = await sccm.GetServiceManagerAsync(Model.UserPrincipalName, Model.GetUserMails());
     Model.SCSMUserID = sccm.userID;
 }
 

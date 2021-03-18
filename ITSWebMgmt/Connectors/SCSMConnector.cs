@@ -47,7 +47,7 @@ namespace ITSWebMgmt.Connectors
 
             var streamReader = new StreamReader(responseSteam);
 
-            var responseText = streamReader.ReadToEnd();
+            var responseText = await streamReader.ReadToEndAsync();
 
             return responseText.Replace("\"", "");
         }
@@ -72,7 +72,7 @@ namespace ITSWebMgmt.Connectors
             var response = await request.GetResponseAsync();
             var responseSteam = response.GetResponseStream();
             var streamReader = new StreamReader(responseSteam);
-            var responseText = streamReader.ReadToEnd();
+            var responseText = await streamReader.ReadToEndAsync();
 
             //Make a breakpoint here to see what the response actually is.
             //This is probably easier than looking at the API documentation tbh.
@@ -94,7 +94,7 @@ namespace ITSWebMgmt.Connectors
             var response = await request.GetResponseAsync();
             var responseSteam = response.GetResponseStream();
             var streamReader = new StreamReader(responseSteam);
-            var responseText = streamReader.ReadToEnd();
+            var responseText = await streamReader.ReadToEndAsync();
             dynamic json = JsonConvert.DeserializeObject<dynamic>(responseText);
 
             //TODO: Don't await for each item, make all requests and await, then look over data

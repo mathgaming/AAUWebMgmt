@@ -3,6 +3,7 @@ using System.Management;
 using System.Diagnostics;
 using System.Linq;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -54,17 +55,17 @@ namespace ITSWebMgmt.Helpers
             return con;
         }
 
-        public static bool AddComputerToCollection(string resourceID, string collectionId)
+        public static async Task<bool> AddComputerToCollectionAsync(string resourceID, string collectionId)
         {
-            return RunScript($"Add-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
+            return await RunScriptAsync($"Add-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
         }
 
-        public static bool RemoveComputerFromCollection(string resourceID, string collectionId)
+        public static async Task<bool> RemoveComputerFromCollectionAsync(string resourceID, string collectionId)
         {
-            return RunScript($"Remove-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
+            return await RunScriptAsync($"Remove-CMDeviceCollectionDirectMembershipRule -CollectionId {collectionId} -ResourceId {resourceID} -Force");
         }
 
-        private static bool RunScript(string script)
+        private static async Task<bool> RunScriptAsync(string script)
         {
             ProcessStartInfo psi = new ProcessStartInfo
             {
@@ -79,7 +80,7 @@ namespace ITSWebMgmt.Helpers
 
             Process p = Process.Start(psi);
             p.WaitForExit();
-            string errOutput = p.StandardError.ReadToEnd();
+            string errOutput = await p.StandardError.ReadToEndAsync();
 
             return !errOutput.ToLower().Contains("error");
         }

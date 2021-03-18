@@ -276,7 +276,7 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = await GetComputerModelAsync(computerName);
 
-            if (SCCM.AddComputerToCollection(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
+            if (await SCCM.AddComputerToCollectionAsync(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
             {
                 new Logger(_context).Log(LogEntryType.AddedToCollection, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, collectionName });
                 return Success("Computer added to " + collectionName);
@@ -289,7 +289,7 @@ namespace ITSWebMgmt.Controllers
         {
             ComputerModel = await GetComputerModelAsync(computerName);
 
-            if (SCCM.RemoveComputerFromCollection(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
+            if (await SCCM.RemoveComputerFromCollectionAsync(ComputerModel.Windows.SCCMCache.ResourceID, collectionId))
             {
                 new Logger(_context).Log(LogEntryType.RemovedFromCollection, HttpContext.User.Identity.Name, new List<string>() { ComputerModel.Windows.ADPath, collectionName });
                 return Success("Computer removed from " + collectionName);
