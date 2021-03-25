@@ -17,7 +17,7 @@ namespace ITSWebMgmt.Connectors
             userGuid = guid;
         }
 
-        public PrintModel GetData()
+        public async Task<PrintModel> GetDataAsync()
         {
             PrintModel model = new PrintModel();
 
@@ -31,14 +31,14 @@ namespace ITSWebMgmt.Connectors
             }
 
             var credentials = new UserCredentials(domain, username, secret);
-            Impersonation.RunAsUser(credentials, LogonType.NewCredentials, async () =>
+            await Impersonation.RunAsUser(credentials, LogonType.NewCredentials, async () =>
             {
                 SqlConnection myConnection = new SqlConnection("Data Source = AD-SQL2-MISC.AAU.DK; Database = eqcas; Integrated Security=SSPI; MultipleActiveResultSets=true");
                 
 
                 try
                 {
-                    myConnection.Open();
+                    await myConnection.OpenAsync();
                 }
                 catch (SqlException)
                 {

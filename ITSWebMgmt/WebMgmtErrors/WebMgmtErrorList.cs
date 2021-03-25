@@ -19,7 +19,7 @@ namespace ITSWebMgmt.WebMgmtErrors
         {
             foreach (WebMgmtError error in errors)
             {
-                if (error.HaveError() || await error.HaveErrorAsync() == true)
+                if (error.HaveError() || await error.HaveErrorAsync())
                 {
                     ErrorCount[(int)error.Severeness]++;
                     ErrorMessages += GenerateMessage(error);

@@ -18,7 +18,7 @@ namespace ITSWebMgmt.Connectors
                 return new List<TableModel> { new TableModel("Not found in purchase database") };
             }
 
-            var connection = TryConnect();
+            var connection = await TryConnectAsync();
             if (connection.conn == null)
                 return new List<TableModel>{ new TableModel(connection.error)};
 
@@ -80,7 +80,7 @@ namespace ITSWebMgmt.Connectors
 
         public static async Task<string> LookupComputerAsync(string computerName)
         {
-            var connection = TryConnect();
+            var connection = await TryConnectAsync();
             if (connection.conn == null)
                 return connection.error;
 
@@ -126,7 +126,7 @@ namespace ITSWebMgmt.Connectors
             }
         }
 
-        private static (OracleConnection conn, string error) TryConnect()
+        private static async Task<(OracleConnection conn, string error)> TryConnectAsync()
         {
             string username = Startup.Configuration["cred:indkoeb:username"];
             string password = Startup.Configuration["cred:indkoeb:password"];
@@ -140,7 +140,7 @@ namespace ITSWebMgmt.Connectors
 
             try
             {
-                conn.Open();
+                await conn.OpenAsync();
             }
             catch (Exception)
             {

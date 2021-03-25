@@ -445,7 +445,7 @@ namespace ITSWebMgmt.Controllers
                     await UserModel.InitWin7to10Async();
                     break;
                 case "print":
-                    return PartialView("Print", new PrintConnector(UserModel.Guid.ToString()).GetData());
+                    return PartialView("Print", await new PrintConnector(UserModel.Guid.ToString()).GetDataAsync());
                 case "rawdata":
                     return PartialView("Rawtable", UserModel.ADCache.GetAllProperties());
                 case "netaaudk":

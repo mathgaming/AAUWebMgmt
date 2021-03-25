@@ -53,7 +53,7 @@ namespace ITSWebMgmt.Models
         {
             if (isTrashedInØSS == null)
             {
-                isTrashedInØSS = await new ØSSConnector().IsTrashedAsync(GetØSSAssetnumberAsync());
+                isTrashedInØSS = await new ØSSConnector().IsTrashedAsync(await GetØSSAssetnumberAsync());
             }
 
             return isTrashedInØSS == true;

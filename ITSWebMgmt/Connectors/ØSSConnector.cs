@@ -37,7 +37,7 @@ namespace ITSWebMgmt.Connectors
         }
         public async Task<List<string>> LookUpByEmployeeIDAsync(string id)
         {
-            List<string> assetNumbers = GetAssetNumbersFromEmployeeID(id);
+            List<string> assetNumbers = await GetAssetNumbersFromEmployeeIDAsync(id);
             List<string> tagNumbers = new List<string>();
             foreach (var assetNumber in assetNumbers)
             {
@@ -54,23 +54,18 @@ namespace ITSWebMgmt.Connectors
             return tagNumbers;
         }
 
-        internal Task<bool?> IsTrashedAsync(Task<string> task)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<string> RunQueryAsync(string query, string outputKeyName)
         {
             string output = "";
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = query;
                 var reader = await command.ExecuteReaderAsync();
 
-                if (reader.Read())
+                if (await reader.ReadAsync())
                 {
                     output = reader[outputKeyName] as string;
                 }
@@ -78,20 +73,18 @@ namespace ITSWebMgmt.Connectors
             return output;
         }
 
-        public List<string> RunQueryMoreResults(string query, string outputKeyName)
+        public async Task<List<string>> RunQueryMoreResultsAsync(string query, string outputKeyName)
         {
             List<string> output = new List<string>();
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = query;
-                OracleDataReader reader = command.ExecuteReader();
+                var reader = await command.ExecuteReaderAsync();
 
-
-
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     output.Add(reader[outputKeyName] as string);
                 }
@@ -100,10 +93,10 @@ namespace ITSWebMgmt.Connectors
             return output;
         }
 
-        public List<string> GetAssetNumbersFromEmployeeID(string id)
+        public async Task<List<string>> GetAssetNumbersFromEmployeeIDAsync(string id)
         {
             string query = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where EMPLOYEE_NUMBER like '{ id }'";
-            return RunQueryMoreResults(query, "ASSET_NUMBER");
+            return await RunQueryMoreResultsAsync(query, "ASSET_NUMBER");
         }
 
         public async Task<string> GetAssetNumberFromTagNumberAsync(string tagNumber)
@@ -131,7 +124,7 @@ namespace ITSWebMgmt.Connectors
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = query;
                 var reader = await command.ExecuteReaderAsync();
@@ -197,7 +190,7 @@ namespace ITSWebMgmt.Connectors
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = "select EMAIL, FORNAVN, EFTERNAVN from PER_PERSON_ANALYSES " +
                                         "join PER_ANALYSIS_CRITERIA_KFV on PER_PERSON_ANALYSES.ANALYSIS_CRITERIA_ID = PER_ANALYSIS_CRITERIA_KFV.ANALYSIS_CRITERIA_ID " +
@@ -249,7 +242,7 @@ namespace ITSWebMgmt.Connectors
             ØSSInfo info = new ØSSInfo();
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = $"select IN_USE_FLAG, MANUFACTURER_NAME, MODEL_NUMBER, TAG_NUMBER from FA_ADDITIONS_V where ASSET_NUMBER like {assetNumber}";
                 var reader = await command.ExecuteReaderAsync();
@@ -286,7 +279,7 @@ namespace ITSWebMgmt.Connectors
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = $"select TRANSACTION_TYPE, COMMENTS from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber} order by DATE_EFFECTIVE desc fetch first 1 row only";
                 var reader = await command.ExecuteReaderAsync();
@@ -311,7 +304,7 @@ namespace ITSWebMgmt.Connectors
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = $"select TRANSACTION_TYPE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber}";
                 var reader = await command.ExecuteReaderAsync();
@@ -347,7 +340,7 @@ namespace ITSWebMgmt.Connectors
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = $"select COMMENTS, DATE_EFFECTIVE, DESCRIPTION, TRANSACTION_DATE_ENTERED, TRANSACTION_TYPE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber} order by DATE_EFFECTIVE asc";
                 var reader = await command.ExecuteReaderAsync();

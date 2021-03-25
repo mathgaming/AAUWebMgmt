@@ -43,7 +43,7 @@ namespace ITSWebMgmt.Models
             Severeness = Severity.Error;
         }
 
-        public async override Task<bool?> HaveErrorAsync()
+        public async override Task<bool> HaveErrorAsync()
         {
             return await computer.ComputerModel.IsTrashedInØSSAsync();
         }
@@ -58,7 +58,7 @@ namespace ITSWebMgmt.Models
             Severeness = Severity.Error;
         }
 
-        public override async Task<bool?> HaveErrorAsync()
+        public override async Task<bool> HaveErrorAsync()
         {
             return computer.ComputerModel.IsTrashedInWebMgmt() && !await computer.ComputerModel.IsTrashedInØSSAsync();
         }
