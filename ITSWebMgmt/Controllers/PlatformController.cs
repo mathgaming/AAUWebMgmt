@@ -127,9 +127,9 @@ namespace ITSWebMgmt.Controllers
                     model.SetØSSAssetnumber(info.OESSAssetNumber);
                 }
 
-                (string status, string comment) = await new ØSSConnector().GetOESSStatusAsync(await model.GetØSSAssetnumberAsync());
+                (string status, string comment, string date) = await new ØSSConnector().GetOESSStatusAsync(await model.GetØSSAssetnumberAsync());
 
-                string xml = $"<?xml version=\"1.0\"?><computer><extension_attributes><extension_attribute><name>F-status</name> <value>{status}</value> </extension_attribute><extension_attribute><name>F-comment</name> <value>{comment}</value> </extension_attribute></extension_attributes></computer>";
+                string xml = $"<?xml version=\"1.0\"?><computer><extension_attributes><extension_attribute><name>F-status</name> <value>{status}</value> </extension_attribute><extension_attribute><name>F-comment</name> <value>{comment}</value> </extension_attribute><extension_attribute><name>F-date</name> <value>{date}</value> </extension_attribute></extension_attributes></computer>";
                 _ = await jc.SendUpdateReuestAsync($"computers/id/{computer.id}/subset/ExtensionAttributes", xml);
 
                 Thread.Sleep(5000);

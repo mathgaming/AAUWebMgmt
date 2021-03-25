@@ -270,27 +270,29 @@ namespace ITSWebMgmt.Connectors
             return info;
         }
 
-        public async Task<(string OESSStatus, string OESSComment)> GetOESSStatusAsync(string assetNumber)
+        public async Task<(string OESSStatus, string OESSComment, string OESSDate)> GetOESSStatusAsync(string assetNumber)
         {
             if (assetNumber.Length == 0)
             {
-                return ("", "");
+                return ("", "", "");
             }
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
                 await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
-                command.CommandText = $"select TRANSACTION_TYPE, COMMENTS from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber} order by DATE_EFFECTIVE desc fetch first 1 row only";
+                command.CommandText = $"select TRANSACTION_TYPE, COMMENTS, DATE_EFFECTIVE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber} order by DATE_EFFECTIVE desc fetch first 1 row only";
                 var reader = await command.ExecuteReaderAsync();
 
                 if(await reader.ReadAsync())
                 {
-                    return (reader["TRANSACTION_TYPE"] as string, reader["COMMENTS"] as string);
+                    (string status, string comment, var date) = (reader["TRANSACTION_TYPE"] as string, reader["COMMENTS"] as string, reader["DATE_EFFECTIVE"]);
+
+                    return (status, comment, date.ToString());
                 }
             }
 
-            return ("", "");
+            return ("", "", "");
         }
 
         public async Task<bool> IsTrashedAsync(string assetNumber)
