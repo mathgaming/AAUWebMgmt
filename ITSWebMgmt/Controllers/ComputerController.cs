@@ -66,7 +66,7 @@ namespace ITSWebMgmt.Controllers
                         {
                             ComputerModel.Windows.SetConfig();
                             ComputerModel.Windows.InitBasicInfo();
-                            LoadWindowsWarnings();
+                            await LoadWindowsWarningsAsync();
                             ComputerModel.SetTabs();
                             if (!CheckComputerOU(ComputerModel.Windows.ADPath))
                             {
@@ -82,6 +82,7 @@ namespace ITSWebMgmt.Controllers
                     else
                     {
                         ComputerModel.Mac = new MacComputerModel(ComputerModel);
+                        await ComputerModel.Mac.InitModelAsync();
 
                         string sn = computerName;
                         if (sn.Length > 0 && sn[0] != 'S' && sn[0] != 's')
@@ -97,7 +98,7 @@ namespace ITSWebMgmt.Controllers
                                 ComputerModel.SetØSSAssetnumber(info.OESSAssetNumber);
                             }
                             ComputerModel.SetTabs();
-                            LoadMacWarnings();
+                            await LoadMacWarningsAsync();
                         }
                         else
                         {
@@ -114,11 +115,12 @@ namespace ITSWebMgmt.Controllers
                                     ComputerModel.ComputerName = sn2;
                                     
                                     ComputerModel.Mac = new MacComputerModel(ComputerModel);
+                                    await ComputerModel.Mac.InitModelAsync();
                                     if (ComputerModel.Mac.ComputerFound)
                                     {
                                         ComputerModel.SetØSSAssetnumber(i.OESSAssetNumber);
                                         ComputerModel.SetTabs();
-                                        LoadMacWarnings();
+                                        await LoadMacWarningsAsync();
                                     }
                                 }
                             }
@@ -478,7 +480,7 @@ namespace ITSWebMgmt.Controllers
             return Success(computername + " have been deleted from AD. " + onedriveMessage);
         }
 
-        private void LoadWindowsWarnings()
+        private async Task LoadWindowsWarningsAsync()
         {
             List<WebMgmtError> warnings = new List<WebMgmtError>
             {
@@ -496,10 +498,10 @@ namespace ITSWebMgmt.Controllers
                 new IsHalfTrashed(this)
             };
 
-            LoadWarnings(warnings);
+            await LoadWarningsAsync(warnings);
         }
 
-        private void LoadMacWarnings()
+        private async Task LoadMacWarningsAsync()
         {
             List<WebMgmtError> warnings = new List<WebMgmtError>
             {
@@ -510,7 +512,7 @@ namespace ITSWebMgmt.Controllers
 
             warnings.AddRange(GetAllMacWarnings());
 
-            LoadWarnings(warnings);
+            await LoadWarningsAsync(warnings);
         }
 
         public IEnumerable<MacWebMgmtError> GetAllMacWarnings()
@@ -522,9 +524,10 @@ namespace ITSWebMgmt.Controllers
             }
         }
 
-        private void LoadWarnings(List<WebMgmtError> warnings)
+        private async Task LoadWarningsAsync(List<WebMgmtError> warnings)
         {
             var errorList = new WebMgmtErrorList(warnings);
+            await errorList.ProcessErrorsAsync();
             ComputerModel.ErrorCountMessage = errorList.GetErrorCountMessage();
             ComputerModel.ErrorMessages = errorList.ErrorMessages;
         }

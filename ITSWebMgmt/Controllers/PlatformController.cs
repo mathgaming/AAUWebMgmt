@@ -69,6 +69,7 @@ namespace ITSWebMgmt.Controllers
             {
                 ComputerModel model = new ComputerModel(computer.name, null);
                 model.Mac = new MacComputerModel(model, computer.id);
+                await model.Mac.InitModelAsync();
                 string number = model.Mac.ComputerName;
 
                 if (model.Mac.AssetTag != null && model.Mac.AssetTag != "")
@@ -113,6 +114,7 @@ namespace ITSWebMgmt.Controllers
             {
                 ComputerModel model = new ComputerModel(computer.name, null);
                 model.Mac = new MacComputerModel(model, computer.id);
+                await model.Mac.InitModelAsync();
 
                 string sn = model.Mac.SerialNumber;
                 if (sn.Length > 0 && sn[0] != 'S' && sn[0] != 's')

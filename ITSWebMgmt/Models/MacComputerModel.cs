@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Models
 {
@@ -28,44 +29,52 @@ namespace ITSWebMgmt.Models
         public MacComputerModel(ComputerModel baseModel, int id = -1)
         {
             BaseModel = baseModel;
+            Id = id;
+        }
 
-            if (id == -1)
+        public MacComputerModel(int id)
+        {
+            Id = id;
+        }
+
+        public MacComputerModel()
+        {
+        }
+
+        public async Task InitModelAsync()
+        {
+            if (Id == -1)
             {
-                id = Jamf.GetComputerIdByNameAsync(BaseModel.ComputerName).Result;
+                Id = await Jamf.GetComputerIdByNameAsync(BaseModel.ComputerName);
             }
 
-            if (id != -1) //Computer found
+            if (Id != -1) //Computer found
             {
                 ComputerFound = true;
-                InitViews(id);
+                await InitViewsAsync();
             }
 
             BaseModel.ComputerFound = ComputerFound;
         }
 
-        public MacComputerModel(string computerName)
+        public async Task InitModelFromComputerNameAsync(string computerName)
         {
             if (computerName[0] == 'S')
             {
                 computerName = computerName[1..];
             }
 
-            int id = Jamf.GetComputerIdByNameAsync(computerName).Result;
+            Id = await Jamf.GetComputerIdByNameAsync(computerName);
 
-            if (id != -1) //Computer found
+            if (Id != -1) //Computer found
             {
-                InitViews(id);
+                await InitViewsAsync();
             }
         }
-        public MacComputerModel(int id)
-        {
-            InitViews(id);
-        }
 
-        public async void InitViews(int id)
+        public async Task InitViewsAsync()
         {
-            Id = id;
-            var jsonString = await Jamf.GetAllComputerInformationAsJSONStringAsync(id);
+            var jsonString = await Jamf.GetAllComputerInformationAsJSONStringAsync(Id);
             JObject jsonVal = JObject.Parse(jsonString);
             ComputerName = jsonVal.SelectToken("computer.general.name").ToString();
             SerialNumber = jsonVal.SelectToken("computer.general.serial_number").ToString();

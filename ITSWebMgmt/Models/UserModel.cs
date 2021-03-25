@@ -204,7 +204,7 @@ namespace ITSWebMgmt.Models
          * It should be wiped off any harddrive that has seen the ugly underbelly of the software business. If you are not up to the task,
          * I don't blame you. It makes me ill just looking at it too.
              */
-        public void InitBasicInfo()
+        public async System.Threading.Tasks.Task InitBasicInfoAsync()
         {
             //lblbasicInfoOfficePDS
             if (AAUStaffID != null)
@@ -213,7 +213,8 @@ namespace ITSWebMgmt.Models
 
                 try
                 {
-                    var pds = new PureConnector(empID);
+                    var pds = new PureConnector();
+                    await pds.GetDataAsync(empID);
                     BasicInfoDepartmentPDS = pds.Department;
                     BasicInfoOfficePDS = pds.OfficeAddress;
                 }
@@ -283,7 +284,7 @@ namespace ITSWebMgmt.Models
             return s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase);
         }
 
-        public async void InitCalendarAgendaAsync()
+        public async System.Threading.Tasks.Task InitCalendarAgendaAsync()
         {
             CalAgendaStatus = "Free";
 
@@ -347,7 +348,7 @@ namespace ITSWebMgmt.Models
             return await service.GetUserAvailability(attendees, window, AvailabilityData.FreeBusy, myOptions);
         }
 
-        public async void InitComputerInformationAsync()
+        public async System.Threading.Tasks.Task InitComputerInformationAsync()
         {
             try
             {
@@ -486,7 +487,7 @@ namespace ITSWebMgmt.Models
             return model;
         }
 
-        public async void InitWin7to10Async()
+        public async System.Threading.Tasks.Task InitWin7to10Async()
         {
             // Should be deleted after Windows 7 is gone
             // No reason to refactor

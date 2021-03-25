@@ -64,9 +64,9 @@ namespace ITSWebMgmt.Controllers
                             UserModel.BasicInfoADFSLocked = "Error: Could not connect to Splunk";
                             HandleError(e);
                         }
-                        UserModel.InitBasicInfo();
-                        LoadWarnings();
-                        UserModel.InitCalendarAgendaAsync();
+                        await UserModel.InitBasicInfoAsync();
+                        await LoadWarningsAsync();
+                        await UserModel.InitCalendarAgendaAsync();
                         UserModel.SetTabs();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
@@ -241,7 +241,7 @@ namespace ITSWebMgmt.Controllers
             Response.Redirect("/CreateWorkItem/Win7Index?userPrincipalName=" + userPrincipalName + "&computerName=" + computerName + "&userID=" + sCSMUserID);
         }
 
-        private void LoadWarnings()
+        private async Task LoadWarningsAsync()
         {
             List<WebMgmtError> errors = new List<WebMgmtError>
             {
@@ -254,6 +254,7 @@ namespace ITSWebMgmt.Controllers
             };
 
             var errorList = new WebMgmtErrorList(errors);
+            await errorList.ProcessErrorsAsync();
             UserModel.ErrorCountMessage = errorList.GetErrorCountMessage();
             UserModel.ErrorMessages = errorList.ErrorMessages;
 
@@ -396,7 +397,7 @@ namespace ITSWebMgmt.Controllers
         {
             UserModel = await GetUserModelAsync(data);
             UserModel.ADCache.MakeCache();
-            UserModel.InitBasicInfo();
+            await UserModel.InitBasicInfoAsync();
             return Success(UserModel.BasicInfoLocked);
         }
 
@@ -413,7 +414,7 @@ namespace ITSWebMgmt.Controllers
             {
                 case "basicinfo":
                     viewName = "BasicInfo";
-                    UserModel.InitBasicInfo();
+                    await UserModel.InitBasicInfoAsync();
                     break;
                 case "groups":
                     viewName = "Groups";
@@ -428,7 +429,7 @@ namespace ITSWebMgmt.Controllers
                     model = UserModel.InitFileshares();
                     return PartialView("ExchangeFileshare", model);
                 case "calAgenda":
-                    UserModel.InitCalendarAgendaAsync();
+                    await UserModel.InitCalendarAgendaAsync();
                     return PartialView("Calendar", UserModel);
                 case "exchange":
                     model = UserModel.InitExchange();
@@ -437,18 +438,18 @@ namespace ITSWebMgmt.Controllers
                     viewName = "ServiceManager";
                     break;
                 case "computerInformation":
-                    UserModel.InitComputerInformationAsync();
+                    await UserModel.InitComputerInformationAsync();
                     return PartialView("ComputerInfo", UserModel);
                 case "win7to10":
                     viewName = "Win7to10";
-                    UserModel.InitWin7to10Async();
+                    await UserModel.InitWin7to10Async();
                     break;
                 case "print":
                     return PartialView("Print", new PrintConnector(UserModel.Guid.ToString()).GetData());
                 case "rawdata":
                     return PartialView("Rawtable", UserModel.ADCache.GetAllProperties());
                 case "netaaudk":
-                    return PartialView("TableView", UserModel.InitNetaaudkAsync());
+                    return PartialView("TableView", await UserModel.InitNetaaudkAsync());
             }
 
             return model != null ? PartialView(viewName, model) : PartialView(viewName, UserModel);

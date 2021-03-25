@@ -13,10 +13,9 @@ namespace ITSWebMgmt.WebMgmtErrors
         public WebMgmtErrorList(List<WebMgmtError> errors)
         {
             this.errors = errors;
-            _ = ProcessErrorsAsync();
         }
 
-        private async Task ProcessErrorsAsync()
+        public async Task ProcessErrorsAsync()
         {
             foreach (WebMgmtError error in errors)
             {

@@ -9,7 +9,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class CreateWorkItemController : Controller
     {
-        public IActionResult Index(string userPrincipalName, string userID, bool isfeedback = false)
+        public async Task<IActionResult> IndexAsync(string userPrincipalName, string userID, bool isfeedback = false)
         {
             CreateWorkItemModel model = new CreateWorkItemModel
             {
@@ -29,7 +29,7 @@ namespace ITSWebMgmt.Controllers
             }
 
             UserModel userModel = new UserModel(model.AffectedUser);
-            userModel.InitBasicInfo();
+            await userModel.InitBasicInfoAsync();
 
             if (!isfeedback)
             {

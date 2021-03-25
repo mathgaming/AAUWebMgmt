@@ -10,24 +10,43 @@ namespace ITSWebMgmt.Connectors
     public class PureConnector
     {
         private readonly string APIkey = Startup.Configuration["PureApiKey"];
-        private readonly string street = null;
-        private readonly string building = null;
-
-        public string Department { get; } = "";
+        private string street = null;
+        private string building = null;
+        public string Department { get; private set; } = "";
 
         public string OfficeAddress
         {
             get
             {
-                if (street != null) 
+                if (street != null)
                 {
                     if (building != null)
                         return street + " (" + building.Trim() + ")";
                     else
                         return street;
                 }
-                
+
                 return "Address not found";
+            }
+        }
+
+        public PureConnector() { }
+
+        public async Task GetDataAsync(string empID)
+        {
+            PureDataObject dataObject = await GetRequestAsync("?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.name.text.value&locale=en_GB", "/" + empID);
+
+            if (dataObject != null)
+            {
+                if (dataObject.staffOrganisationAssociations[0].organisationalUnit != null)
+                {
+                    Department = dataObject.staffOrganisationAssociations[0].organisationalUnit.name.text[0].value;
+                }
+                if (dataObject.staffOrganisationAssociations[0].addresses != null)
+                {
+                    street = dataObject.staffOrganisationAssociations[0].addresses[0].street;
+                    building = dataObject.staffOrganisationAssociations[0].addresses[0].building;
+                }
             }
         }
 
@@ -82,26 +101,6 @@ namespace ITSWebMgmt.Connectors
             }
 
             return dataObject;
-        }
-
-        public PureConnector() { }
-
-        public PureConnector(string empID)
-        {
-            PureDataObject dataObject = GetRequestAsync("?fields=staffOrganisationAssociations.addresses.street&fields=staffOrganisationAssociations.addresses.building&fields=staffOrganisationAssociations.organisationalUnit.name.text.value&locale=en_GB", "/" + empID).Result;
-
-            if (dataObject != null)
-            {
-                if (dataObject.staffOrganisationAssociations[0].organisationalUnit != null)
-                {
-                    Department = dataObject.staffOrganisationAssociations[0].organisationalUnit.name.text[0].value;
-                }
-                if (dataObject.staffOrganisationAssociations[0].addresses != null)
-                {
-                    street = dataObject.staffOrganisationAssociations[0].addresses[0].street;
-                    building = dataObject.staffOrganisationAssociations[0].addresses[0].building;
-                }
-            }
         }
     }
 

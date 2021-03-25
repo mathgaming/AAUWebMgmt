@@ -50,7 +50,8 @@ namespace ITSWebMgmt
             }
             else
             {
-                app.UseExceptionHandler("/Error/Error");
+                app.UseDeveloperExceptionPage();
+                //app.UseExceptionHandler("/Error/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -74,9 +75,9 @@ namespace ITSWebMgmt
             });
 
             // Continue on list if stopped when new version is published
-            ThreadPool.QueueUserWorkItem(_ =>
+            ThreadPool.QueueUserWorkItem(async _ =>
             {
-                ComputerListModel.ContinueIfStopped();
+                await ComputerListModel.ContinueIfStoppedAsync();
             }, null);
         }
     }

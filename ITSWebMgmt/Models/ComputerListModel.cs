@@ -23,12 +23,16 @@ namespace ITSWebMgmt.Helpers
 
         public ComputerListModel()
         {
+        }
+
+        public async Task CreateListAsync()
+        {
             if (!Running)
             {
                 try
                 {
                     Running = true;
-                    jamfDictionary = new JamfConnector().GetJamfDictionaryAsync(true).Result;
+                    jamfDictionary = await new JamfConnector().GetJamfDictionaryAsync(true);
                     _ = MakeListAsync();
                     CombineLists();
                     string stats = GetStats();
@@ -203,7 +207,7 @@ namespace ITSWebMgmt.Helpers
             $"Brugere på OneDrive men med Windows-computer ikke på OneDrive: {missingOnedrive}\n";
         }
 
-        public static void ContinueIfStopped()
+        public static async Task ContinueIfStoppedAsync()
         {
             if (File.Exists(emailFilename))
             {
@@ -227,7 +231,8 @@ namespace ITSWebMgmt.Helpers
                 }
                 file.Close();
 
-                _ = new ComputerListModel();
+                var model = new ComputerListModel();
+                await model.CreateListAsync();
             }
         }
 
@@ -433,7 +438,8 @@ namespace ITSWebMgmt.Helpers
                 List<int> ids = new List<int>();
                 foreach (var computerName in await jamf.GetComputerNamesForUserAsync(email))
                 {
-                    MacComputerModel macComputer = new MacComputerModel(computerName);
+                    MacComputerModel macComputer = new MacComputerModel();
+                    await macComputer.InitModelFromComputerNameAsync(computerName);
                     computerInfo.Add(GetMacLine(macComputer));
                     ids.Add(macComputer.Id);
                 }
@@ -443,6 +449,7 @@ namespace ITSWebMgmt.Helpers
                     foreach (var id in jamfDictionary[email].Except(ids))
                     {
                         MacComputerModel macComputer = new MacComputerModel(id);
+                        await macComputer.InitViewsAsync();
                         computerInfo.Add(GetMacLine(macComputer));
                     }
                 }

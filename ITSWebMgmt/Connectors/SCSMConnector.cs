@@ -13,11 +13,9 @@ namespace ITSWebMgmt.Connectors
         private const string webserviceURL = "https://service.aau.dk";
         public string userID = "";
         private static readonly string idForConvertedToSR = "d283d1f2-5660-d28e-f0a3-225f621394a9";
-        private readonly string authkey;
 
         public SCSMConnector()
         {
-            authkey = GetAuthKeyAsync().Result;
         }
 
         protected async Task<string> GetAuthKeyAsync()
@@ -66,7 +64,7 @@ namespace ITSWebMgmt.Connectors
         {
             WebRequest request = WebRequest.Create(webserviceURL + "/api/V3/WorkItem/GetGridWorkItemsMyRequests?userid=" + uuid + "&showInactiveItems=true");
             request.Method = "Get";
-            request.Headers.Add("Authorization", "Token " + authkey);
+            request.Headers.Add("Authorization", "Token " + await GetAuthKeyAsync());
             request.ContentType = "application/json; text/json";
 
             var response = await request.GetResponseAsync();
@@ -89,7 +87,7 @@ namespace ITSWebMgmt.Connectors
             request.Method = "Get";
             request.ContentType = "text/json";
             request.ContentType = "application/json; charset=utf-8";
-            request.Headers.Add("Authorization", "Token " + authkey);
+            request.Headers.Add("Authorization", "Token " + await GetAuthKeyAsync());
 
             var response = await request.GetResponseAsync();
             var responseSteam = response.GetResponseStream();
