@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Helpers
 {
@@ -22,13 +23,17 @@ namespace ITSWebMgmt.Helpers
 
         public ComputerListModel()
         {
+        }
+
+        public async Task CreateListAsync()
+        {
             if (!Running)
             {
                 try
                 {
                     Running = true;
-                    jamfDictionary = new JamfConnector().GetJamfDictionary(true);
-                    MakeList();
+                    jamfDictionary = await new JamfConnector().GetJamfDictionaryAsync(true);
+                    _ = MakeListAsync();
                     CombineLists();
                     string stats = GetStats();
                     foreach (var e in emails)
@@ -202,7 +207,7 @@ namespace ITSWebMgmt.Helpers
             $"Brugere på OneDrive men med Windows-computer ikke på OneDrive: {missingOnedrive}\n";
         }
 
-        public static void ContinueIfStopped()
+        public static async Task ContinueIfStoppedAsync()
         {
             if (File.Exists(emailFilename))
             {
@@ -226,7 +231,8 @@ namespace ITSWebMgmt.Helpers
                 }
                 file.Close();
 
-                new ComputerListModel();
+                var model = new ComputerListModel();
+                await model.CreateListAsync();
             }
         }
 
@@ -305,7 +311,7 @@ namespace ITSWebMgmt.Helpers
             return batches;
         }
 
-        public void MakeList()
+        public async Task MakeListAsync()
         {
             List<List<string>> batches = new List<List<string>>();
 
@@ -363,7 +369,7 @@ namespace ITSWebMgmt.Helpers
 
             foreach (var b in batches)
             {
-                RunBatch(b, batchNumber);
+                await RunBatchAsync(b, batchNumber);
                 batchNumber++;
             }
         }
@@ -423,16 +429,17 @@ namespace ITSWebMgmt.Helpers
             return computerInfo;
         }
 
-        private List<string> GetMacInformation(string upn)
+        private async Task<List<string>> GetMacInformationAsync(string upn)
         {
             List<string> computerInfo = new List<string>();
             JamfConnector jamf = new JamfConnector();
             foreach (var email in new UserModel(upn, false).GetUserMails())
             {
                 List<int> ids = new List<int>();
-                foreach (var computerName in jamf.GetComputerNamesForUser(email))
+                foreach (var computerName in await jamf.GetComputerNamesForUserAsync(email))
                 {
-                    MacComputerModel macComputer = new MacComputerModel(computerName);
+                    MacComputerModel macComputer = new MacComputerModel();
+                    await macComputer.InitModelFromComputerNameAsync(computerName);
                     computerInfo.Add(GetMacLine(macComputer));
                     ids.Add(macComputer.Id);
                 }
@@ -442,6 +449,7 @@ namespace ITSWebMgmt.Helpers
                     foreach (var id in jamfDictionary[email].Except(ids))
                     {
                         MacComputerModel macComputer = new MacComputerModel(id);
+                        await macComputer.InitViewsAsync();
                         computerInfo.Add(GetMacLine(macComputer));
                     }
                 }
@@ -469,7 +477,7 @@ namespace ITSWebMgmt.Helpers
             return $"{computerName};mac;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser};{DateTimeConverter.Convert(DateTime.Now)};";
         }
 
-        public List<string> LookupUser(string ADPath)
+        public async Task<List<string>> LookupUserAsync(string ADPath)
         {
             List<string> lines = new List<string>();
             try
@@ -486,7 +494,7 @@ namespace ITSWebMgmt.Helpers
                     List<string> computerInfo = new List<string>();
 
                     computerInfo.AddRange(GetWindowsInformation(model, formattedName));
-                    computerInfo.AddRange(GetMacInformation(upn));
+                    computerInfo.AddRange(await GetMacInformationAsync(upn));
 
                     string staff = "Other";
                     if (ADPath.Contains("Staff"))
@@ -520,7 +528,7 @@ namespace ITSWebMgmt.Helpers
             return lines;
         }
 
-        public void RunBatch(List<string> ADPaths, int batch)
+        public async Task RunBatchAsync(List<string> ADPaths, int batch)
         {
             string batchFilename = $"{path}computer-list-{batch}.txt";
             if (!File.Exists(batchFilename))
@@ -528,7 +536,7 @@ namespace ITSWebMgmt.Helpers
                 using StreamWriter file = new StreamWriter(batchFilename);
                 foreach (var ADPath in ADPaths)
                 {
-                    List<string> lines = LookupUser(ADPath);
+                    List<string> lines = await LookupUserAsync(ADPath);
 
                     foreach (var line in lines)
                     {

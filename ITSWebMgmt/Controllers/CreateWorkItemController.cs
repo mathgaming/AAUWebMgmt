@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Helpers;
 using ITSWebMgmt.Models;
@@ -8,7 +9,7 @@ namespace ITSWebMgmt.Controllers
 {
     public class CreateWorkItemController : Controller
     {
-        public IActionResult Index(string userPrincipalName, string userID, bool isfeedback = false)
+        public async Task<IActionResult> IndexAsync(string userPrincipalName, string userID, bool isfeedback = false)
         {
             CreateWorkItemModel model = new CreateWorkItemModel
             {
@@ -28,7 +29,7 @@ namespace ITSWebMgmt.Controllers
             }
 
             UserModel userModel = new UserModel(model.AffectedUser);
-            userModel.InitBasicInfo();
+            await userModel.InitBasicInfoAsync();
 
             if (!isfeedback)
             {
@@ -52,19 +53,19 @@ namespace ITSWebMgmt.Controllers
 
             return View(model);
         }
-        public IActionResult Win7Index (string userPrincipalName, string computerName, string userID)
+        public IActionResult Win7Index(string userPrincipalName, string computerName, string userID)
         {
             //Special case of returning predefined form for upgrading windows 7 pc's
             return CreateWindows7UpgradeForm(userPrincipalName, computerName, userID);
         }
 
-        protected string FormatWorkItemToJson(CreateWorkItemModel model)
+        protected async Task<string> FormatWorkItemToJsonAsync(CreateWorkItemModel model)
         {
             if (model.UserID == null)
             {
                 SCSMConnector sccm = new SCSMConnector();
 
-                _ = sccm.GetServiceManager(model.AffectedUser, new List<string>{model.AffectedUser}).Result;
+                _ = await sccm.GetServiceManagerAsync(model.AffectedUser, new List<string>{model.AffectedUser});
 
                 model.UserID = sccm.userID;
             }
@@ -87,7 +88,7 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        protected ActionResult CreateWindows7UpgradeForm(string computerOwner, string affectedComputerName, string userID)
+        protected IActionResult CreateWindows7UpgradeForm(string computerOwner, string affectedComputerName, string userID)
         {
             CreateWorkItemModel newUpgradeForm = new CreateWorkItemModel
             {
@@ -96,40 +97,40 @@ namespace ITSWebMgmt.Controllers
                 Description = "PC-navn: " + affectedComputerName,
                 UserID = userID
             };
-            return CreateSR(newUpgradeForm);
+            return (IActionResult)CreateSR(newUpgradeForm);
         }
         
-        private ActionResult CreateItemInServiceManager(string url, CreateWorkItemModel model)
+        private async Task<IActionResult> CreateItemInServiceManagerAsync(string url, CreateWorkItemModel model)
         {
-            return View("RedirectView", new WorkItemRedirectModel(url, FormatWorkItemToJson(model)));
+            return View("RedirectView", new WorkItemRedirectModel(url, await FormatWorkItemToJsonAsync(model)));
         }
 
         [HttpPost]
-        public ActionResult CreateIR(CreateWorkItemModel workitem)
+        public async Task<IActionResult> CreateIR(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = false;
-            return CreateItemInServiceManager("https://service.aau.dk/Incident/New/", workitem);
+            return await CreateItemInServiceManagerAsync("https://service.aau.dk/Incident/New/", workitem);
         }
         [HttpPost]
-        public ActionResult CreateSR(CreateWorkItemModel workitem)
+        public async Task<IActionResult> CreateSR(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = false;
-            return CreateItemInServiceManager("https://service.aau.dk/ServiceRequest/New/", workitem);
+            return await CreateItemInServiceManagerAsync("https://service.aau.dk/ServiceRequest/New/", workitem);
         }
 
         [HttpPost]
-        public ActionResult ReportIssue(CreateWorkItemModel workitem)
+        public async Task<IActionResult> ReportIssue(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = true;
             SendEmail(workitem, "isssue reported");
-            return CreateItemInServiceManager("https://service.aau.dk/Incident/New/", workitem);
+            return await CreateItemInServiceManagerAsync("https://service.aau.dk/Incident/New/", workitem);
         }
         [HttpPost]
-        public ActionResult RequestNewFeature(CreateWorkItemModel workitem)
+        public async Task<IActionResult> RequestNewFeature(CreateWorkItemModel workitem)
         {
             workitem.IsFeedback = true;
             SendEmail(workitem, "feature requested");
-            return CreateItemInServiceManager("https://service.aau.dk/ServiceRequest/New/", workitem);
+            return await CreateItemInServiceManagerAsync("https://service.aau.dk/ServiceRequest/New/", workitem);
         }
 
         private void SendEmail(CreateWorkItemModel workitem, string type)

@@ -18,11 +18,11 @@ namespace ITSWebMgmt.Controllers
         {
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             var jamf = new JamfConnector();
-            var response = jamf.SendGetReuest("advancedcomputersearches", "").Content;
-            var list = response.ReadAsAsync<AdvancedComputerSearchList>().Result;
+            var response = (await jamf.SendGetReuestAsync("advancedcomputersearches", "")).Content;
+            var list = await response.ReadAsAsync<AdvancedComputerSearchList>();
 
             return View(list);
         }
@@ -48,11 +48,11 @@ namespace ITSWebMgmt.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetEmailList([FromBody]int? id)
+        public async Task<IActionResult> GetEmailList([FromBody]int? id)
         {
             var jamf = new JamfConnector();
 
-            var res = jamf.SendGetReuest("advancedcomputersearches/id/" + id, "").Content.ReadAsAsync<AdvancedComputerSearchResult>().Result.advanced_computer_search;
+            var res = (await (await jamf.SendGetReuestAsync("advancedcomputersearches/id/" + id, "")).Content.ReadAsAsync<AdvancedComputerSearchResult>()).advanced_computer_search;
             var computers = res.computers;
 
             StringBuilder sb = new StringBuilder();

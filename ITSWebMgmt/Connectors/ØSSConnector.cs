@@ -30,20 +30,20 @@ namespace ITSWebMgmt.Connectors
             credential = new OracleCredential(user, s);
         }
 
-        public ØSSTableModel LookUpByAAUNumber(string id)
+        public async Task<ØSSTableModel> LookUpByAAUNumberAsync(string id)
         {
-            string assetNumber = GetAssetNumberFromTagNumber(id);
-            return GetØssTable(assetNumber);
+            string assetNumber = await GetAssetNumberFromTagNumberAsync(id);
+            return await GetØssTableAsync(assetNumber);
         }
-        public List<string> LookUpByEmployeeID(string id)
+        public async Task<List<string>> LookUpByEmployeeIDAsync(string id)
         {
-            List<string> assetNumbers = GetAssetNumbersFromEmployeeID(id);
+            List<string> assetNumbers = await GetAssetNumbersFromEmployeeIDAsync(id);
             List<string> tagNumbers = new List<string>();
             foreach (var assetNumber in assetNumbers)
             {
                 try
                 {
-                    tagNumbers.Add("AAU" + GetØSSInfo(assetNumber).TagNumber);
+                    tagNumbers.Add("AAU" + (await GetØSSInfoAsync(assetNumber)).TagNumber);
                 }
                 catch (Exception e)
                 {
@@ -54,18 +54,18 @@ namespace ITSWebMgmt.Connectors
             return tagNumbers;
         }
 
-        public string RunQuery(string query, string outputKeyName)
+        public async Task<string> RunQueryAsync(string query, string outputKeyName)
         {
             string output = "";
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = query;
-                OracleDataReader reader = command.ExecuteReader();
+                var reader = await command.ExecuteReaderAsync();
 
-                if (reader.Read())
+                if (await reader.ReadAsync())
                 {
                     output = reader[outputKeyName] as string;
                 }
@@ -73,20 +73,18 @@ namespace ITSWebMgmt.Connectors
             return output;
         }
 
-        public List<string> RunQueryMoreResults(string query, string outputKeyName)
+        public async Task<List<string>> RunQueryMoreResultsAsync(string query, string outputKeyName)
         {
             List<string> output = new List<string>();
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = query;
-                OracleDataReader reader = command.ExecuteReader();
+                var reader = await command.ExecuteReaderAsync();
 
-
-
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     output.Add(reader[outputKeyName] as string);
                 }
@@ -95,30 +93,30 @@ namespace ITSWebMgmt.Connectors
             return output;
         }
 
-        public List<string> GetAssetNumbersFromEmployeeID(string id)
+        public async Task<List<string>> GetAssetNumbersFromEmployeeIDAsync(string id)
         {
             string query = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where EMPLOYEE_NUMBER like '{ id }'";
-            return RunQueryMoreResults(query, "ASSET_NUMBER");
+            return await RunQueryMoreResultsAsync(query, "ASSET_NUMBER");
         }
 
-        public string GetAssetNumberFromTagNumber(string tagNumber)
+        public async Task<string> GetAssetNumberFromTagNumberAsync(string tagNumber)
         {
             if (tagNumber.Length <= 3)
             {
                 return "";
             }
-            tagNumber = tagNumber.Substring(3);
+            tagNumber = tagNumber[3..];
             string query = $"select ASSET_NUMBER from FA_ADDITIONS_V where TAG_NUMBER like '{ tagNumber }'";
-            return RunQuery(query, "ASSET_NUMBER");
+            return await RunQueryAsync(query, "ASSET_NUMBER");
         }
 
-        public string GetTagNumberFromAssetNumber(string asssetNumber)
+        public async Task<string> GetTagNumberFromAssetNumberAsync(string asssetNumber)
         {
             string query = $"select TAG_NUMBER from FA_ADDITIONS_V where ASSET_NUMBER like '{ asssetNumber }'";
-            return RunQuery(query, "TAG_NUMBER");
+            return await RunQueryAsync(query, "TAG_NUMBER");
         }
 
-        public List<string> GetAssetNumbersFromInvoiceNumber(string number)
+        public async Task<List<string>> GetAssetNumbersFromInvoiceNumberAsync(string number)
         {
             string query = $"select Distinct (ASSET_ID) from FA_ASSET_INVOICES_V where INVOICE_NUMBER like '{ number }'";
 
@@ -126,12 +124,12 @@ namespace ITSWebMgmt.Connectors
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = query;
-                OracleDataReader reader = command.ExecuteReader();
+                var reader = await command.ExecuteReaderAsync();
 
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     output.Add((reader["ASSET_ID"] as long?).ToString());
                 }
@@ -139,18 +137,18 @@ namespace ITSWebMgmt.Connectors
             return output;
         }
 
-        public string GetAssetNumberFromInvoiceNumber(string number)
+        public async Task<string> GetAssetNumberFromInvoiceNumberAsync(string number)
         {
-            return GetAssetNumbersFromInvoiceNumber(number)[0];
+            return (await GetAssetNumbersFromInvoiceNumberAsync(number))[0];
         }
 
-        public string GetKeyFromSerialNumber(string query, string serialNumber, string outputKeyName, bool tryAgain = true)
+        public async Task<string> GetKeyFromSerialNumberAsync(string query, string serialNumber, string outputKeyName, bool tryAgain = true)
         {
             if (!tryAgain)
             {
                 if (serialNumber[0] == 'S')
                 {
-                    serialNumber = serialNumber.Substring(1);
+                    serialNumber = serialNumber[1..];
                 }
                 else
                 {
@@ -159,31 +157,31 @@ namespace ITSWebMgmt.Connectors
             }
 
             string actualQuery = query + $" '{ serialNumber }'";
-            string assetNumber = RunQuery(actualQuery, outputKeyName);
+            string assetNumber = await RunQueryAsync(actualQuery, outputKeyName);
 
             if (assetNumber == "" && tryAgain)
             {
-                return GetKeyFromSerialNumber(query, serialNumber, outputKeyName, false);
+                return await GetKeyFromSerialNumberAsync(query, serialNumber, outputKeyName, false);
             }
 
             return assetNumber;
         }
 
-        public string GetAssetNumberFromSerialNumber(string serialNumber)
+        public async Task<string> GetAssetNumberFromSerialNumberAsync(string serialNumber)
         {
             string query = $"select ASSET_NUMBER from FA_ASSET_DISTRIBUTION_V where SERIAL_NUMBER like";
-            return GetKeyFromSerialNumber(query, serialNumber, "ASSET_NUMBER");
+            return await GetKeyFromSerialNumberAsync(query, serialNumber, "ASSET_NUMBER");
         }
 
-        public string GetSegmentFromAssetNumber(string assetNumber)
+        public async Task<string> GetSegmentFromAssetNumberAsync(string assetNumber)
         {
             string query = $"select SEGMENT1 from FA_ADDITIONS_V "+
                             "join FA_ASSET_KEYWORDS on FA_ADDITIONS_V.ASSET_KEY_CCID = FA_ASSET_KEYWORDS.ASSET_KEY_CCID "+
                             $"where ASSET_NUMBER like '{ assetNumber }'";
-            return RunQuery(query, "SEGMENT1");
+            return await RunQueryAsync(query, "SEGMENT1");
         }
 
-        public (string email, string first_name, string last_name) GetResponsiblePerson(string segment)
+        public async Task<(string email, string first_name, string last_name)> GetResponsiblePersonAsync(string segment)
         {
             if (segment.Length == 0)
             {
@@ -192,16 +190,16 @@ namespace ITSWebMgmt.Connectors
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = "select EMAIL, FORNAVN, EFTERNAVN from PER_PERSON_ANALYSES " +
                                         "join PER_ANALYSIS_CRITERIA_KFV on PER_PERSON_ANALYSES.ANALYSIS_CRITERIA_ID = PER_ANALYSIS_CRITERIA_KFV.ANALYSIS_CRITERIA_ID " +
                                         "join AAU_HR_PERSON_IMPORT on AAU_HR_PERSON_IMPORT.PERSON_ID = PER_PERSON_ANALYSES.PERSON_ID " +
                                         $"where TIL_DATO IS NULL and PER_ANALYSIS_CRITERIA_KFV.SEGMENT1 <= '{segment}' and PER_ANALYSIS_CRITERIA_KFV.SEGMENT2 >= '{segment}'";
 
-                OracleDataReader reader = command.ExecuteReader();
+                var reader = await command.ExecuteReaderAsync();
 
-                if (reader.Read())
+                if (await reader.ReadAsync())
                 {
                     string email = reader["EMAIL"] as string;
                     string first_name = reader["FORNAVN"] as string;
@@ -214,7 +212,7 @@ namespace ITSWebMgmt.Connectors
             return ("", "", "");
         }
 
-        public TableModel GetResponsiblePersonTable(string segment)
+        public async Task<TableModel> GetResponsiblePersonTableAsync(string segment)
         {
             TableModel table = new TableModel("No information found from ØSS", "Equipment manager");
             if (segment.Length == 0)
@@ -222,7 +220,7 @@ namespace ITSWebMgmt.Connectors
                 return table;
             }
 
-            (string email, string first_name, string last_name) = GetResponsiblePerson(segment);
+            (string email, string first_name, string last_name) = await GetResponsiblePersonAsync(segment);
 
 
             if (email.Length != 0)
@@ -234,7 +232,7 @@ namespace ITSWebMgmt.Connectors
             return table;
         }
 
-        public ØSSInfo GetØSSInfo(string assetNumber)
+        public async Task<ØSSInfo> GetØSSInfoAsync(string assetNumber)
         {
             if (assetNumber.Length == 0)
             {
@@ -244,12 +242,12 @@ namespace ITSWebMgmt.Connectors
             ØSSInfo info = new ØSSInfo();
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = $"select IN_USE_FLAG, MANUFACTURER_NAME, MODEL_NUMBER, TAG_NUMBER from FA_ADDITIONS_V where ASSET_NUMBER like {assetNumber}";
-                OracleDataReader reader = command.ExecuteReader();
+                var reader = await command.ExecuteReaderAsync();
 
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     info.InUseFlag = reader["In_USE_FLAG"] as string;
                     info.Manufacturer = reader["MANUFACTURER_NAME"] as string;
@@ -258,9 +256,9 @@ namespace ITSWebMgmt.Connectors
                 }
 
                 command.CommandText = $"select EMPLOYEE_NAME, EMPLOYEE_NUMBER, SERIAL_NUMBER, STATE from FA_ASSET_DISTRIBUTION_V where ASSET_NUMBER like {assetNumber}";
-                reader = command.ExecuteReader();
+                reader = await command.ExecuteReaderAsync();
 
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     info.EmployeeName = reader["EMPLOYEE_NAME"] as string;
                     info.EmployeeNumber = reader["EMPLOYEE_NUMBER"] as string;
@@ -272,30 +270,32 @@ namespace ITSWebMgmt.Connectors
             return info;
         }
 
-        public (string OESSStatus, string OESSComment) GetOESSStatus(string assetNumber)
+        public async Task<(string OESSStatus, string OESSComment, string OESSDate)> GetOESSStatusAsync(string assetNumber)
         {
             if (assetNumber.Length == 0)
             {
-                return ("", "");
+                return ("", "", "");
             }
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
-                command.CommandText = $"select TRANSACTION_TYPE, COMMENTS from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber} order by DATE_EFFECTIVE desc fetch first 1 row only";
-                OracleDataReader reader = command.ExecuteReader();
+                command.CommandText = $"select TRANSACTION_TYPE, COMMENTS, DATE_EFFECTIVE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber} order by DATE_EFFECTIVE desc fetch first 1 row only";
+                var reader = await command.ExecuteReaderAsync();
 
-                if(reader.Read())
+                if(await reader.ReadAsync())
                 {
-                    return (reader["TRANSACTION_TYPE"] as string, reader["COMMENTS"] as string);
+                    (string status, string comment, var date) = (reader["TRANSACTION_TYPE"] as string, reader["COMMENTS"] as string, reader["DATE_EFFECTIVE"]);
+
+                    return (status, comment, date.ToString());
                 }
             }
 
-            return ("", "");
+            return ("", "", "");
         }
 
-        public bool IsTrashed(string assetNumber)
+        public async Task<bool> IsTrashedAsync(string assetNumber)
         {
             bool isTrashed = false;
 
@@ -306,12 +306,12 @@ namespace ITSWebMgmt.Connectors
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = $"select TRANSACTION_TYPE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber}";
-                OracleDataReader reader = command.ExecuteReader();
+                var reader = await command.ExecuteReaderAsync();
 
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     if (reader["TRANSACTION_TYPE"] as string == "Fuldstændig afgang")
                     {
@@ -324,7 +324,7 @@ namespace ITSWebMgmt.Connectors
             return isTrashed;
         }
 
-        public ØSSTableModel GetØssTable(string assetNumber)
+        public async Task<ØSSTableModel> GetØssTableAsync(string assetNumber)
         {
             ØSSTableModel tabels = new ØSSTableModel();
             string infoHeading = "ØSS info";
@@ -338,23 +338,25 @@ namespace ITSWebMgmt.Connectors
             }
 
             List<ØSSLine> lines = new List<ØSSLine>();
-            ØSSInfo info = GetØSSInfo(assetNumber);
+            ØSSInfo info = await GetØSSInfoAsync(assetNumber);
 
             using (OracleConnection conn = new OracleConnection(connectionString, credential))
             {
-                conn.Open();
+                await conn.OpenAsync();
                 OracleCommand command = conn.CreateCommand();
                 command.CommandText = $"select COMMENTS, DATE_EFFECTIVE, DESCRIPTION, TRANSACTION_DATE_ENTERED, TRANSACTION_TYPE from FA_TRANSACTION_HISTORY_TRX_V where ASSET_NUMBER like {assetNumber} order by DATE_EFFECTIVE asc";
-                OracleDataReader reader = command.ExecuteReader();
+                var reader = await command.ExecuteReaderAsync();
 
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
-                    ØSSLine line = new ØSSLine();
-                    line.Comment = reader["COMMENTS"] as string;
-                    line.DateEffective = reader["DATE_EFFECTIVE"] as DateTime?;
-                    line.Description = reader["DESCRIPTION"] as string;
-                    line.TransactionDateEntered = reader["TRANSACTION_DATE_ENTERED"] as DateTime?;
-                    line.TransactionType = reader["TRANSACTION_TYPE"] as string;
+                    ØSSLine line = new ØSSLine
+                    {
+                        Comment = reader["COMMENTS"] as string,
+                        DateEffective = reader["DATE_EFFECTIVE"] as DateTime?,
+                        Description = reader["DESCRIPTION"] as string,
+                        TransactionDateEntered = reader["TRANSACTION_DATE_ENTERED"] as DateTime?,
+                        TransactionType = reader["TRANSACTION_TYPE"] as string
+                    };
 
                     lines.Add(line);
                 }

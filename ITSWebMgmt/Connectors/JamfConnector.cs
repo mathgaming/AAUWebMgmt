@@ -8,6 +8,7 @@ using ITSWebMgmt.Helpers;
 using Newtonsoft.Json.Linq;
 using System.Text.Json;
 using ITSWebMgmt.Models;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Connectors
 {
@@ -25,7 +26,7 @@ namespace ITSWebMgmt.Connectors
             Auth = "Basic " + base64encodedusernpass;
         }
 
-        public HttpResponseMessage SendGetReuest(string url, string urlParameters)
+        public async Task<HttpResponseMessage> SendGetReuestAsync(string url, string urlParameters)
         {
             url = "https://aaudk.jamfcloud.com/JSSResource/" + url;
             HttpClient client = new HttpClient
@@ -34,26 +35,26 @@ namespace ITSWebMgmt.Connectors
             };
             client.DefaultRequestHeaders.Add("Authorization", Auth);
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = client.GetAsync(urlParameters).Result;
+            HttpResponseMessage response = await client.GetAsync(urlParameters);
             client.Dispose();
 
             return response;
         }
 
-        public string GetAllComputerInformationAsJSONString(int id)
+        public async Task<string> GetAllComputerInformationAsJSONStringAsync(int id)
         { 
-            return SendGetReuest("computers/id/" + id, "?fiels=computer.general").Content.ReadAsStringAsync().Result;
+            return await (await SendGetReuestAsync("computers/id/" + id, "?fiels=computer.general")).Content.ReadAsStringAsync();
         }
 
-        public List<string> GetComputerNamesForUser(string user)
+        public async Task<List<string>> GetComputerNamesForUserAsync(string user)
         {
-            HttpResponseMessage response = SendGetReuest("computers/match/" + user, "");
+            HttpResponseMessage response = await SendGetReuestAsync("computers/match/" + user, "");
             List<string> computerNames = new List<string>();
 
             if (response.IsSuccessStatusCode)
             {
                 response.Content.Headers.ContentType.MediaType = "application/json";
-                ComputerList computers = response.Content.ReadAsAsync<ComputerList>().Result;
+                ComputerList computers = await response.Content.ReadAsAsync<ComputerList>();
                 foreach (Computer computer in computers.computers)
                 {
                     computerNames.Add(computer.asset_tag);
@@ -63,24 +64,24 @@ namespace ITSWebMgmt.Connectors
             return computerNames;
         }
 
-        public List<string> GetComputerNamesForUserWith1X(string user)
+        public async Task<List<string>> GetComputerNamesForUserWith1XAsync(string user)
         {
-            List<string> computerNames = GetComputerNamesForUser(user);
+            List<string> computerNames = await GetComputerNamesForUserAsync(user);
             if (JamfDictionary == null)
             {
-                GetJamfDictionary();
+                _ = await GetJamfDictionaryAsync();
             }
 
             if (JamfDictionary.ContainsKey(user))
             {
                 foreach (var id in JamfDictionary[user])
                 {
-                    HttpResponseMessage response = SendGetReuest($"computers/id/{id}/subset/General", "");
+                    HttpResponseMessage response = await SendGetReuestAsync($"computers/id/{id}/subset/General", "");
 
                     if (response.IsSuccessStatusCode)
                     {
                         response.Content.Headers.ContentType.MediaType = "application/json";
-                        var result = response.Content.ReadAsAsync<JObject>().Result;
+                        var result = await response.Content.ReadAsAsync<JObject>();
                         computerNames.Add(result.SelectToken("computer.general.name").ToString());
                     }
                 }
@@ -89,14 +90,14 @@ namespace ITSWebMgmt.Connectors
             return computerNames.Distinct().ToList();
         }
 
-        public int GetComputerIdByName(string name)
+        public async Task<int> GetComputerIdByNameAsync(string name)
         {
-            HttpResponseMessage response = SendGetReuest("computers/match/" + name, "");
+            HttpResponseMessage response = await SendGetReuestAsync("computers/match/" + name, "");
 
             if (response.IsSuccessStatusCode)
             {
                 response.Content.Headers.ContentType.MediaType = "application/json";
-                ComputerList computers = response.Content.ReadAsAsync<ComputerList>().Result;
+                ComputerList computers = await response.Content.ReadAsAsync<ComputerList>();
                 if (computers.computers.Count != 0)
                 {
                     return computers.computers[0].id;
@@ -106,31 +107,31 @@ namespace ITSWebMgmt.Connectors
             return -1;
         }
 
-        public List<Computer> GetAllComputers()
+        public async Task<List<Computer>> GetAllComputersAsync()
         {
-            HttpResponseMessage response = SendGetReuest("computers", "");
+            HttpResponseMessage response = await SendGetReuestAsync("computers", "");
 
             if (response.IsSuccessStatusCode)
             {
                 response.Content.Headers.ContentType.MediaType = "application/json";
-                return response.Content.ReadAsAsync<ComputerList>().Result.computers;
+                return (await response.Content.ReadAsAsync<ComputerList>()).computers;
             }
 
             return null;
         }
 
-        public Dictionary<string, List<int>> Get1xDictionaty()
+        public async Task<Dictionary<string, List<int>>> Get1xDictionatyAsync()
         {
             var d = new Dictionary<string, List<int>>();
 
-            foreach (var computer in GetAllComputers())
+            foreach (var computer in await GetAllComputersAsync())
             {
-                HttpResponseMessage response = SendGetReuest($"computers/id/{computer.id}/subset/ExtensionAttributes", "");
+                HttpResponseMessage response = await SendGetReuestAsync($"computers/id/{computer.id}/subset/ExtensionAttributes", "");
 
                 if (response.IsSuccessStatusCode)
                 {
                     response.Content.Headers.ContentType.MediaType = "application/json";
-                    var result = response.Content.ReadAsAsync<JObject>().Result.First.First.First.First;
+                    var result = (await response.Content.ReadAsAsync<JObject>()).First.First.First.First;
 
                     string aau1x = "";
 
@@ -159,7 +160,7 @@ namespace ITSWebMgmt.Connectors
             return d;
         }
 
-        public HttpResponseMessage SendUpdateReuest(string url, string value)
+        public async Task<HttpResponseMessage> SendUpdateReuestAsync(string url, string value)
         {
             url = "https://aaudk.jamfcloud.com/JSSResource/" + url;
             HttpClient client = new HttpClient
@@ -173,7 +174,7 @@ namespace ITSWebMgmt.Connectors
 
             HttpContent content = new ByteArrayContent(bytes);
 
-            HttpResponseMessage response = client.PutAsync("", content).Result;
+            HttpResponseMessage response = await client.PutAsync("", content);
             client.Dispose();
 
             return response;
@@ -193,16 +194,16 @@ namespace ITSWebMgmt.Connectors
         }
 #pragma warning restore IDE1006 // Naming Styles
 
-        public Dictionary<string, List<int>> GetJamfDictionary(bool updateCache = false)
+        public async Task<Dictionary<string, List<int>>> GetJamfDictionaryAsync(bool updateCache = false)
         {
             string filename = @"jamf-aau1x.bin";
             if (File.Exists(filename) && !(updateCache && File.GetLastWriteTime(filename) > DateTime.Now.AddDays(-7)))
             {
-                JamfDictionary = ReadDictionary(filename);
+                JamfDictionary = await ReadDictionaryAsync(filename);
             }
             else
             {
-                JamfDictionary = Get1xDictionaty();
+                JamfDictionary = await Get1xDictionatyAsync();
                 SaveDictionary(JamfDictionary, filename);
             }
 
@@ -217,11 +218,11 @@ namespace ITSWebMgmt.Connectors
             }
         }
 
-        private Dictionary<string, List<int>> ReadDictionary(string path)
+        private async Task<Dictionary<string, List<int>>> ReadDictionaryAsync(string path)
         {
             using (StreamReader file = new StreamReader(path, true))
             {
-                string input = file.ReadToEnd();
+                string input = await file.ReadToEndAsync();
                 return JsonSerializer.Deserialize<Dictionary<string, List<int>>>(input);
             }
         }

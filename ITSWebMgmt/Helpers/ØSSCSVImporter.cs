@@ -66,7 +66,7 @@ namespace ITSWebMgmt.Helpers
             return data;
         }
 
-        public void readCSV()
+        public async Task ReadCSVAsync()
         {
             ØSSConnector øss = new ØSSConnector();
             string prevInvoiceNumber = "";
@@ -92,7 +92,7 @@ namespace ITSWebMgmt.Helpers
                             List<string> numbers = new List<string>();
                             foreach (string asset in assetNumber.Split(","))
                             {
-                                numbers.Add(øss.GetTagNumberFromAssetNumber(asset));
+                                numbers.Add(await øss.GetTagNumberFromAssetNumberAsync(asset));
                             }
 
                             prevLine = string.Join(",", numbers);
@@ -101,7 +101,7 @@ namespace ITSWebMgmt.Helpers
                     }
                     else if (assetNumber.Length != 0)
                     {
-                        tagNumber = øss.GetTagNumberFromAssetNumber(assetNumber);
+                        tagNumber = await øss.GetTagNumberFromAssetNumberAsync(assetNumber);
                         tagNumbers.Add(tagNumber);
                     }
                     else
@@ -112,11 +112,11 @@ namespace ITSWebMgmt.Helpers
                     prevInvoiceNumber = invoiceNumber;
                 }
 
-                save(tagNumbers, fileId);
+                Save(tagNumbers, fileId);
             }
         }
 
-        public void GetAssetFromCSVIncoice()
+        public async Task GetAssetFromCSVIncoiceAsync()
         {
             ØSSConnector øss = new ØSSConnector();
             string prevInvoiceNumber = "";
@@ -140,7 +140,7 @@ namespace ITSWebMgmt.Helpers
                     {
                         if (prevInvoiceNumber != invoiceNumber)
                         {
-                            var numbers = øss.GetAssetNumbersFromInvoiceNumber(invoiceNumber);
+                            var numbers = øss.GetAssetNumbersFromInvoiceNumberAsync(invoiceNumber);
                             prevLine = string.Join(",", numbers);
                         }
                         assetnumbers.Add(prevLine);
@@ -149,12 +149,12 @@ namespace ITSWebMgmt.Helpers
                     {
                         if (serialNumber.Length != 0)
                         {
-                            assetNumber = øss.GetAssetNumberFromSerialNumber(serialNumber);
+                            assetNumber = await øss.GetAssetNumberFromSerialNumberAsync(serialNumber);
                         }
 
                         if (assetNumber.Length == 0)
                         {
-                            assetNumber = øss.GetAssetNumberFromInvoiceNumber(invoiceNumber);
+                            assetNumber = await øss.GetAssetNumberFromInvoiceNumberAsync(invoiceNumber);
                         }
                         assetnumbers.Add(assetNumber);
                     }
@@ -164,16 +164,16 @@ namespace ITSWebMgmt.Helpers
 
                     if (assetnumbers.Count == 100)
                     {
-                        save(assetnumbers, fileId);
+                        Save(assetnumbers, fileId);
                         assetnumbers = new List<string>();
                         fileId++;
                     }
                 }
             }
-            save(assetnumbers, fileId);
+            Save(assetnumbers, fileId);
         }
 
-        private void save(List<string> assetNumbers, int fileId)
+        private void Save(List<string> assetNumbers, int fileId)
         {
             using (StreamWriter file = new StreamWriter(@"C:\webmgmtlog\macs-assets-" + fileId.ToString() + ".txt"))
             {

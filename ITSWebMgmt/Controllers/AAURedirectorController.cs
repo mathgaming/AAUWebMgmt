@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Controllers
 {
     public class AAURedirectorController : Controller
     {
-        public IActionResult Index(string id)
+        public async Task<IActionResult> Index(string id)
         {
             if (id == null)
             { 
@@ -36,15 +37,15 @@ namespace ITSWebMgmt.Controllers
             }
             else if (id.StartsWith("C-", StringComparison.CurrentCultureIgnoreCase))
             {
-                return View(GetChangeModel(id));
+                return View(await GetChangeModelAsync(id));
             }
             else if (id.StartsWith("EC-", StringComparison.CurrentCultureIgnoreCase))
             {
-                return View(GetChangeModel(id));
+                return View(await GetChangeModelAsync(id));
             }
             else if (id.StartsWith("SC-", StringComparison.CurrentCultureIgnoreCase))
             {
-                return View(GetChangeModel(id));
+                return View(await GetChangeModelAsync(id));
             }
             else if (id.StartsWith("AAU", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -54,12 +55,12 @@ namespace ITSWebMgmt.Controllers
             return View(new ChangeModel(){ Error = "Type not found" });
         }
 
-        private ChangeModel GetChangeModel(string id)
+        private async Task<ChangeModel> GetChangeModelAsync(string id)
         {
             SqlConnection myConnection = new SqlConnection("Data Source = ad-sql2-misc.aau.dk; Initial Catalog = webmgmt; Integrated Security=SSPI;");
             try
             {
-                myConnection.Open();
+                await myConnection.OpenAsync();
             }
             catch (SqlException)
             {
@@ -73,8 +74,8 @@ namespace ITSWebMgmt.Controllers
 
             SqlCommand readSQLCommand = new SqlCommand(command, myConnection);
             readSQLCommand.Parameters.AddWithValue("@ChangeID", id);
-            var reader = readSQLCommand.ExecuteReader();
-            reader.Read();
+            var reader = await readSQLCommand.ExecuteReaderAsync();
+            await reader.ReadAsync();
 
             ChangeModel model = new ChangeModel()
             {
@@ -87,7 +88,7 @@ namespace ITSWebMgmt.Controllers
                 Error = null
             };
 
-            myConnection.Close();
+            await myConnection.CloseAsync();
 
             return model;
         }

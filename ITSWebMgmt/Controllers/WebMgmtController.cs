@@ -3,6 +3,7 @@ using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Controllers
 {
@@ -15,13 +16,13 @@ namespace ITSWebMgmt.Controllers
             _context = context;
         }
 
-        public ActionResult Error(string message = "Error")
+        public IActionResult Error(string message = "Error")
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
             return Json(new { success = false, errorMessage = message });
         }
 
-        public ActionResult Success(string Message = "Success")
+        public IActionResult Success(string Message = "Success")
         {
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json(new { success = true, message = Message });

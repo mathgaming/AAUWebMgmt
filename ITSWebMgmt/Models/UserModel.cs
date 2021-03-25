@@ -204,7 +204,7 @@ namespace ITSWebMgmt.Models
          * It should be wiped off any harddrive that has seen the ugly underbelly of the software business. If you are not up to the task,
          * I don't blame you. It makes me ill just looking at it too.
              */
-        public void InitBasicInfo()
+        public async System.Threading.Tasks.Task InitBasicInfoAsync()
         {
             //lblbasicInfoOfficePDS
             if (AAUStaffID != null)
@@ -213,7 +213,8 @@ namespace ITSWebMgmt.Models
 
                 try
                 {
-                    var pds = new PureConnector(empID);
+                    var pds = new PureConnector();
+                    await pds.GetDataAsync(empID);
                     BasicInfoDepartmentPDS = pds.Department;
                     BasicInfoOfficePDS = pds.OfficeAddress;
                 }
@@ -283,13 +284,13 @@ namespace ITSWebMgmt.Models
             return s.StartsWith("SMTP:", StringComparison.CurrentCultureIgnoreCase);
         }
 
-        public void InitCalendarAgenda()
+        public async System.Threading.Tasks.Task InitCalendarAgendaAsync()
         {
             CalAgendaStatus = "Free";
 
             try
             {
-                CalInfo = GetFreeBusyResultsAsync(this).Result;
+                CalInfo = await GetFreeBusyResultsAsync(this);
 
                 DateTime now = DateTime.Now;
                 foreach (AttendeeAvailability availability in CalInfo.AttendeesAvailability)
@@ -347,7 +348,7 @@ namespace ITSWebMgmt.Models
             return await service.GetUserAvailability(attendees, window, AvailabilityData.FreeBusy, myOptions);
         }
 
-        public void InitComputerInformation()
+        public async System.Threading.Tasks.Task InitComputerInformationAsync()
         {
             try
             {
@@ -389,7 +390,7 @@ namespace ITSWebMgmt.Models
                 List<string> macComputers = new List<string>();
                 foreach (var email in GetUserMails())
                 {
-                    macComputers.AddRange(jamf.GetComputerNamesForUserWith1X(email));
+                    macComputers.AddRange(await jamf.GetComputerNamesForUserWith1XAsync(email));
                     macComputers = macComputers.Distinct().ToList();
                 }
 
@@ -418,9 +419,9 @@ namespace ITSWebMgmt.Models
             }
             try
             {
-                ØSSComputerList = new ØSSConnector().LookUpByEmployeeID(AAUStaffID);
+                ØSSComputerList = await new ØSSConnector().LookUpByEmployeeIDAsync(AAUStaffID);
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
         }
@@ -486,7 +487,7 @@ namespace ITSWebMgmt.Models
             return model;
         }
 
-        public void InitWin7to10()
+        public async System.Threading.Tasks.Task InitWin7to10Async()
         {
             // Should be deleted after Windows 7 is gone
             // No reason to refactor
@@ -509,7 +510,7 @@ namespace ITSWebMgmt.Models
             if (haveWindows7)
             {
                 var scsm = new SCSMConnector();
-                _ = scsm.GetUUID(UserPrincipalName, GetUserMails()).Result;
+                _ = await scsm.GetUUIDAsync(UserPrincipalName, GetUserMails());
                 SCSMUserID = scsm.userID;
 
                 Windows7to10 = new TableModel(new string[] { "Computername", "Windows 7 to 10 upgrade" }, rows);
@@ -520,9 +521,9 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public TableModel InitNetaaudk()
+        public async Task<TableModel> InitNetaaudkAsync()
         {
-            Netaaudk = new NetaaudkConnector().GetData(UserPrincipalName);
+            Netaaudk = await new NetaaudkConnector().GetDataAsync(UserPrincipalName);
 
             if (Netaaudk.Count != 0)
             {

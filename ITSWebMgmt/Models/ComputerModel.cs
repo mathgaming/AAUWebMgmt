@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ITSWebMgmt.Connectors;
 using ITSWebMgmt.Models.Log;
 
@@ -25,11 +26,11 @@ namespace ITSWebMgmt.Models
         public string ErrorMessages { get; set; }
         public string ResultError { get; set; }
         public ØSSTableModel OESSTables { get; set; }
-        public string GetØSSAssetnumber(string input = "")
+        public async Task<string> GetØSSAssetnumberAsync(string input = "")
         {
             if (øSSAssetnumber == null)
             {
-                øSSAssetnumber = GetAssetNumber(input);
+                øSSAssetnumber = await GetAssetNumberAsync(input);
             }
             return øSSAssetnumber;
         }
@@ -40,24 +41,22 @@ namespace ITSWebMgmt.Models
         }
 
 
-        public string GetØSSSegment(string input = "")
+        public async Task<string> GetØSSSegmentAsync(string input = "")
         {
             if (øSSSegment == null)
             {
-                øSSSegment = new ØSSConnector().GetSegmentFromAssetNumber(GetØSSAssetnumber(input));
+                øSSSegment = await new ØSSConnector().GetSegmentFromAssetNumberAsync(await GetØSSAssetnumberAsync(input));
             }
             return øSSSegment;
         }
-        public bool IsTrashedInØSS { get
+        public async Task<bool> IsTrashedInØSSAsync()
+        {
+            if (isTrashedInØSS == null)
             {
-                if (isTrashedInØSS == null)
-                {
-                    isTrashedInØSS = new ØSSConnector().IsTrashed(GetØSSAssetnumber());
-                }
-
-                return isTrashedInØSS == true;
+                isTrashedInØSS = await new ØSSConnector().IsTrashedAsync(await GetØSSAssetnumberAsync());
             }
-            set => isTrashedInØSS = value;
+
+            return isTrashedInØSS == true;
         }
 
         public TrashRequest TrashRequest { get; set; }
@@ -115,51 +114,50 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        private string GetAssetNumber(string input = "")
+        private async Task<string> GetAssetNumberAsync(string input = "")
         {
             ØSSConnector øss = new ØSSConnector();
-            string assetNumber = "";
-
+            string assetNumber;
             if (input != "")
             {
-                assetNumber = øss.GetAssetNumberFromTagNumber(input);
+                assetNumber = await øss.GetAssetNumberFromTagNumberAsync(input);
                 if (assetNumber.Length != 0)
                 {
                     return assetNumber;
                 }
                 else
                 {
-                    return øss.GetAssetNumberFromSerialNumber(input);
+                    return await øss.GetAssetNumberFromSerialNumberAsync(input);
                 }
             }
             else if (IsWindows)
             {
-                return øss.GetAssetNumberFromTagNumber(ComputerName);
+                return await øss.GetAssetNumberFromTagNumberAsync(ComputerName);
             }
             else // Mac
             {
-                assetNumber = øss.GetAssetNumberFromTagNumber(Mac.ComputerName);
+                assetNumber = await øss.GetAssetNumberFromTagNumberAsync(Mac.ComputerName);
                 if (assetNumber.Length != 0)
                 {
                     return assetNumber;
                 }
                 if (Mac.AssetTag.Length > 0)
                 {
-                    assetNumber = øss.GetAssetNumberFromTagNumber(Mac.AssetTag);
+                    assetNumber = await øss.GetAssetNumberFromTagNumberAsync(Mac.AssetTag);
                     if (assetNumber.Length != 0)
                     {
                         return assetNumber;
                     }
                 }
 
-                return øss.GetAssetNumberFromSerialNumber(Mac.SerialNumber);
+                return await øss.GetAssetNumberFromSerialNumberAsync(Mac.SerialNumber);
             }
         }
 
-        public void InitØSSInfo(string input = "")
+        public async Task InitØSSInfoAsync(string input = "")
         {
-            OESSTables = new ØSSConnector().GetØssTable(GetØSSAssetnumber(input));
-            OESSResponsiblePersonTable = new ØSSConnector().GetResponsiblePersonTable(GetØSSSegment(input));
+            OESSTables = await new ØSSConnector().GetØssTableAsync(await GetØSSAssetnumberAsync(input));
+            OESSResponsiblePersonTable = await new ØSSConnector().GetResponsiblePersonTableAsync(await GetØSSSegmentAsync(input));
         }
     }
 }

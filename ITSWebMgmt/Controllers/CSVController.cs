@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using ITSWebMgmt.Models;
 using ITSWebMgmt.Models.Log;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ namespace ITSWebMgmt.Controllers
             return View();
         }
 
-        public ActionResult GetMail([FromBody]string inputCSV)
+        public IActionResult GetMail([FromBody] string inputCSV)
         {
             string outputString = "";
             List<string> usernameList = inputCSV.Split(",").ToList();
@@ -34,7 +35,7 @@ namespace ITSWebMgmt.Controllers
             return Success(outputString);
         }
 
-        public ActionResult JamfConvert([FromBody]string inputCSV)
+        public IActionResult JamfConvert([FromBody] string inputCSV)
         {
             List<string> lines = inputCSV.Split('\n').ToList();
             List<string> headers = lines[0].Split('\t').ToList();
@@ -44,7 +45,7 @@ namespace ITSWebMgmt.Controllers
             int aauNumberIndex = headers.IndexOf("Asset Tag");
             int computernameIndex = headers.IndexOf("Computer Name");
             int snIndex = headers.IndexOf("Serial Number");
-            
+
             StringBuilder sb = new StringBuilder();
 
             sb.Append("Email;AAUNumber;Navn;ComputerNavn;Serial Number\n");

@@ -41,8 +41,10 @@ namespace ITSWebMgmt.Models
                 List<string[]> rows = new List<string[]>();
                 for (int i = 0; i < Headings.Length; i++)
                 {
-                    List<string> row = new List<string>();
-                    row.Add(Headings[i]);
+                    List<string> row = new List<string>
+                    {
+                        Headings[i]
+                    };
                     for (int j = 0; j < Rows.Count; j++)
                     {
                         row.Add(Rows[j][i]);

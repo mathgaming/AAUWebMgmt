@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Connectors
 {
@@ -14,7 +15,7 @@ namespace ITSWebMgmt.Connectors
             Auth = "Bearer " + Startup.Configuration["cred:netaaudk:token"];
         }
 
-        public List<NetaaudkModel> GetData(string username)
+        public async Task<List<NetaaudkModel>> GetDataAsync(string username)
         {
             string url = "https://net.aau.dk/api/owned-by";
             HttpClient client = new HttpClient
@@ -30,13 +31,13 @@ namespace ITSWebMgmt.Connectors
                 request.Content = new StringContent("{\"user\": \"" + username + "\"}");
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                response = client.SendAsync(request).Result;
+                response = await client.SendAsync(request);
             }
             client.Dispose();
 
             if (response.Content.Headers.ContentLength > 1)
             {
-                return response.Content.ReadAsAsync<List<NetaaudkModel>>().Result;
+                return await response.Content.ReadAsAsync<List<NetaaudkModel>>();
             }
 
             return new List<NetaaudkModel>();
