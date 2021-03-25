@@ -233,7 +233,7 @@ namespace ITSWebMgmt.Controllers
                 case "macDisk":
                     return PartialView("TableView", ComputerModel.Mac.DiskTable);
                 case "purchase":
-                    return PartialView("INDB", INDBConnector.GetInfoAsync(ComputerModel.ComputerName));
+                    return PartialView("INDB", await INDBConnector.GetInfoAsync(ComputerModel.ComputerName));
                 case "øss":
                     await ComputerModel.InitØSSInfoAsync();
                     return PartialView("OESS", ComputerModel);
