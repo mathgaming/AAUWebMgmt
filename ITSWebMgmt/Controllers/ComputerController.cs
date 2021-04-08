@@ -139,10 +139,11 @@ namespace ITSWebMgmt.Controllers
         {
             try
             {
-                await Task.WhenAll(new Task[] { ComputerModel.Windows.SetConfigAsync(), LoadWindowsWarningsAsync() });
-
-                ComputerModel.Windows.InitBasicInfo();                
+                await ComputerModel.Windows.SetConfigAsync();
+                ComputerModel.Windows.InitBasicInfo();
+                await LoadWindowsWarningsAsync();
                 ComputerModel.SetTabs();
+
                 if (!CheckComputerOU(ComputerModel.Windows.ADPath))
                 {
                     ComputerModel.Windows.ShowMoveComputerOUdiv = true;
