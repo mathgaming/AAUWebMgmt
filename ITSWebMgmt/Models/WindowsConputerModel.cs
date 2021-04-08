@@ -205,6 +205,8 @@ namespace ITSWebMgmt.Models
 
         public async Task InitSCCMHWAsync()
         {
+            await SCCMCache.LoadAllIntoCacheAsync();
+
             SCCMLD = CreateVerticalTableFromDatabase(await SCCMCache.LogicalDisk(),
                 new List<string>() { "DeviceID", "FileSystem", "Size", "FreeSpace" },
                 "Disk information not found");

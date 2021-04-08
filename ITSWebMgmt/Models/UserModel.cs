@@ -10,7 +10,6 @@ using System.Web;
 using Microsoft.Exchange.WebServices.Data;
 using ITSWebMgmt.Connectors;
 using static ITSWebMgmt.Connectors.NetaaudkConnector;
-using System.Threading;
 
 namespace ITSWebMgmt.Models
 {

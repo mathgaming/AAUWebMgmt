@@ -58,15 +58,14 @@ namespace ITSWebMgmt.Controllers
                         try
                         {
                             UserModel.BasicInfoADFSLocked = await new SplunkConnector(_cache).IsAccountADFSLockedAsync(UserModel.UserPrincipalName);
+                            // Must be called before LoadWarnings
                         }
                         catch (Exception e)
                         {
                             UserModel.BasicInfoADFSLocked = "Error: Could not connect to Splunk";
                             HandleError(e);
                         }
-                        await UserModel.InitBasicInfoAsync();
-                        await LoadWarningsAsync();
-                        await UserModel.InitCalendarAgendaAsync();
+                        await Task.WhenAll(UserModel.InitBasicInfoAsync(), LoadWarningsAsync(), UserModel.InitCalendarAgendaAsync());
                         UserModel.SetTabs();
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
                         _cache.Set(username, UserModel, cacheEntryOptions);
