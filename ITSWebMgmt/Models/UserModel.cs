@@ -10,6 +10,7 @@ using System.Web;
 using Microsoft.Exchange.WebServices.Data;
 using ITSWebMgmt.Connectors;
 using static ITSWebMgmt.Connectors.NetaaudkConnector;
+using System.Threading;
 
 namespace ITSWebMgmt.Models
 {
@@ -47,7 +48,8 @@ namespace ITSWebMgmt.Models
         public string Manager { get => ADCache.GetProperty("manager"); }
         public string DistinguishedName { get => ADCache.GetProperty("distinguishedName"); }
         public ManagementObjectCollection GetUserMachineRelationshipFromUserName(string userName) => SCCMCache.GetUserMachineRelationshipFromUserName(userName);
-        public List<WindowsComputerModel> GetManagedWindowsComputers() {
+        public List<WindowsComputerModel> GetManagedWindowsComputers()
+        {
             List<WindowsComputerModel> managedComputerList = new List<WindowsComputerModel>();
 
             if (UserPrincipalName != "")
@@ -69,10 +71,10 @@ namespace ITSWebMgmt.Models
                     if (model.BaseModel.IsInAD)
                     {
                         managedComputerList.Add(model);
-                    }   
+                    }
                 }
             }
-            
+
             return managedComputerList;
         }
 
@@ -141,10 +143,10 @@ namespace ITSWebMgmt.Models
 
         public UserModel(string ADPath, string test)
         {
-            Init(ADPath, false);
+            Init(ADPath);
         }
 
-        public UserModel(string username, bool loadDataInbackground = true)
+        public UserModel(string username)
         {
             string ADPath = null;
             if (username != null)
@@ -154,7 +156,7 @@ namespace ITSWebMgmt.Models
             }
             if (ADPath != null)
             {
-                Init(ADPath, loadDataInbackground);
+                Init(ADPath);
             }
             else
             {
@@ -165,15 +167,11 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public void Init(string ADPath, bool loadDataInbackground = true)
+        public void Init(string ADPath)
         {
             ADCache = new UserADCache(ADPath);
             SCCMCache = new SCCMCache();
             UserFound = true;
-            if (loadDataInbackground)
-            {
-                LoadDataInbackground();
-            }
         }
 
         public void SetTabs()
@@ -496,7 +494,7 @@ namespace ITSWebMgmt.Models
 
             foreach (WindowsComputerModel m in GetManagedWindowsComputers())
             {
-                m.SetConfig();
+                await m.SetConfigAsync();
                 string upgradeButton = "";
                 if (m.ConfigPC.Equals("AAU7 PC") || m.ConfigPC.Equals("Administrativ7 PC"))
                 {

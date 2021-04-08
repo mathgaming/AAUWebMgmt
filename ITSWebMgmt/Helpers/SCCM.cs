@@ -13,6 +13,12 @@ namespace ITSWebMgmt.Helpers
         private static readonly string Password = Startup.Configuration["SCCMPassword"];
         public static ManagementScope MS {get; set; }
 
+        public static async Task<ManagementObjectCollection> GetResultsAsync(WqlObjectQuery wqlq)
+        {
+            var searcher = new ManagementObjectSearcher(MS, wqlq);
+            return await Task.Run(() => searcher.Get());
+        }
+
         public static ManagementObjectCollection GetResults(WqlObjectQuery wqlq)
         {
             var searcher = new ManagementObjectSearcher(MS, wqlq);

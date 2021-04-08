@@ -58,38 +58,27 @@ namespace ITSWebMgmt.Controllers
                 if (!_cache.TryGetValue(computerName, out ComputerModel))
                 {
                     ComputerModel = new ComputerModel(computerName, GetTrashRequest(computerName));
+
+                    // Lookup if the computer the user search for is a Windows computer
                     ComputerModel.Windows = new WindowsComputerModel(ComputerModel);
 
                     if (ComputerModel.IsWindows)
                     {
-                        try
-                        {
-                            ComputerModel.Windows.SetConfig();
-                            ComputerModel.Windows.InitBasicInfo();
-                            await LoadWindowsWarningsAsync();
-                            ComputerModel.SetTabs();
-                            if (!CheckComputerOU(ComputerModel.Windows.ADPath))
-                            {
-                                ComputerModel.Windows.ShowMoveComputerOUdiv = true;
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            ComputerModel.Windows.ComputerFound = false;
-                            ComputerModel.ResultError = "An error uccered while looking up the computer: " + e.Message;
-                        }
+                        await InitWindowsAsync();
                     }
                     else
                     {
-                        ComputerModel.Mac = new MacComputerModel(ComputerModel);
-                        await ComputerModel.Mac.InitModelAsync();
-
+                        // Get Mac information from inported CSV files asuming user searced for a Mac serial number
                         string sn = computerName;
                         if (sn.Length > 0 && sn[0] != 'S' && sn[0] != 's')
                         {
                             sn = "S" + sn;
                         }
                         MacCSVInfo info = await _context.MacCSVInfos.FirstOrDefaultAsync(x => x.SerialNumber == sn);
+
+                        // Lookup Mac in Jamf based on user search input (computerName)
+                        ComputerModel.Mac = new MacComputerModel(ComputerModel);
+                        await ComputerModel.Mac.InitModelAsync();
 
                         if (ComputerModel.Mac.ComputerFound)
                         {
@@ -102,6 +91,8 @@ namespace ITSWebMgmt.Controllers
                         }
                         else
                         {
+                            // Get a serial number from the imported CSV files based on the AAU number that the user searched for
+                            // Use this serial number to lookup a Mac in Jamf
                             if (computerName.StartsWith("AAU") && int.TryParse(computerName[3..], out _))
                             {
                                 MacCSVInfo i = _context.MacCSVInfos.FirstOrDefault(x => x.AAUNumber == computerName.Substring(3));
@@ -124,36 +115,10 @@ namespace ITSWebMgmt.Controllers
                                     }
                                 }
                             }
+                            // If not found in AD (Windows) or in Jamf (Mac) lookup in ØSS and INDB for information about the computer
                             if (!ComputerModel.Mac.ComputerFound)
                             {
-                                ComputerModel.ComputerName = computerName;
-                                if (info != null)
-                                {
-                                    ComputerModel.MacCSVInfo = info;
-                                    ComputerModel.OESSTables = await new ØSSConnector().GetØssTableAsync(info.OESSAssetNumber);
-                                    ComputerModel.OESSResponsiblePersonTable = await new ØSSConnector().GetResponsiblePersonTableAsync(await new ØSSConnector().GetSegmentFromAssetNumberAsync(info.OESSAssetNumber));
-                                    ComputerModel.OnlyFoundInOESS = true;
-                                }
-                                else
-                                {
-                                    await ComputerModel.InitØSSInfoAsync(computerName);
-                                    if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
-                                    {
-                                        ComputerModel.OnlyFoundInOESS = true;
-                                    }
-                                    else
-                                    {
-                                        try
-                                        {
-                                            ComputerModel.ResultError = await INDBConnector.LookupComputerAsync(computerName);
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            HandleError(e);
-                                            ComputerModel.ResultError = "Computer not found";
-                                        }
-                                    }
-                                }
+                                await LookupInØSSandINDBAsync(info, computerName);
                             }
                         }
                     }
@@ -168,6 +133,58 @@ namespace ITSWebMgmt.Controllers
             }
 
             return ComputerModel;
+        }
+
+        private async Task InitWindowsAsync()
+        {
+            try
+            {
+                await ComputerModel.Windows.SetConfigAsync();
+                ComputerModel.Windows.InitBasicInfo();
+                await LoadWindowsWarningsAsync();
+                ComputerModel.SetTabs();
+                if (!CheckComputerOU(ComputerModel.Windows.ADPath))
+                {
+                    ComputerModel.Windows.ShowMoveComputerOUdiv = true;
+                }
+            }
+            catch (Exception e)
+            {
+                ComputerModel.Windows.ComputerFound = false;
+                ComputerModel.ResultError = "An error uccered while looking up the computer: " + e.Message;
+            }
+        }
+
+        private async Task LookupInØSSandINDBAsync(MacCSVInfo info, string computerName)
+        {
+            ComputerModel.ComputerName = computerName;
+            if (info != null)
+            {
+                ComputerModel.MacCSVInfo = info;
+                ComputerModel.OESSTables = await new ØSSConnector().GetØssTableAsync(info.OESSAssetNumber);
+                ComputerModel.OESSResponsiblePersonTable = await new ØSSConnector().GetResponsiblePersonTableAsync(await new ØSSConnector().GetSegmentFromAssetNumberAsync(info.OESSAssetNumber));
+                ComputerModel.OnlyFoundInOESS = true;
+            }
+            else
+            {
+                await ComputerModel.InitØSSInfoAsync(computerName);
+                if (ComputerModel.OESSTables.InfoTable.ErrorMessage == null)
+                {
+                    ComputerModel.OnlyFoundInOESS = true;
+                }
+                else
+                {
+                    try
+                    {
+                        ComputerModel.ResultError = await INDBConnector.LookupComputerAsync(computerName);
+                    }
+                    catch (Exception e)
+                    {
+                        HandleError(e);
+                        ComputerModel.ResultError = "Computer not found";
+                    }
+                }
+            }
         }
 
         private TrashRequest GetTrashRequest(string computerName)
@@ -198,20 +215,20 @@ namespace ITSWebMgmt.Controllers
                     return PartialView("RawHTMLTab", new RawHTMLModel("Warnings", ComputerModel.ErrorMessages));
                 case "sccminfo":
                     viewName = "Windows/SCCMInfo";
-                    ComputerModel.Windows.InitSCCMInfo();
+                    await ComputerModel.Windows.InitSCCMInfoAsync();
                     break;
                 case "sccmcollections":
-                    ComputerModel.Windows.InitSCCMCollections();
+                    await ComputerModel.Windows.InitSCCMCollectionsAsync();
                     return PartialView("TableView", ComputerModel.Windows.SCCMCollections);
                 case "sccmInventory":
-                    ComputerModel.Windows.InitSCCMSoftware();
+                    await ComputerModel.Windows.InitSCCMSoftwareAsync();
                     return PartialView("FilteredTableView", ComputerModel.Windows.SCCMSoftware);
                 case "sccmAV":
-                    ComputerModel.Windows.InitSCCMAV();
+                    await ComputerModel.Windows.InitSCCMAVAsync();
                     return PartialView("TableView", ComputerModel.Windows.SCCMAV);
                 case "sccmHW":
                     viewName = "Windows/SCCMHW";
-                    ComputerModel.Windows.InitSCCMHW();
+                    await ComputerModel.Windows.InitSCCMHWAsync();
                     break;
                 case "rawdata":
                     return PartialView("RawTable", ComputerModel.Windows.ADCache.GetAllProperties());
