@@ -24,6 +24,8 @@ namespace ITSWebMgmt.Connectors
 
             var conn = connection.conn;
 
+            string where = getWhere(computerName);
+
             var command = conn.CreateCommand();
             command.CommandText = $"SELECT " +
                 $"BESTILLINGS_DATO," +
@@ -32,7 +34,7 @@ namespace ITSWebMgmt.Connectors
                 $"MODTAGELSESDATO," +
                 $"SERIENR," +
                 $"SLUTBRUGER" +
-                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName[3..]}";
+                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE {where}";
 
             List<string[]> rows = new List<string[]>();
             List<TableModel> tables = new List<TableModel>();
@@ -78,6 +80,28 @@ namespace ITSWebMgmt.Connectors
             }
         }
 
+        private static string getWhere(string computerName)
+        {
+            string where = "";
+
+            var computerNameDegits = computerName[3..];
+            if (computerName.StartsWith("AAU") && int.TryParse(computerNameDegits, out _))
+            {
+                where = $"UDSTYRS_REGISTRERINGS_NR LIKE { computerName[3..]}";
+            }
+            else
+            {
+                if (!computerName.ToLower().StartsWith("s"))
+                {
+                    computerName = 'S' + computerName;
+                }
+
+                where = $"SERIENR like '{computerName}'";
+            }
+
+            return where;
+        }
+
         public static async Task<string> LookupComputerAsync(string computerName)
         {
             var connection = await TryConnectAsync();
@@ -85,23 +109,13 @@ namespace ITSWebMgmt.Connectors
                 return connection.error;
 
             var conn = connection.conn;
-
-            if (!computerName.StartsWith("AAU"))
-            {
-                return "Computer not found";
-            }
-
-            var computerNameDegits = computerName[3..];
-            if (!int.TryParse(computerNameDegits, out _))
-            {
-                return "Computer not found";
-            }
+            string where = getWhere(computerName);
 
             var command = conn.CreateCommand();
             command.CommandText = $"SELECT " +
                 $"FABRIKAT," +
                 $"MODELLEN " +
-                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE UDSTYRS_REGISTRERINGS_NR LIKE {computerName[3..]}";
+                $" FROM ITSINDKOEB.INDKOEBSOVERSIGT_V WHERE {where}";
 
             string manifacturer = "";
             string model = "";
