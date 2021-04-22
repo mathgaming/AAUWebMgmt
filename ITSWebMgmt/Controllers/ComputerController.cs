@@ -506,6 +506,7 @@ namespace ITSWebMgmt.Controllers
                 new DriveAlmostFull(this),
                 new NotStandardComputerOU(this),
                 new MissingPCConfig(this),
+                new MissingPCConfigOld(this),
                 new MissingPCADGroup(this),
                 new IsWindows7(this),
                 new ManagerAndComputerNotInSameDomain(this),

@@ -129,6 +129,21 @@ namespace ITSWebMgmt.WebMgmtErrors
         }
     }
 
+    public class MissingPCConfigOld : ComputerWebMgmtError
+    {
+        public MissingPCConfigOld(ComputerController computer) : base(computer)
+        {
+            Heading = "The PC is missing config";
+            Description = @"The computer is not in the Administrativ10 PC or AAU10 PC group. Contact platform if you think it shuld be in one of the groups";
+            Severeness = Severity.Info;
+        }
+
+        public override bool HaveError()
+        {
+            return (computer.ComputerModel.Windows.ConfigPC == "Unknown" && computer.ComputerModel.Windows.WhenCreated < DateTime.Parse("2019-01-01"));
+        }
+    }
+
     public class MissingPCADGroup : ComputerWebMgmtError
     {
         public MissingPCADGroup(ComputerController computer) : base(computer)
