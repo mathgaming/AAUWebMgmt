@@ -13,7 +13,7 @@ namespace ITSWebMgmt.Models
     public class WindowsComputerModel : WebMgmtModel<ComputerADCache>
     {
         //SCCMCache
-        public string LastLogonUserName { get => SCCMCache.System().Result.GetPropertyAsString("LastLogonUserName"); }
+        public string LastLogonUserName { get => SCCMCache.LastLogonUserName(); }
 
         //ADCache
         public string ComputerName { get => BaseModel.ComputerName; }
@@ -54,6 +54,7 @@ namespace ITSWebMgmt.Models
         public TableModel SCCMProcessor { get; set; }
         public TableModel SCCMDisk { get; set; }
         public TableModel SCCMAV { get; set; }
+        public List<string> SCCMCollectionNames {get;set;}
         public bool ShowResultGetPassword { get; set; } = false;
         public bool ShowMoveComputerOUdiv { get; set; } = false;
         public bool UsesOnedrive { get; set; } = false;
@@ -120,17 +121,15 @@ namespace ITSWebMgmt.Models
             return resourceID;
         }
 
-        public async Task<List<string>> SetConfigAsync()
+        public async Task SetConfigAsync()
         {
             ManagementObjectCollection Collection = await SCCMCache.Collection();
             WindowsComputerModel ComputerModel = this;
 
             if (SCCM.HasValues(Collection))
             {
-                List<string> namesInCollection = new List<string>();
                 foreach (ManagementObject o in Collection)
                 {
-                    //o.Properties["ResourceID"].Value.ToString();
                     var collectionID = o.Properties["CollectionID"].Value.ToString();
 
                     if (collectionID.Equals("AA100015"))
@@ -164,6 +163,20 @@ namespace ITSWebMgmt.Models
                     {
                         ComputerModel.ConfigExtra = "True";
                     }
+                }
+            }
+        }
+
+        public async Task SetSCCMCollectionNamesAsync()
+        {
+            ManagementObjectCollection Collection = await SCCMCache.Collection();
+
+            if (SCCM.HasValues(Collection))
+            {
+                List<string> namesInCollection = new List<string>();
+                foreach (ManagementObject o in Collection)
+                {
+                    var collectionID = o.Properties["CollectionID"].Value.ToString();
 
                     var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
                     ManagementPath path = new ManagementPath(pathString);
@@ -176,9 +189,12 @@ namespace ITSWebMgmt.Models
 
                     namesInCollection.Add(obj["Name"].ToString());
                 }
-                return namesInCollection;
+                SCCMCollectionNames = namesInCollection;
             }
-            return null;
+            else
+            {
+                SCCMCollectionNames = new List<string>();
+            }
         }
 
         #region loading data
@@ -286,11 +302,14 @@ namespace ITSWebMgmt.Models
         public async Task InitSCCMCollectionsAsync()
         {
             List<string[]> rows = new List<string[]>();
-            var names = await SetConfigAsync();
-
-            if (names != null)
+            if (SCCMCollectionNames == null)
             {
-                foreach (var name in names)
+                await SetSCCMCollectionNamesAsync();
+            }
+
+            if (SCCMCollectionNames.Count > 0)
+            {
+                foreach (var name in SCCMCollectionNames)
                 {
                     rows.Add(new string[] { name });
                 }

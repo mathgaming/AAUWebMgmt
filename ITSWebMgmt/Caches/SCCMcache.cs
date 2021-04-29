@@ -29,6 +29,23 @@ namespace ITSWebMgmt.Caches
             "SMS_FullCollectionMembership"
         };
 
+        private string lastLogonUserName;
+
+        public string LastLogonUserName()
+        {
+            if (ResourceID == "")
+            {
+                return null;
+            }
+
+            if (lastLogonUserName == null)
+            {
+                lastLogonUserName = SCCM.GetResults(new WqlObjectQuery($"SELECT LastLogonUserName FROM SMS_R_System WHERE ResourceID=" + ResourceID)).GetPropertyAsString("LastLogonUserName");
+            }
+
+            return lastLogonUserName;
+        }
+
         #region RAM
         /*
         SELECT * FROM SMS_G_System_PHYSICAL_MEMORY WHERE ResourceID=16787049
