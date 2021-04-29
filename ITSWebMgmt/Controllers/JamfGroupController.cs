@@ -70,7 +70,7 @@ namespace ITSWebMgmt.Controllers
                 {
                     try
                     {
-                        var user = new UserModel(email, false);
+                        var user = new UserModel(email);
                         string user_email = user.UserFound ? user.GetUserMails()[0] : "not found";
                         string name = user.UserFound ? user.DisplayName : "Not found";
                         string computerName = computer.name;

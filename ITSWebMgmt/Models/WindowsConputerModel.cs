@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using ITSWebMgmt.Caches;
 using ITSWebMgmt.Helpers;
@@ -11,18 +13,7 @@ namespace ITSWebMgmt.Models
     public class WindowsComputerModel : WebMgmtModel<ComputerADCache>
     {
         //SCCMCache
-        public ManagementObjectCollection RAM { get => SCCMCache.RAM; private set { } }
-        public ManagementObjectCollection LogicalDisk { get => SCCMCache.LogicalDisk; private set { } }
-        public ManagementObjectCollection BIOS { get => SCCMCache.BIOS; private set { } }
-        public ManagementObjectCollection VideoController { get => SCCMCache.VideoController; private set { } }
-        public ManagementObjectCollection Processor { get => SCCMCache.Processor; private set { } }
-        public ManagementObjectCollection Disk { get => SCCMCache.Disk; private set { } }
-        public ManagementObjectCollection Software { get => SCCMCache.Software; private set { } }
-        public ManagementObjectCollection Computer { get => SCCMCache.Computer; private set { } }
-        public ManagementObjectCollection Antivirus { get => SCCMCache.Antivirus; private set { } }
-        public ManagementObjectCollection System { get => SCCMCache.System; private set { } }
-        public ManagementObjectCollection Collection { get => SCCMCache.Collection; private set { } }
-        public string LastLogonUserName { get => System.GetPropertyAsString("LastLogonUserName"); }
+        public string LastLogonUserName { get => SCCMCache.LastLogonUserName(); }
 
         //ADCache
         public string ComputerName { get => BaseModel.ComputerName; }
@@ -63,17 +54,18 @@ namespace ITSWebMgmt.Models
         public TableModel SCCMProcessor { get; set; }
         public TableModel SCCMDisk { get; set; }
         public TableModel SCCMAV { get; set; }
+        public List<string> SCCMCollectionNames {get;set;}
         public bool ShowResultGetPassword { get; set; } = false;
         public bool ShowMoveComputerOUdiv { get; set; } = false;
         public bool UsesOnedrive { get; set; } = false;
-        public bool HasJava()
+        public async Task<bool> HasJavaAsync()
         {
             if (SCCMCache.ResourceID == "")
             {
                 return false;
             }
 
-            foreach (ManagementObject o in Software)
+            foreach (ManagementObject o in await SCCMCache.Software())
             {
                 string name = SCCM.GetPropertyAsString(o.Properties["ProductName"]).ToLower();
                 if (name.Contains("java") && name.Contains("Update"))
@@ -101,8 +93,6 @@ namespace ITSWebMgmt.Models
                     {
                         SCCMCache = new SCCMCache();
                         SCCMCache.ResourceID = GetSCCMResourceIDFromComputerName(ComputerNameAD);
-                        InitSCCMAV();
-                        LoadDataInbackground();
                     }
                 }
             }
@@ -121,7 +111,7 @@ namespace ITSWebMgmt.Models
                     ResourceID = o.Properties["ResourceID"].Value.ToString()
                 };
 
-                if (tempCache.System.GetProperty("Obsolete") != 1)
+                if (tempCache.System().Result.GetProperty("Obsolete") != 1)
                 {
                     resourceID = tempCache.ResourceID;
                     break;
@@ -131,17 +121,15 @@ namespace ITSWebMgmt.Models
             return resourceID;
         }
 
-        public List<string> SetConfig()
+        public async Task SetConfigAsync()
         {
-            ManagementObjectCollection Collection = this.Collection;
+            ManagementObjectCollection Collection = await SCCMCache.Collection();
             WindowsComputerModel ComputerModel = this;
 
             if (SCCM.HasValues(Collection))
             {
-                List<string> namesInCollection = new List<string>();
                 foreach (ManagementObject o in Collection)
                 {
-                    //o.Properties["ResourceID"].Value.ToString();
                     var collectionID = o.Properties["CollectionID"].Value.ToString();
 
                     if (collectionID.Equals("AA100015"))
@@ -175,6 +163,20 @@ namespace ITSWebMgmt.Models
                     {
                         ComputerModel.ConfigExtra = "True";
                     }
+                }
+            }
+        }
+
+        public async Task SetSCCMCollectionNamesAsync()
+        {
+            ManagementObjectCollection Collection = await SCCMCache.Collection();
+
+            if (SCCM.HasValues(Collection))
+            {
+                List<string> namesInCollection = new List<string>();
+                foreach (ManagementObject o in Collection)
+                {
+                    var collectionID = o.Properties["CollectionID"].Value.ToString();
 
                     var pathString = "\\\\srv-cm12-p01.srv.aau.dk\\ROOT\\SMS\\site_AA1" + ":SMS_Collection.CollectionID=\"" + collectionID + "\"";
                     ManagementPath path = new ManagementPath(pathString);
@@ -187,9 +189,12 @@ namespace ITSWebMgmt.Models
 
                     namesInCollection.Add(obj["Name"].ToString());
                 }
-                return namesInCollection;
+                SCCMCollectionNames = namesInCollection;
             }
-            return null;
+            else
+            {
+                SCCMCollectionNames = new List<string>();
+            }
         }
 
         #region loading data
@@ -214,18 +219,20 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public void InitSCCMHW()
+        public async Task InitSCCMHWAsync()
         {
-            SCCMLD = CreateVerticalTableFromDatabase(LogicalDisk,
+            await SCCMCache.LoadAllIntoCacheAsync();
+
+            SCCMLD = CreateVerticalTableFromDatabase(await SCCMCache.LogicalDisk(),
                 new List<string>() { "DeviceID", "FileSystem", "Size", "FreeSpace" },
                 "Disk information not found");
 
-            if (SCCM.HasValues(RAM))
+            if (SCCM.HasValues(await SCCMCache.RAM()))
             {
                 int total = 0;
                 int count = 0;
 
-                foreach (ManagementObject o in RAM) //Has one!
+                foreach (ManagementObject o in await SCCMCache.RAM()) //Has one!
                 {
                     total += int.Parse(o.Properties["Capacity"].Value.ToString()) / 1024;
                     count++;
@@ -238,19 +245,19 @@ namespace ITSWebMgmt.Models
                 SCCMRAM = "RAM information not found";
             }
 
-            SCCMBIOS = CreateVerticalTableFromDatabase(BIOS,
+            SCCMBIOS = CreateVerticalTableFromDatabase(await SCCMCache.BIOS(),
                 new List<string>() { "BIOSVersion", "Description", "Manufacturer", "Name", "SMBIOSBIOSVersion" },
                 "BIOS information not found");
 
-            SCCMVC = CreateVerticalTableFromDatabase(VideoController,
+            SCCMVC = CreateVerticalTableFromDatabase(await SCCMCache.VideoController(),
                 new List<string>() { "AdapterRAM", "CurrentHorizontalResolution", "CurrentVerticalResolution", "DriverDate", "DriverVersion", "Name" },
                 "Video controller information not found");
 
-            SCCMProcessor = CreateVerticalTableFromDatabase(Processor,
+            SCCMProcessor = CreateVerticalTableFromDatabase(await SCCMCache.Processor(),
                 new List<string>() { "Is64Bit", "IsMobile", "IsVitualizationCapable", "Manufacturer", "MaxClockSpeed", "Name", "NumberOfCores", "NumberOfLogicalProcessors" },
                 "Processor information not found");
 
-            SCCMDisk = CreateVerticalTableFromDatabase(Disk,
+            SCCMDisk = CreateVerticalTableFromDatabase(await SCCMCache.Disk(),
                 new List<string>() { "Caption", "Model", "Partitions", "Size", "Name" },
                 "Video controller information not found");
         }
@@ -292,14 +299,17 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public void InitSCCMCollections()
+        public async Task InitSCCMCollectionsAsync()
         {
             List<string[]> rows = new List<string[]>();
-            var names = SetConfig();
-
-            if (names != null)
+            if (SCCMCollectionNames == null)
             {
-                foreach (var name in names)
+                await SetSCCMCollectionNamesAsync();
+            }
+
+            if (SCCMCollectionNames.Count > 0)
+            {
+                foreach (var name in SCCMCollectionNames)
                 {
                     rows.Add(new string[] { name });
                 }
@@ -311,9 +321,9 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public void InitSCCMAV()
+        public async Task InitSCCMAVAsync()
         {
-            SCCMAV = CreateTableFromDatabase(Antivirus, new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found", "Antivirus infomation");
+            SCCMAV = CreateTableFromDatabase(await SCCMCache.Antivirus(), new List<string>() { "ThreatName", "PendingActions", "Process", "SeverityID", "Path" }, "Antivirus information not found", "Antivirus infomation");
         }
 
         public TableModel CreateTableFromDatabase(ManagementObjectCollection results, List<string> keys, string errorMessage, string title) => CreateTableFromDatabase(results, keys, keys, errorMessage, title);
@@ -342,18 +352,18 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public void InitSCCMSoftware()
+        public async Task InitSCCMSoftwareAsync()
         {
-            SCCMSoftware = CreateTableFromDatabase(Software,
+            SCCMSoftware = CreateTableFromDatabase(await SCCMCache.Software(),
                 new List<string>() { "SoftwareCode", "ProductName", "ProductVersion", "TimeStamp" },
                 new List<string>() { "Product ID", "Name", "Version", "Install date" },
                 "Software information not found", "Software infomation");    
         }
 
-        public void InitSCCMInfo()
+        public async Task InitSCCMInfoAsync()
         {
-            SCCMInfoSystem = CreateVerticalTableFromDatabase(System, new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build" }, "Computer not found in SCCM");
-            SCCMInfoComputer = CreateVerticalTableFromDatabase(Computer, new List<string>() { "Manufacturer", "Model", "SystemType", "Roles" }, "Computer information not found");
+            SCCMInfoSystem = CreateVerticalTableFromDatabase(await SCCMCache.System(), new List<string>() { "LastLogonUserName", "IPAddresses", "MACAddresses", "Build" }, "Computer not found in SCCM");
+            SCCMInfoComputer = CreateVerticalTableFromDatabase(await SCCMCache.Computer(), new List<string>() { "Manufacturer", "Model", "SystemType", "Roles" }, "Computer information not found");
         }
         #endregion loding data
     }

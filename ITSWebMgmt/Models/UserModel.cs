@@ -47,7 +47,8 @@ namespace ITSWebMgmt.Models
         public string Manager { get => ADCache.GetProperty("manager"); }
         public string DistinguishedName { get => ADCache.GetProperty("distinguishedName"); }
         public ManagementObjectCollection GetUserMachineRelationshipFromUserName(string userName) => SCCMCache.GetUserMachineRelationshipFromUserName(userName);
-        public List<WindowsComputerModel> GetManagedWindowsComputers() {
+        public List<WindowsComputerModel> GetManagedWindowsComputers()
+        {
             List<WindowsComputerModel> managedComputerList = new List<WindowsComputerModel>();
 
             if (UserPrincipalName != "")
@@ -69,10 +70,10 @@ namespace ITSWebMgmt.Models
                     if (model.BaseModel.IsInAD)
                     {
                         managedComputerList.Add(model);
-                    }   
+                    }
                 }
             }
-            
+
             return managedComputerList;
         }
 
@@ -141,10 +142,10 @@ namespace ITSWebMgmt.Models
 
         public UserModel(string ADPath, string test)
         {
-            Init(ADPath, false);
+            Init(ADPath);
         }
 
-        public UserModel(string username, bool loadDataInbackground = true)
+        public UserModel(string username)
         {
             string ADPath = null;
             if (username != null)
@@ -154,7 +155,7 @@ namespace ITSWebMgmt.Models
             }
             if (ADPath != null)
             {
-                Init(ADPath, loadDataInbackground);
+                Init(ADPath);
             }
             else
             {
@@ -165,15 +166,11 @@ namespace ITSWebMgmt.Models
             }
         }
 
-        public void Init(string ADPath, bool loadDataInbackground = true)
+        public void Init(string ADPath)
         {
             ADCache = new UserADCache(ADPath);
             SCCMCache = new SCCMCache();
             UserFound = true;
-            if (loadDataInbackground)
-            {
-                LoadDataInbackground();
-            }
         }
 
         public void SetTabs()
@@ -348,10 +345,11 @@ namespace ITSWebMgmt.Models
             return await service.GetUserAvailability(attendees, window, AvailabilityData.FreeBusy, myOptions);
         }
 
-        public async System.Threading.Tasks.Task InitComputerInformationAsync()
+        public async System.Threading.Tasks.Task InitWindowsComputerInformationAsync()
         {
             try
             {
+
                 var windowsComputers = GetManagedWindowsComputers();
 
                 if (windowsComputers.Count != 0)
@@ -385,7 +383,17 @@ namespace ITSWebMgmt.Models
                 {
                     WindowsComputerTable = new TableModel("User do not have any Windows computer", "Windows computers");
                 }
+            }
+            catch (Exception)
+            {
+                MacComputerTable = new TableModel("An error orcurred when looking for Windows computers", "Windows computers");
+            }
+        }
 
+        public async System.Threading.Tasks.Task InitMacComputerInformationAsync()
+        {
+            try
+            {
                 JamfConnector jamf = new JamfConnector();
                 List<string> macComputers = new List<string>();
                 foreach (var email in GetUserMails())
@@ -411,19 +419,32 @@ namespace ITSWebMgmt.Models
                 {
                     MacComputerTable = new TableModel("User do not have any Mac computer", "Mac computers");
                 }
+
             }
-            catch (UnauthorizedAccessException)
+            catch (Exception)
             {
-                WindowsComputerTable = null;
-                MacComputerTable = null;
+                MacComputerTable = new TableModel("An error orcurred when looking for Macs", "Mac computers");
             }
+        }
+
+        public async System.Threading.Tasks.Task InitØSSComputerInformationAsync()
+        {
             try
             {
                 ØSSComputerList = await new ØSSConnector().LookUpByEmployeeIDAsync(AAUStaffID);
             }
             catch (Exception)
             {
+                MacComputerTable = new TableModel("An error orcurred when looking for computers in ØSS", "Mac computers");
             }
+        }
+
+        public async System.Threading.Tasks.Task InitComputerInformationAsync()
+        {
+            await System.Threading.Tasks.Task.WhenAll(new System.Threading.Tasks.Task[] {
+                InitWindowsComputerInformationAsync(),
+                InitMacComputerInformationAsync(),
+                InitØSSComputerInformationAsync()});
         }
 
         public PartialGroupModel InitExchange()
@@ -496,7 +517,7 @@ namespace ITSWebMgmt.Models
 
             foreach (WindowsComputerModel m in GetManagedWindowsComputers())
             {
-                m.SetConfig();
+                await m.SetConfigAsync();
                 string upgradeButton = "";
                 if (m.ConfigPC.Equals("AAU7 PC") || m.ConfigPC.Equals("Administrativ7 PC"))
                 {

@@ -1,5 +1,7 @@
 using ITSWebMgmt.Helpers;
+using System.Linq;
 using System.Management;
+using System.Threading.Tasks;
 
 namespace ITSWebMgmt.Caches
 {
@@ -27,6 +29,23 @@ namespace ITSWebMgmt.Caches
             "SMS_FullCollectionMembership"
         };
 
+        private string lastLogonUserName;
+
+        public string LastLogonUserName()
+        {
+            if (ResourceID == "")
+            {
+                return null;
+            }
+
+            if (lastLogonUserName == null)
+            {
+                lastLogonUserName = SCCM.GetResults(new WqlObjectQuery($"SELECT LastLogonUserName FROM SMS_R_System WHERE ResourceID=" + ResourceID)).GetPropertyAsString("LastLogonUserName");
+            }
+
+            return lastLogonUserName;
+        }
+
         #region RAM
         /*
         SELECT * FROM SMS_G_System_PHYSICAL_MEMORY WHERE ResourceID=16787049
@@ -53,7 +72,7 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection RAM { get => GetQuery(0); private set { } }
+        public async Task<ManagementObjectCollection> RAM() => await GetQueryAsync(0);
         #region Logical Disk
         /*
          * [DisplayName("Logical Disk"), dynamic: ToInstance, provider("ExtnProv")]
@@ -99,7 +118,7 @@ namespace ITSWebMgmt.Caches
         };
        */
         #endregion
-        public ManagementObjectCollection LogicalDisk { get => GetQuery(1); private set { } }
+        public async Task<ManagementObjectCollection> LogicalDisk() => await GetQueryAsync(1);
         #region BIOS
         /*
         [DisplayName("BIOS"), dynamic: ToInstance, provider("ExtnProv")]
@@ -139,7 +158,7 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection BIOS { get => GetQuery(2); private set { } }
+        public async Task<ManagementObjectCollection> BIOS() => await GetQueryAsync(2);
         #region Video controller
         /*
         class SMS_G_System_VIDEO_CONTROLLER : SMS_G_System_Current
@@ -208,7 +227,7 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection VideoController { get => GetQuery(3); private set { } }
+        public async Task<ManagementObjectCollection> VideoController() => await GetQueryAsync(3);
         #region Processor
         /*
         [DisplayName("Processor"), dynamic: ToInstance, provider("ExtnProv")]
@@ -278,7 +297,7 @@ namespace ITSWebMgmt.Caches
         };
          */
         #endregion
-        public ManagementObjectCollection Processor { get => GetQuery(4); private set { } }
+        public async Task<ManagementObjectCollection> Processor() => await GetQueryAsync(4);
         #region Disk
         /*
         [DisplayName("Disk"), dynamic: ToInstance, provider("ExtnProv")]
@@ -337,7 +356,7 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection Disk { get => GetQuery(5); private set { } }
+        public async Task<ManagementObjectCollection> Disk() => await GetQueryAsync(5);
         #region Software
         /*
         [DisplayName("Installed Software"), dynamic: ToInstance, provider("ExtnProv")]
@@ -378,9 +397,9 @@ namespace ITSWebMgmt.Caches
         };
         */
         #endregion
-        public ManagementObjectCollection Software { get => GetQuery(6); private set { } }
+        public async Task<ManagementObjectCollection> Software() => await GetQueryAsync(6);
         //Missing class
-        public ManagementObjectCollection Computer { get => GetQuery(7); private set { } }
+        public async Task<ManagementObjectCollection> Computer() => await GetQueryAsync(7);
         #region Antivirus
         /*             
             instance of SMS_G_System_Threats
@@ -408,11 +427,11 @@ namespace ITSWebMgmt.Caches
             };
         */
         #endregion
-        public ManagementObjectCollection Antivirus { get => GetQuery(8); private set { } }
+        public async Task<ManagementObjectCollection> Antivirus() => await GetQueryAsync(8);
         //Missing class
-        public ManagementObjectCollection System { get => GetQuery(9); private set { } }
+        public async Task<ManagementObjectCollection> System() => await GetQueryAsync(9);
         //Missing class
-        public ManagementObjectCollection Collection { get => GetQuery(10); private set { } }
+        public async Task<ManagementObjectCollection> Collection() => await GetQueryAsync(10);
 
         private readonly int lastIndex = 10;
 
@@ -434,14 +453,26 @@ namespace ITSWebMgmt.Caches
             return _cache[i];
         }
 
-        private ManagementObjectCollection GetQuery(int i) => GetQuery(i, new WqlObjectQuery($"SELECT * FROM {DBEntry[i]} WHERE ResourceID=" + ResourceID));
-
-        public void LoadAllIntoCache()
+        private async Task<ManagementObjectCollection> GetQueryAsync(int i, WqlObjectQuery wqlq)
         {
-            for (int i = 0; i < DBEntry.Length; i++)
+            if (ResourceID == "")
             {
-                GetQuery(i);
+                return null;
             }
+
+            if (_cache[i] == null)
+            {
+                _cache[i] = await SCCM.GetResultsAsync(wqlq);
+            }
+
+            return _cache[i];
+        }
+
+        private async Task<ManagementObjectCollection> GetQueryAsync(int i) => await GetQueryAsync(i, new WqlObjectQuery($"SELECT * FROM {DBEntry[i]} WHERE ResourceID=" + ResourceID));
+
+        public async Task LoadAllIntoCacheAsync()
+        {
+            await Task.WhenAll(Enumerable.Range(1, 10).ToArray().Select(i => GetQueryAsync(i)).ToArray());
         }
     }
 }

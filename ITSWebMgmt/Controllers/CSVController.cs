@@ -28,7 +28,7 @@ namespace ITSWebMgmt.Controllers
                 {
                     outputString += ',';
                 }
-                UserModel userModel = new UserModel(username, false);
+                UserModel userModel = new UserModel(username);
                 List<string> emails = userModel.GetUserMails();
                 outputString += string.Join(",", emails);
             }
@@ -64,7 +64,7 @@ namespace ITSWebMgmt.Controllers
                     {
                         try
                         {
-                            var user = new UserModel(email, false);
+                            var user = new UserModel(email);
                             string user_email = user.UserFound ? user.GetUserMails()[0] : "not found";
                             string name = user.UserFound ? user.DisplayName : "Not found";
                             string computerName = columbs[computernameIndex];

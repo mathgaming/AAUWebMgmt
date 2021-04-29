@@ -46,7 +46,7 @@ namespace ITSWebMgmt.Helpers
                     }
                 }
             }
-            
+
             return false;
         }
         public static bool DoesUserHaveDeniedFolderRedirect(UserModel user)

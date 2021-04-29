@@ -374,7 +374,7 @@ namespace ITSWebMgmt.Helpers
             }
         }
 
-        private List<string> GetWindowsInformation(UserModel model, string formattedName)
+        private async Task<List<string>> GetWindowsInformationAsync(UserModel model, string formattedName)
         {
             List<string> computerInfo = new List<string>();
 
@@ -390,7 +390,7 @@ namespace ITSWebMgmt.Helpers
                 catch (Exception)
                 {
                 }
-                
+
                 var @virtual = "Unknown";
                 var computerNameUC = computerName.ToUpper();
                 if (computerNameUC.StartsWith("AAU"))
@@ -404,18 +404,19 @@ namespace ITSWebMgmt.Helpers
                 try
                 {
                     var diskspace = -1;
-                    if (SCCM.HasValues(computerModel.Disk))
+                    if (SCCM.HasValues(await computerModel.SCCMCache.Disk()))
                     {
-                        var disk = computerModel.LogicalDisk.OfType<ManagementObject>().FirstOrDefault();
+                        var disk = (await computerModel.SCCMCache.LogicalDisk()).OfType<ManagementObject>().FirstOrDefault();
                         diskspace = disk.Properties["FreeSpace"].Value != null ? (int.Parse(disk.Properties["FreeSpace"].Value.ToString()) / 1024) : -1;
                     }
-                    string time = computerModel.System.GetProperty("LastLogonTimestamp");
+                    var system = (await computerModel.SCCMCache.System());
+                    string time = system.GetProperty("LastLogonTimestamp");
                     var date = time != null ? DateTimeConverter.Convert(time) : "";
-                    var domain = computerModel.System.GetProperty("LastLogonUserDomain");
+                    var domain = system.GetProperty("LastLogonUserDomain");
                     var lastLoginUser = "";
                     if (domain != null)
                     {
-                        lastLoginUser = domain + "\\\\" + computerModel.System.GetProperty("LastLogonUserName");
+                        lastLoginUser = domain + "\\\\" + system.GetProperty("LastLogonUserName");
                     }
 
                     computerInfo.Add($"{computerName};windows;{onedrive};{diskspace};{@virtual};{date};{lastLoginUser};{DateTimeConverter.Convert(DateTime.Now)};");
@@ -433,7 +434,7 @@ namespace ITSWebMgmt.Helpers
         {
             List<string> computerInfo = new List<string>();
             JamfConnector jamf = new JamfConnector();
-            foreach (var email in new UserModel(upn, false).GetUserMails())
+            foreach (var email in new UserModel(upn).GetUserMails())
             {
                 List<int> ids = new List<int>();
                 foreach (var computerName in await jamf.GetComputerNamesForUserAsync(email))
@@ -493,7 +494,7 @@ namespace ITSWebMgmt.Helpers
 
                     List<string> computerInfo = new List<string>();
 
-                    computerInfo.AddRange(GetWindowsInformation(model, formattedName));
+                    computerInfo.AddRange(await GetWindowsInformationAsync(model, formattedName));
                     computerInfo.AddRange(await GetMacInformationAsync(upn));
 
                     string staff = "Other";

@@ -25,14 +25,14 @@ namespace ITSWebMgmt.WebMgmtErrors
             Severeness = Severity.Warning;
         }
 
-        public override bool HaveError()
+        public async override Task<bool> HaveErrorAsync()
         {
             if (computer.ComputerModel.Windows.SCCMCache.ResourceID == "")
             {
                 return true;
             }
 
-            return computer.ComputerModel.Windows.LogicalDisk.Count == 0;
+            return (await computer.ComputerModel.Windows.SCCMCache.LogicalDisk()).Count == 0;
         }
     }
 
@@ -45,16 +45,18 @@ namespace ITSWebMgmt.WebMgmtErrors
             Severeness = Severity.Error;
         }
 
-        public override bool HaveError()
+        public async override Task<bool> HaveErrorAsync()
         {
             if (computer.ComputerModel.Windows.SCCMCache.ResourceID == "")
             {
                 return false;
             }
 
-            if (computer.ComputerModel.Windows.LogicalDisk.Count != 0)
+            var disk = await computer.ComputerModel.Windows.SCCMCache.LogicalDisk();
+
+            if (disk.Count != 0)
             {
-                int space = computer.ComputerModel.Windows.LogicalDisk.GetPropertyInGB("FreeSpace");
+                int space = disk.GetPropertyInGB("FreeSpace");
                 if (space == 0) return false;
                 return space <= 25;
             }
@@ -124,6 +126,21 @@ namespace ITSWebMgmt.WebMgmtErrors
         public override bool HaveError()
         {
             return (computer.ComputerModel.Windows.ConfigPC == "Unknown" && computer.ComputerModel.Windows.WhenCreated > DateTime.Parse("2019-01-01"));
+        }
+    }
+
+    public class MissingPCConfigOld : ComputerWebMgmtError
+    {
+        public MissingPCConfigOld(ComputerController computer) : base(computer)
+        {
+            Heading = "The PC is missing config";
+            Description = @"The computer is not in the Administrativ10 PC or AAU10 PC group. Contact platform if you think it shuld be in one of the groups";
+            Severeness = Severity.Info;
+        }
+
+        public override bool HaveError()
+        {
+            return (computer.ComputerModel.Windows.ConfigPC == "Unknown" && computer.ComputerModel.Windows.WhenCreated < DateTime.Parse("2019-01-01"));
         }
     }
 
@@ -223,9 +240,9 @@ namespace ITSWebMgmt.WebMgmtErrors
             Severeness = Severity.Error;
         }
 
-        public override bool HaveError()
+        public async override Task<bool> HaveErrorAsync()
         {
-            return computer.ComputerModel.Windows.ConfigPC != "Administrativ10 PC" && computer.ComputerModel.Windows.HasJava();
+            return computer.ComputerModel.Windows.ConfigPC != "Administrativ10 PC" && await computer.ComputerModel.Windows.HasJavaAsync();
         }
     }
 
@@ -238,8 +255,9 @@ namespace ITSWebMgmt.WebMgmtErrors
             Severeness = Severity.Warning;
         }
 
-        public override bool HaveError()
+        public async override Task<bool> HaveErrorAsync()
         {
+            await computer.ComputerModel.Windows.InitSCCMAVAsync();
             return computer.ComputerModel.Windows.SCCMAV.ErrorMessage != "Antivirus information not found";
         }
     }
