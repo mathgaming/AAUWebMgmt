@@ -139,7 +139,7 @@ namespace ITSWebMgmt.Controllers
         {
             try
             {
-                await ComputerModel.Windows.SetConfigAsync();
+                await Task.WhenAll(ComputerModel.Windows.SetConfigAsync(), ComputerModel.IsTrashedInØSSAsync());
                 ComputerModel.Windows.InitBasicInfo();
                 await LoadWindowsWarningsAsync();
                 ComputerModel.SetTabs();
