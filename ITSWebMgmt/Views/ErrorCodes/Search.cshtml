@@ -1,0 +1,127 @@
+﻿@model ITSWebMgmt.Models.Log.PaginatedList<ITSWebMgmt.Models.ErrorCode>
+@using ITSWebMgmt.Helpers;
+@using ITSWebMgmt.Models.Log;
+
+
+<script>
+    document.documentElement.style.setProperty("--main-width", "1600px");
+</script>
+<link rel="stylesheet" href="~/css/autocomplete.css" />
+<script src="~/js/autocomplete.js" asp-append-version="true"></script>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Error code search</title>
+</head>
+<body>
+    <form method="get" autocomplete="off">
+        <div class="ui action input">
+            Find by error code name: 
+            <div class="autocomplete" style="width:600px;">
+                <input type="text" id="searchstring" name="SearchString" class="ui input focus" value="@ViewData["currentFilter"]" />
+            </div>
+            <input type="submit" value="Search" id="submitButton" class="btn btn-default" /> |
+            <a asp-action="Search">Reset search</a>
+            <br />
+        </div>
+    </form>
+    <script>
+        $(document).ready(function () {
+            $('.menu .item').tab({ history: false });
+        });
+        let submitButton = document.getElementById("submitButton");
+        let searchstringElement = document.getElementById("searchstring");
+        let oldSearchstringText = "";
+        searchstringElement.addEventListener("keyup", function (event) {
+            if (event.keyCode === 13) {
+                submitButton.click();
+            }
+        });
+        window.setInterval(function () {
+            if ($(document.activeElement).attr("type") == "text" || $(document.activeElement).attr("type") == "textarea") {
+                if (oldSearchstringText !== searchstringElement.value) {
+                    updateautocomplete(document.getElementById("searchstring").value);
+                    oldSearchstringText = searchstringElement.value;
+                }
+
+            }
+        }, 1000);
+
+        var names;
+
+        function updateautocomplete(name) {
+            $.ajax({
+                type: "POST",
+                url: 'GetErrorCodesByName',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(name),
+                dataType: "json",
+                success: function (response) {
+                    names = response.names.toString().split(',');
+                    autocomplete(document.getElementById("searchstring"), names);
+                    var event = document.createEvent('Event');
+                    event.initEvent('input', true, true);
+                    document.getElementById("searchstring").dispatchEvent(event);
+                },
+                error: function (response) {
+                    var r = JSON.parse(response.responseText);
+                    alert(r.errorMessage);
+                }
+            });
+        }
+
+    </script>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <b>Error code</b>
+                </th>
+                <th>
+                    <b>Description</b>
+                </th>
+                <th>
+                    <b>OneNote link</b>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ErrorCodeName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        <a href=@Html.DisplayFor(modelItem => item.OneNoteLink)>@Html.DisplayFor(modelItem => item.OneNoteLink)</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    }
+
+    <a asp-action="Search"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @prevDisabled">
+        Previous
+    </a>
+    <a asp-action="Search"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-currentFilter="@ViewData["CurrentFilter"]"
+       class="btn btn-default @nextDisabled">
+        Next
+    </a>
+</body>
+</html>
