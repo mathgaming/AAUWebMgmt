@@ -70,6 +70,11 @@ namespace ITSWebMgmt.Controllers
         // GET: ErrorCodes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -88,6 +93,11 @@ namespace ITSWebMgmt.Controllers
         // GET: ErrorCodes/Create
         public IActionResult Create()
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             return View();
         }
 
@@ -98,6 +108,11 @@ namespace ITSWebMgmt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ErrorCodeName,Description,OneNoteLink")] ErrorCode errorCode)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(errorCode);
@@ -110,6 +125,11 @@ namespace ITSWebMgmt.Controllers
         // GET: ErrorCodes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -130,6 +150,11 @@ namespace ITSWebMgmt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ErrorCodeName,Description,OneNoteLink")] ErrorCode errorCode)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (id != errorCode.Id)
             {
                 return NotFound();
@@ -161,6 +186,11 @@ namespace ITSWebMgmt.Controllers
         // GET: ErrorCodes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -181,6 +211,11 @@ namespace ITSWebMgmt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (Authentication.IsNotPlatform(HttpContext.User.Identity.Name))
+            {
+                return AccessDenied();
+            }
+
             var errorCode = await _context.ErrorCodes.FindAsync(id);
             _context.ErrorCodes.Remove(errorCode);
             await _context.SaveChangesAsync();
