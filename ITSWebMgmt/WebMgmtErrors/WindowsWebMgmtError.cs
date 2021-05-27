@@ -296,8 +296,8 @@ namespace ITSWebMgmt.WebMgmtErrors
     {
         public IsTrashedWebMgmt(ComputerController computer) : base(computer)
         {
-            Heading = "Computer is trashed in ØSS";
-            Description = "The computer have been marked as trash in ØSS but was found in AD";
+            Heading = "Computer is trashed in Webmgmt";
+            Description = "The computer have been marked as trash in WebMgmt but was found in AD";
             Severeness = Severity.Error;
         }
 
