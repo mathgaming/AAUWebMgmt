@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action ="Create">
+        <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="ComputerName" class="control-label">Computer name (AAU number)</label>
@@ -22,17 +22,22 @@
                 <span asp-validation-for="Comment" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="RequestedBy" class="control-label">User e-mail</label>
+                <label asp-for="RequestedBy" class="control-label">E-mail to person who delivered the computer</label>
                 <input asp-for="RequestedBy" class="form-control" />
                 <span asp-validation-for="RequestedBy" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CreatedBy" class="control-label">Created by</label>
+                <label asp-for="RequestedFor" class="control-label">Name of the user that used the computer</label>
+                <input asp-for="RequestedFor" class="form-control" />
+                <span asp-validation-for="RequestedFor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedBy" class="control-label">Created by (ITS supporter e-mail)</label>
                 <input asp-for="CreatedBy" class="form-control" readonly="readonly" />
                 <span asp-validation-for="CreatedBy" class="text-danger"></span>
             </div>
             <h5>ØSS Info</h5>
-            <input type="submit" name="command" value="Autofill" class="btn btn-primary"/>
+            <input type="submit" name="command" value="Autofill" class="btn btn-primary" />
             <p>Autofill the fields below based on computer name (requires no errors in input to form)</p>
             <div class="form-group">
                 <label asp-for="Desciption" class="control-label">Description (Manufacture and modelnumber from ØSS)</label>
@@ -49,7 +54,7 @@
                 <input asp-for="EquipmentManagerEmail" class="form-control" />
                 <span asp-validation-for="EquipmentManagerEmail" class="text-danger"></span>
             </div>
-            <input type="submit" name="command" value="Create" class="btn btn-primary"/>
+            <input type="submit" name="command" value="Create" class="btn btn-primary" />
         </form>
     </div>
 </div>
