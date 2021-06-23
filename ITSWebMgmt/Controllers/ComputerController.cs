@@ -513,8 +513,9 @@ namespace ITSWebMgmt.Controllers
                 new PasswordExpired(this),
                 new MissingJavaLicense(this),
                 new HaveVirus(this),
-                new IsTrashed(this),
-                new IsHalfTrashed(this)
+                new IsTrashedØSS(this),
+                new IsHalfTrashed(this),
+                new IsTrashedWebMgmt(this)
             };
 
             await LoadWarningsAsync(warnings);
@@ -525,8 +526,9 @@ namespace ITSWebMgmt.Controllers
             List<WebMgmtError> warnings = new List<WebMgmtError>
             {
                 new NotAAUMac(this),
-                new IsTrashedMac(this),
-                new IsHalfTrashedMac(this)
+                new IsTrashedØSSMac(this),
+                new IsHalfTrashedMac(this),
+                new IsTrashedWebMgmtMac(this)
             };
 
             warnings.AddRange(GetAllMacWarnings());

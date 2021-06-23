@@ -1,0 +1,52 @@
+﻿@model IEnumerable<ITSWebMgmt.Models.ErrorCode>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<script>
+document.documentElement.style.setProperty("--main-width", "1600px");
+</script>
+
+<h1>Error codes</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <b>Error code</b>
+            </th>
+            <th>
+                <b>Description</b>
+            </th>
+            <th>
+                <b>OneNote link</b>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ErrorCodeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    <a href=@Html.DisplayFor(modelItem => item.OneNoteLink)>@Html.DisplayFor(modelItem => item.OneNoteLink)</a>
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

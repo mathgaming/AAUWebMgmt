@@ -262,9 +262,9 @@ namespace ITSWebMgmt.WebMgmtErrors
         }
     }
 
-    public class IsTrashed : ComputerWebMgmtError
+    public class IsTrashedØSS : ComputerWebMgmtError
     {
-        public IsTrashed(ComputerController computer) : base(computer)
+        public IsTrashedØSS(ComputerController computer) : base(computer)
         {
             Heading = "Computer is trashed in ØSS";
             Description = "The computer have been marked as trash in ØSS but was found in AD";
@@ -289,6 +289,21 @@ namespace ITSWebMgmt.WebMgmtErrors
         public async override Task<bool> HaveErrorAsync()
         {
             return computer.ComputerModel.IsTrashedInWebMgmt() && !(await computer.ComputerModel.IsTrashedInØSSAsync());
+        }
+    }
+
+    public class IsTrashedWebMgmt : ComputerWebMgmtError
+    {
+        public IsTrashedWebMgmt(ComputerController computer) : base(computer)
+        {
+            Heading = "Computer is trashed in Webmgmt";
+            Description = "The computer have been marked as trash in WebMgmt but was found in AD";
+            Severeness = Severity.Error;
+        }
+
+        public override bool HaveError()
+        {
+            return computer.ComputerModel.IsTrashedInWebMgmt();
         }
     }
 }

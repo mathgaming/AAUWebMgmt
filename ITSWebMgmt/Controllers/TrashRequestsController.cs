@@ -73,6 +73,8 @@ namespace ITSWebMgmt.Controllers
                 ØSSInfo info = await Øss.GetØSSInfoAsync(assetNumber);
 
                 trashRequest.Desciption = $"{info.Manufacturer} {info.ModelNumber}";
+                trashRequest.RequestedForOESSStaffID = info.EmployeeNumber;
+                trashRequest.RequestedForOSSSName = info.EmployeeName;
                 var (email, first_name, last_name) = await Øss.GetResponsiblePersonAsync(await model.GetØSSSegmentAsync(assetNumber));
                 trashRequest.EquipmentManager = $"{first_name} {last_name}";
                 trashRequest.EquipmentManagerEmail = email;
