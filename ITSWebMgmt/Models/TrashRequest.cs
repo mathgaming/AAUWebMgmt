@@ -19,6 +19,9 @@ namespace ITSWebMgmt.Models
         [Required]
         [EmailAddress]
         public string RequestedBy { get; set; }
+        public string RequestedFor { get; set; }
+        public string RequestedForOSSSName { get; set; }
+        public string RequestedForOESSStaffID { get; set; }
         public string CreatedBy { get; set; }
         public string EquipmentManager { get; set; }
         [EmailAddress]
