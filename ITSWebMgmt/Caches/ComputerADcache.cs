@@ -72,6 +72,7 @@ namespace ITSWebMgmt.Caches
 
         private string getDomain()
         {
+            // ITS\\user -> its.aau.dk
             var tmpName = ComputerName;
 
             if (tmpName.Contains("\\"))

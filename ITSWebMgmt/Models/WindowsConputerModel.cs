@@ -23,7 +23,10 @@ namespace ITSWebMgmt.Models
         public string AdminPasswordExpirationTime { get => ADCache.GetProperty("ms-Mcs-AdmPwdExpirationTime"); }
         public string ManagedByAD { get => ADCache.GetProperty("managedBy"); set => ADCache.SaveProperty("managedBy", value); }
         public string DistinguishedName { get => ADCache.GetProperty("distinguishedName"); }
-        public DateTime WhenCreated { get => ADCache.GetProperty("whenCreated"); }
+        public DateTime WhenCreated
+        {
+            get => DateTime.Parse(DateTimeConverter.Convert(SCCMCache.System().Result.GetProperty("CreationDate")));
+        }
 
         //Display
         public string PasswordExpireDate
