@@ -26,6 +26,7 @@ namespace ITSWebMgmt
         {
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddMemoryCache();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -44,9 +45,11 @@ namespace ITSWebMgmt
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
+            //app.UseBrowserLink();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseBrowserLink();
             }
             else
             {

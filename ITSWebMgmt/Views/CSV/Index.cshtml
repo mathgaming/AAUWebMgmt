@@ -1,7 +1,10 @@
-﻿<script>
+﻿@{
+    ViewData["Title"] = "CSV Converter";
+}
+<script>
     document.documentElement.style.setProperty("--main-width", "1600px");
 </script>
-<h1>CSV Converter</h1>
+<h1>@ViewData["Title"]</h1>
 <button id="GetMail">Convert to mail</button>
 <br />
 <br />
@@ -17,7 +20,7 @@
 
 <script>
     $("#GetMail").click(function () {
-        let inputTextElement = document.getElementById('RawCSVInput');        
+        let inputTextElement = document.getElementById('RawCSVInput');
         if (document.getElementById("idm").checked) {
             sendPostRequest("GetMail", inputTextElement.value);
         }
