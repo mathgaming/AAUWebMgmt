@@ -35,7 +35,19 @@ namespace ITSWebMgmt.Models
         public string AAUStaffID { get => ADCache.GetProperty("aauStaffID").ToString(); }
         public string AAUStudentID { get => ADCache.GetProperty("aauStudentID").ToString(); }
         public object Profilepath { get => ADCache.GetProperty("profilepath"); }
-        public string AAUUserClassification { get => ADCache.GetProperty("aauUserClassification"); }
+        public string AAUUserClassification 
+        {
+            get
+            {
+                dynamic c = ADCache.GetProperty("aauUserClassification");
+                if (c is string[])
+                {
+                    return string.Join(", ", c);
+                }
+
+                return ADCache.GetProperty("aauUserClassification").ToString();
+            }
+        }
         public string AAUUserStatus { get => ADCache.GetProperty("aauUserStatus").ToString(); }
         public string ScriptPath { get => ADCache.GetProperty("scriptPath"); }
         public bool IsAccountLocked { get => ADCache.GetProperty("IsAccountLocked"); }
