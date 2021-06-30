@@ -2,6 +2,9 @@
 @using ITSWebMgmt.Helpers;
 @using ITSWebMgmt.Models.Log;
 
+@{ 
+    ViewData["Title"] = "Error codes";
+}
 
 <script>
     document.documentElement.style.setProperty("--main-width", "1600px");
@@ -17,9 +20,10 @@
     <title>Error code search</title>
 </head>
 <body>
+    <h1>@ViewData["Title"]</h1>
     <form method="get" autocomplete="off">
         <div class="ui action input">
-            Find by error code name: 
+            Find by error code name:
             <div class="autocomplete" style="width:600px;">
                 <input type="text" id="searchstring" name="SearchString" class="ui input focus" value="@ViewData["currentFilter"]" />
             </div>

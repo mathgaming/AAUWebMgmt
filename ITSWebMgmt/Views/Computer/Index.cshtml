@@ -1,5 +1,8 @@
 @model ITSWebMgmt.Models.ComputerModel
 @using System.Web;
+@{ 
+    ViewData["Title"] = "Computer Info";
+}
 <script>
     $(document).ready(function () {
         $('.menu .item').tab({ history: false });
@@ -11,7 +14,7 @@
     </div>
 </div>
 
-<h1>Computer Info</h1>
+<h1>@ViewData["Title"]</h1>
 <div>
     <form method="get">
         Computername:

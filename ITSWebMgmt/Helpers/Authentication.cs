@@ -32,7 +32,7 @@ namespace ITSWebMgmt.Helpers
         {
             if (user != null)
             {
-                List<string> members = new List<string>() { "abn", "jaa", "thch", "lel", "mhsv16", "mrm", "torknu" };
+                List<string> members = new List<string>() { "abn", "jaa", "bc03bt", "lel", "mhsv16", "mrm", "torknu" };
                 user = user[(user.IndexOf(@"\") + 1)..];
 
                 if (members.Contains(user))
