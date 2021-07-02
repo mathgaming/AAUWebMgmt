@@ -1,43 +1,62 @@
+@{
+    ViewData["Title"] = "ChangeLog";
+}
+
 <h2>Change log</h2>
 <ul>
-    <li>
-        2021-05-20
+    <li> 2021-06-30
+    <li style="list-style-type:none">
+        <ul>
+            <li>Removed two options from 'Tools' in the navigation bar; Computer info and User info. There were already two other options to access these pages in the navigation bar</li>
+            <li>It's now posssible to see which page you're on in the browser tab for all pages and not just the front page</li>
+        </ul>
+    </li>
+
+    <li> 2021-06-29
+    <li style="list-style-type:none">
+        <ul>
+            <li>Fixed bug where WebMgmt would crash if a user had multiple classifications</li>
+            <li>Changed config check to use SCCM creation date instead of AD</li>
+        </ul>
+    </li>
+
+    <li> 2021-05-20
     <li style="list-style-type:none">
         <ul>
             <li>Added search for errors in Onedrive</li>
         </ul>
     </li>
-    <li>
-        2021-04-29
+
+    <li> 2021-04-29
     <li style="list-style-type:none">
         <ul>
             <li>Improved windows computer lookup time and the load time for the computer information tab for users</li>
         </ul>
     </li>
-    <li>
-        2021-04-22
+
+    <li> 2021-04-22
     <li style="list-style-type:none">
         <ul>
             <li>WebMgmt now also search for serial numbers in INDB</li>
             <li>Added missing config warning</li>
         </ul>
     </li>
-    <li>
-        2021-03-25
+
+    <li> 2021-03-25
     <li style="list-style-type:none">
         <ul>
             <li>Made a lot async to improve loading times</li>
         </ul>
     </li>
-    <li>
-        2021-03-11
+
+    <li> 2021-03-11
     <li style="list-style-type:none">
         <ul>
             <li>Added button for updating account locked status</li>
         </ul>
     </li>
-    <li>
-        2021-02-25
+
+    <li> 2021-02-25
     <li style="list-style-type:none">
         <ul>
             <li>Made ØSS heading under User Info -> Computer Infomation more informative</li>
@@ -45,15 +64,15 @@
             <li>WebMgmt now shows table headings and error message when an error orcurs in the table generation for ØSS</li>
         </ul>
     </li>
-    <li>
-        2021-02-18
+
+    <li> 2021-02-18
     <li style="list-style-type:none">
         <ul>
             <li>Added button to computer task for disabling Microsoft project</li>
         </ul>
     </li>
-    <li>
-        2021-02-02
+
+    <li> 2021-02-02
     <li style="list-style-type:none">
         <ul>
             <li>Added a Platform page</li>
@@ -65,39 +84,39 @@
             <li>Fixed some macs listed twice in computer info tab for users</li>
         </ul>
     </li>
-    <li>
-        2021-01-13
+
+    <li> 2021-01-13
     <li style="list-style-type:none">
         <ul>
             <li>Fixed crash when loading the tab "raw info (AD)"</li>
         </ul>
     </li>
-    <li>
-        2021-01-12
+
+    <li> 2021-01-12
     <li style="list-style-type:none">
         <ul>
             <li>Fixed bug where only the first computer from ØSS for a user was shown in the computer info tab</li>
             <li>Updated to .Net 5.0</li>
         </ul>
     </li>
-    <li>
-        2021-01-06
+
+    <li> 2021-01-06
     <li style="list-style-type:none">
         <ul>
             <li>Better layout for ØSS info</li>
             <li>ØSS database sessions is now closed corectly</li>
         </ul>
     </li>
-    <li>
-        2020-12-04
+
+    <li> 2020-12-04
     <li style="list-style-type:none">
         <ul>
             <li>Added equipment manager to ØSS info</li>
             <li>Fixed ØSS tab</li>
         </ul>
     </li>
-    <li>
-        2020-10-23
+
+    <li> 2020-10-23
     <li style="list-style-type:none">
         <ul>
             <li>Added tab to computer info to shown inforation for the computer from ØSS</li>
@@ -105,45 +124,45 @@
             <li>Fixed some Macs were shown as Windows computers</li>
         </ul>
     </li>
-    <li>
-        2020-09-29
+
+    <li> 2020-09-29
     <li style="list-style-type:none">
         <ul>
             <li>Fixed crash when net.aau.dk returns "1"</li>
             <li>Fixed crash when looking up a Mac in AD</li>
         </ul>
     </li>
-    <li>
-        2020-09-03
+
+    <li> 2020-09-03
     <li style="list-style-type:none">
         <ul>
             <li>Fixed crash when net.aau.dk returns "1"</li>
             <li>Fixed crash when looking up a Mac in AD</li>
         </ul>
     </li>
-    <li>
-        2020-08-26
+
+    <li> 2020-08-26
     <li style="list-style-type:none">
         <ul>
             <li>Changed filename to match group name for Jamd email list creator</li>
         </ul>
     </li>
-    <li>
-        2020-08-18
+
+    <li> 2020-08-18
     <li style="list-style-type:none">
         <ul>
             <li>Added Jamf email list creator</li>
         </ul>
     </li>
-    <li>
-        2020-08-07
+
+    <li> 2020-08-07
     <li style="list-style-type:none">
         <ul>
             <li>Added a down for maintenance page</li>
         </ul>
     </li>
-    <li>
-        2020-07-29
+
+    <li> 2020-07-29
     <li style="list-style-type:none">
         <ul>
             <li>Added LastLogonUserName to Basic Info for Windows computers</li>
@@ -151,16 +170,16 @@
             <li>Fixed bug were an error message would apear when a computer was added to AAU10 or Administrativ10 successfully</li>
         </ul>
     </li>
-    <li>
-        2020-07-07
+
+    <li> 2020-07-07
     <li style="list-style-type:none">
         <ul>
             <li>Added warning message if computer have been affected by virus</li>
             <li>Updated API to Pure to make search suggestions work again</li>
         </ul>
     </li>
-    <li>
-        2020-06-29
+
+    <li> 2020-06-29
     <li style="list-style-type:none">
         <ul>
             <li>The Computer information tab for users now also finds mac based on data from Net.aau.dk</li>
@@ -168,8 +187,8 @@
             <li>Fixed Move user to default OU button</li>
         </ul>
     </li>
-    <li>
-        2020-06-12
+
+    <li> 2020-06-12
     <li style="list-style-type:none">
         <ul>
             <li>Added note under user search bar to indicate that it is posible to on phone numbers and AAU-ID</li>
@@ -178,8 +197,8 @@
             <li>Fixed bugs in computer list generator</li>
         </ul>
     </li>
-    <li>
-        2020-03-25
+
+    <li> 2020-03-25
     <li style="list-style-type:none">
         <ul>
             <li>Now it also sends an email to developer on report issue or request feature</li>
@@ -188,8 +207,8 @@
             <li>Formated disk table for mac with multiple disk correct</li>
         </ul>
     </li>
-    <li>
-        2020-03-11
+
+    <li> 2020-03-11
     <li style="list-style-type:none">
         <ul>
             <li>Added a page for ITS platform to generate a list of info about computers</li>
@@ -199,24 +218,24 @@
             <li>Updated to .NET Core 3.1</li>
         </ul>
     </li>
-    <li>
-        2020-02-26
+
+    <li> 2020-02-26
     <li style="list-style-type:none">
         <ul>
             <li>Admin password is now colored again</li>
             <li>Fixed crash when failed to get Mac partition info</li>
         </ul>
     </li>
-    <li>
-        2020-02-19
+
+    <li> 2020-02-19
     <li style="list-style-type:none">
         <ul>
             <li>Fixed crash when user not found in print database</li>
             <li>HTML refactoring for ManagedBy, create work item, tables with links, user basic info, calendar tab, and get password</li>
         </ul>
     </li>
-    <li>
-        2020-02-12
+
+    <li> 2020-02-12
     <li style="list-style-type:none">
         <ul>
             <li>Insterted Mac group list into table</li>
@@ -225,16 +244,16 @@
             <li>Fixed crash when autocompleating user search if Pure is down</li>
         </ul>
     </li>
-    <li>
-        2020-02-03
+
+    <li> 2020-02-03
     <li style="list-style-type:none">
         <ul>
             <li>Fixed Mac software tab</li>
             <li>Removed unused code from project</li>
         </ul>
     </li>
-    <li>
-        2020-01-31
+
+    <li> 2020-01-31
     <li style="list-style-type:none">
         <ul>
             <li>Added filter to software for Windows computers</li>
@@ -244,16 +263,16 @@
             <li>Fixed error handler</li>
         </ul>
     </li>
-    <li>
-        2020-01-29
+
+    <li> 2020-01-29
     <li style="list-style-type:none">
         <ul>
             <li>Changed home link to logo</li>
             <li>AAU logo is now from a secure connection</li>
         </ul>
     </li>
-    <li>
-        2020-01-06
+
+    <li> 2020-01-06
     <li style="list-style-type:none">
         <ul>
             <li>Added a button on the front page for requsting new features or reporting an issue</li>
@@ -264,8 +283,8 @@
             <li>User and computer lookups now displays an error for the data that is cannot get insted of crashing</li>
         </ul>
     </li>
-    <li>
-        2019-12-03
+
+    <li> 2019-12-03
     <li style="list-style-type:none">
         <ul>
             <li>Added a password expired warning to Windows computers</li>
@@ -274,8 +293,8 @@
             <li>Fixed bug in the service mangager tab for a user without any requests</li>
         </ul>
     </li>
-    <li>
-        2019-11-28
+
+    <li> 2019-11-28
     <li style="list-style-type:none">
         <ul>
             <li>Added a list of last searches</li>
@@ -287,24 +306,24 @@
             <li>Fixed an error with the hardware computer tab</li>
         </ul>
     </li>
-    <li>
-        2019-11-21
+
+    <li> 2019-11-21
     <li style="list-style-type:none">
         <ul>
             <li>Added errors for computers that run Windows 7 and computers that is neither is a member of cm12_config_AAU10 or cm12_config_Administrativ10</li>
             <li>Sorted cases in the service manager tab for a users more correctly</li>
         </ul>
     </li>
-    <li>
-        2019-11-14
+
+    <li> 2019-11-14
     <li style="list-style-type:none">
         <ul>
             <li>Added a tab to user info, that show information from Net.aau.dk</li>
             <li>Fixed a bug with the AAURedirector for empty input</li>
         </ul>
     </li>
-    <li>
-        2019-11-07
+
+    <li> 2019-11-07
     <li style="list-style-type:none">
         <ul>
             <li>Added a reminder about Onedrive to the response when deleting af computer from AD</li>
@@ -313,16 +332,16 @@
             <li>Fixed by when entering misformed case number in onedrive form</li>
         </ul>
     </li>
-    <li>
-        2019-10-24
+
+    <li> 2019-10-24
     <li style="list-style-type:none">
         <ul>
             <li>Fixed bug where only basic info was shown when managed by was not set</li>
             <li>Users search is now activated on enter press</li>
         </ul>
     </li>
-    <li>
-        2019-10-17
+
+    <li> 2019-10-17
     <li style="list-style-type:none">
         <ul>
             <li>Added CSV to email converter</li>
@@ -334,23 +353,23 @@
             <li>Fixed bug when failed to connect to calender exchange service</li>
         </ul>
     </li>
-    <li>
-        2019-10-11
+
+    <li> 2019-10-11
     <li style="list-style-type:none">
         <ul>
             <li>Fixed bug when getting malformed data from Spunk</li>
         </ul>
     </li>
-    <li>
-        2019-10-10
+
+    <li> 2019-10-10
     <li style="list-style-type:none">
         <ul>
             <li>Added a ADFS locked	field to user info</li>
             <li>Updated the backend to .NET Core 3.0</li>
         </ul>
     </li>
-    <li>
-        2019-10-03
+
+    <li> 2019-10-03
     <li style="list-style-type:none">
         <ul>
             <li>Fixed a bug when searcing for a computer with letters after AAU</li>
@@ -358,31 +377,31 @@
             <li>Fixed a bug in the computer information tab for a user</li>
         </ul>
     </li>
-    <li>
-        2019-09-26
+
+    <li> 2019-09-26
     <li style="list-style-type:none">
         <ul>
             <li>Fixed a bug where Software info for a Windows computer repeatedly listed the first program</li>
             <li>Fixed a bug that occured when searching for a email address in computer info</li>
         </ul>
     </li>
-    <li>
-        2019-09-19
+
+    <li> 2019-09-19
     <li style="list-style-type:none">
         <ul>
             <li>Added a tab to show information from INDB</li>
             <li>Search for a computer now shows if the computer has not been registrered in AD or Jamf, but was found in INDB</li>
         </ul>
     </li>
-    <li>
-        2019-09-11
+
+    <li> 2019-09-11
     <li style="list-style-type:none">
         <ul>
             <li>The computer information for a user does now also shows Mac computers</li>
         </ul>
     </li>
-    <li>
-        2019-09-09
+
+    <li> 2019-09-09
     <li style="list-style-type:none">
         <ul>
             <li>Fixed a concurrency issue that caused multiple pages to return the error page</li>
@@ -390,8 +409,8 @@
             <li>Fixed a bug that occured when searching for a user that is disabled</li>
         </ul>
     </li>
-    <li>
-        2019-09-03
+
+    <li> 2019-09-03
     <li style="list-style-type:none">
         <ul>
             <li>Changed not found in SCCM message to a warning</li>
@@ -400,8 +419,8 @@
             <li>Fixed error with users that has a computer that not can be found in AD</li>
         </ul>
     </li>
-    <li>
-        2019-08-30
+
+    <li> 2019-08-30
     <li style="list-style-type:none">
         <ul>
             <li>The buttons to set a computers PCConfig to AAU10 or Adminstativ10 is now working</li>
@@ -412,16 +431,16 @@
             <li>Onedrive status for a user now shows if the user is setup to Onedrive, but do not have any computer that is setup to Onedrive</li>
         </ul>
     </li>
-    <li>
-        2019-08-29
+
+    <li> 2019-08-29
     <li style="list-style-type:none">
         <ul>
             <li>Corrected misleading text in user basic info from Password Expired to Account locked</li>
             <li>Added form to add an additional computer to Onedrive under the task tab for the computer</li>
         </ul>
     </li>
-    <li>
-        2019-08-27
+
+    <li> 2019-08-27
     <li style="list-style-type:none">
         <ul>
             <li>The buttons to set a computers PCConfig to AAU10 or Adminstativ10 has temporarily been removed because they were not working on the server. (They are working when they are tested them locally. A posible solution to this issue will be released by Microsoft in the end of september)</li>
@@ -430,8 +449,8 @@
             <li>Added change ManagedBy to the log</li>
         </ul>
     </li>
-    <li>
-        2019-08-23
+
+    <li> 2019-08-23
     <li style="list-style-type:none">
         <ul>
             <li>Front page layout</li>
@@ -439,8 +458,8 @@
             <li>Fixed bug when changing managed by</li>
         </ul>
     </li>
-    <li>
-        2019-08-22
+
+    <li> 2019-08-22
     <li style="list-style-type:none">
         <ul>
             <li>Moved changelog to menu</li>
@@ -449,8 +468,8 @@
             <li>Fixed bug with case number in Onedrive form</li>
         </ul>
     </li>
-    <li>
-        2019-08-21
+
+    <li> 2019-08-21
     <li style="list-style-type:none">
         <ul>
             <li>Added basic info to description on create the new IR or SR form</li>
@@ -459,31 +478,31 @@
             <li>Users can now be found by seaching for thier AAUID</li>
         </ul>
     </li>
-    <li>
-        2019-08-20
+
+    <li> 2019-08-20
     <li style="list-style-type:none">
         <ul>
             <li>WebMgmt does now always show the non obsolete computer object from SCCM, when the computer have been reinstalled</li>
         </ul>
     </li>
-    <li>
-        2019-08-19
+
+    <li> 2019-08-19
     <li style="list-style-type:none">
         <ul>
             <li>Added popup for Internet Explorer users, because Internet Explorer is not supported by WebMgmt</li>
             <li>Added buttons under task for computer for adding the computer to the Administrativ10 PC or AAU10 PC group if it is not in any of them</li>
         </ul>
     </li>
-    <li>
-        2019-08-16
+
+    <li> 2019-08-16
     <li style="list-style-type:none">
         <ul>
             <li>Added a button for removing a computer from AD under Tasks</li>
             <li>Removed Defendpoint challenge</li>
         </ul>
     </li>
-    <li>
-        2019-08-15
+
+    <li> 2019-08-15
     <li style="list-style-type:none">
         <ul>
             <li>Better error messages for some taks</li>
@@ -492,8 +511,8 @@
             <li>Added a warnings for the computers in the Computer Information tab for User, when the user uses Onedrive and the computer does not</li>
         </ul>
     </li>
-    <li>
-        2019-08-13
+
+    <li> 2019-08-13
     <li style="list-style-type:none">
         <ul>
             <li>Added button under User -> Task for adding user and computer to Onedrive groups</li>
@@ -501,8 +520,8 @@
             <li>Calendar tab now shows current availability</li>
         </ul>
     </li>
-    <li>
-        2019-08-12
+
+    <li> 2019-08-12
     <li style="list-style-type:none">
         <ul>
             <li>Get password button works now </li>
@@ -511,31 +530,31 @@
             <li>Fixed a bug were the user/computer changed before pressing search</li>
         </ul>
     </li>
-    <li>
-        2019-08-07
+
+    <li> 2019-08-07
     <li style="list-style-type:none">
         <ul>
             <li>Fixed a bug when a new SR where created from WebMgmt </li>
             <li>Added a tab uder User to quickly create a SR for upgrading from Windows 7 to 10 </li>
         </ul>
     </li>
-    <li>
-        2019-08-05
+
+    <li> 2019-08-05
     <li style="list-style-type:none">
         <ul>
             <li>Added field that shows if a computer uses Onedrive</li>
         </ul>
     </li>
-    <li>
-        2019-06-27
+
+    <li> 2019-06-27
     <li style="list-style-type:none">
         <ul>
             <li>Added field that shows if a user uses Onedrive</li>
             <li>Fixed AAURedirector</li>
         </ul>
     </li>
-    <li>
-        2019-06-26
+
+    <li> 2019-06-26
     <li style="list-style-type:none">
         <ul>
             <li>Added AAU icon</li>
@@ -543,8 +562,8 @@
             <li>Fixed a bug that made it crash when searching for users or computers that does not exist</li>
         </ul>
     </li>
-    <li>
-        2019-06-21
+
+    <li> 2019-06-21
     <li style="list-style-type:none">
         <ul>
             <li>Fixed crash when searching for a computer or user that does not exist</li>
@@ -552,8 +571,8 @@
             <li>Task button have now been tested and are ready for use</li>
         </ul>
     </li>
-    <li>
-        2019-06-13
+
+    <li> 2019-06-13
     <li style="list-style-type:none">
         <ul>
             <li>WebMgmt 2.0 is now open for beta test</li>
@@ -568,8 +587,8 @@
             </li>
         </ul>
     </li>
-    <li>
-        2019-06-03
+
+    <li> 2019-06-03
     <li style="list-style-type:none">
         <ul>
             <li>New backend for WebMgmt</li>
@@ -577,29 +596,29 @@
             <li>Tabs now load individually for faster load times</li>
         </ul>
     </li>
-    <li>
-        2019-03-05
+
+    <li> 2019-03-05
     <li style="list-style-type:none">
         <ul>
             <li>Added fileshare view</li>
         </ul>
     </li>
-    <li>
-        2019-03-04
+
+    <li> 2019-03-04
     <li style="list-style-type:none">
         <ul>
             <li>Now UserInfo searches on proxyAddress and UPN</li>
         </ul>
     </li>
-    <li>
-        2019-02-27
+
+    <li> 2019-02-27
     <li style="list-style-type:none">
         <ul>
             <li>Managed By can now be set on computers from webmgmt</li>
         </ul>
     </li>
-    <li>
-        2019-02-01
+
+    <li> 2019-02-01
     <li style="list-style-type:none">
         <ul>
             <li>Inventory details added for computer</li>

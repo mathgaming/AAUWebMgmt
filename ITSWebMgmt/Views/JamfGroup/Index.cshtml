@@ -1,4 +1,9 @@
 @model ITSWebMgmt.Models.AdvancedComputerSearchList
+
+@{ 
+    ViewData["Title"] = "Jamf email list creator";
+} 
+
 <script>
     function download(filename, text) {
         var element = document.createElement('a');
@@ -30,7 +35,7 @@
         });
     }
 </script>
-<h1>Jamf email list creator</h1>
+<h1>@ViewData["Title"]</h1>
 <p>Press a group to get the email list</p>
 @foreach (var search in Model.advanced_computer_searches)
 {
